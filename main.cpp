@@ -34,6 +34,7 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 
 //自作エンジンに向けたクラス
 #include "Input.h"
+#include "WinApp.h"
 
 struct Vector2
 {
@@ -250,6 +251,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 
 	D3DResourceLeakChecker leakCheck;
+
+	///===================================================================
+	///
+	///ポインタ置き場
+	///
+	///===================================================================
+
+	//ウィンドウアプリケーションの初期化
+	WinApp* winApp = new WinApp();
+	winApp->Initialize();
+
 
 	///===================================================================
 	///COMの初期化
@@ -1493,6 +1505,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 
 	//解放処理
+	delete winApp;
 	delete input;
 
 
