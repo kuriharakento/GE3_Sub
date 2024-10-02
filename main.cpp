@@ -1212,7 +1212,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///===================================================================
 
 	Input* input = new Input();
-	input->Initialize();
+	input->Initialize(wc.hInstance,hwnd);
 
 	///===================================================================
 	///

@@ -17,8 +17,28 @@ public: //メンバ関数
 	//更新
 	void Update();
 
+	/// \brief キーの押下をチェック
+	/// \param keyNumber キー番号
+	/// \return 押されているか
+	bool PushKey(BYTE keyNumber);
+
+	/// \brief キーのトリガーをチェック
+	/// \param keyNumber キー番号
+	/// \return トリガーか
+	bool TriggerKey(BYTE keyNumber);
+
 private: //メンバ変数
 	//キーボードデバイス
-	ComPtr<IDirectInputDevice8> keyboard;
+	ComPtr<IDirectInputDevice8> keyboard_;
+
+	//DirectInputのインスタンス
+	ComPtr<IDirectInput8> directInput_;
+
+	//全キーの入力情報を取得する
+	BYTE key_[256] = {};
+
+	//前回の全キーの状態
+	BYTE keyPre_[256] = {};
+
 };
 
