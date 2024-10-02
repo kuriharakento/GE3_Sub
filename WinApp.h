@@ -11,10 +11,11 @@ public: //静的メンバ関数
 public: //メンバ関数
 	//初期化
 	void Initialize();
-	//更新
-	void Update();
 	//ウィンドウの終了
 	void Finalize();
+
+	//メッセージ処理
+	bool ProcessMessage();
 
 public: //アクセッサ
 	//ウィンドウハンドルの取得
