@@ -32,6 +32,9 @@
 #include "externals/imgui/imgui_impl_win32.h"
 extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+//自作エンジンに向けたクラス
+#include "Input.h"
+
 struct Vector2
 {
 	float x;
@@ -1204,6 +1207,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	bool useMonsterBall = true;
 
+	///===================================================================
+	///入力の初期化
+	///===================================================================
+
+	Input* input = new Input();
+	input->Initialize();
 
 	///===================================================================
 	///
@@ -1236,6 +1245,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			///ゲームの処理		更新処理
 			///
 			///===================================================================
+
+
+			//===================================================
+			//入力
+			//===================================================
+
+			//入力の更新
+			input->Update();
 
 			//===================================================
 			//ImGui
@@ -1474,6 +1491,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		}
 	}
+
+	//解放処理
+	delete input;
+
 
 	//COMの終了処理
 	CoUninitialize();
