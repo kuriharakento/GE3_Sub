@@ -13,6 +13,8 @@ public: //メンバ関数
 	void Initialize();
 	//更新
 	void Update();
+	//ウィンドウの終了
+	void Finalize();
 
 public: //アクセッサ
 	//ウィンドウハンドルの取得

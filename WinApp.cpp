@@ -66,3 +66,10 @@ void WinApp::Initialize()
 	ShowWindow(hwnd_, SW_SHOW);
 
 }
+
+void WinApp::Finalize()
+{
+	//COMの終了処理
+	CloseWindow(hwnd_);
+	CoUninitialize();
+}
