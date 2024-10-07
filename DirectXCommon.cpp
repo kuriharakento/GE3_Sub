@@ -52,6 +52,132 @@ void DirectXCommon::Initialize(WinApp* winApp)
 	InitializeImGui();
 }
 
+void DirectXCommon::PreDraw()
+{
+	/*--------------[ バックバッファの番号取得 ]-----------------*/
+
+	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+
+	/*--------------[ リソースバリアで書き込み可能に変更 ]-----------------*/
+
+	//TransitionBarrierの設定
+	D3D12_RESOURCE_BARRIER barrier{};
+	//今回のバリアはTransition
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	//Noneにしておく
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	//バリアを張る対称のリソース。現在のバックバッファに対して行う
+	barrier.Transition.pResource = swapChainResources_[backBufferIndex].Get();
+	//遷移前（現在）のresourceState
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	//遷移後のResourceState
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	//transitionBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier);
+
+	/*--------------[ 描画先のRTVとDSVを指定する ]-----------------*/
+
+	//ディスクリプタの先頭を取得する
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
+
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, nullptr);
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
+
+	/*--------------[ 画面全体の色をクリア ]-----------------*/
+	float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };	//青っぽい色。RGBAの順
+	commandList_->ClearRenderTargetView(rtvHandles_[backBufferIndex], clearColor, 0, nullptr);
+
+	/*--------------[ 画面全体の深度をクリアする ]-----------------*/
+
+	commandList_->ClearDepthStencilView(
+		dsvHandle,
+		D3D12_CLEAR_FLAG_DEPTH,
+		1.0f,
+		0,
+		0,
+		nullptr
+	);
+
+	/*--------------[ SRV用のディスクリプタヒープを指定する ]-----------------*/
+
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeaps[] = { srvDescriptorHeap_ };
+	commandList_->SetDescriptorHeaps(1, descriptorHeaps->GetAddressOf());
+
+	/*--------------[ ビューポート領域の設定 ]-----------------*/
+	
+	commandList_->RSSetViewports(1, &viewport_);
+
+	/*--------------[ シザー矩形の設定 ]-----------------*/
+
+	commandList_->RSSetScissorRects(1, &scissorRect_);
+
+}
+
+void DirectXCommon::PostDraw()
+{
+	HRESULT hr;
+
+	/*--------------[ バックバッファの番号取得 ]-----------------*/
+
+	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+
+	/*--------------[ リソースバリアで表示状態に変更 ]-----------------*/
+
+	//TransitionBarrierの設定
+	D3D12_RESOURCE_BARRIER barrier{};
+	//今回のバリアはTransition
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	//Noneにしておく
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	//バリアを張る対称のリソース。現在のバックバッファに対して行う
+	barrier.Transition.pResource = swapChainResources_[backBufferIndex].Get();
+	//遷移前（現在）のresourceState
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	//遷移後のResourceState
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	//transitionBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier);
+
+	/*--------------[ グラフィックスコマンドをクローズ ]-----------------*/
+
+	//コマンドリストの内容を確定させる。すべてのコマンドを頼んでからCloseすること
+	hr = commandList_->Close();
+	assert(SUCCEEDED(hr));
+
+	/*--------------[ GPUコマンドの実行 ]-----------------*/
+
+	//GPU二コマンドリストの実行を行わせる
+	Microsoft::WRL::ComPtr<ID3D12CommandList> commandLists[] = { commandList_ };
+	commandQueue_->ExecuteCommandLists(1, commandLists->GetAddressOf());
+
+	/*--------------[ GPU画面の交換を通知 ]-----------------*/
+
+	//GPUとOSに画面の交換を行うように通知する
+	swapChain_->Present(1, 0);
+
+	/*--------------[ Fenceの値を更新 ]-----------------*/
+
+	//Fenceの値を更新
+	fenceValue++;
+
+	/*--------------[ コマンドキューにシグナルを送る ]-----------------*/
+
+
+
+	/*--------------[ コマンド完了待ち ]-----------------*/
+
+
+
+	/*--------------[ コマンドアロケータのリセット ]-----------------*/
+
+
+
+	/*--------------[ コマンドリストのリセット ]-----------------*/
+
+
+
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVCPUDescriptorHandle(uint32_t index)
 {
 	return GetCPUDescriptorHandle(srvDescriptorHeap_,descriptorSizeSRV_ , index);
@@ -314,15 +440,12 @@ void DirectXCommon::CreateRenderTargetView()
 
 	/*--------------[ RTVハンドルの要素数を２個に変更する ]-----------------*/
 
-	//RTVを2つ作るのでディスクリプタを２つ用意
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2]{};
-
 	for (int i = 0; i < 2; i++)
 	{
 		//RTVのハンドルを取得する
-		rtvHandles[i] = rtvStartHandle;
+		rtvHandles_[i] = rtvStartHandle;
 		//RTVを作る
-		device_->CreateRenderTargetView(swapChainResources[i].Get(), &rtvDesc, rtvHandles[i]);
+		device_->CreateRenderTargetView(swapChainResources[i].Get(), &rtvDesc, rtvHandles_[i]);
 	}
 
 }
@@ -349,7 +472,6 @@ void DirectXCommon::CreateFence()
 
 	/*--------------[ フェンスの生成 ]-----------------*/
 
-	uint64_t fenceValue = 0;
 	hr = device_->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
 	assert(SUCCEEDED(hr));
 }

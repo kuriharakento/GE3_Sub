@@ -16,6 +16,12 @@ public: //メンバ関数
 	//初期化
 	void Initialize(WinApp *winApp);
 
+	//描画前処理
+	void PreDraw();
+
+	//描画後処理
+	void PostDraw();
+
 	/// \brief SRVのCPUディスクリプタハンドルを取得する
 	/// \param index 
 	/// \return 
@@ -103,6 +109,9 @@ private: //メンバ変数
 	//DSV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
 
+	//RTVを2つ作るのでディスクリプタを２つ用意
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
+
 	//ディスクリプタサイズ
 	uint32_t descriptorSizeSRV_;
 	uint32_t descriptorSizeRTV_;
@@ -110,6 +119,7 @@ private: //メンバ変数
 
 	//フェンス
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
+	uint64_t fenceValue_ = 0;
 
 	//ビューポート
 	D3D12_VIEWPORT viewport_{};
