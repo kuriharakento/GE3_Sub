@@ -472,7 +472,7 @@ void DirectXCommon::CreateFence()
 
 	/*--------------[ フェンスの生成 ]-----------------*/
 
-	hr = device_->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
+	hr = device_->CreateFence(fenceValue_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
 	assert(SUCCEEDED(hr));
 }
 
