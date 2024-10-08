@@ -32,6 +32,33 @@ public: //メンバ関数
 	/// \return 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
 
+public://アクセッサ
+	/// \brief デバイスの取得
+	/// \return 
+	ID3D12Device* GetDevice() { return device_.Get(); }
+
+	//コマンドリストの取得
+	ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }
+
+	//DXCコンパイラの取得
+	IDxcCompiler3* GetDXCCompiler() { return dxcCompiler_.Get(); }
+
+	//DXCユーティリティの取得
+	IDxcUtils* GetDXCUtils() { return dxcUtils_.Get(); }
+
+	//インクルードハンドラの取得
+	IDxcIncludeHandler* GetIncludeHandler() { return includeHandler_.Get(); }
+
+	//各種ディスクリプヒープの取得
+	ID3D12DescriptorHeap* GetRTVDescriptorHeap() { return rtvDescriptorHeap_.Get(); }
+	ID3D12DescriptorHeap* GetSRVDescriptorHeap() { return srvDescriptorHeap_.Get(); }
+	ID3D12DescriptorHeap* GetDSVDescriptorHeap() { return dsvDescriptorHeap_.Get(); }
+
+	//各種ディスクリプタサイズの取得
+	uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }
+	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
+	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
+
 private: //メンバ関数
 	/// \brief デバイスの初期化
 	void InitializeDevice();
@@ -120,13 +147,13 @@ private: //メンバ変数
 	//フェンス
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
 	uint64_t fenceValue_ = 0;
+	HANDLE fenceEvent_;
 
 	//ビューポート
 	D3D12_VIEWPORT viewport_{};
 
 	//シザー矩形
 	D3D12_RECT scissorRect_{};
-
 	
 	//DXCユーティリティ
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;
@@ -134,5 +161,8 @@ private: //メンバ変数
 	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_ = nullptr;
 	//インクルードハンドラ
 	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_ = nullptr;
+
+	//リソースバリア
+	D3D12_RESOURCE_BARRIER barrier_{};
 };
 
