@@ -3,9 +3,11 @@
 #include <d3d12.h>
 #include <dxcapi.h>
 #include <dxgi1_6.h>
+#include <string>
 #include <wrl.h>
 
 #include "WinApp.h"
+#include "externals/DirectXTex/DirectXTex.h"
 
 /*--------------[  ]-----------------*/
 
@@ -102,6 +104,23 @@ private: //メンバ関数
 	/// \param index 
 	/// \return 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
+
+	/// \brief シェーダーのコンパイル
+	/// \param filePath 
+	/// \param profile 
+	/// \return 
+	Microsoft::WRL::ComPtr<IDxcBlob> CompileSharder(const std::wstring& filePath, const wchar_t* profile);
+
+	/// \brief バッファリソースの生成
+	/// \param sizeInBytes 
+	/// \return 
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(size_t sizeInBytes);
+
+	/// \brief テクスチャリソースの生成
+	/// \param metadata 
+	/// \return 
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
+
 
 
 private: //メンバ変数

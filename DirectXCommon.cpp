@@ -25,7 +25,7 @@ void DirectXCommon::Initialize(WinApp* winApp)
 	winApp_ = winApp;
 
 	/*--------------[ 初期化 ]-----------------*/
-	
+
 	//デバイスの初期化
 	InitializeDevice();
 	//コマンド関連の初期化
@@ -102,7 +102,7 @@ void DirectXCommon::PreDraw()
 	commandList_->SetDescriptorHeaps(1, descriptorHeaps->GetAddressOf());
 
 	/*--------------[ ビューポート領域の設定 ]-----------------*/
-	
+
 	commandList_->RSSetViewports(1, &viewport_);
 
 	/*--------------[ シザー矩形の設定 ]-----------------*/
@@ -190,7 +190,7 @@ void DirectXCommon::PostDraw()
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVCPUDescriptorHandle(uint32_t index)
 {
-	return GetCPUDescriptorHandle(srvDescriptorHeap_,descriptorSizeSRV_ , index);
+	return GetCPUDescriptorHandle(srvDescriptorHeap_, descriptorSizeSRV_, index);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DirectXCommon::GetSRVGPUDescriptorHandle(uint32_t index)
@@ -524,7 +524,7 @@ void DirectXCommon::InitializeDXCCompiler()
 	/*--------------[ デフォルトインクルードハンドラの生成 ]-----------------*/
 
 	//現時点でincludeはしないが、includeに対応するための設定を行っておく
-	hr = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);	
+	hr = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
 	assert(SUCCEEDED(hr));
 }
 
@@ -561,7 +561,7 @@ void DirectXCommon::InitializeImGui()
 }
 
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor,
-                                                                                 bool shaderVisible)
+	bool shaderVisible)
 {
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
@@ -584,5 +584,139 @@ D3D12_GPU_DESCRIPTOR_HANDLE DirectXCommon::GetGPUDescriptorHandle(Microsoft::WRL
 	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	handleGPU.ptr += (descriptorSize * index);
 	return handleGPU;
+}
+
+Microsoft::WRL::ComPtr<IDxcBlob> DirectXCommon::CompileSharder(const std::wstring& filePath, const wchar_t* profile)
+{
+	///===================================================================
+	///1.hlslファイルを読む
+	///===================================================================
+
+	//これからシェーダーをコンパイルする旨をログに出す
+	Logger::Log(StringUtility::ConvertString(std::format(L"Begin CompileSharder, path:{}, profile:{}\n", filePath, profile)));
+	//hlslファイルを読む
+	IDxcBlobEncoding* shaderSource = nullptr;
+	HRESULT hr = dxcUtils_->LoadFile(filePath.c_str(), nullptr, &shaderSource);
+	//読めなかったら止める
+	assert(SUCCEEDED(hr));
+	//読み込んだファイルの内容を設定する
+	DxcBuffer shaderSourceBuffer;
+	shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
+	shaderSourceBuffer.Size = shaderSource->GetBufferSize();
+	shaderSourceBuffer.Encoding = DXC_CP_UTF8;		//UTF8の文字コードであることを通知
+
+	///===================================================================
+	///2.コンパイルする
+	///===================================================================
+
+	LPCWSTR arguments[] = {
+		filePath.c_str(),				//コンパイル対称のhlslファイル名
+		L"-E", L"main",					//エントリーポイントの指定。基本的にmain以外にはしない
+		L"-T", profile,					//Sharderprofileの設定
+		L"-Zi", L"-Qembed_debug",		//デバッグ用の情報を埋め込む
+		L"-Od",							//最適化を外しておく
+		L"-Zpr",						//メモリレイアウトは行優先
+	};
+
+	//実際にシェーダーをコンパイルする
+	IDxcResult* shaderResult = nullptr;
+	hr = dxcCompiler_->Compile(
+		&shaderSourceBuffer,
+		arguments,
+		_countof(arguments),
+		includeHandler_.Get(),
+		IID_PPV_ARGS(&shaderResult)
+	);
+	//コンパイルエラーではなくdxcで起動できないなど致命的な状況
+	assert(SUCCEEDED(hr));
+
+
+	///===================================================================
+	///3.警告・エラーが出ていないか確認する
+	///===================================================================
+
+	//警告・エラーが出てたらログに出して止める
+	IDxcBlobUtf8* shaderError = nullptr;
+	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
+	if (shaderError != nullptr && shaderError->GetStringLength() != 0)
+	{
+		Logger::Log(shaderError->GetStringPointer());
+		//警告・エラーダメ絶対
+		assert(SUCCEEDED(false));
+	}
+
+
+	///===================================================================
+	///4.コンパイル結果を受け取って返す
+	///===================================================================
+
+	//コンパイル結果から実行用のバイナリ部分を取得
+	IDxcBlob* shaderBlob = nullptr;
+	hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
+	assert(SUCCEEDED(hr));
+	//成功したログを出す
+	Logger::Log(StringUtility::ConvertString(std::format(L"Compile Succeeded, path:{}, profile:{}\n", filePath, profile)));
+	//もう使わないリソースを解放
+	shaderSource->Release();
+	shaderResult->Release();
+	//実行用のバイナリを返却
+	return shaderBlob;
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> DirectXCommon::CreateBufferResource(size_t sizeInBytes)
+{
+	Microsoft::WRL::ComPtr<ID3D12Resource> bufferResource = nullptr;
+	//頂点リソース用のヒープ設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC bufferResourceDesc{};
+	//バッファリソース。テクスチャの場合はまた別の設定をする
+	bufferResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	bufferResourceDesc.Width = sizeInBytes;
+	//バッファの場合はこれらは１にする決まり
+	bufferResourceDesc.Height = 1;
+	bufferResourceDesc.DepthOrArraySize = 1;
+	bufferResourceDesc.MipLevels = 1;
+	bufferResourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする決まり
+	bufferResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	HRESULT hr = device_->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&bufferResource));
+	assert(SUCCEEDED(hr));
+
+	return bufferResource;
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(const DirectX::TexMetadata& metadata)
+{
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Width = UINT(metadata.width);									//Textureの幅
+	resourceDesc.Height = UINT(metadata.height);								//Textureの高さ
+	resourceDesc.MipLevels = UINT(metadata.mipLevels);							//mipmapの数
+	resourceDesc.DepthOrArraySize = UINT(metadata.arraySize);					//奥行き or 配列Textureの配列数
+	resourceDesc.Format = metadata.format;										//TextureのFormat
+	resourceDesc.SampleDesc.Count = 1;											//サンプリングカウント。１固定
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);		//Textureの次元数。普段使っているのは２次元
+
+	//利用するHeapの設定。非常に特殊な運用。02_04exで一般的なケース版がある
+	D3D12_HEAP_PROPERTIES heapProperties{};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;								//細かい設定を行う
+
+	//resourceの生成
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
+	HRESULT hr = device_->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&resourceDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
+
+	return resource;
+
+
 }
 
