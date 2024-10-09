@@ -40,24 +40,9 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 #include "WinApp.h"
 #include "DirectXCommon.h"
 
-struct Vector2
-{
-	float x;
-	float y;
-};
-struct Vector3
-{
-	float x;
-	float y;
-	float z;
-};
-struct Vector4
-{
-	float x;
-	float y;
-	float z;
-	float w;
-};
+//数学
+#include "VectorFunc.h"
+
 
 struct Matrix3x3
 {
@@ -431,28 +416,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	assert(SUCCEEDED(hr));
 
 
-	///===================================================================
-	///VertexResourceを生成する
-	///===================================================================
-
-	//ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * 1536);
-
+	
 	//スプライト用の頂点リソースを作る
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResourceSprite = CreateBufferResource(dxCommon->GetDevice(), sizeof(VertexData) * 4);
 
 
-	///===================================================================
-	///VertexBufferViewを作成する
-	///===================================================================
-
-	////頂点バッファビューを作成する
-	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-	////リソースの先頭アドレスから使う
-	//vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	////使用するリソースのサイズは頂点３つ分のサイズ
-	//vertexBufferView.SizeInBytes = sizeof(VertexData) * 1536;
-	////1頂点当たりのサイズ
-	//vertexBufferView.StrideInBytes = sizeof(VertexData);
+	
 
 
 	/*     スプライト     */
@@ -488,14 +457,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///Resourceにデータを書き込む
 	///===================================================================
 
-	////頂点リソースにデータを書き込む
-	//VertexData* vertexData = nullptr;
-	////書き込むためのアドレス取得
-	//vertexResource->Map(
-	//	0,
-	//	nullptr,
-	//	reinterpret_cast<void**>(&vertexData)
-	//);
+	
 
 	////左下
 	//vertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };

@@ -35,6 +35,28 @@ public: //メンバ関数
 	/// \return 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
 
+	/// \brief バッファリソースの生成
+	/// \param sizeInBytes 
+	/// \return 
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(size_t sizeInBytes);
+
+	/// \brief テクスチャリソースの生成
+	/// \param metadata 
+	/// \return 
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
+
+	/// \brief テクスチャリソースの転送
+	/// \param texture 
+	/// \param mipImages 
+	/// \return 
+	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
+
+	/// \brief テクスチャファイルの読み込み
+	/// \param filePath 
+	/// \return 
+	DirectX::ScratchImage LoadTexture(const std::string& filePath);
+
+
 public://アクセッサ
 	/// \brief デバイスの取得
 	/// \return 
@@ -116,27 +138,7 @@ private: //メンバ関数
 	/// \return 
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileSharder(const std::wstring& filePath, const wchar_t* profile);
 
-	/// \brief バッファリソースの生成
-	/// \param sizeInBytes 
-	/// \return 
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(size_t sizeInBytes);
-
-	/// \brief テクスチャリソースの生成
-	/// \param metadata 
-	/// \return 
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
-
-	/// \brief テクスチャリソースの転送
-	/// \param texture 
-	/// \param mipImages 
-	/// \return 
-	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
-
-	/// \brief テクスチャファイルの読み込み
-	/// \param filePath 
-	/// \return 
-	DirectX::ScratchImage LoadTexture(const std::string& filePath);
-
+	
 private: //メンバ変数
 	//WindowsAPIの
 	WinApp* winApp_ = nullptr;
