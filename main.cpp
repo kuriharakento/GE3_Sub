@@ -323,7 +323,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		assert(false);
 	}
 	//バイナリをもとに生成
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+	
 	hr = dxCommon->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(hr));
 
@@ -426,7 +426,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	//実際に生成
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState = nullptr;
+
 	hr = dxCommon->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
 	assert(SUCCEEDED(hr));
 
@@ -1026,6 +1026,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//描画前処理
 		dxCommon->PreDraw();
 
+		//スプライトの描画準備。共通の設定を行う
+		spriteCommon->CommonRenderingSetting();
 		
 		//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 		dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
