@@ -26,6 +26,8 @@
 #include <dxcapi.h>
 #pragma comment(lib,"dxcompiler.lib")
 
+#include "Sprite.h"
+#include "SpriteCommon.h"
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
@@ -247,6 +249,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectXCommon* dxCommon = new DirectXCommon();
 	dxCommon->Initialize(winApp);
 
+	//スプライト共通部の初期化
+	SpriteCommon* spriteCommon = new SpriteCommon();
+	spriteCommon->Initialize();
+
+	
 
 	///===================================================================
 	///ディスクリプタレンジの生成
@@ -862,18 +869,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//SRVの生成
 	dxCommon->GetDevice()->CreateShaderResourceView(textureResource2.Get(), &srvDesc2, textureSrvHandleCPU2);
 
+	
+
+	///===================================================================
+	///シーンの初期化
+	///===================================================================
+
+	//入力の初期化
+	Input* input = new Input();
+	input->Initialize(winApp);
+
+	//スプライトの初期化
+	Sprite* sprite = new Sprite();
+	sprite->Initialize();
+
 	///===================================================================
 	///変数
 	///===================================================================
 
 	bool useMonsterBall = true;
-
-	///===================================================================
-	///入力の初期化
-	///===================================================================
-
-	Input* input = new Input();
-	input->Initialize(winApp);
 
 	///===================================================================
 	///
@@ -1079,7 +1093,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	winApp->Finalize();
 	delete winApp;
 	delete dxCommon;
+	delete spriteCommon;
 	delete input;
+	delete sprite;
 
 
 
