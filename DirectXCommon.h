@@ -121,7 +121,16 @@ private: //メンバ関数
 	/// \return 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
 
+	/// \brief テクスチャリソースの転送
+	/// \param texture 
+	/// \param mipImages 
+	/// \return 
+	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
 
+	/// \brief テクスチャファイルの読み込み
+	/// \param filePath 
+	/// \return 
+	DirectX::ScratchImage LoadTexture(const std::string& filePath);
 
 private: //メンバ変数
 	//WindowsAPIの

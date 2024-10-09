@@ -1134,6 +1134,109 @@ std::string ConvertString(const std::wstring& str) {
 	return result;
 }
 
+IDxcBlob* CompileSharder(const std::wstring& filePath, const wchar_t* profile, IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler)
+{
+	///===================================================================
+	///1.hlslファイルを読む
+	///===================================================================
+
+	//これからシェーダーをコンパイルする旨をログに出す
+	Log(ConvertString(std::format(L"Begin CompileSharder, path:{}, profile:{}\n", filePath, profile)));
+	//hlslファイルを読む
+	IDxcBlobEncoding* shaderSource = nullptr;
+	HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
+	//読めなかったら止める
+	assert(SUCCEEDED(hr));
+	//読み込んだファイルの内容を設定する
+	DxcBuffer shaderSourceBuffer;
+	shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
+	shaderSourceBuffer.Size = shaderSource->GetBufferSize();
+	shaderSourceBuffer.Encoding = DXC_CP_UTF8;		//UTF8の文字コードであることを通知
+
+	///===================================================================
+	///2.コンパイルする
+	///===================================================================
+
+	LPCWSTR arguments[] = {
+		filePath.c_str(),				//コンパイル対称のhlslファイル名
+		L"-E", L"main",					//エントリーポイントの指定。基本的にmain以外にはしない
+		L"-T", profile,					//Sharderprofileの設定
+		L"-Zi", L"-Qembed_debug",		//デバッグ用の情報を埋め込む
+		L"-Od",							//最適化を外しておく
+		L"-Zpr",						//メモリレイアウトは行優先
+	};
+
+	//実際にシェーダーをコンパイルする
+	IDxcResult* shaderResult = nullptr;
+	hr = dxcCompiler->Compile(
+		&shaderSourceBuffer,
+		arguments,
+		_countof(arguments),
+		includeHandler,
+		IID_PPV_ARGS(&shaderResult)
+	);
+	//コンパイルエラーではなくdxcで起動できないなど致命的な状況
+	assert(SUCCEEDED(hr));
+
+
+	///===================================================================
+	///3.警告・エラーが出ていないか確認する
+	///===================================================================
+
+	//警告・エラーが出てたらログに出して止める
+	IDxcBlobUtf8* shaderError = nullptr;
+	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
+	if (shaderError != nullptr && shaderError->GetStringLength() != 0)
+	{
+		Log(shaderError->GetStringPointer());
+		//警告・エラーダメ絶対
+		assert(SUCCEEDED(false));
+	}
+
+
+	///===================================================================
+	///4.コンパイル結果を受け取って返す
+	///===================================================================
+
+	//コンパイル結果から実行用のバイナリ部分を取得
+	IDxcBlob* shaderBlob = nullptr;
+	hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
+	assert(SUCCEEDED(hr));
+	//成功したログを出す
+	Log(ConvertString(std::format(L"Compile Succeeded, path:{}, profile:{}\n", filePath, profile)));
+	//もう使わないリソースを解放
+	shaderSource->Release();
+	shaderResult->Release();
+	//実行用のバイナリを返却
+	return shaderBlob;
+
+
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes)
+{
+	Microsoft::WRL::ComPtr<ID3D12Resource> bufferResource = nullptr;
+	//頂点リソース用のヒープ設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC bufferResourceDesc{};
+	//バッファリソース。テクスチャの場合はまた別の設定をする
+	bufferResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	bufferResourceDesc.Width = sizeInBytes;
+	//バッファの場合はこれらは１にする決まり
+	bufferResourceDesc.Height = 1;
+	bufferResourceDesc.DepthOrArraySize = 1;
+	bufferResourceDesc.MipLevels = 1;
+	bufferResourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする決まり
+	bufferResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	HRESULT hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&bufferResource));
+	assert(SUCCEEDED(hr));
+
+	return bufferResource;
+}
 
 
 Matrix4x4 MakeIdentity4x4()
