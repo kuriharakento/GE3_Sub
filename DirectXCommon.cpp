@@ -9,6 +9,8 @@
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
+#include <thread>
+
 #include "externals/DirectXTex/d3dx12.h"
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -26,7 +28,8 @@ void DirectXCommon::Initialize(WinApp* winApp)
 	winApp_ = winApp;
 
 	/*--------------[ 初期化 ]-----------------*/
-
+	//FPS固定初期化
+	InitializeFixFPS();
 	//デバイスの初期化
 	InitializeDevice();
 	//コマンド関連の初期化
@@ -169,11 +172,17 @@ void DirectXCommon::PostDraw()
 	//GetCompleteValueの初期値はFence制作時に渡した初期値
 	if (fence_->GetCompletedValue() < fenceValue_)
 	{
+		HANDLE fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		//指定したSignalにたどり着いていないので、たどり着くまで待つようにイベントを設定する
-		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+		fence_->SetEventOnCompletion(fenceValue_, fenceEvent);
 		//イベントを待つ
-		WaitForSingleObject(fenceEvent_, INFINITE);
+		WaitForSingleObject(fenceEvent, INFINITE);
+		CloseHandle(fenceEvent);
 	}
+
+	/*--------------[ FPS固定 ]-----------------*/
+
+	UpdateFixFPS();
 
 	/*--------------[ コマンドアロケータのリセット ]-----------------*/
 
@@ -481,9 +490,9 @@ void DirectXCommon::CreateFence()
 	hr = device_->CreateFence(fenceValue_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
 	assert(SUCCEEDED(hr));
 
-	//FenceのSignalを待つためのイベントを作成する
-	fenceEvent_ = CreateEvent(NULL, FALSE, FALSE, NULL);
-	assert(fenceEvent_ != nullptr);
+	////FenceのSignalを待つためのイベントを作成する
+	//fenceEvent_ = CreateEvent(NULL, FALSE, FALSE, NULL);
+	//assert(fenceEvent_ != nullptr);
 }
 
 void DirectXCommon::InitializeViewPort()
@@ -560,8 +569,41 @@ void DirectXCommon::InitializeImGui()
 	);
 }
 
+void DirectXCommon::InitializeFixFPS()
+{
+	//現在時間を記録する
+	reference_ = std::chrono::steady_clock::now();
+}
+
+void DirectXCommon::UpdateFixFPS()
+{
+	// 1//60秒ぴったりの時間
+	const std::chrono::microseconds kMinTime(uint64_t(1000000.0f / 60.0f));
+	// 1/60秒よりわずかに短い時間
+	const std::chrono::microseconds kMinCheckTime(uint64_t(1000000.0f / 65.0f));
+
+	//現在時間を取得
+	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+	//前回記録からの経過時間を取得する
+	std::chrono::microseconds elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - reference_);
+
+	// 1/60(よりわずかに短い時間) 経っていない場合
+	if(elapsed < kMinCheckTime)
+	{
+		// 1/60秒経過するまで微小なスリープを繰り返す
+		while(std::chrono::steady_clock::now() - reference_ < kMinTime)
+		{
+			//1マイクロ秒スリープ
+			std::this_thread::sleep_for(std::chrono::microseconds(1));
+		}
+	}
+	//現在時間の記録をする
+	reference_ = std::chrono::steady_clock::now();
+
+}
+
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor,
-	bool shaderVisible)
+                                                                                 bool shaderVisible)
 {
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};

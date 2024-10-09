@@ -3,6 +3,7 @@
 #include "externals/imgui/imgui.h"
 extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+#pragma comment(lib,"winmm.lib")
 
 LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -24,6 +25,9 @@ LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 void WinApp::Initialize()
 {
 	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+
+	//システムタイマーの精度を上げる
+	timeBeginPeriod(1);
 
 	///===================================================================
 	///ウィンドウを表示

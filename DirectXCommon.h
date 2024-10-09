@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <chrono>
 #include <d3d12.h>
 #include <dxcapi.h>
 #include <dxgi1_6.h>
@@ -86,6 +87,10 @@ private: //メンバ関数
 	void InitializeDXCCompiler();
 	//ImGuiの初期化
 	void InitializeImGui();
+	/// \brief FPS固定初期化
+	void InitializeFixFPS();
+	/// \brief FPS固定更新
+	void UpdateFixFPS();
 
 
 	//ディスクリプタヒープの生成
@@ -175,7 +180,7 @@ private: //メンバ変数
 	//フェンス
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
 	uint64_t fenceValue_ = 0;
-	HANDLE fenceEvent_;
+	//HANDLE fenceEvent_;
 
 	//ビューポート
 	D3D12_VIEWPORT viewport_{};
@@ -192,5 +197,7 @@ private: //メンバ変数
 
 	//リソースバリア
 	D3D12_RESOURCE_BARRIER barrier_{};
+
+	std::chrono::steady_clock::time_point reference_;
 };
 
