@@ -5,12 +5,10 @@
 #include <DirectXMath.h>
 #include <format>
 #include <cmath>
-#include <numbers>
 #include <vector>
 #include <fstream>
 #include <sstream>
 #include <wrl.h>
-
 #include "externals/DirectXTex/d3dx12.h"
 #include "externals/DirectXTex/DirectXTex.h"
 
@@ -26,24 +24,23 @@
 #include <dxcapi.h>
 #pragma comment(lib,"dxcompiler.lib")
 
-#include "Sprite.h"
-#include "SpriteCommon.h"
+//ImGui
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
 extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-
-
 //自作エンジンに向けたクラス
 #include "Input.h"
 #include "WinApp.h"
 #include "DirectXCommon.h"
+#include "Sprite.h"
+#include "SpriteCommon.h"
+#include "StringUtility.h"
 
 //数学
 #include "VectorFunc.h"
 #include "MatrixFunc.h"
-
 
 struct DirectionalLight
 {
@@ -102,21 +99,6 @@ private:
 ///関数の宣言
 ///===================================================================
 
-void Log(const std::string& message);
-
-std::wstring ConvertString(const std::string& str);
-std::string ConvertString(const std::wstring& str);
-
-//CompileSharder関数	
-//DXCを使ってシェーダーをコンパイルするための関数
-/// \brief 
-/// \param filePath コンパイルするシェーダーファイルのパス
-/// \param profile コンパイラに使用するプロファイル
-/// \param dxcUtils 初期化で生成したもの3つ
-/// \param dxcCompiler 初期化で生成したもの3つ
-/// \param includeHandler 初期化で生成したもの3つ
-/// \return 
-IDxcBlob* CompileSharder(const std::wstring& filePath, const wchar_t* profile, IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler);
 
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes);
 
@@ -616,116 +598,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 }
 
 
-void Log(const std::string& message)
-{
-	OutputDebugStringA(message.c_str());
-}
-
-std::wstring ConvertString(const std::string& str) {
-	if (str.empty()) {
-		return std::wstring();
-	}
-
-	auto sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), NULL, 0);
-	if (sizeNeeded == 0) {
-		return std::wstring();
-	}
-	std::wstring result(sizeNeeded, 0);
-	MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), &result[0], sizeNeeded);
-	return result;
-}
-std::string ConvertString(const std::wstring& str) {
-	if (str.empty()) {
-		return std::string();
-	}
-
-	auto sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), NULL, 0, NULL, NULL);
-	if (sizeNeeded == 0) {
-		return std::string();
-	}
-	std::string result(sizeNeeded, 0);
-	WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), result.data(), sizeNeeded, NULL, NULL);
-	return result;
-}
-
-IDxcBlob* CompileSharder(const std::wstring& filePath, const wchar_t* profile, IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler)
-{
-	///===================================================================
-	///1.hlslファイルを読む
-	///===================================================================
-
-	//これからシェーダーをコンパイルする旨をログに出す
-	Log(ConvertString(std::format(L"Begin CompileSharder, path:{}, profile:{}\n", filePath, profile)));
-	//hlslファイルを読む
-	IDxcBlobEncoding* shaderSource = nullptr;
-	HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
-	//読めなかったら止める
-	assert(SUCCEEDED(hr));
-	//読み込んだファイルの内容を設定する
-	DxcBuffer shaderSourceBuffer;
-	shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
-	shaderSourceBuffer.Size = shaderSource->GetBufferSize();
-	shaderSourceBuffer.Encoding = DXC_CP_UTF8;		//UTF8の文字コードであることを通知
-
-	///===================================================================
-	///2.コンパイルする
-	///===================================================================
-
-	LPCWSTR arguments[] = {
-		filePath.c_str(),				//コンパイル対称のhlslファイル名
-		L"-E", L"main",					//エントリーポイントの指定。基本的にmain以外にはしない
-		L"-T", profile,					//Sharderprofileの設定
-		L"-Zi", L"-Qembed_debug",		//デバッグ用の情報を埋め込む
-		L"-Od",							//最適化を外しておく
-		L"-Zpr",						//メモリレイアウトは行優先
-	};
-
-	//実際にシェーダーをコンパイルする
-	IDxcResult* shaderResult = nullptr;
-	hr = dxcCompiler->Compile(
-		&shaderSourceBuffer,
-		arguments,
-		_countof(arguments),
-		includeHandler,
-		IID_PPV_ARGS(&shaderResult)
-	);
-	//コンパイルエラーではなくdxcで起動できないなど致命的な状況
-	assert(SUCCEEDED(hr));
-
-
-	///===================================================================
-	///3.警告・エラーが出ていないか確認する
-	///===================================================================
-
-	//警告・エラーが出てたらログに出して止める
-	IDxcBlobUtf8* shaderError = nullptr;
-	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
-	if (shaderError != nullptr && shaderError->GetStringLength() != 0)
-	{
-		Log(shaderError->GetStringPointer());
-		//警告・エラーダメ絶対
-		assert(SUCCEEDED(false));
-	}
-
-
-	///===================================================================
-	///4.コンパイル結果を受け取って返す
-	///===================================================================
-
-	//コンパイル結果から実行用のバイナリ部分を取得
-	IDxcBlob* shaderBlob = nullptr;
-	hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
-	assert(SUCCEEDED(hr));
-	//成功したログを出す
-	Log(ConvertString(std::format(L"Compile Succeeded, path:{}, profile:{}\n", filePath, profile)));
-	//もう使わないリソースを解放
-	shaderSource->Release();
-	shaderResult->Release();
-	//実行用のバイナリを返却
-	return shaderBlob;
-
-
-}
 
 Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes)
 {
@@ -757,7 +629,7 @@ DirectX::ScratchImage LoadTexture(const std::string& filePath)
 {
 	//テクスチャファイルを読んでプログラムで扱えるようにする
 	DirectX::ScratchImage image{};
-	std::wstring filePathW = ConvertString(filePath);
+	std::wstring filePathW = StringUtility::ConvertString(filePath);
 	HRESULT hr = DirectX::LoadFromWICFile(
 		filePathW.c_str(),
 		DirectX::WIC_FLAGS_FORCE_SRGB,
