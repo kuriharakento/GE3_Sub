@@ -13,20 +13,8 @@ class SpriteCommon;
 //スプライト
 class Sprite
 {
-public: //メンバ関数
-	/// \brief 初期化
-	void Initialize(SpriteCommon* spriteCommon);
 
-	/**
-	 * \brief 更新処理
-	 */
-	void Update();
-
-	/**
-	 * \brief 描画
-	 */
-	void Draw();
-
+public: //構造体
 	/**
 	 * \brief 頂点データ
 	 */
@@ -64,6 +52,20 @@ public: //メンバ関数
 		Vector3 rotate;
 		Vector3 translate;
 	};
+
+public: //メンバ関数
+	/// \brief 初期化
+	void Initialize(SpriteCommon* spriteCommon);
+
+	/**
+	 * \brief 更新処理
+	 */
+	void Update();
+
+	/**
+	 * \brief 描画
+	 */
+	void Draw();	
 
 private: //メンバ関数
 	/// \brief 頂点データ作成

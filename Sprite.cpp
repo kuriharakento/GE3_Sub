@@ -8,7 +8,6 @@ void Sprite::Initialize(SpriteCommon* spriteCommon)
 
 	//頂点データを作成する
 	CreateVertexData();
-
 }
 
 void Sprite::Update()
@@ -54,20 +53,32 @@ void Sprite::Update()
 
 void Sprite::Draw()
 {
-	//Spriteの描画。変更が必要なものだけ変更する
+	/*--------------[ VertexBufferViewを設定 ]-----------------*/
+
 	spriteCommon_->GetDXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	//IBVを設定
+
+	/*--------------[ IndexBufferViewを設定 ]-----------------*/
+
 	spriteCommon_->GetDXCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
-	//CBuffer
+
+	/*--------------[ マテリアルCBufferの場所を設定 ]-----------------*/
+
 	spriteCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
-	//TransformationMatrixCBufferの場所を設定
+	
+	/*--------------[ 座標変換行列CBufferの場所を設定 ]-----------------*/
+
 	spriteCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
-	//SRVのDescriptorTableの先頭を設定。2はrootPatameter[2]である。
+
+	/*--------------[ ShaderResourceViewの設定 ]-----------------*/
+
 	spriteCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, spriteCommon_->GetDXCommon()->GetSRVGPUDescriptorHandle(1));
+
+	/*--------------[ ライティングの設定。今はしない ]-----------------*/
 
 	//spriteCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 
-	//スプライトの描画(DrawCall//ドローコール)
+	/*--------------[ 描画(DrawCall//ドローコール) ]-----------------*/
+
 	spriteCommon_->GetDXCommon()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
