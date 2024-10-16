@@ -43,6 +43,8 @@ void Sprite::Update()
 		{0.0f,0.0f,0.0f}
 	};
 
+	transform.translate = { position_.x,position_.y,0.0f };
+
 	Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
 	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);

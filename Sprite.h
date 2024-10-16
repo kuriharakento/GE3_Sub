@@ -53,25 +53,11 @@ public: //構造体
 		Vector3 translate;
 	};
 
-public: //メンバ関数
-	/// \brief 初期化
-	void Initialize(SpriteCommon* spriteCommon);
-
-	/**
-	 * \brief 更新処理
-	 */
-	void Update();
-
-	/**
-	 * \brief 描画
-	 */
-	void Draw();	
-
 private: //メンバ関数
 	/// \brief 頂点データ作成
 	void CreateVertexData();
 
-private: //メンバ変数
+private: //描画関連
 	
 	SpriteCommon* spriteCommon_ = nullptr;
 
@@ -88,6 +74,32 @@ private: //メンバ変数
 	//バッファリソースの使い道を補足するバッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
+
+public: //メンバ関数
+	/// \brief 初期化
+	void Initialize(SpriteCommon* spriteCommon);
+
+	/**
+	 * \brief 更新処理
+	 */
+	void Update();
+
+	/**
+	 * \brief 描画
+	 */
+	void Draw();
+
+public: //アクセッサ
+	/// \brief 座標の取得
+	const Vector2& GetPosition() const { return position_; }
+	/// \brief 座標の設定
+	void SetPosition(const Vector2& position) { position_ = position; }
+
+private: //メンバ変数
+	//座標
+	Vector2 position_ = { 0.0f,0.0f };
+
+
 
 };
 

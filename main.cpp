@@ -42,6 +42,9 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 #include "VectorFunc.h"
 #include "MatrixFunc.h"
 
+//コードを整理するときに使う
+/*--------------[  ]-----------------*/
+
 struct DirectionalLight
 {
 	Vector4 color;
@@ -522,6 +525,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//===================================================
 
 		ImGui::Begin("Setting");
+		/*--------------[ スプライト ]-----------------*/
+
+		if(ImGui::CollapsingHeader("Sprite"))
+		{
+			//スプライトの位置
+			Vector2 position = sprite->GetPosition();
+			ImGui::DragFloat2("translate",&position.x,1.0f,-300.0f,300.0f);
+			sprite->SetPosition(position);
+		}
 
 		ImGui::End();
 		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
