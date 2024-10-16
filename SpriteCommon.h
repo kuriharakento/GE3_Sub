@@ -1,6 +1,6 @@
 #pragma once
 #include <d3d12.h>
-#include <wrl.h>>
+#include <wrl.h>
 
 #include "DirectXCommon.h"
 
@@ -28,9 +28,9 @@ private: //メンバ変数
 	DirectXCommon *dxCommon_ = nullptr;
 
 	//ルートシグネチャ
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_ = nullptr;
 	//グラフィックスパイプラインステート
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_ = nullptr;
 
 
 };

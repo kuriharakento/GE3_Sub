@@ -56,6 +56,12 @@ public: //メンバ関数
 	/// \return 
 	DirectX::ScratchImage LoadTexture(const std::string& filePath);
 
+	/// \brief シェーダーのコンパイル
+	/// \param filePath 
+	/// \param profile 
+	/// \return 
+	Microsoft::WRL::ComPtr<IDxcBlob> CompileSharder(const std::wstring& filePath, const wchar_t* profile);
+
 
 public://アクセッサ
 	/// \brief デバイスの取得
@@ -131,12 +137,6 @@ private: //メンバ関数
 	/// \param index 
 	/// \return 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
-
-	/// \brief シェーダーのコンパイル
-	/// \param filePath 
-	/// \param profile 
-	/// \return 
-	Microsoft::WRL::ComPtr<IDxcBlob> CompileSharder(const std::wstring& filePath, const wchar_t* profile);
 
 	
 private: //メンバ変数
