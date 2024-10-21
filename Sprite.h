@@ -76,7 +76,11 @@ private: //描画関連
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
 
 public: //メンバ関数
-	/// \brief 初期化
+
+	/**
+	 * \brief 初期化
+	 * \param spriteCommon 
+	 */
 	void Initialize(SpriteCommon* spriteCommon);
 
 	/**
@@ -90,16 +94,43 @@ public: //メンバ関数
 	void Draw();
 
 public: //アクセッサ
+	/*---------------[ ゲッター ]---------------*/
+	
 	/// \brief 座標の取得
 	const Vector2& GetPosition() const { return position_; }
+
+	//// \brief 回転の取得
+	float GetRotation() const { return rotation_; }
+
+	//// \brief 色の取得
+	const Vector4& GetColor() const { return materialData_->color; }
+
+	//// \brief サイズの取得
+	const Vector2& GetSize() const { return size_; }
+
+	/*---------------[ セッター ]---------------*/
+
 	/// \brief 座標の設定
 	void SetPosition(const Vector2& position) { position_ = position; }
+
+	/// \brief 回転の設定
+	void SetRotation(float rotation) { rotation_ = rotation; }
+
+	//// \brief 色の設定
+	void SetColor(const Vector4& color) { materialData_->color = color; }
+
+	///// \brief サイズの設定
+	void SetSize(const Vector2& size) { size_ = size; }
 
 private: //メンバ変数
 	//座標
 	Vector2 position_ = { 0.0f,0.0f };
 
+	//回転
+	float rotation_ = 0.0f;
 
+	//サイズ
+	Vector2 size_ = { 1.0f,1.0f };
 
 };
 

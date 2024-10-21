@@ -44,6 +44,8 @@ void Sprite::Update()
 	};
 
 	transform.translate = { position_.x,position_.y,0.0f };
+	transform.rotate = { 0.0f,0.0f,rotation_ };
+	transform.scale = { size_.x,size_.y,1.0f };
 
 	Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();

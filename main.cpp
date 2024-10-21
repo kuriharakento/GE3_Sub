@@ -459,15 +459,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Input* input = new Input();
 	input->Initialize(winApp);
 
-	//スプライトの初期化
-	Sprite* sprite = new Sprite();
-	sprite->Initialize(spriteCommon);
+	
 
 	///===================================================================
 	///変数
 	///===================================================================
 
 	bool useMonsterBall = true;
+
+	//スプライトの初期化
+	Sprite* sprite = new Sprite();
+	sprite->Initialize(spriteCommon);
+
+	//スプライト（複数）
+	std::vector<std::unique_ptr<Sprite>> sprites;
+	int spriteCount = 5;
+	for(int i = 0; i < spriteCount; ++i)
+	{
+		std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
+		sprite->Initialize(spriteCommon);
+		sprite->SetSize({ 0.2f,0.2f });
+		sprite->SetPosition({ 200.0f * i,0.0f });
+		sprites.push_back(std::move(sprite));
+	}
 
 	///===================================================================
 	///
@@ -519,11 +533,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//スプライトの更新
 		sprite->Update();
 
+		for(int i = 0; i < spriteCount; ++i)
+		{
+			sprites[i]->Update();
+		}
+
 
 		//===================================================
 		//ImGui
 		//===================================================
-
+#ifdef _DEBUG
 		ImGui::Begin("Setting");
 		/*--------------[ スプライト ]-----------------*/
 
@@ -531,11 +550,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			//スプライトの位置
 			Vector2 position = sprite->GetPosition();
-			ImGui::DragFloat2("translate",&position.x,1.0f,-300.0f,300.0f);
+			ImGui::DragFloat2("translate",&position.x,1.0f,-1280.0f,1280.0f);
 			sprite->SetPosition(position);
+			//スプライトの回転
+			float rotation = sprite->GetRotation();
+			ImGui::SliderAngle("rotate", &rotation, 0.0f, 360.0f);
+			sprite->SetRotation(rotation);
+			//スプライトの色
+			Vector4 color = sprite->GetColor();
+			ImGui::ColorEdit4("color", &color.x);
+			sprite->SetColor(color);
+			//スプライトのサイズ
+			Vector2 size = sprite->GetSize();
+			ImGui::DragFloat2("size", &size.x, 0.1f, 0.0f, 5.0f);
+			sprite->SetSize(size);
 		}
 
 		ImGui::End();
+
+#endif
 		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
 		ImGui::Render();
 
@@ -554,6 +587,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		spriteCommon->CommonRenderingSetting();
 
 		sprite->Draw();
+
+		for(int i = 0; i < spriteCount; ++i)
+		{
+			sprites[i]->Draw();
+		}
 
 
 		//3D描画
