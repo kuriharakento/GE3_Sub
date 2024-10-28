@@ -90,6 +90,10 @@ public://アクセッサ
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
 
+public:
+	//最大SRV数（最大テクスチャ枚数）
+	static const uint32_t kMaxSRVCount;
+
 private: //メンバ関数
 	/// \brief デバイスの初期化
 	void InitializeDevice();

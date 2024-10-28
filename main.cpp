@@ -25,6 +25,7 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 //ImGui
+
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
@@ -37,6 +38,7 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 #include "Sprite.h"
 #include "SpriteCommon.h"
 #include "StringUtility.h"
+#include "TextureManager.h"
 
 //数学
 #include "VectorFunc.h"
@@ -126,6 +128,11 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 //Materialファイルを読み込む
 MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
 
+///===================================================================
+///グローバル変数の宣言
+///===================================================================
+
+TextureManager* TextureManager::instance_ = nullptr;
 
 
 //Windowsアプリでのエントリーポイント(main関数)
@@ -147,6 +154,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//DirectXCoomonの初期化
 	DirectXCommon* dxCommon = new DirectXCommon();
 	dxCommon->Initialize(winApp);
+
+	//テクスチャマネージャーの初期化
+	TextureManager::GetInstance()->Initialize();
 
 	//スプライト共通部の初期化
 	SpriteCommon* spriteCommon = new SpriteCommon();
@@ -449,8 +459,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//SRVの生成
 	/*dxCommon->GetDevice()->CreateShaderResourceView(textureResource2.Get(), &srvDesc2, textureSrvHandleCPU2);*/
 
-	
-
 	///===================================================================
 	///シーンの初期化
 	///===================================================================
@@ -458,6 +466,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//入力の初期化
 	Input* input = new Input();
 	input->Initialize(winApp);
+
 
 	
 
@@ -625,6 +634,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//解放処理
 	winApp->Finalize();
 	delete winApp;
+	TextureManager::GetInstance()->Finalize();
 	delete dxCommon;
 	delete spriteCommon;
 	delete input;
