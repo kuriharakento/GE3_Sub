@@ -1,10 +1,14 @@
 #include "Sprite.h"
 #include "SpriteCommon.h"
+#include "TextureManager.h"
 
-void Sprite::Initialize(SpriteCommon* spriteCommon)
+void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 {
 	//引数で受け取ってメンバ変数に記録する
 	spriteCommon_ = spriteCommon;
+
+	//単位行列を書き込んでおく
+	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 
 	//頂点データを作成する
 	CreateVertexData();
@@ -75,7 +79,7 @@ void Sprite::Draw()
 
 	/*--------------[ ShaderResourceViewの設定 ]-----------------*/
 
-	spriteCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, spriteCommon_->GetDXCommon()->GetSRVGPUDescriptorHandle(1));
+	spriteCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureIndex_));
 
 	/*--------------[ ライティングの設定。今はしない ]-----------------*/
 
@@ -94,7 +98,7 @@ void Sprite::CreateVertexData()
 
 	/*--------------[ VertexResourceを作る ]-----------------*/
 	
-	vertexResource_ = spriteCommon_->GetDXCommon()->CreateBufferResource(sizeof(VertexData) * 1536);
+	vertexResource_ = spriteCommon_->GetDXCommon()->CreateBufferResource(sizeof(VertexData) * 4);
 
 	/*--------------[ IndexResourceを作る ]-----------------*/
 
@@ -109,7 +113,7 @@ void Sprite::CreateVertexData()
 	//リソースの先頭アドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点３つ分のサイズ
-	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 1536;
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 4;
 	//1頂点当たりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 

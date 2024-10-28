@@ -156,7 +156,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	dxCommon->Initialize(winApp);
 
 	//テクスチャマネージャーの初期化
-	TextureManager::GetInstance()->Initialize();
+	TextureManager::GetInstance()->Initialize(dxCommon);
 
 	//スプライト共通部の初期化
 	SpriteCommon* spriteCommon = new SpriteCommon();
@@ -476,9 +476,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	bool useMonsterBall = true;
 
+	TextureManager::GetInstance()->LoadTexture("Resources/monsterBall.png");
+
 	//スプライトの初期化
 	Sprite* sprite = new Sprite();
-	sprite->Initialize(spriteCommon);
+	sprite->Initialize(spriteCommon,"Resources/uvChecker.png");
 
 	//スプライト（複数）
 	std::vector<std::unique_ptr<Sprite>> sprites;
@@ -486,7 +488,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	for(int i = 0; i < spriteCount; ++i)
 	{
 		std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
-		sprite->Initialize(spriteCommon);
+		sprite->Initialize(spriteCommon,"Resources/uvChecker.png");
 		sprite->SetSize({ 0.2f,0.2f });
 		sprite->SetPosition({ 200.0f * i,0.0f });
 		sprites.push_back(std::move(sprite));

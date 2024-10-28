@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <d3d12.h>
+#include <string>
 #include <wrl.h>
-
 
 #include "MatrixFunc.h"
 #include "VectorFunc.h"
@@ -53,27 +53,7 @@ public: //構造体
 		Vector3 translate;
 	};
 
-private: //メンバ関数
-	/// \brief 頂点データ作成
-	void CreateVertexData();
 
-private: //描画関連
-	
-	SpriteCommon* spriteCommon_ = nullptr;
-
-	//バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
-	//バッファリソース内のデータを指すポインタ
-	Material* materialData_ = nullptr;
-	VertexData* vertexData_ = nullptr;
-	uint32_t* indexData_ = nullptr;
-	TransformationMatrix* transformationMatrixData_ = nullptr;
-	//バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
-	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
 
 public: //メンバ関数
 
@@ -81,7 +61,7 @@ public: //メンバ関数
 	 * \brief 初期化
 	 * \param spriteCommon 
 	 */
-	void Initialize(SpriteCommon* spriteCommon);
+	void Initialize(SpriteCommon* spriteCommon,std::string textureFilePath);
 
 	/**
 	 * \brief 更新処理
@@ -122,6 +102,27 @@ public: //アクセッサ
 	///// \brief サイズの設定
 	void SetSize(const Vector2& size) { size_ = size; }
 
+private: //メンバ関数
+	/// \brief 頂点データ作成
+	void CreateVertexData();
+
+private: //描画関連変数
+	SpriteCommon* spriteCommon_ = nullptr;
+
+	//バッファリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
+	//バッファリソース内のデータを指すポインタ
+	Material* materialData_ = nullptr;
+	VertexData* vertexData_ = nullptr;
+	uint32_t* indexData_ = nullptr;
+	TransformationMatrix* transformationMatrixData_ = nullptr;
+	//バッファリソースの使い道を補足するバッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
+
 private: //メンバ変数
 	//座標
 	Vector2 position_ = { 0.0f,0.0f };
@@ -131,6 +132,9 @@ private: //メンバ変数
 
 	//サイズ
 	Vector2 size_ = { 1.0f,1.0f };
+
+	//テクスチャ番号
+	uint32_t textureIndex_ = 0;
 
 };
 
