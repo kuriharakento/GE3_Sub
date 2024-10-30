@@ -25,6 +25,7 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 //ImGui
+#include "Object3dCommon.h"
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
@@ -148,6 +149,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//スプライト共通部の初期化
 	SpriteCommon* spriteCommon = new SpriteCommon();
 	spriteCommon->Initialize(dxCommon);
+
+	//3Dオブジェクト共通部の初期化
+	Object3dCommon* objectCommon = new Object3dCommon();
+	//objectCommon->Initialize();
 
 	///===================================================================
 	///モデルの生成読み込み
@@ -594,19 +599,51 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>解放処理ここから<<<							///
 	///////////////////////////////////////////////////////////////////////
 
-	//ImGuiの終了処理。
+	 ///////////////////////////////////
+	 ///	>>>ImGuiの終了処理<<<		///
+	 ///////////////////////////////////
+
+	//NOTE:ここは基本的に触らない
+
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
-	//解放処理
-	winApp->Finalize();
-	delete winApp;
-	TextureManager::GetInstance()->Finalize();
-	delete dxCommon;
-	delete spriteCommon;
-	delete input;
+	
+	////////////////////////////////////////////////////////////
+	///					>>>オブジェクトの解放<<<				///
+	////////////////////////////////////////////////////////////
+
+	/*--------------[ スプライトの解放 ]-----------------*/
+
+	//単体
 	delete sprite;
+
+	//複数
+	for(int i = 0; i < spriteCount; ++i)
+	{
+		sprites[i].reset();
+	}
+
+	////////////////////////////////////////////////////////////
+	///					>>>オブジェクトの開放<<<				///
+	////////////////////////////////////////////////////////////
+
+
+	///////////////////////////////////
+	///		>>>基盤システム<<<		///
+	///////////////////////////////////
+
+	//NOTE:ここは基本的に触らない
+
+	winApp->Finalize();								//ウィンドウアプリケーションの終了処理
+	delete winApp;									//ウィンドウアプリケーションの解放
+	TextureManager::GetInstance()->Finalize();		//テクスチャマネージャーの終了処理
+	delete dxCommon;								//DirectXCommonの解放
+	delete spriteCommon;							//スプライト共通部の解放
+	delete objectCommon;							//3Dオブジェクト共通部の解放
+	delete input;									//入力の解放
+	
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>解放処理ここまで<<<							///
