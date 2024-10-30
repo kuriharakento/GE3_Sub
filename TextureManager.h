@@ -30,11 +30,24 @@ private: //構造体
 		std::string filePath;
 		DirectX::TexMetadata metadata;
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+		Microsoft::WRL::ComPtr<ID3D12Resource> intermediate;
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 	};
 
 	std::vector<TextureData> textureDatas_;
+
+private: //メンバ関数
+	
+	/**
+	 * \brief 
+	 * \param texture テクスチャリソースの転送
+	 * \param mipImages 
+	 * \return 
+	 */
+	[[nodiscard]]
+	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
+
 
 private: //メンバ変数
 	//DirectXコマンド

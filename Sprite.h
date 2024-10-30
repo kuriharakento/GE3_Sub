@@ -102,6 +102,9 @@ public: //アクセッサ
 	///// \brief サイズの設定
 	void SetSize(const Vector2& size) { size_ = size; }
 
+	/// \brief テクスチャの差し替え
+	void SetTexture(std::string filePath);
+
 private: //メンバ関数
 	/// \brief 頂点データ作成
 	void CreateVertexData();

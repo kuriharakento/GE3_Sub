@@ -90,6 +90,11 @@ void Sprite::Draw()
 	spriteCommon_->GetDXCommon()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
+void Sprite::SetTexture(std::string filePath)
+{
+	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(filePath);
+}
+
 void Sprite::CreateVertexData()
 {
 	/*--------------[ MaterialResourceを作る ]-----------------*/

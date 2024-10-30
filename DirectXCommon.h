@@ -51,11 +51,6 @@ public: //メンバ関数
 	/// \return 
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
 
-	/// \brief テクスチャファイルの読み込み
-	/// \param filePath 
-	/// \return 
-	DirectX::ScratchImage LoadTexture(const std::string& filePath);
-
 	/// \brief シェーダーのコンパイル
 	/// \param filePath 
 	/// \param profile 

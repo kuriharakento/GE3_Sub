@@ -475,12 +475,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///===================================================================
 
 	bool useMonsterBall = true;
+	//テクスチャの読み込み
+	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 
-	TextureManager::GetInstance()->LoadTexture("Resources/monsterBall.png");
 
 	//スプライトの初期化
 	Sprite* sprite = new Sprite();
-	sprite->Initialize(spriteCommon,"Resources/uvChecker.png");
+	sprite->Initialize(spriteCommon,"./Resources/monsterBall.png");
 
 	//スプライト（複数）
 	std::vector<std::unique_ptr<Sprite>> sprites;
@@ -488,7 +490,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	for(int i = 0; i < spriteCount; ++i)
 	{
 		std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
-		sprite->Initialize(spriteCommon,"Resources/uvChecker.png");
+		sprite->Initialize(spriteCommon,"./Resources/uvChecker.png");
 		sprite->SetSize({ 0.2f,0.2f });
 		sprite->SetPosition({ 200.0f * i,0.0f });
 		sprites.push_back(std::move(sprite));
@@ -575,6 +577,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			Vector2 size = sprite->GetSize();
 			ImGui::DragFloat2("size", &size.x, 0.1f, 0.0f, 5.0f);
 			sprite->SetSize(size);
+			//スプライトのテクスチャ
+			ImGui::Text("Change Texture");
+			ImGui::SameLine();
+			if(ImGui::Button("MonsterBall"))
+			{
+				sprite->SetTexture("./Resources/monsterBall.png");
+			}
+			ImGui::SameLine();
+			if(ImGui::Button("UVChecker"))
+			{
+				sprite->SetTexture("./Resources/uvChecker.png");
+			}
 		}
 
 		ImGui::End();
