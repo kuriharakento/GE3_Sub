@@ -138,6 +138,15 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureInde
 	return textureData.srvHandleGPU;
 }
 
+const DirectX::TexMetadata& TextureManager::GetMetadata(uint32_t textureIndex)
+{
+	//範囲外指定違反チェック
+	assert(textureIndex < textureDatas_.size());
+
+	TextureData& textureData = textureDatas_[textureIndex];
+	return textureData.metadata;
+}
+
 [[nodiscard]]
 Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture,const DirectX::ScratchImage& mipImages)
 {

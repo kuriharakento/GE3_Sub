@@ -581,6 +581,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Vector2 anchorPoint = sprite->GetAnchorPoint();
 		ImGui::DragFloat2("anchorPoint", &anchorPoint.x, 0.01f, 0.0f, 1.0f);
 		sprite->SetAnchorPoint(anchorPoint);
+		//スプライトの切り出しサイズ
+		Vector2 drawSize = sprite->GetTextureSize();
+		ImGui::DragFloat2("drawSize", &drawSize.x, 1.0f);
+		sprite->SetTextureSize(drawSize);
 		//反転
 		ImGui::Text("Flip");
 		ImGui::SameLine();

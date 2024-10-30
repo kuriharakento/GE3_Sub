@@ -12,6 +12,9 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 
 	//頂点データを作成する
 	CreateVertexData();
+
+	//スプライトのサイズをテクスチャと合わせる
+	AdjustTextureSize();
 }
 
 void Sprite::Update()
@@ -56,7 +59,12 @@ void Sprite::Draw()
 
 void Sprite::SetTexture(std::string filePath)
 {
+	//テクスチャをファイルパスで指定して読み込む
 	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(filePath);
+	//スプライトのサイズをテクスチャと合わせる
+	AdjustTextureSize();
+	//行列を更新する
+	UpdateMatrix();
 }
 
 void Sprite::CreateVertexData()
@@ -149,6 +157,7 @@ void Sprite::UpdateVertexData()
 {
 	/*--------------[ 頂点データに書き込む ]-----------------*/
 
+	//アンカーポイントを考慮して座標を計算
 	float left = 0.0f - anchorPoint_.x;
 	float right = 1.0f - anchorPoint_.x;
 	float top = 0.0f - anchorPoint_.y;
@@ -170,20 +179,30 @@ void Sprite::UpdateVertexData()
 		bottom = temp;
 	}
 
+	//テクスチャのメタデータを取得
+	const DirectX::TexMetadata& metadata =
+		TextureManager::GetInstance()->GetMetadata(textureIndex_);
+	float tex_left = textureLeftTop_.x / metadata.width;
+	float tex_right = (textureLeftTop_.x + textureSize_.x) / metadata.width;
+	float tex_top = textureLeftTop_.y / metadata.height;
+	float tex_bottom = (textureLeftTop_.y + textureSize_.y) / metadata.height;
+
+	//頂点データの座標
 	vertexData_[0].position = { left,bottom,0.0f,1.0f };
-	vertexData_[0].texcoord = { 0.0f,1.0f };
-	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
-
 	vertexData_[1].position = { left,top,0.0f,1.0f };
-	vertexData_[1].texcoord = { 0.0f,0.0f };
-	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
-
 	vertexData_[2].position = { right,bottom,0.0f,1.0f };
-	vertexData_[2].texcoord = { 1.0f,1.0f };
-	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
-
 	vertexData_[3].position = { right,top,0.0f,1.0f };
-	vertexData_[3].texcoord = { 1.0f,0.0f };
+
+	//頂点データのテクスチャ座標
+	vertexData_[0].texcoord = { tex_left,tex_bottom };
+	vertexData_[1].texcoord = { tex_left,tex_top };
+	vertexData_[2].texcoord = { tex_right,tex_bottom };
+	vertexData_[3].texcoord = { tex_right,tex_top };
+
+	//頂点データの法線
+	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
+	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };	
 	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
 }
 
@@ -208,3 +227,20 @@ void Sprite::UpdateMatrix()
 	transformationMatrixData_->WVP = worldViewProjectionMatrixSprite;
 	transformationMatrixData_->World = worldMatrixSprite;
 }
+
+void Sprite::AdjustTextureSize()
+{
+	//テクスチャのメタデータを取得
+	const DirectX::TexMetadata& metadata =
+		TextureManager::GetInstance()->GetMetadata(textureIndex_);
+
+	//テクスチャのサイズを取得
+	textureSize_ = Vector2(
+		static_cast<float>(metadata.width), 
+		static_cast<float>(metadata.height)
+	);
+
+	//画像サイズをテクスチャサイズに合わせる
+	size_ = textureSize_;
+}
+

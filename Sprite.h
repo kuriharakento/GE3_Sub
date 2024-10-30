@@ -93,8 +93,15 @@ public: //アクセッサ
 
 	/// \brief 左右フリップの取得
 	const bool GetFlipX() const { return isFlipX_; }
+
 	/// \brief 上下フリップの取得
 	const bool GetFlipY() const { return isFlipY_; }
+
+	/// \brief テクスチャ左上座標の取得
+	const Vector2& GetTextureLeftTop() const { return textureLeftTop_; }
+
+	/// \brief テクスチャ切り出しサイズの取得
+	const Vector2& GetTextureSize() const { return textureSize_; }
 
 	/*---------------[ セッター ]---------------*/
 
@@ -122,6 +129,12 @@ public: //アクセッサ
 	/// \brief 上下フリップの設定
 	void SetFlipY(bool isFlipY) { isFlipY_ = isFlipY; }
 
+	/// \brief テクスチャ左上座標の設定
+	void SetTextureLeftTop(const Vector2& textureLeftTop) { textureLeftTop_ = textureLeftTop; }
+
+	/// \brief テクスチャ切り出しサイズの設定
+	void SetTextureSize(const Vector2& textureSize) { textureSize_ = textureSize; }
+
 private: //メンバ関数
 	/// \brief 頂点データ作成
 	void CreateVertexData();
@@ -129,7 +142,13 @@ private: //メンバ関数
 	/// \brief 頂点データの更新
 	void UpdateVertexData();
 
+	/// \brief 行列の更新
 	void UpdateMatrix();
+
+	/**
+	 * \brief テクスチャサイズをイメージに合わせる
+	 */
+	void AdjustTextureSize();
 
 private: //描画関連変数
 	SpriteCommon* spriteCommon_ = nullptr;
@@ -159,15 +178,22 @@ private: //メンバ変数
 	float rotation_ = 0.0f;
 
 	//サイズ
-	Vector2 size_ = { 640.0f,360.0f };
+	Vector2 size_ = { 0.0f,0.0f };
 
 	//アンカーポイント
 	Vector2 anchorPoint_ = { 0.0f,0.0f };
 
 	//左右フリップ
-	bool isFlipX_ = false;;
+	bool isFlipX_ = false;
+
 	//上下フリップ
 	bool isFlipY_ = false;
+
+	//テクスチャ左上座標
+	Vector2 textureLeftTop_ = { 0.0f,0.0f };
+
+	//テクスチャ切り出しサイズ
+	Vector2 textureSize_ = { 0.0f,0.0f };
 
 };
 
