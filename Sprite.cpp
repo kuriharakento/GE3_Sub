@@ -16,47 +16,11 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 
 void Sprite::Update()
 {
-	/*--------------[ 頂点データに書き込む ]-----------------*/
+	//頂点データを更新する
+	UpdateVertexData();
 
-	vertexData_[0].position = { 0.0f,360.0f,0.0f,1.0f };
-	vertexData_[0].texcoord = { 0.0f,1.0f };
-	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
-
-	vertexData_[1].position = { 0.0f,0.0f,0.0f,1.0f };
-	vertexData_[1].texcoord = { 0.0f,0.0f };
-	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
-
-	vertexData_[2].position = { 640.0f,360.0f,0.0f,1.0f };
-	vertexData_[2].texcoord = { 1.0f,1.0f };
-	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
-
-	vertexData_[3].position = { 640.0f,0.0f,0.0f,1.0f };
-	vertexData_[3].texcoord = { 1.0f,0.0f };
-	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
-
-	/*--------------[ インデックスリソースにデータを書き込む ]-----------------*/
-
-	indexData_[0] = 0;		indexData_[1] = 1;		indexData_[2] = 2;
-	indexData_[3] = 1;		indexData_[4] = 3;		indexData_[5] = 2;
-
-	/*--------------[ Transform情報 ]-----------------*/
-
-	Transform transform{
-		{1.0f,1.0f,1.0f},
-		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f}
-	};
-
-	transform.translate = { position_.x,position_.y,0.0f };
-	transform.rotate = { 0.0f,0.0f,rotation_ };
-	transform.scale = { size_.x,size_.y,1.0f };
-
-	Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
-	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);
-	Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
-	transformationMatrixData_->WVP = worldViewProjectionMatrixSprite;
-	transformationMatrixData_->World = worldMatrixSprite;
+	//座標変換行列を更新する
+	UpdateMatrix();
 }
 
 void Sprite::Draw()
@@ -174,5 +138,73 @@ void Sprite::CreateVertexData()
 	transformationMatrixData_->WVP = MakeIdentity4x4();
 	transformationMatrixData_->World = MakeIdentity4x4();
 
+	/*--------------[ インデックスリソースにデータを書き込む ]-----------------*/
 
+	indexData_[0] = 0;		indexData_[1] = 1;		indexData_[2] = 2;
+	indexData_[3] = 1;		indexData_[4] = 3;		indexData_[5] = 2;
+
+}
+
+void Sprite::UpdateVertexData()
+{
+	/*--------------[ 頂点データに書き込む ]-----------------*/
+
+	float left = 0.0f - anchorPoint_.x;
+	float right = 1.0f - anchorPoint_.x;
+	float top = 0.0f - anchorPoint_.y;
+	float bottom = 1.0f - anchorPoint_.y;
+
+	//左右反転
+	if (isFlipX_)
+	{
+		float temp = left;
+		left = right;
+		right = temp;
+	}
+
+	//上下反転
+	if (isFlipY_)
+	{
+		float temp = top;
+		top = bottom;
+		bottom = temp;
+	}
+
+	vertexData_[0].position = { left,bottom,0.0f,1.0f };
+	vertexData_[0].texcoord = { 0.0f,1.0f };
+	vertexData_[0].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexData_[1].position = { left,top,0.0f,1.0f };
+	vertexData_[1].texcoord = { 0.0f,0.0f };
+	vertexData_[1].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexData_[2].position = { right,bottom,0.0f,1.0f };
+	vertexData_[2].texcoord = { 1.0f,1.0f };
+	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexData_[3].position = { right,top,0.0f,1.0f };
+	vertexData_[3].texcoord = { 1.0f,0.0f };
+	vertexData_[3].normal = { 0.0f,0.0f,-1.0f };
+}
+
+void Sprite::UpdateMatrix()
+{
+	/*--------------[ Transform情報 ]-----------------*/
+
+	Transform transform{
+		{1.0f,1.0f,1.0f},
+		{0.0f,0.0f,0.0f},
+		{0.0f,0.0f,0.0f}
+	};
+
+	transform.translate = { position_.x,position_.y,0.0f };
+	transform.rotate = { 0.0f,0.0f,rotation_ };
+	transform.scale = { size_.x,size_.y,1.0f };
+
+	Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
+	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);
+	Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
+	transformationMatrixData_->WVP = worldViewProjectionMatrixSprite;
+	transformationMatrixData_->World = worldMatrixSprite;
 }

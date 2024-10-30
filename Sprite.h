@@ -88,7 +88,18 @@ public: //アクセッサ
 	//// \brief サイズの取得
 	const Vector2& GetSize() const { return size_; }
 
+	//// \brief アンカーポイントの取得
+	const Vector2& GetAnchorPoint() const { return anchorPoint_; }
+
+	/// \brief 左右フリップの取得
+	const bool GetFlipX() const { return isFlipX_; }
+	/// \brief 上下フリップの取得
+	const bool GetFlipY() const { return isFlipY_; }
+
 	/*---------------[ セッター ]---------------*/
+
+	/// \brief テクスチャの差し替え
+	void SetTexture(std::string filePath);
 
 	/// \brief 座標の設定
 	void SetPosition(const Vector2& position) { position_ = position; }
@@ -96,18 +107,29 @@ public: //アクセッサ
 	/// \brief 回転の設定
 	void SetRotation(float rotation) { rotation_ = rotation; }
 
-	//// \brief 色の設定
+	/// \brief 色の設定
 	void SetColor(const Vector4& color) { materialData_->color = color; }
 
-	///// \brief サイズの設定
+	//// \brief サイズの設定
 	void SetSize(const Vector2& size) { size_ = size; }
 
-	/// \brief テクスチャの差し替え
-	void SetTexture(std::string filePath);
+	/// \brief アンカーポイントの設定
+	void SetAnchorPoint(const Vector2& anchorPoint) { anchorPoint_ = anchorPoint; }
+
+	/// \brief 左右フリップの設定
+	void SetFlipX(bool isFlipX) { isFlipX_ = isFlipX; }
+
+	/// \brief 上下フリップの設定
+	void SetFlipY(bool isFlipY) { isFlipY_ = isFlipY; }
 
 private: //メンバ関数
 	/// \brief 頂点データ作成
 	void CreateVertexData();
+
+	/// \brief 頂点データの更新
+	void UpdateVertexData();
+
+	void UpdateMatrix();
 
 private: //描画関連変数
 	SpriteCommon* spriteCommon_ = nullptr;
@@ -127,6 +149,9 @@ private: //描画関連変数
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
 
 private: //メンバ変数
+	//テクスチャ番号
+	uint32_t textureIndex_ = 0;
+
 	//座標
 	Vector2 position_ = { 0.0f,0.0f };
 
@@ -134,10 +159,15 @@ private: //メンバ変数
 	float rotation_ = 0.0f;
 
 	//サイズ
-	Vector2 size_ = { 1.0f,1.0f };
+	Vector2 size_ = { 640.0f,360.0f };
 
-	//テクスチャ番号
-	uint32_t textureIndex_ = 0;
+	//アンカーポイント
+	Vector2 anchorPoint_ = { 0.0f,0.0f };
+
+	//左右フリップ
+	bool isFlipX_ = false;;
+	//上下フリップ
+	bool isFlipY_ = false;
 
 };
 

@@ -491,7 +491,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	{
 		std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
 		sprite->Initialize(spriteCommon,"./Resources/uvChecker.png");
-		sprite->SetSize({ 0.2f,0.2f });
+		sprite->SetSize({ 100.0f,100.0f });
 		sprite->SetPosition({ 200.0f * i,0.0f });
 		sprites.push_back(std::move(sprite));
 	}
@@ -557,41 +557,59 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//===================================================
 #ifdef _DEBUG
 		ImGui::Begin("Setting");
+		ImGui::End();
 		/*--------------[ スプライト ]-----------------*/
 
-		if(ImGui::CollapsingHeader("Sprite"))
+		ImGui::Begin("Sprite");
+		//スプライトの位置
+		Vector2 position = sprite->GetPosition();
+		ImGui::DragFloat2("translate",&position.x,1.0f,-1280.0f,1280.0f);
+		sprite->SetPosition(position);
+		//スプライトの回転
+		float rotation = sprite->GetRotation();
+		ImGui::SliderAngle("rotate", &rotation, 0.0f, 360.0f);
+		sprite->SetRotation(rotation);
+		//スプライトの色
+		Vector4 color = sprite->GetColor();
+		ImGui::ColorEdit4("color", &color.x);
+		sprite->SetColor(color);
+		//スプライトのサイズ
+		Vector2 size = sprite->GetSize();
+		ImGui::DragFloat2("size", &size.x, 1.0f);
+		sprite->SetSize(size);
+		//スプライトのアンカーポイント
+		Vector2 anchorPoint = sprite->GetAnchorPoint();
+		ImGui::DragFloat2("anchorPoint", &anchorPoint.x, 0.01f, 0.0f, 1.0f);
+		sprite->SetAnchorPoint(anchorPoint);
+		//反転
+		ImGui::Text("Flip");
+		ImGui::SameLine();
+		if(ImGui::Button("FlipX"))
 		{
-			//スプライトの位置
-			Vector2 position = sprite->GetPosition();
-			ImGui::DragFloat2("translate",&position.x,1.0f,-1280.0f,1280.0f);
-			sprite->SetPosition(position);
-			//スプライトの回転
-			float rotation = sprite->GetRotation();
-			ImGui::SliderAngle("rotate", &rotation, 0.0f, 360.0f);
-			sprite->SetRotation(rotation);
-			//スプライトの色
-			Vector4 color = sprite->GetColor();
-			ImGui::ColorEdit4("color", &color.x);
-			sprite->SetColor(color);
-			//スプライトのサイズ
-			Vector2 size = sprite->GetSize();
-			ImGui::DragFloat2("size", &size.x, 0.1f, 0.0f, 5.0f);
-			sprite->SetSize(size);
-			//スプライトのテクスチャ
-			ImGui::Text("Change Texture");
-			ImGui::SameLine();
-			if(ImGui::Button("MonsterBall"))
-			{
-				sprite->SetTexture("./Resources/monsterBall.png");
-			}
-			ImGui::SameLine();
-			if(ImGui::Button("UVChecker"))
-			{
-				sprite->SetTexture("./Resources/uvChecker.png");
-			}
+			bool flipX = !sprite->GetFlipX();
+			sprite->SetFlipX(flipX);
 		}
-
+		ImGui::SameLine();
+		if(ImGui::Button("FlipY"))
+		{
+			bool flipY = !sprite->GetFlipY();
+			sprite->SetFlipY(flipY);
+		}
+		//スプライトのテクスチャ
+		ImGui::Text("Change Texture");
+		ImGui::SameLine();
+		if(ImGui::Button("MonsterBall"))
+		{
+			sprite->SetTexture("./Resources/monsterBall.png");
+		}
+		ImGui::SameLine();
+		if(ImGui::Button("UVChecker"))
+		{
+			sprite->SetTexture("./Resources/uvChecker.png");
+		}
 		ImGui::End();
+
+		
 
 #endif
 		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
