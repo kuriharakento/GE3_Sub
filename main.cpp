@@ -25,6 +25,7 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 //ImGui
+#include "Object3d.h"
 #include "Object3dCommon.h"
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -153,6 +154,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//3Dオブジェクト共通部の初期化
 	Object3dCommon* objectCommon = new Object3dCommon();
 	//objectCommon->Initialize();
+
+	//3Dオブジェクトの初期化
+	Object3d* object = new Object3d();
+	//object->Initialize();
 
 	///===================================================================
 	///モデルの生成読み込み
@@ -624,6 +629,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	{
 		sprites[i].reset();
 	}
+
+	/*--------------[ オブジェクトの解放 ]-----------------*/
+
+	delete object;
 
 	////////////////////////////////////////////////////////////
 	///					>>>オブジェクトの開放<<<				///
