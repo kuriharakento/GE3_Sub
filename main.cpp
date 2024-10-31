@@ -562,6 +562,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//描画前処理
 		dxCommon->PreDraw();
 
+		/*--------------[ 3Dオブジェクトの描画 ]-----------------*/
+
+		//NOTE:3Dオブジェクトの描画準備。共通の設定を行う
+		objectCommon->CommonRenderingSetting();
+
+		/*--------------[ スプライトの描画 ]-----------------*/
+
 		//スプライトの描画準備。共通の設定を行う
 		spriteCommon->CommonRenderingSetting();
 
