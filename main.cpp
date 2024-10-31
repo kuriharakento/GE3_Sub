@@ -155,10 +155,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Object3dCommon* objectCommon = new Object3dCommon();
 	//objectCommon->Initialize();
 
-	//3Dオブジェクトの初期化
-	Object3d* object = new Object3d();
-	//object->Initialize();
-
 	///===================================================================
 	///モデルの生成読み込み
 	///===================================================================
@@ -429,6 +425,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		sprite->SetPosition({ 200.0f * i,0.0f });
 		sprites.push_back(std::move(sprite));
 	}
+
+	//3Dオブジェクトの初期化
+	Object3d* object = new Object3d();
+	//object->Initialize();
 
 
 	///////////////////////////////////////////////////////////////////////
