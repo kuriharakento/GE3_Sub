@@ -4,7 +4,7 @@
 #include <string>
 #include <wrl.h>
 
-#include "MatrixFunc.h"
+#include "GraphicsTypes.h"
 #include "VectorFunc.h"
 
 //ポインタが必要なので前方宣言
@@ -13,48 +13,6 @@ class SpriteCommon;
 //スプライト
 class Sprite
 {
-
-public: //構造体
-	/**
-	 * \brief 頂点データ
-	 */
-	struct VertexData
-	{
-		Vector4 position;
-		Vector2 texcoord;
-		Vector3 normal;
-	};
-
-	/**
-	 * \brief マテリアル
-	 */
-	struct Material
-	{
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-	};
-
-	/**
-	 * \brief 座標変換行列データ
-	 */
-	struct TransformationMatrix
-	{
-		Matrix4x4 WVP;
-		Matrix4x4 World;
-	};
-
-	//トランスフォーム
-	struct Transform
-	{
-		Vector3 scale;
-		Vector3 rotate;
-		Vector3 translate;
-	};
-
-
-
 public: //メンバ関数
 
 	/**
@@ -150,7 +108,7 @@ private: //メンバ関数
 	 */
 	void AdjustTextureSize();
 
-private: //描画関連変数
+private: //描画用変数
 	SpriteCommon* spriteCommon_ = nullptr;
 
 	//バッファリソース
