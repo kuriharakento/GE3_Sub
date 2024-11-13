@@ -96,11 +96,8 @@ private:
 ///						>>>関数の宣言<<<								///
 ///////////////////////////////////////////////////////////////////////
 
-//Objファイルを読む関数
-ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
-//Materialファイルを読み込む
-MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
+
 
 ///////////////////////////////////////////////////////////////////////
 ///						>>>グローバル変数の宣言<<<						///
@@ -139,6 +136,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Object3dCommon* objectCommon = new Object3dCommon();
 	objectCommon->Initialize(dxCommon);
 
+	//モデル共通部の初期化
+	ModelCommon* modelCommon = new ModelCommon();
+	modelCommon->Initialize(dxCommon);
 #pragma region 球体
 	///===================================================================
 	///頂点位置を計算する
@@ -281,9 +281,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		sprites.push_back(std::move(sprite));
 	}
 
+	std::unique_ptr<Model> model = std::make_unique<Model>();
+	model->Initialize(modelCommon);
+
 	//3Dオブジェクトの初期化
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>();
 	object->Initialize(objectCommon);
+	object->SetModel(model.get());
 
 
 	///////////////////////////////////////////////////////////////////////
@@ -393,11 +397,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		#pragma region 3Dオブジェクト用のImGui
 		ImGui::Begin("Object3D");
 		//3Dオブジェクトの位置
-		ImGui::DragFloat3("translate", &object->transform_.translate.x, 0.1f);
+		Vector3 objectPosition = object->GetTranslate();
+		ImGui::DragFloat3("translate", &objectPosition.x, 0.1f, -10.0f, 10.0f);
+		object->SetTranslate(objectPosition);
 		//3Dオブジェクトの回転
-		ImGui::DragFloat3("rotate", &object->transform_.rotate.x, 0.1f,0.0f,3.14f);
-		//3Dオブジェクトのサイズ
-		ImGui::DragFloat3("scale", &object->transform_.scale.x, 0.1f, 0.0f, 10.0f);
+		Vector3 objectRotate = object->GetRotate();
+		ImGui::DragFloat3("rotate", &objectRotate.x, 0.01f,-3.14f,3.14f);
+		object->SetRotate(objectRotate);
+		//3Dオブジェクトの拡大縮小
+		Vector3 objectScale = object->GetScale();
+		ImGui::DragFloat3("scale", &objectScale.x, 0.1f, 0.0f, 10.0f);
+		object->SetScale(objectScale);
 
 		ImGui::End();
 		#pragma endregion
@@ -438,9 +448,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 		//	sprites[i]->Draw();
 		}
-
-
-		
 
 		//実際のcommandListのImGuiの描画コマンドを積む
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList());
@@ -502,9 +509,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	TextureManager::GetInstance()->Finalize();		//テクスチャマネージャーの終了処理
 	delete dxCommon;								//DirectXCommonの解放
 	delete spriteCommon;							//スプライト共通部の解放
+	delete modelCommon;								//モデル共通部の解放
 	delete objectCommon;							//3Dオブジェクト共通部の解放
 	delete input;									//入力の解放
-	
+
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>解放処理ここまで<<<							///

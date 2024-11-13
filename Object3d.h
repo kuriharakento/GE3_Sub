@@ -5,13 +5,14 @@
 #include <vector>
 
 #include "GraphicsTypes.h"
+#include "Model.h"
 
 //スプライト共通部分のポインタ
 class Object3dCommon;
 
 class Object3d
 {
-public:	//メンバ関数
+public:	/*========[ メンバ関数 ]========*/
 	/**
 	 * \brief 初期化
 	 */
@@ -33,36 +34,24 @@ public:	//メンバ関数
 	 */
 	void UpdateMatrix();
 
-	/**
-	 * \brief .mtlファイルの読み取り
-	 * \param directoryPath 
-	 * \param filename 
-	 * \return 
-	 */
-	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
+public: /*========[ ゲッター ]========*/
 
-	/**
-	 * \brief .objファイルの読み取り
-	 * \param a 
-	 * \param a 
-	 * \return a
-	 */
-	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
+	//Transform
+	void SetScale(const Vector3& scale) { transform_.scale = scale; }
+	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
+	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
 
-public: //ゲッター
+public: /*========[ セッター ]========*/
 
+	//モデルの設定
+	void SetModel(Model* model) { model_ = model; }
 
+	//Transform
+	const Vector3& GetScale() const { return transform_.scale; }
+	const Vector3& GetRotate() const { return transform_.rotate; }
+	const Vector3& GetTranslate() const { return transform_.translate; }
 
-private: //メンバ関数
-	/**
-	 * \brief 頂点データの生成
-	 */
-	void CreateVertexData();
-
-	/**
-	 * \brief マテリアルデータの生成
-	 */
-	void CreateMaterialData();
+private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
 	/**
 	 * \brief 座標変換行列の生成
@@ -78,33 +67,26 @@ private: //メンバ関数
 	 * \brief 描画設定の初期化
 	 */
 	void InitializeRenderingSettings();
+	
 
-private: //描画用変数
+private: /*========[ 描画用変数 ]========*/
 	//オブジェクトのコマンド
 	Object3dCommon* object3dCommon_ = nullptr;
 
-	//バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	//バッファリソース	
 	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
 
 	//バッファリソース内のデータを指すポインタ
-	VertexData* vertexData_ = nullptr;
-	Material* materialData_ = nullptr;
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	DirectionalLight* directionalLightData_ = nullptr;
 
-	//バッファリソースの使い道を補足するバッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
-public:
-	Transform transform_;
-private: //メンバ変数
-	//Objファイルのデータ
-	ModelData modelData_;
+private: /*========[ メンバ変数 ]========*/
+	
+	Model* model_ = nullptr;
 
 	//座標変換行列
-	
+	Transform transform_;
 	Transform cameraTransform_;
 
 };
