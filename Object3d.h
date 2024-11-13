@@ -1,5 +1,5 @@
 #pragma once
-#include <wrl.h>>
+#include <wrl.h>
 #include <d3d12.h>
 #include <string>
 #include <vector>
@@ -18,6 +18,22 @@ public:	//メンバ関数
 	void Initialize(Object3dCommon* object3dCommon);
 
 	/**
+	 * \brief 更新
+	 */
+	void Update();
+
+	/**
+	 * \brief 描画
+	 * \param commandList 
+	 */
+	void Draw();
+
+	/**
+	 * \brief 行列の更新
+	 */
+	void UpdateMatrix();
+
+	/**
 	 * \brief .mtlファイルの読み取り
 	 * \param directoryPath 
 	 * \param filename 
@@ -32,6 +48,11 @@ public:	//メンバ関数
 	 * \return a
 	 */
 	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
+
+public: //ゲッター
+
+
+
 private: //メンバ関数
 	/**
 	 * \brief 頂点データの生成
@@ -76,13 +97,14 @@ private: //描画用変数
 
 	//バッファリソースの使い道を補足するバッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
-
+public:
+	Transform transform_;
 private: //メンバ変数
 	//Objファイルのデータ
 	ModelData modelData_;
 
 	//座標変換行列
-	Transform transform_;
+	
 	Transform cameraTransform_;
 
 };

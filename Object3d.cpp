@@ -7,6 +7,10 @@
 #include "Object3dCommon.h"
 #include "TextureManager.h"
 
+///////////////////////////////////////////////////////////////////////
+///						>>>基本的な処理<<<							///
+///////////////////////////////////////////////////////////////////////
+
 void Object3d::Initialize(Object3dCommon* object3dCommon)
 {
 	//引数で受け取った物を記録する
@@ -37,6 +41,45 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 		{ 0.0f,4.0f,-10.0f },
 	};
 
+}
+
+void Object3d::Update()
+{
+	//座標変換行列の更新
+	UpdateMatrix();
+}
+
+void Object3d::Draw()
+{
+	//3D描画
+	object3dCommon_->GetDXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
+	object3dCommon_->GetDXCommon()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//マテリアルCBufferの場所を設定
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	//wvp用のCBufferの場所を設定
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+	//SRVのDescriptorTableの先頭を設定。2はrootPatameter[2]である。
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData_.material.textureIndex));
+
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+	//描画！
+	object3dCommon_->GetDXCommon()->GetCommandList()->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
+
+}
+
+///////////////////////////////////////////////////////////////////////
+///						>>>その他関数の処理<<<							///
+///////////////////////////////////////////////////////////////////////
+
+void Object3d::UpdateMatrix()
+{
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
+	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
+	transformationMatrixData_->WVP = worldMatrix * viewMatrix * projectionMatrix;
+	transformationMatrixData_->World = worldMatrix;
 }
 
 MaterialData Object3d::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename)

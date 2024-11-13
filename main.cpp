@@ -137,139 +137,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//3Dオブジェクト共通部の初期化
 	Object3dCommon* objectCommon = new Object3dCommon();
-	//objectCommon->Initialize();
+	objectCommon->Initialize(dxCommon);
 
-	///===================================================================
-	///モデルの生成読み込み
-	///===================================================================
-
-	////モデル読み込み
-	//ModelData modelData = LoadObjFile("Resources", "axis.obj");
-	////頂点リソースを作る
-	//Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = CreateBufferResource(dxCommon->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
-	////頂点バッファビューを作成する
-	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-	//vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();				//リソースの先頭のアドレスから使う
-	//vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());	//使用するリソースのサイズは頂点のサイズ
-	//vertexBufferView.StrideInBytes = sizeof(VertexData);		//１頂点当たりのサイズ
-
-	//VertexData* vertexData = nullptr;
-	//vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	//std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
-
-
-	///===================================================================
-	///Resourceにデータを書き込む
-	///===================================================================
-
-	
-
-	////左下
-	//vertexData[0].position = { -0.5f,-0.5f,0.0f,1.0f };
-	//vertexData[0].texcoord = { 0.0f,1.0f };
-	////上
-	//vertexData[1].position = { 0.0f,0.5f,0.0f,1.0f };
-	//vertexData[1].texcoord = { 0.5f,0.0f };
-	////右下
-	//vertexData[2].position = { 0.5f,-0.5f,0.0f,1.0f };
-	//vertexData[2].texcoord = { 1.0f,1.0f };
-
-
-	////左下２
-	//vertexData[3].position = { -0.5f,-0.5f,0.5f,1.0f };
-	//vertexData[3].texcoord = { 0.0f,1.0f };
-	////上２
-	//vertexData[4].position = { 0.0f,0.0f,0.0f,1.0f };
-	//vertexData[4].texcoord = { 0.5f,0.0f };
-	////右下２
-	//vertexData[5].position = { 0.5f,-0.5f,-0.5f,1.0f };
-	//vertexData[5].texcoord = { 1.0f,1.0f };
-
-
-	/////===================================================================
-	/////平行光源用のリソース
-	/////===================================================================
-
-	//DirectionalLight* directionalLightData = nullptr;
-	//Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource = CreateBufferResource(dxCommon->GetDevice(), sizeof(DirectionalLight));
-
-	//directionalLightResource->Map(
-	//	0,
-	//	nullptr,
-	//	reinterpret_cast<void**>(&directionalLightData)
-	//);
-
-	////デフォルト値は以下のようにしておく
-	//directionalLightData->color = { 1.0f,1.0f,1.0f,1.0f };
-	//directionalLightData->direction = Normalize({ 0.0f,-1.0f,0.0f });
-	//directionalLightData->intensity = 1.0f;
-
-
-	///===================================================================
-	///Material用のResourceを作る
-	///===================================================================
-
-	////マテリアル用のリソースを作る
-	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = CreateBufferResource(dxCommon->GetDevice(), sizeof(Material));
-
-	////マテリアルにデータを書き込む
-	//Material* materialData = nullptr;
-
-	////書き込むためのアドレスを取得
-	//materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-
-	////色を変える
-	//materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	////Lightingを有効にする
-	//materialData->enableLighting = true;
-
-	//materialData->uvTransform = MakeIdentity4x4();
-
-	///===================================================================
-	///TransformationMatrix用のResourceを作る
-	///===================================================================
-
-	////WVP用のリソースを作る。Matrix4x4　１つ分サイズを用意する
-	//Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource = CreateBufferResource(dxCommon->GetDevice(), sizeof(TransformationMatrix));
-	////データを書き込む
-	//TransformationMatrix* wvpData = nullptr;
-	////書き込むためのアドレスを取得
-	//wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
-	////単位行列を書き込んでおく
-
-	//wvpData->WVP = MakeIdentity4x4();
-	//wvpData->World = MakeIdentity4x4();
-
-
-	////Transform変数を作る
-	//Transform transform{
-	//	{1.0f,1.0f,1.0f},
-	//	{0.0f,0.0f,0.0f},
-	//	{0.0f,0.0f,0.0f}
-	//};
-
-
-	//Transform cameraTransform{
-	//	{1.0f,1.0f,1.0f},
-	//	{0.0f,0.0f,0.0f},
-	//	{0.0f,0.0,-10.0f}
-	//};
-
-	////UVTransform用の変数
-	//Transform uvTransformSprite{
-	//	{ 1.0f,1.0f,1.0f },
-	//	{ 0.0f,0.0f,0.0f },
-	//	{ 0.0f,0.0f,0.0f }
-	//};
-
-	//Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-	//Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
-	//Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	//Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
-	//Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-	//wvpData->WVP = worldViewProjectionMatrix;
-	//wvpData->World = worldMatrix;
-
+#pragma region 球体
 	///===================================================================
 	///頂点位置を計算する
 	///===================================================================
@@ -376,6 +246,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//		vertexData[start].normal.z = vertexData[start].position.z;
 	//	}
 	//}
+#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>汎用機能初期化<<<							///
@@ -411,8 +282,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 
 	//3Dオブジェクトの初期化
-	Object3d* object = new Object3d();
-	//object->Initialize();
+	std::unique_ptr<Object3d> object = std::make_unique<Object3d>();
+	object->Initialize(objectCommon);
 
 
 	///////////////////////////////////////////////////////////////////////
@@ -443,20 +314,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//入力の更新
 		input->Update();
 
-		
-
-		//3Dモデルの更新
-		////vertexDataの変換
-		//worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-		//cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
-		//viewMatrix = Inverse(cameraMatrix);
-		//projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
-		//worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-		//wvpData->WVP = worldViewProjectionMatrix;
-		//wvpData->World = worldMatrix;
-
 		//スプライトの更新
 		sprite->Update();
+
+		//3Dオブジェクトの更新
+		object->Update();
 
 		//スプライト（複数）
 		for(int i = 0; i < spriteCount; ++i)
@@ -528,6 +390,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		ImGui::End();
 		#pragma endregion
 
+		#pragma region 3Dオブジェクト用のImGui
+		ImGui::Begin("Object3D");
+		//3Dオブジェクトの位置
+		ImGui::DragFloat3("translate", &object->transform_.translate.x, 0.1f);
+		//3Dオブジェクトの回転
+		ImGui::DragFloat3("rotate", &object->transform_.rotate.x, 0.1f,0.0f,3.14f);
+		//3Dオブジェクトのサイズ
+		ImGui::DragFloat3("scale", &object->transform_.scale.x, 0.1f, 0.0f, 10.0f);
+
+		ImGui::End();
+		#pragma endregion
+
 #endif
 
 		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
@@ -551,6 +425,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//NOTE:3Dオブジェクトの描画準備。共通の設定を行う
 		objectCommon->CommonRenderingSetting();
 
+		object->Draw();
+
 		/*--------------[ スプライトの描画 ]-----------------*/
 
 		//スプライトの描画準備。共通の設定を行う
@@ -560,25 +436,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		for(int i = 0; i < spriteCount; ++i)
 		{
-			sprites[i]->Draw();
+		//	sprites[i]->Draw();
 		}
 
 
-		//3D描画
-		//dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
-		////形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
-		//dxCommon->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		////マテリアルCBufferの場所を設定
-		//dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
-		////wvp用のCBufferの場所を設定
-		//dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
-		////SRVのDescriptorTableの先頭を設定。2はrootPatameter[2]である。
-		//dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
-
-		//dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
-		////描画！
-		//dxCommon->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
-
+		
 
 		//実際のcommandListのImGuiの描画コマンドを積む
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList());
@@ -623,7 +485,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	/*--------------[ オブジェクトの解放 ]-----------------*/
 
-	delete object;
 
 	////////////////////////////////////////////////////////////
 	///					>>>オブジェクトの開放<<<				///
