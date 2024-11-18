@@ -182,6 +182,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	object->SetModel("plane.obj");
 	object->SetTranslate({ 0.0f,3.0f,0.0f });
 
+	std::unique_ptr<Object3d> objectAxis = std::make_unique<Object3d>();
+
+
 
 	///////////////////////////////////////////////////////////////////////
 	///																	///
