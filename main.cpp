@@ -140,115 +140,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon);
 
-#pragma region 球体
-	///===================================================================
-	///頂点位置を計算する
-	///===================================================================
-
-	////分割数
-	//const uint32_t kSubdivision = 16;
-	////π(円周率)
-	//const float pi = std::numbers::pi_v<float>;
-	////経度分割１つ分の角度φ
-	//const float kLonEvery = pi * 2.0f / float(kSubdivision);
-	////緯度分割１つ分の角度Θ
-	//const float kLatEvery = pi / float(kSubdivision);
-	////緯度の方向に分割
-	//for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex)
-	//{
-	//	//緯度
-	//	float lat = -pi / 2.0f + kLatEvery * latIndex;		//Θ
-	//	//texcoord
-
-	//	//経度の方向に分割しながら線を描く
-	//	for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
-	//	{
-	//		uint32_t start = (latIndex * kSubdivision + lonIndex) * 6;
-	//		//texcoord
-	//		float v = 1.0f - static_cast<float>(latIndex) / static_cast<float>(kSubdivision);
-	//		float u = static_cast<float>(lonIndex) / static_cast<float>(kSubdivision);
-	//		//経度
-	//		float lon = lonIndex * kLonEvery;	//φ
-
-
-	//		///===================================================================
-	//		///1枚目の三角形
-	//		///===================================================================
-
-	//		//頂点にデータを入力する。基準点a 左下
-	//		vertexData[start].position.x = std::cos(lat) * std::cos(lon);
-	//		vertexData[start].position.y = std::sin(lat);
-	//		vertexData[start].position.z = std::cos(lat) * std::sin(lon);
-	//		vertexData[start].position.w = 1.0f;
-	//		vertexData[start].texcoord = { u,v };
-	//		vertexData[start].normal.x = vertexData[start].position.x;
-	//		vertexData[start].normal.y = vertexData[start].position.y;
-	//		vertexData[start].normal.z = vertexData[start].position.z;
-
-	//		//残りの５頂点も順番に計算して入力していく
-	//		//基準点b　左上
-	//		start++;
-	//		vertexData[start].position.x = std::cos(lat + kLatEvery) * std::cos(lon);
-	//		vertexData[start].position.y = std::sin(lat + kLatEvery);
-	//		vertexData[start].position.z = std::cos(lat + kLatEvery) * std::sin(lon);
-	//		vertexData[start].position.w = 1.0f;
-	//		vertexData[start].texcoord = { u,v - 1.0f / kSubdivision };
-	//		vertexData[start].normal.x = vertexData[start].position.x;
-	//		vertexData[start].normal.y = vertexData[start].position.y;
-	//		vertexData[start].normal.z = vertexData[start].position.z;
-
-	//		//基準点c　右下
-	//		start++;
-	//		vertexData[start].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
-	//		vertexData[start].position.y = std::sin(lat);
-	//		vertexData[start].position.z = std::cos(lat) * std::sin(lon + kLonEvery);
-	//		vertexData[start].position.w = 1.0f;
-	//		vertexData[start].texcoord = { u + 1.0f / kSubdivision,v };
-	//		vertexData[start].normal.x = vertexData[start].position.x;
-	//		vertexData[start].normal.y = vertexData[start].position.y;
-	//		vertexData[start].normal.z = vertexData[start].position.z;
-
-
-	//		///===================================================================
-	//		///２枚目の三角形
-	//		///===================================================================
-
-	//		//基準点b　左上
-	//		start++;
-	//		vertexData[start].position.x = std::cos(lat + kLatEvery) * std::cos(lon);
-	//		vertexData[start].position.y = std::sin(lat + kLatEvery);
-	//		vertexData[start].position.z = std::cos(lat + kLatEvery) * std::sin(lon);
-	//		vertexData[start].position.w = 1.0f;
-	//		vertexData[start].texcoord = { u,v - 1.0f / kSubdivision };
-	//		vertexData[start].normal.x = vertexData[start].position.x;
-	//		vertexData[start].normal.y = vertexData[start].position.y;
-	//		vertexData[start].normal.z = vertexData[start].position.z;
-
-	//		//基準点d　右上
-	//		start++;
-	//		vertexData[start].position.x = std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery);
-	//		vertexData[start].position.y = std::sin(lat + kLatEvery);
-	//		vertexData[start].position.z = std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery);
-	//		vertexData[start].position.w = 1.0f;
-	//		vertexData[start].texcoord = { u + 1.0f / kSubdivision ,v - 1.0f / kSubdivision };
-	//		vertexData[start].normal.x = vertexData[start].position.x;
-	//		vertexData[start].normal.y = vertexData[start].position.y;
-	//		vertexData[start].normal.z = vertexData[start].position.z;
-
-	//		//基準点c 右下
-	//		start++;
-	//		vertexData[start].position.x = std::cos(lat) * std::cos(lon + kLonEvery);
-	//		vertexData[start].position.y = std::sin(lat);
-	//		vertexData[start].position.z = std::cos(lat) * std::sin(lon + kLonEvery);
-	//		vertexData[start].position.w = 1.0f;
-	//		vertexData[start].texcoord = { u + 1.0f / kSubdivision,v };
-	//		vertexData[start].normal.x = vertexData[start].position.x;
-	//		vertexData[start].normal.y = vertexData[start].position.y;
-	//		vertexData[start].normal.z = vertexData[start].position.z;
-	//	}
-	//}
-#pragma endregion
-
 	///////////////////////////////////////////////////////////////////////
 	///						>>>汎用機能初期化<<<							///
 	///////////////////////////////////////////////////////////////////////
@@ -268,7 +159,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//スプライトの初期化
 	Sprite* sprite = new Sprite();
-	sprite->Initialize(spriteCommon,"./Resources/monsterBall.png");
+	sprite->Initialize(spriteCommon,"./Resources/uvChecker.png");
 
 	//スプライト（複数）
 	std::vector<std::unique_ptr<Sprite>> sprites;
@@ -282,13 +173,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		sprites.push_back(std::move(sprite));
 	}
 
-	std::unique_ptr<Model> model = std::make_unique<Model>();
-	model->Initialize(modelCommon);
+	// .objファイルからモデルを読み込む
+	ModelManager::GetInstance()->LoadModel("plane.obj");
 
 	//3Dオブジェクトの初期化
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>();
 	object->Initialize(objectCommon);
-	object->SetModel(model.get());
+	object->SetModel("plane.obj");
+	object->SetTranslate({ 0.0f,3.0f,0.0f });
 
 
 	///////////////////////////////////////////////////////////////////////
@@ -510,7 +402,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	TextureManager::GetInstance()->Finalize();		//テクスチャマネージャーの終了処理
 	delete dxCommon;								//DirectXCommonの解放
 	delete spriteCommon;							//スプライト共通部の解放
-	delete modelCommon;								//モデル共通部の解放
 	delete objectCommon;							//3Dオブジェクト共通部の解放
 	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
 	delete input;									//入力の解放

@@ -6,6 +6,7 @@
 
 #include "GraphicsTypes.h"
 #include "Model.h"
+#include "ModelManager.h"
 
 //スプライト共通部分のポインタ
 class Object3dCommon;
@@ -45,6 +46,7 @@ public: /*========[ セッター ]========*/
 
 	//モデルの設定
 	void SetModel(Model* model) { model_ = model; }
+	void SetModel(const std::string& filePath) { model_ = ModelManager::GetInstance()->FindModel(filePath); }
 
 	//Transform
 	const Vector3& GetScale() const { return transform_.scale; }

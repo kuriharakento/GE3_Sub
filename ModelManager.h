@@ -19,8 +19,18 @@ public: /*========[ メンバ関数 ]========*/
 	//終了
 	void Finalize();
 
-
+	/**
+	 * \brief モデルの読み込み
+	 * \param filePath モデルファイルパス
+	 */
 	void LoadModel(const std::string& filePath);
+
+	/**
+	 * \brief モデルの検索
+	 * \param filePath モデルファイルパス
+	 * \return モデル
+	 */
+	Model* FindModel(const std::string& filePath);
 
 private: /*========[ シングルトン ]========*/
 	static ModelManager* instance_;
