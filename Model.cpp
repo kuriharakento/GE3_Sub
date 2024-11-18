@@ -5,12 +5,12 @@
 
 #include "TextureManager.h"
 
-void Model::Initialize(ModelCommon* modelCommon)
+void Model::Initialize(ModelCommon* modelCommon, const std::string& directoryPath, const std::string& filename)
 {
 	modelCommon_ = modelCommon;
 
 	//モデルの読み込み
-	modelData_ = LoadObjFile("Resources", "plane.obj");
+	modelData_ = LoadObjFile(directoryPath,filename);
 
 	//テクスチャの読み込み
 	//.objの参照しているテクスチャファイル読み込み

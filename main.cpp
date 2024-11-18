@@ -43,6 +43,7 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 #include "SpriteCommon.h"
 #include "StringUtility.h"
 #include "TextureManager.h"
+#include "ModelManager.h"
 
 //数学
 #include "VectorFunc.h"
@@ -136,9 +137,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Object3dCommon* objectCommon = new Object3dCommon();
 	objectCommon->Initialize(dxCommon);
 
-	//モデル共通部の初期化
-	ModelCommon* modelCommon = new ModelCommon();
-	modelCommon->Initialize(dxCommon);
+	//3Dモデルマネージャーの初期化
+	ModelManager::GetInstance()->Initialize(dxCommon);
+
 #pragma region 球体
 	///===================================================================
 	///頂点位置を計算する
@@ -511,6 +512,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete spriteCommon;							//スプライト共通部の解放
 	delete modelCommon;								//モデル共通部の解放
 	delete objectCommon;							//3Dオブジェクト共通部の解放
+	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
 	delete input;									//入力の解放
 
 
