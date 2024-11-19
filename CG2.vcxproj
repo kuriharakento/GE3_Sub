@@ -54,6 +54,7 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)DirectXGame\engine\2d;$(ProjectDir)DirectXGame\engine\3d;$(ProjectDir)DirectXGame\engine\audio;$(ProjectDir)DirectXGame\engine\input;$(ProjectDir)DirectXGame\engine\base;$(ProjectDir)DirectXGame\engine\math;$(ProjectDir)DirectXGame\engine\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -76,6 +77,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)DirectXGame\engine\2d;$(ProjectDir)DirectXGame\engine\3d;$(ProjectDir)DirectXGame\engine\audio;$(ProjectDir)DirectXGame\engine\input;$(ProjectDir)DirectXGame\engine\base;$(ProjectDir)DirectXGame\engine\math;$(ProjectDir)DirectXGame\engine\scene;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

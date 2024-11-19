@@ -158,7 +158,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	//スプライトの初期化
-	Sprite* sprite = new Sprite();
+	std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
 	sprite->Initialize(spriteCommon,"./Resources/uvChecker.png");
 
 	//スプライト（複数）
@@ -377,17 +377,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	/*--------------[ スプライトの解放 ]-----------------*/
 
-	//単体
-	delete sprite;
+	sprite.reset();
 
-	//複数
-	for(int i = 0; i < spriteCount; ++i)
+	for (int i = 0; i < spriteCount; ++i)
 	{
 		sprites[i].reset();
 	}
 
 	/*--------------[ オブジェクトの解放 ]-----------------*/
 
+	//object.reset();
+
+	objectAxis.reset();
 
 	////////////////////////////////////////////////////////////
 	///					>>>オブジェクトの開放<<<				///
