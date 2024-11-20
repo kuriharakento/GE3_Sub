@@ -51,9 +51,8 @@ TextureManager* TextureManager::instance_ = nullptr;
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-
+	//リークチェック
 	D3DResourceLeakChecker leakCheck;
-
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>基盤システム初期化<<<						///
