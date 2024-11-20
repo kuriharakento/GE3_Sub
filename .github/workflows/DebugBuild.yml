@@ -1,1 +1,18 @@
+name: DebugBuild
 
+on:
+push:
+branches:
+-mastaer
+
+env:
+# リポジトリのルートディレクトリを起点としたソリューションファイルのパス
+SOLUTION_FILE_PATH: project/GE3_Sub.sln
+# Visual Studioの構成(Debug/Release)
+CONFIGURATION: Debug
+
+jobs:
+build:
+runs-on: windows-2022
+steps:
+- name: Checkout
