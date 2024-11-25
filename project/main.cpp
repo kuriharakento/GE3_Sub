@@ -123,7 +123,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	std::unique_ptr<Object3d> objectAxis = std::make_unique<Object3d>();
 
-
 	///////////////////////////////////////////////////////////////////////
 	///																	///
 	///						>>>メインループ<<<							///
