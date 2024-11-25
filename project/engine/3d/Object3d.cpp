@@ -22,10 +22,12 @@ Object3d::~Object3d()
 	}
 }
 
-void Object3d::Initialize(Object3dCommon* object3dCommon)
+void Object3d::Initialize(Object3dCommon* object3dCommon,Camera* camera)
 {
 	//引数で受け取った物を記録する
 	object3dCommon_ = object3dCommon;
+	//引数が指定されていれば引数のカメラを使う。指定されていなければデフォルトのカメラを使う
+	camera_ = camera ? camera : object3dCommon->GetDefaultCamera();
 
 	//描画設定の初期化
 	InitializeRenderingSettings();
@@ -35,12 +37,6 @@ void Object3d::Initialize(Object3dCommon* object3dCommon)
 		{ 1.0f,1.0f,1.0f },
 		{ 0.0f,0.0f,0.0f },
 		{ 0.0f,0.0f,0.0f },
-	};
-
-	cameraTransform_ = {
-		{ 1.0f,1.0f,1.0f },
-		{ 0.0f,0.0f,0.0f },
-		{ 0.0f,4.0f,-10.0f },
 	};
 
 }
@@ -71,10 +67,17 @@ void Object3d::Draw()
 void Object3d::UpdateMatrix()
 {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
-	transformationMatrixData_->WVP = worldMatrix * viewMatrix * projectionMatrix;
+	Matrix4x4 worldViewProjectionMatrix;
+
+	if(camera_)
+	{
+		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+		worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
+	} else {
+		worldViewProjectionMatrix = worldMatrix;
+	}
+
+	transformationMatrixData_->WVP = worldViewProjectionMatrix;
 	transformationMatrixData_->World = worldMatrix;
 }
 
