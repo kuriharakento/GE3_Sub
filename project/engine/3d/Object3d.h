@@ -6,6 +6,7 @@
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
 #include "3d/ModelManager.h"
+#include "base/Camera.h"
 
 //スプライト共通部分のポインタ
 class Object3dCommon;
@@ -17,7 +18,7 @@ public:	/*========[ メンバ関数 ]========*/
 	/**
 	 * \brief 初期化
 	 */
-	void Initialize(Object3dCommon* object3dCommon);
+	void Initialize(Object3dCommon* object3dCommon,Camera* camera = nullptr);
 
 	/**
 	 * \brief 更新
@@ -84,12 +85,14 @@ private: /*========[ 描画用変数 ]========*/
 	DirectionalLight* directionalLightData_ = nullptr;
 
 private: /*========[ メンバ変数 ]========*/
-	
+	//カメラ
+	Camera* camera_ = nullptr;
+
+	//モデル
 	Model* model_ = nullptr;
 
 	//座標変換行列
 	Transform transform_;
-	Transform cameraTransform_;
 
 };
 

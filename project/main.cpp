@@ -88,6 +88,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Input* input = new Input();
 	input->Initialize(winApp);
 
+	//カメラの初期化
+	std::unique_ptr<Camera> camera = std::make_unique<Camera>();
+	camera->SetRotate({});
+	camera->SetTranslate({ 0.0f,4.0f,-10.0f });
+	objectCommon->SetDefaultCamera(camera.get());
+
+
 	///////////////////////////////////////////////////////////////////////
 	///						>>>変数の宣言<<<								///
 	///////////////////////////////////////////////////////////////////////
@@ -115,6 +122,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane.obj");
+	ModelManager::GetInstance()->LoadModel("axis.obj");
 
 	//3Dオブジェクトの初期化
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>();
@@ -123,6 +131,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	object->SetTranslate({ 0.0f,3.0f,0.0f });
 
 	std::unique_ptr<Object3d> objectAxis = std::make_unique<Object3d>();
+	objectAxis->Initialize(objectCommon);
+	objectAxis->SetModel("axis.obj");
+	objectAxis->SetTranslate({ 5.0f,3.0f,0.0f });
 
 	///////////////////////////////////////////////////////////////////////
 	///																	///
@@ -145,18 +156,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
+		///////////////////////////////////
+		///		>>>汎用機能の更新<<<		///
+		///////////////////////////////////
+		
+		//入力の更新
+		input->Update();
+
+		//カメラの更新
+		camera->Update();
+
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここから<<<							///
 		///////////////////////////////////////////////////////////////////////
-
-		//入力の更新
-		input->Update();
 
 		//スプライトの更新
 		sprite->Update();
 
 		//3Dオブジェクトの更新
 		object->Update();
+		objectAxis->Update();
 
 		//スプライト（複数）
 		for(int i = 0; i < spriteCount; ++i)
@@ -170,6 +189,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		#pragma region シーン全体の設定
 		ImGui::Begin("Setting");
+
+		//カメラの位置
+		Vector3 cameraPosition = camera->GetTranslate();
+		ImGui::DragFloat3("cameraPosition", &cameraPosition.x, 0.01f);
+		camera->SetTranslate(cameraPosition);
+		//カメラの回転
+		Vector3 cameraRotate = camera->GetRotate();
+		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f, -3.14f, 3.14f);
+		camera->SetRotate(cameraRotate);
+
 		ImGui::End();
 		#pragma endregion
 
@@ -242,8 +271,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Vector3 objectScale = object->GetScale();
 		ImGui::DragFloat3("scale", &objectScale.x, 0.1f, 0.0f, 10.0f);
 		object->SetScale(objectScale);
-
 		ImGui::End();
+
+		ImGui::Begin("Object3D Axis");
+		//座標
+		Vector3 objectAxisPosition = objectAxis->GetTranslate();
+		ImGui::DragFloat3("translate", &objectAxisPosition.x, 0.1f, -10.0f, 10.0f);
+		objectAxis->SetTranslate(objectAxisPosition);
+		//回転
+		Vector3 objectAxisRotate = objectAxis->GetRotate();
+		ImGui::DragFloat3("rotate", &objectAxisRotate.x, 0.01f, -3.14f, 3.14f);
+		objectAxis->SetRotate(objectAxisRotate);
+		//拡大縮小
+		Vector3 objectAxisScale = objectAxis->GetScale();
+		ImGui::DragFloat3("scale", &objectAxisScale.x, 0.1f, 0.0f, 10.0f);
+		objectAxis->SetScale(objectAxisScale);
+		ImGui::End();
+
 		#pragma endregion
 
 #endif
@@ -270,6 +314,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		objectCommon->CommonRenderingSetting();
 
 		object->Draw();
+		objectAxis->Draw();
 
 		/*--------------[ スプライトの描画 ]-----------------*/
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "base/DirectXCommon.h"
+#include "base/Camera.h"
 
 class Object3dCommon
 {
@@ -13,6 +14,9 @@ public: //メンバ関数
 public: //アクセッサ
 	DirectXCommon* GetDXCommon() const { return dxCommon_; }
 
+	void SetDefaultCamera(Camera* camera) { defaultCamera_ = camera; }
+	Camera* GetDefaultCamera() const { return defaultCamera_; }
+
 private: //メンバ関数
 	/// \brief ルートシグネチャの生成
 	void CreateRootSignature();
@@ -20,6 +24,9 @@ private: //メンバ関数
 	void CreateGraphicsPipelineState();
 
 private: //メンバ変数
+	//カメラ
+	Camera* defaultCamera_ = nullptr;
+
 	//DirectXコマンド
 	DirectXCommon* dxCommon_ = nullptr;
 
@@ -27,7 +34,6 @@ private: //メンバ変数
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_ = nullptr;
 	//グラフィックスパイプラインステート
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_ = nullptr;
-
 
 };
 
