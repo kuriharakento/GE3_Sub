@@ -89,7 +89,6 @@ private: /*========[ メンバ変数 ]========*/
 
 	//座標変換行列
 	Transform transform_;
-	Transform cameraTransform_;
 
 };
 
