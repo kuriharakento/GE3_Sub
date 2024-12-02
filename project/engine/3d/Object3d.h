@@ -6,7 +6,7 @@
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
 #include "3d/ModelManager.h"
-#include "base/Camera.h"
+#include "base/CameraManager.h"
 
 //スプライト共通部分のポインタ
 class Object3dCommon;
@@ -23,7 +23,7 @@ public:	/*========[ メンバ関数 ]========*/
 	/**
 	 * \brief 更新
 	 */
-	void Update();
+	void Update(CameraManager* camera = nullptr);
 
 	/**
 	 * \brief 描画
@@ -34,7 +34,7 @@ public:	/*========[ メンバ関数 ]========*/
 	/**
 	 * \brief 行列の更新
 	 */
-	void UpdateMatrix();
+	void UpdateMatrix(Camera* camera);
 
 public: /*========[ ゲッター ]========*/
 
@@ -48,6 +48,9 @@ public: /*========[ セッター ]========*/
 	//モデルの設定
 	void SetModel(Model* model) { model_ = model; }
 	void SetModel(const std::string& filePath) { model_ = ModelManager::GetInstance()->FindModel(filePath); }
+
+	//カメラの設定
+	void SetCamera(Camera* camera) { camera_ = camera; }
 
 	//Transform
 	const Vector3& GetScale() const { return transform_.scale; }
