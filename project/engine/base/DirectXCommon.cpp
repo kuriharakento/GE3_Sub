@@ -21,8 +21,6 @@
 #include "externals/imgui/imgui_impl_win32.h"
 extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-const uint32_t DirectXCommon::kMaxSRVCount = 512;
-
 using namespace Microsoft::WRL;
 
 void DirectXCommon::Initialize(WinApp* winApp)

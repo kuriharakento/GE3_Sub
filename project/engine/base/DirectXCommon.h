@@ -57,6 +57,14 @@ public: //メンバ関数
 	/// \return 
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileSharder(const std::wstring& filePath, const wchar_t* profile);
 
+	/**
+	 * \brief ディスクリプタヒープの生成
+	 * \param heapType 
+	 * \param numDescriptor 
+	 * \param shaderVisible 
+	 * \return 
+	 */
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
 
 public://アクセッサ
 	/// \brief デバイスの取得
@@ -84,10 +92,6 @@ public://アクセッサ
 	uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
-
-public:
-	//最大SRV数（最大テクスチャ枚数）
-	static const uint32_t kMaxSRVCount;
 
 private: //メンバ関数
 	/// \brief デバイスの初期化
@@ -120,8 +124,7 @@ private: //メンバ関数
 	void UpdateFixFPS();
 
 
-	//ディスクリプタヒープの生成
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
+	
 
 	/// \brief CPUのDescriptorHandleを取得
 	/// \param descriptorHeap 
@@ -165,8 +168,6 @@ private: //メンバ変数
 	//ディスクリプタヒープ
 	//RTV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
-	//SRV
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_ = nullptr;
 	//DSV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
 
@@ -174,7 +175,6 @@ private: //メンバ変数
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
 
 	//ディスクリプタサイズ
-	uint32_t descriptorSizeSRV_;
 	uint32_t descriptorSizeRTV_;
 	uint32_t descriptorSizeDSV_;
 
