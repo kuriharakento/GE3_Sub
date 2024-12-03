@@ -9,7 +9,7 @@ void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 	spriteCommon_ = spriteCommon;
 
 	//単位行列を書き込んでおく
-	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	textureIndex_ = TextureManager::GetInstance()->GetSRVIndex(textureFilePath);
 
 	//頂点データを作成する
 	CreateVertexData();
@@ -61,7 +61,7 @@ void Sprite::Draw()
 void Sprite::SetTexture(std::string filePath)
 {
 	//テクスチャをファイルパスで指定して読み込む
-	textureIndex_ = TextureManager::GetInstance()->GetTextureIndexByFilePath(filePath);
+	textureIndex_ = TextureManager::GetInstance()->GetSRVIndex(filePath);
 	//スプライトのサイズをテクスチャと合わせる
 	AdjustTextureSize();
 	//行列を更新する

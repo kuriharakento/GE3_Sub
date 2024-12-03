@@ -2,6 +2,7 @@
 #include <vector>
 
 //ImGui
+#include "base/SrvManager.h"
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
@@ -67,8 +68,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectXCommon* dxCommon = new DirectXCommon();
 	dxCommon->Initialize(winApp);
 
+	//SRVマネージャーの初期化
+	std::unique_ptr<SrvManager> srvManager = std::make_unique<SrvManager>();
+	srvManager->Initialize(dxCommon);
+
 	//テクスチャマネージャーの初期化
-	TextureManager::GetInstance()->Initialize(dxCommon);
+	TextureManager::GetInstance()->Initialize(dxCommon,srvManager.get());
 
 	//スプライト共通部の初期化
 	SpriteCommon* spriteCommon = new SpriteCommon();
@@ -317,6 +322,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//描画前処理
 		dxCommon->PreDraw();
+		srvManager->PreDraw();
 
 		/*--------------[ 3Dオブジェクトの描画 ]-----------------*/
 

@@ -15,20 +15,27 @@ public:
 	//SRV生成（Structured Buffer用）
 	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride);
 
+	//描画前処理
 	void PreDraw();
 
+	//
 	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);
+
+	//最大枚数なのか
+	bool IsMaxSRVCount();
 
 public: //アクセッサ
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(uint32_t index);
 
+public:
+	//最大SRV数
+	static const uint32_t kMaxSRVCount;
+
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 
-	//最大SRV数
-	static const uint32_t kMaxSRVCount;
 	//SRVのディスクリプタサイズ
 	uint32_t descriptorSize_;
 	//SRVのディスクリプタヒープ

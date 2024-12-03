@@ -25,16 +25,6 @@ public: //メンバ関数
 	//描画後処理
 	void PostDraw();
 
-	/// \brief SRVのCPUディスクリプタハンドルを取得する
-	/// \param index 
-	/// \return 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
-
-	/// \brief SRVのGPUディスクリプタハンドルを取得する
-	/// \param index 
-	/// \return 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
-
 	/// \brief バッファリソースの生成
 	/// \param sizeInBytes 
 	/// \return 
@@ -85,11 +75,9 @@ public://アクセッサ
 
 	//各種ディスクリプヒープの取得
 	ID3D12DescriptorHeap* GetRTVDescriptorHeap() { return rtvDescriptorHeap_.Get(); }
-	ID3D12DescriptorHeap* GetSRVDescriptorHeap() { return srvDescriptorHeap_.Get(); }
 	ID3D12DescriptorHeap* GetDSVDescriptorHeap() { return dsvDescriptorHeap_.Get(); }
 
 	//各種ディスクリプタサイズの取得
-	uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
 
