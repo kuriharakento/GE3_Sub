@@ -99,6 +99,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
     <ClCompile Include="engine\2d\SpriteCommon.cpp" />
@@ -127,6 +128,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\manager\SrvManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine\audio\Audio.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
     <ClInclude Include="engine\2d\SpriteCommon.h" />
