@@ -6,11 +6,7 @@
 
 class CameraManager {
 public:
-    // コンストラクタとデストラクタ
-    CameraManager() = default;
-    ~CameraManager() = default;
-
-    // 名前だけでカメラを追加
+	// 名前だけでカメラを追加
     void AddCamera(const std::string& name);
 
     // カメラを取得

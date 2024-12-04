@@ -24,6 +24,7 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 #include "3d/Object3d.h"
 #include "3d/ModelManager.h"
 #include "base/CameraManager.h"
+#include "base/ImGuiManager.h"
 #include "math/VectorFunc.h"
 #pragma endregion
 
@@ -71,6 +72,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//SRVマネージャーの初期化
 	std::unique_ptr<SrvManager> srvManager = std::make_unique<SrvManager>();
 	srvManager->Initialize(dxCommon);
+
+	//ImGuiの初期化
+	ImGuiManager* imguiManager = new ImGuiManager();
+	imguiManager->Initilize(winApp,dxCommon,srvManager.get());
 
 	//テクスチャマネージャーの初期化
 	TextureManager::GetInstance()->Initialize(dxCommon,srvManager.get());
@@ -166,9 +171,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		//フレームの先頭でImGuiに、ここからフレームが始まる旨を告げる
-		ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
+		imguiManager->Begin();
 
 		///////////////////////////////////
 		///		>>>汎用機能の更新<<<		///
@@ -308,7 +311,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #endif
 
 		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
-		ImGui::Render();
+		imguiManager->End();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
@@ -323,6 +326,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//描画前処理
 		dxCommon->PreDraw();
 		srvManager->PreDraw();
+		
 
 		/*--------------[ 3Dオブジェクトの描画 ]-----------------*/
 
@@ -345,8 +349,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		//実際のcommandListのImGuiの描画コマンドを積む
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList());
-		
+		//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList());
+
+		imguiManager->Draw();
+
 		//描画後処理
 		dxCommon->PostDraw();
 
@@ -365,9 +371,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//NOTE:ここは基本的に触らない
 
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplDX12_Shutdown();
+	//ImGui_ImplWin32_Shutdown();
+	//ImGui::DestroyContext();
 
 	
 	///////////////////////////////////////
@@ -389,6 +395,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//NOTE:ここは基本的に触らない
 	winApp->Finalize();								//ウィンドウアプリケーションの終了処理
 	delete winApp;									//ウィンドウアプリケーションの解放
+	imguiManager->Finalize();						//ImGuiManagerの終了処理
+	delete imguiManager;							//ImGuiManagerの解放
 	TextureManager::GetInstance()->Finalize();		//テクスチャマネージャーの終了処理
 	delete dxCommon;								//DirectXCommonの解放
 	delete spriteCommon;							//スプライト共通部の解放

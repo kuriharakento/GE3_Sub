@@ -81,6 +81,9 @@ public://アクセッサ
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
 
+	//バックバッファの取得
+	size_t GetBackBufferCount() { return swapChainResources_.size(); }
+
 private: //メンバ関数
 	/// \brief デバイスの初期化
 	void InitializeDevice();
