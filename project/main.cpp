@@ -241,7 +241,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		ImGui::Begin("Sprite");
 		//スプライトの位置
 		Vector2 position = sprite->GetPosition();
-		ImGui::DragFloat2("translate",&position.x,1.0f,-1280.0f,1280.0f);
+		ImGui::DragFloat2("translate",&position.x,1.0f,-1280.0f,1280.0f,"%.1f");
 		sprite->SetPosition(position);
 		//スプライトの回転
 		float rotation = sprite->GetRotation();
