@@ -25,16 +25,6 @@ public: //メンバ関数
 	//描画後処理
 	void PostDraw();
 
-	/// \brief SRVのCPUディスクリプタハンドルを取得する
-	/// \param index 
-	/// \return 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUDescriptorHandle(uint32_t index);
-
-	/// \brief SRVのGPUディスクリプタハンドルを取得する
-	/// \param index 
-	/// \return 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUDescriptorHandle(uint32_t index);
-
 	/// \brief バッファリソースの生成
 	/// \param sizeInBytes 
 	/// \return 
@@ -57,6 +47,14 @@ public: //メンバ関数
 	/// \return 
 	Microsoft::WRL::ComPtr<IDxcBlob> CompileSharder(const std::wstring& filePath, const wchar_t* profile);
 
+	/**
+	 * \brief ディスクリプタヒープの生成
+	 * \param heapType 
+	 * \param numDescriptor 
+	 * \param shaderVisible 
+	 * \return 
+	 */
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
 
 public://アクセッサ
 	/// \brief デバイスの取得
@@ -77,17 +75,14 @@ public://アクセッサ
 
 	//各種ディスクリプヒープの取得
 	ID3D12DescriptorHeap* GetRTVDescriptorHeap() { return rtvDescriptorHeap_.Get(); }
-	ID3D12DescriptorHeap* GetSRVDescriptorHeap() { return srvDescriptorHeap_.Get(); }
 	ID3D12DescriptorHeap* GetDSVDescriptorHeap() { return dsvDescriptorHeap_.Get(); }
 
 	//各種ディスクリプタサイズの取得
-	uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
 
-public:
-	//最大SRV数（最大テクスチャ枚数）
-	static const uint32_t kMaxSRVCount;
+	//バックバッファの取得
+	size_t GetBackBufferCount() { return swapChainResources_.size(); }
 
 private: //メンバ関数
 	/// \brief デバイスの初期化
@@ -120,8 +115,7 @@ private: //メンバ関数
 	void UpdateFixFPS();
 
 
-	//ディスクリプタヒープの生成
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
+	
 
 	/// \brief CPUのDescriptorHandleを取得
 	/// \param descriptorHeap 
@@ -165,8 +159,6 @@ private: //メンバ変数
 	//ディスクリプタヒープ
 	//RTV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
-	//SRV
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_ = nullptr;
 	//DSV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
 
@@ -174,7 +166,6 @@ private: //メンバ変数
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
 
 	//ディスクリプタサイズ
-	uint32_t descriptorSizeSRV_;
 	uint32_t descriptorSizeRTV_;
 	uint32_t descriptorSizeDSV_;
 

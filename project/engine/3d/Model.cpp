@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "base/GraphicsTypes.h"
-#include "base/TextureManager.h"
+#include "manager/TextureManager.h"
 
 void Model::Initialize(ModelCommon* modelCommon, const std::string& directoryPath, const std::string& filename)
 {

@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera()
-	: transform_({ 1.0f,1.0f,1.0f },{ 0.0f,0.0f,0.0f },{ 0.0f,0.0f,-10.0f })
+	: transform_({ 1.0f,1.0f,1.0f },{ 0.0f,0.0f,0.0f },{ 0.0f,4.0f,-10.0f })
 	, fovY_(0.45f)
 	, aspectRatio_(float(WinApp::kClientWidth) / float(WinApp::kClientHeight))
 	, nearClip_(0.1f)

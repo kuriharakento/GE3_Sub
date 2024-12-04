@@ -41,10 +41,11 @@ void Object3d::Initialize(Object3dCommon* object3dCommon,Camera* camera)
 
 }
 
-void Object3d::Update()
+void Object3d::Update(CameraManager* camera)
 {
+	camera_ = camera ? camera->GetActiveCamera() : camera_;
 	//座標変換行列の更新
-	UpdateMatrix();
+	UpdateMatrix(camera_);
 }
 
 void Object3d::Draw()
@@ -64,14 +65,14 @@ void Object3d::Draw()
 ///						>>>その他関数の処理<<<							///
 ///////////////////////////////////////////////////////////////////////
 
-void Object3d::UpdateMatrix()
+void Object3d::UpdateMatrix(Camera* camera)
 {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
 
-	if(camera_)
+	if(camera)
 	{
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
 	} else {
 		worldViewProjectionMatrix = worldMatrix;

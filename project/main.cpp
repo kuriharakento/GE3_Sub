@@ -2,10 +2,9 @@
 #include <vector>
 
 //ImGui
+#ifdef _DEBUG
 #include "externals/imgui/imgui.h"
-#include "externals/imgui/imgui_impl_dx12.h"
-#include "externals/imgui/imgui_impl_win32.h"
-extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 ///					>>>自作クラスのインクルード<<<						///
@@ -18,10 +17,13 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 #include "base/D3DResourceLeakChecker.h"
 #include "2d/SpriteCommon.h"
 #include "2d/Sprite.h"
-#include "base/TextureManager.h"
+#include "manager/TextureManager.h"
 #include "3d/Object3dCommon.h"
 #include "3d/Object3d.h"
 #include "3d/ModelManager.h"
+#include "manager/CameraManager.h"
+#include "manager/ImGuiManager.h"
+#include "manager/SrvManager.h"
 #include "math/VectorFunc.h"
 #pragma endregion
 
@@ -65,8 +67,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectXCommon* dxCommon = new DirectXCommon();
 	dxCommon->Initialize(winApp);
 
+	//SRVマネージャーの初期化
+	std::unique_ptr<SrvManager> srvManager = std::make_unique<SrvManager>();
+	srvManager->Initialize(dxCommon);
+
+	//ImGuiの初期化
+	ImGuiManager* imguiManager = new ImGuiManager();
+	imguiManager->Initilize(winApp,dxCommon,srvManager.get());
+
 	//テクスチャマネージャーの初期化
-	TextureManager::GetInstance()->Initialize(dxCommon);
+	TextureManager::GetInstance()->Initialize(dxCommon,srvManager.get());
 
 	//スプライト共通部の初期化
 	SpriteCommon* spriteCommon = new SpriteCommon();
@@ -88,11 +98,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	input->Initialize(winApp);
 
 	//カメラの初期化
-	std::unique_ptr<Camera> camera = std::make_unique<Camera>();
+	/*std::unique_ptr<Camera> camera = std::make_unique<Camera>();
 	camera->SetRotate({});
 	camera->SetTranslate({ 0.0f,4.0f,-10.0f });
-	objectCommon->SetDefaultCamera(camera.get());
+	objectCommon->SetDefaultCamera(camera.get());*/
 
+	//カメラマネージャーの初期化
+	std::unique_ptr<CameraManager> cameraManager = std::make_unique<CameraManager>();
+	cameraManager->AddCamera("main");
+	cameraManager->SetActiveCamera("main");
+	cameraManager->GetActiveCamera()->SetTranslate({ 0.0f,4.0f,-10.0f });
+	cameraManager->GetActiveCamera()->SetRotate({ 0.0f,0.0f,0.0f });
+
+	objectCommon->SetDefaultCamera(cameraManager->GetActiveCamera());
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>変数の宣言<<<								///
@@ -151,9 +169,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		//フレームの先頭でImGuiに、ここからフレームが始まる旨を告げる
-		ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
+		imguiManager->Begin();
 
 		///////////////////////////////////
 		///		>>>汎用機能の更新<<<		///
@@ -163,7 +179,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		input->Update();
 
 		//カメラの更新
-		camera->Update();
+		cameraManager->Update();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここから<<<							///
@@ -173,8 +189,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		sprite->Update();
 
 		//3Dオブジェクトの更新
-		object->Update();
-		objectAxis->Update();
+		object->Update(cameraManager.get());
+		objectAxis->Update(cameraManager.get());
 
 		//スプライト（複数）
 		for(int i = 0; i < spriteCount; ++i)
@@ -189,15 +205,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		#pragma region シーン全体の設定
 		ImGui::Begin("Setting");
 
-		//カメラの位置
-		Vector3 cameraPosition = camera->GetTranslate();
-		ImGui::DragFloat3("cameraPosition", &cameraPosition.x, 0.01f);
-		camera->SetTranslate(cameraPosition);
-		//カメラの回転
-		Vector3 cameraRotate = camera->GetRotate();
-		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f, -3.14f, 3.14f);
-		camera->SetRotate(cameraRotate);
+		ImGui::End();
+		#pragma endregion
 
+		#pragma region
+		ImGui::Begin("CameraManager");
+		if(ImGui::Button("Set Camera"))
+		{
+			object->SetCamera(cameraManager->GetActiveCamera());
+			objectAxis->SetCamera(cameraManager->GetActiveCamera());
+		}
 		ImGui::End();
 		#pragma endregion
 
@@ -292,7 +309,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #endif
 
 		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
-		ImGui::Render();
+		imguiManager->End();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
@@ -306,6 +323,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//描画前処理
 		dxCommon->PreDraw();
+		srvManager->PreDraw();
+		
 
 		/*--------------[ 3Dオブジェクトの描画 ]-----------------*/
 
@@ -328,8 +347,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		//実際のcommandListのImGuiの描画コマンドを積む
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList());
-		
+		//ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dxCommon->GetCommandList());
+
+		imguiManager->Draw();
+
 		//描画後処理
 		dxCommon->PostDraw();
 
@@ -348,9 +369,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//NOTE:ここは基本的に触らない
 
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplDX12_Shutdown();
+	//ImGui_ImplWin32_Shutdown();
+	//ImGui::DestroyContext();
 
 	
 	///////////////////////////////////////
@@ -372,6 +393,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//NOTE:ここは基本的に触らない
 	winApp->Finalize();								//ウィンドウアプリケーションの終了処理
 	delete winApp;									//ウィンドウアプリケーションの解放
+	imguiManager->Finalize();						//ImGuiManagerの終了処理
+	delete imguiManager;							//ImGuiManagerの解放
 	TextureManager::GetInstance()->Finalize();		//テクスチャマネージャーの終了処理
 	delete dxCommon;								//DirectXCommonの解放
 	delete spriteCommon;							//スプライト共通部の解放
