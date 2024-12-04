@@ -4,7 +4,7 @@
 #include "externals/imgui/imgui_impl_win32.h"
 
 #include "base/WinApp.h"
-#include "base/SrvManager.h"
+#include "manager/SrvManager.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 
 void ImGuiManager::Initilize(WinApp* winApp, DirectXCommon* dxCommon, SrvManager* srvManager)

@@ -2,11 +2,9 @@
 #include <vector>
 
 //ImGui
-#include "base/SrvManager.h"
+#ifdef _DEBUG
 #include "externals/imgui/imgui.h"
-#include "externals/imgui/imgui_impl_dx12.h"
-#include "externals/imgui/imgui_impl_win32.h"
-extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 ///					>>>自作クラスのインクルード<<<						///
@@ -19,12 +17,13 @@ extern  IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT ms
 #include "base/D3DResourceLeakChecker.h"
 #include "2d/SpriteCommon.h"
 #include "2d/Sprite.h"
-#include "base/TextureManager.h"
+#include "manager/TextureManager.h"
 #include "3d/Object3dCommon.h"
 #include "3d/Object3d.h"
 #include "3d/ModelManager.h"
-#include "base/CameraManager.h"
-#include "base/ImGuiManager.h"
+#include "manager/CameraManager.h"
+#include "manager/ImGuiManager.h"
+#include "manager/SrvManager.h"
 #include "math/VectorFunc.h"
 #pragma endregion
 

@@ -1,7 +1,7 @@
-#include "base/CameraManager.h"
+#include "manager/CameraManager.h"
 #include <iostream>
 
-#include "Logger.h"
+#include "base/Logger.h"
 
 #ifdef _DEBUG
 #include "externals/imgui/imgui.h"

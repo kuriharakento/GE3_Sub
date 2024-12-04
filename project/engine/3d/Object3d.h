@@ -6,7 +6,7 @@
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
 #include "3d/ModelManager.h"
-#include "base/CameraManager.h"
+#include "manager/CameraManager.h"
 
 //スプライト共通部分のポインタ
 class Object3dCommon;

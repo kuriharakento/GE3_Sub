@@ -1,7 +1,7 @@
 #include "2d/Sprite.h"
 
 #include "2d/SpriteCommon.h"
-#include "base/TextureManager.h"
+#include "manager/TextureManager.h"
 
 void Sprite::Initialize(SpriteCommon* spriteCommon, std::string textureFilePath)
 {

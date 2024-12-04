@@ -1,4 +1,4 @@
-#include "base/TextureManager.h"
+#include "manager/TextureManager.h"
 
 #include "base/StringUtility.h"
 #include "externals/DirectXTex/d3dx12.h"

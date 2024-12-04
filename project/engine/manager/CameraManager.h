@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
-#include "Camera.h"
+#include "base/Camera.h"
 
 class CameraManager {
 public:
