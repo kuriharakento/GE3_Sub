@@ -238,7 +238,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		#pragma endregion
 
 		#pragma region スプライト用のImGui
-		ImGui::Begin("Sprite");
+		ImGui::SetNextWindowSize(ImVec2(500, 100));
+		ImGui::Begin("Sprite",nullptr,ImGuiWindowFlags_NoResize);
 		//スプライトの位置
 		Vector2 position = sprite->GetPosition();
 		ImGui::DragFloat2("translate",&position.x,1.0f,-1280.0f,1280.0f,"%.1f");
