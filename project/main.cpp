@@ -117,11 +117,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>変数の宣言<<<								///
 	///////////////////////////////////////////////////////////////////////
 
+	/*--------------[ スプライト ]-----------------*/
+
+	#pragma region テクスチャの読み込み
 	//テクスチャの読み込み
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 
+	#pragma endregion
 
+	#pragma region 宣言と初期化
 	//スプライトの初期化
 	std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>();
 	sprite->Initialize(spriteCommon,"./Resources/uvChecker.png");
@@ -137,11 +142,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		sprite->SetPosition({ 200.0f * i,0.0f });
 		sprites.push_back(std::move(sprite));
 	}
+	#pragma endregion
 
+	/*--------------[ 3Dオブジェクト ]-----------------*/
+
+	#pragma region モデルの読み込み
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 
+	#pragma endregion
+
+	#pragma region 宣言と初期化
 	//3Dオブジェクトの初期化
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>();
 	object->Initialize(objectCommon);
@@ -152,6 +164,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	objectAxis->Initialize(objectCommon);
 	objectAxis->SetModel("axis.obj");
 	objectAxis->SetTranslate({ 5.0f,3.0f,0.0f });
+
+	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
 	///																	///
@@ -172,9 +186,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//フレームの先頭でImGuiに、ここからフレームが始まる旨を告げる
 		imguiManager->Begin();
 
-		///////////////////////////////////
-		///		>>>汎用機能の更新<<<		///
-		///////////////////////////////////
+		///////////////////////////////////////////////////////////////////////
+		///						>>>更新処理ここから<<<							///
+		///////////////////////////////////////////////////////////////////////
+
+		///////////////////////////////////////////
+		///		>>>汎用機能の更新ここから<<<		///
+		///////////////////////////////////////////
 		
 		//入力の更新
 		input->Update();
@@ -182,9 +200,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//カメラの更新
 		cameraManager->Update();
 
-		///////////////////////////////////////////////////////////////////////
-		///						>>>更新処理ここから<<<							///
-		///////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////
+		///		>>>汎用機能の更新ここまで<<<		///
+		///////////////////////////////////////////
 
 		//スプライトの更新
 		sprite->Update();
@@ -309,14 +327,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #endif
 
-		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
-		imguiManager->End();
-
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
 		///////////////////////////////////////////////////////////////////////
 
-
+		//ゲームの処理が終わり描画処理に入る前にImGuiの内部コマンドを生成する
+		imguiManager->End();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>描画処理ここから<<<							///
@@ -363,22 +379,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///////////////////////////////////////////////////////////////////////
 	///						>>>解放処理ここから<<<							///
 	///////////////////////////////////////////////////////////////////////
-
-	 ///////////////////////////////////
-	 ///	>>>ImGuiの終了処理<<<		///
-	 ///////////////////////////////////
-
-	//NOTE:ここは基本的に触らない
-
-	//ImGui_ImplDX12_Shutdown();
-	//ImGui_ImplWin32_Shutdown();
-	//ImGui::DestroyContext();
-
-	
-	///////////////////////////////////////
-	///		>>>ゲームオブジェクト<<<		///
-	///////////////////////////////////////
-	
+		
 	/*--------------[ スプライトの解放 ]-----------------*/
 
 
