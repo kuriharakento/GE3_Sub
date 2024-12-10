@@ -41,8 +41,14 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
 	//パーティクルグループの初期化
 	particleGroups_.clear();
 
-	//頂点データの初期化
-	InitializeVertexData();
+	//マテリアルデータの生成
+	CreateMaterialData();
+
+	//頂点データの生成
+	CreateVertexData();
+	
+	//モデルデータの初期化
+	InitializeModelData();
 
 	//パイプラインの生成
 	CreateGraphicsPipelineState();
@@ -136,63 +142,112 @@ void ParticleManager::Draw()
 		// SRVのDescriptorTableの先頭を設定
 		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(group.materialData->textureIndex));
 		// インスタンシングデータのSRVのDescriptorTableの先頭を設定
-		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(group.instanceIndex));
+		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(group.instancingSrvIndex));
 		// 描画
 		dxCommon_->GetCommandList()->DrawInstanced(6, group.instanceCount, 0, 0);
 	}
 
 }
 
+void ParticleManager::CreateVertexData()
+{
+	/*--------------[ VertexResourceを作る ]-----------------*/
+
+	vertexResource_ = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kMaxParticleCount);//１頂点当たりのサイズ
+
+	/*--------------[ VertexBufferViewを設定する ]-----------------*/
+
+	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();				//リソースの先頭のアドレスから使う
+	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());	//使用するリソースのサイズは頂点のサイズ
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);									//１頂点当たりのサイズ
+
+	/*--------------[ VertexResourceにデータを書き込むためのアドレスを取得してvertexDataに割り当てる ]-----------------*/
+
+	vertexResource_->Map(0,
+		nullptr,
+		reinterpret_cast<void**>(&instancingData)
+	);
+
+	for (uint32_t i = 0; i < kMaxParticleCount; ++i)
+	{
+		instancingData[i].WVP = MakeIdentity4x4();
+		instancingData[i].World = MakeIdentity4x4();
+		instancingData[i].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+
+}
+
+void ParticleManager::CreateMaterialData()
+{
+	//マテリアル用のリソースを作成
+	materialResource_ = dxCommon_->CreateBufferResource(sizeof(Material));
+
+	//書き込むためのアドレスを取得
+	materialResource_->Map(
+		0, 
+		nullptr, 
+		reinterpret_cast<void**>(&materialData_)
+	);
+	//マテリアルデータの初期化
+	materialData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	materialData_->enableLighting = false;
+	materialData_->uvTransform = MakeIdentity4x4();
+
+}
+
+void ParticleManager::InitializeModelData()
+{
+	modelData_.vertices.push_back({ .position = {1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
+	modelData_.vertices.push_back({ .position = {-1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
+	modelData_.vertices.push_back({ .position = {1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
+	modelData_.vertices.push_back({ .position = {1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
+	modelData_.vertices.push_back({ .position = {-1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
+	modelData_.vertices.push_back({ .position = {-1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
+}
+
+
 void ParticleManager::CreateParticleGroup(const std::string& groupName, const std::string& textureFilePath)
 {
+	//パーティクルグループが既に存在する場合はエラー
 	if (particleGroups_.find(groupName) != particleGroups_.end())
 	{
+		// ログ出力
 		Logger::Log("Particle group with name " + groupName + " already exists.");
 		assert(false);
 	}
 
 	//パーティクルグループを作成し、コンテナに追加
 	ParticleGroup newGroup;
-
-	newGroup.materialData = new MaterialData();
-
-	ModelData modelData_;
-	modelData_ = Model::LoadObjFile("Resources", "axis.obj");
-	modelData_.material.textureFilePath = std::string("./") + modelData_.material.textureFilePath;
+	newGroup.materialData.textureFilePath = textureFilePath;
+	//テクスチャを読み込む
 	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
-	//VertexBufferViewを設定する
-	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();				//リソースの先頭のアドレスから使う
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());	//使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.StrideInBytes = sizeof(VertexData);
-
-	//マテリアルデータにテクスチャのインデックスを設定
-	newGroup.materialData->textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
+	//マテリアルデータにテクスチャのSRVインデックスを設定
+	newGroup.materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
 	//インスタンシング用のリソースを作成
 	newGroup.instancingResource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kMaxParticleCount);
-
-	// デバッグ情報を出力
-	if (newGroup.instancingResource == nullptr) {
-		Logger::Log("Failed to create instancing resource");
-	} else {
-		Logger::Log("Instancing resource created successfully");
+	newGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&newGroup.instancingData));
+	for(uint32_t index = 0;index < kMaxParticleCount; ++index)
+	{
+		newGroup.instancingData[index].WVP = MakeIdentity4x4();
+		newGroup.instancingData[index].World = MakeIdentity4x4();
+		newGroup.instancingData[index].color = Vector4(1.0f,1.0f,1.0f,1.0f);
 	}
 
-	newGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&newGroup.instancingData));
 	
 	//インスタンシング用にSRVを確保してSRVインデックスを記録
-	srvManager_->Allocate();
+	newGroup.instancingSrvIndex = srvManager_->Allocate() + 1;
 	//SRV生成（StructuredBuffer用の設定）
 	srvManager_->CreateSRVforStructuredBuffer(
-		newGroup.materialData->textureIndex,
+		newGroup.instancingSrvIndex,
 		newGroup.instancingResource.Get(),
 		kMaxParticleCount, // numElements: パーティクルの最大数
 		sizeof(ParticleForGPU) // structureByteStride: 各パーティクルのサイズ
 	);
 
-
 	// 新しいパーティクルグループを追加
-	particleGroups_[groupName] = newGroup;
+	particleGroups_.emplace(groupName, newGroup);
 }
+
 
 void ParticleManager::Emit(const std::string& groupName, const Vector3& position, uint32_t count)
 {
@@ -292,35 +347,7 @@ void ParticleManager::CreateRootSignature()
 	assert(SUCCEEDED(hr));
 }
 
-void ParticleManager::InitializeVertexData()
-{
-	/*--------------[ VertexResourceを作る ]-----------------*/
 
-	vertexResource_ = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kMaxParticleCount);//１頂点当たりのサイズ
-
-	/*--------------[ VertexBufferViewを設定する ]-----------------*/
-
-	ModelData modelData_;
-	modelData_ = Model::LoadObjFile("Resources", "axis.obj");
-	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();				//リソースの先頭のアドレスから使う
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());	//使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.StrideInBytes = sizeof(VertexData);									//１頂点当たりのサイズ
-
-	/*--------------[ VertexResourceにデータを書き込むためのアドレスを取得してvertexDataに割り当てる ]-----------------*/
-
-	vertexResource_->Map(0,
-		nullptr,
-		reinterpret_cast<void**>(&instancingData)
-	);
-
-	for (uint32_t i = 0; i < kMaxParticleCount; ++i)
-	{
-		instancingData[i].WVP = MakeIdentity4x4();
-		instancingData[i].World = MakeIdentity4x4();
-		instancingData[i].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-
-}
 
 void ParticleManager::CreateGraphicsPipelineState()
 {

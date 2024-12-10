@@ -114,7 +114,7 @@
     <ClCompile Include="engine\manager\ParticleManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
+    <ClCompile Include="engine\effects\ParticleEmitter.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -212,7 +212,7 @@
     <ClInclude Include="engine\manager\ParticleManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
+    <ClInclude Include="engine\effects\ParticleEmitter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

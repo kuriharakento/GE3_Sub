@@ -18,9 +18,9 @@ constexpr uint32_t kMaxParticleCount = 100;
 
 struct ParticleGroup
 {
-	MaterialData* materialData = nullptr;
+	MaterialData materialData;
 	std::list<Particle> particles;
-	uint32_t instanceIndex = 0;
+	uint32_t instancingSrvIndex = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
 	uint32_t instanceCount = 0;
 	ParticleForGPU* instancingData = nullptr;
@@ -56,6 +56,18 @@ public:
 private: /*========[ メンバ関数 ]========*/
 
 	/**
+	 * \brief 頂点データの初期化
+	 */
+	void CreateVertexData();
+
+	/**
+	 * \brief マテリアルの初期化
+	 */
+	void CreateMaterialData();
+
+	void InitializeModelData();
+
+	/**
 	 * \brief パイプラインの生成
 	 */
 	void CreateGraphicsPipelineState();
@@ -65,10 +77,7 @@ private: /*========[ メンバ関数 ]========*/
 	 */
 	void CreateRootSignature();
 
-	/**
-	 * \brief 頂点データの初期化
-	 */
-	void InitializeVertexData();
+	
 
 private: /*========[ メンバ変数 ]========*/
 
@@ -94,6 +103,16 @@ private: /*========[ メンバ変数 ]========*/
 	ParticleForGPU* instancingData = nullptr;
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
+
+	/*--------------[ マテリアルデータ ]-----------------*/
+
+	//バッファリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	//データ
+	Material* materialData_ = nullptr;
+
+	//モデルデータ
+	ModelData modelData_;
 
 	/*--------------[ コンテナ ]-----------------*/
 
