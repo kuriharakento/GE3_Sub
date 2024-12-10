@@ -11,6 +11,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #pragma region 自作クラスのインクルード
+#include "ParticleEmitter.h"
 #include "input/Input.h"
 #include "base/WinApp.h"
 #include "base/DirectXCommon.h"
@@ -165,6 +166,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	objectAxis->SetModel("axis.obj");
 	objectAxis->SetTranslate({ 5.0f,3.0f,0.0f });
 
+	ParticleManager::GetInstance()->Initialize(dxCommon, srvManager.get());
+	std::unique_ptr<ParticleEmitter> particleEmitter = std::make_unique<ParticleEmitter>(Transform({1.0f,1.0f,1.0f,},{},{}),5);
+
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -210,6 +214,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//3Dオブジェクトの更新
 		object->Update(cameraManager.get());
 		objectAxis->Update(cameraManager.get());
+		ParticleManager::GetInstance()->Update(cameraManager->GetActiveCamera());
+		particleEmitter->Update();
+
 
 		//スプライト（複数）
 		for(int i = 0; i < spriteCount; ++i)
@@ -350,6 +357,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		object->Draw();
 		objectAxis->Draw();
+		ParticleManager::GetInstance()->Draw();
 
 		/*--------------[ スプライトの描画 ]-----------------*/
 
@@ -402,6 +410,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete spriteCommon;							//スプライト共通部の解放
 	delete objectCommon;							//3Dオブジェクト共通部の解放
 	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
+	ParticleManager::GetInstance()->Finalize();		//パーティクルマネージャーの終了処理
 	delete input;									//入力の解放
 
 

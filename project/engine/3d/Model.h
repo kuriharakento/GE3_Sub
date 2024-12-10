@@ -29,14 +29,22 @@ public:
 	 */
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
 
+	//static MaterialData LoadMaterialTemplateFile(const std::string& filePath);
+
 	/**
 	 * \brief .objファイルの読み取り
-	 * \param a
-	 * \param a
-	 * \return a
+	 * \param
+	 * \param
+	 * \return
 	 */
 	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
+	/**
+	 * \brief .objファイルの読み取り
+	 * \param filePath 
+	 * \return 
+	 */
+	//static ModelData LoadObjFile(const std::string& filePath);
 
 private: //メンバ関数
 	/**

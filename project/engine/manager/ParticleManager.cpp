@@ -3,9 +3,30 @@
 #include <dxcapi.h>
 
 #include "TextureManager.h"
+#include "3d/ModelManager.h"
 #include "base/DirectXCommon.h"
 #include "base/Logger.h"
 #include "manager/SrvManager.h"
+
+ParticleManager* ParticleManager::instance_ = nullptr;
+
+ParticleManager* ParticleManager::GetInstance()
+{
+	if (instance_ == nullptr)
+	{
+		instance_ = new ParticleManager();
+	}
+	return instance_;
+}
+
+void ParticleManager::Finalize()
+{
+	if (instance_ != nullptr)
+	{
+		delete instance_;
+		instance_ = nullptr;
+	}
+}
 
 void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
 {
@@ -17,8 +38,14 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
 	std::random_device rd;
 	mt_.seed(rd());
 
+	//パーティクルグループの初期化
+	particleGroups_.clear();
+
 	//頂点データの初期化
 	InitializeVertexData();
+
+	//パイプラインの生成
+	CreateGraphicsPipelineState();
 }
 
 void ParticleManager::Update(Camera* camera)
@@ -66,7 +93,7 @@ void ParticleManager::Update(Camera* camera)
 
 				// 世界行列とWVP行列の計算
 				Matrix4x4 worldMatrixInstancing = scaleMatrix * billboardMatrix * translateMatrix;
-				Matrix4x4 worldViewProjectionMatrixInstancing = Multiply(worldMatrixInstancing, Multiply(viewMatrix, projectionMatrix));
+				Matrix4x4 worldViewProjectionMatrixInstancing = Multiply(worldMatrixInstancing, Multiply(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
 
 				// インスタンシングデータの設定
 				instancingData[numInstance].WVP = worldViewProjectionMatrixInstancing;
@@ -108,8 +135,8 @@ void ParticleManager::Draw()
 		ParticleGroup& group = groupPair.second;
 		// SRVのDescriptorTableの先頭を設定
 		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(group.materialData->textureIndex));
-		// インスタンシングデータの設定
-		dxCommon_->GetCommandList()->SetGraphicsRootShaderResourceView(3, group.instancingResource->GetGPUVirtualAddress());
+		// インスタンシングデータのSRVのDescriptorTableの先頭を設定
+		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(group.instanceIndex));
 		// 描画
 		dxCommon_->GetCommandList()->DrawInstanced(6, group.instanceCount, 0, 0);
 	}
@@ -120,29 +147,63 @@ void ParticleManager::CreateParticleGroup(const std::string& groupName, const st
 {
 	if (particleGroups_.find(groupName) != particleGroups_.end())
 	{
+		Logger::Log("Particle group with name " + groupName + " already exists.");
 		assert(false);
 	}
 
 	//パーティクルグループを作成し、コンテナに追加
 	ParticleGroup newGroup;
-	//マテリアルデータの作成
-	newGroup.materialData->textureFilePath = textureFilePath;
-	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+
+	newGroup.materialData = new MaterialData();
+
+	ModelData modelData_;
+	modelData_ = Model::LoadObjFile("Resources", "axis.obj");
+	modelData_.material.textureFilePath = std::string("./") + modelData_.material.textureFilePath;
+	TextureManager::GetInstance()->LoadTexture(modelData_.material.textureFilePath);
+	//VertexBufferViewを設定する
+	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();				//リソースの先頭のアドレスから使う
+	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());	//使用するリソースのサイズは頂点のサイズ
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	//マテリアルデータにテクスチャのインデックスを設定
-	newGroup.materialData->textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	newGroup.materialData->textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.material.textureFilePath);
 	//インスタンシング用のリソースを作成
 	newGroup.instancingResource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kMaxParticleCount);
+
+	// デバッグ情報を出力
+	if (newGroup.instancingResource == nullptr) {
+		Logger::Log("Failed to create instancing resource");
+	} else {
+		Logger::Log("Instancing resource created successfully");
+	}
+
+	newGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&newGroup.instancingData));
+	
 	//インスタンシング用にSRVを確保してSRVインデックスを記録
 	srvManager_->Allocate();
 	//SRV生成（StructuredBuffer用の設定）
 	srvManager_->CreateSRVforStructuredBuffer(
 		newGroup.materialData->textureIndex,
 		newGroup.instancingResource.Get(),
-		TextureManager::GetInstance()->GetMetadata(newGroup.materialData->textureFilePath).format,
-		TextureManager::GetInstance()->GetMetadata(newGroup.materialData->textureFilePath).mipLevels
+		kMaxParticleCount, // numElements: パーティクルの最大数
+		sizeof(ParticleForGPU) // structureByteStride: 各パーティクルのサイズ
 	);
 
+
+	// 新しいパーティクルグループを追加
+	particleGroups_[groupName] = newGroup;
+}
+
+void ParticleManager::Emit(const std::string& groupName, const Vector3& position, uint32_t count)
+{
+	//パーティクルグループが存在しない場合は作成
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		CreateParticleGroup(groupName, std::string("a"));
+	}
+
+	//パーティクルを生成
+	particleGroups_[groupName].instanceCount = count;
 }
 
 void ParticleManager::CreateRootSignature()
@@ -150,6 +211,12 @@ void ParticleManager::CreateRootSignature()
 	///===================================================================
 	///ディスクリプタレンジの生成
 	///===================================================================
+
+	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
+	descriptorRange[0].BaseShaderRegister = 0;
+	descriptorRange[0].NumDescriptors = 1;
+	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	D3D12_DESCRIPTOR_RANGE descriptorRangeForInstancing[1] = {};
 	descriptorRangeForInstancing[0].BaseShaderRegister = 0;	//０から始まる
@@ -171,10 +238,19 @@ void ParticleManager::CreateRootSignature()
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;		//PixelShaderで使う
 	rootParameters[0].Descriptor.ShaderRegister = 0;						//レジスタ番号０とバインド
 
+	/*rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[1].Descriptor.ShaderRegister = 0;*/
+
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;			//descriptorTableを使う
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;					//vertexShader
 	rootParameters[1].DescriptorTable.pDescriptorRanges = descriptorRangeForInstancing;
 	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForInstancing);
+
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;			//DescriptorTableを使う
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						//PixelShaderで使う
+	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;					//Tableの中身の配列を指定
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);		//Tableで利用する数
 
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -197,9 +273,8 @@ void ParticleManager::CreateRootSignature()
 	descriptionRootSignature.pParameters = rootParameters;					//ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters);		//配列の長さ
 
-	HRESULT hr;
-
 	//シリアライズしてバイナリする
+	HRESULT hr;
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
 	hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
@@ -209,8 +284,11 @@ void ParticleManager::CreateRootSignature()
 		assert(false);
 	}
 	//バイナリをもとに生成
-
-	hr = dxCommon_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
+	hr = dxCommon_->GetDevice()->CreateRootSignature(
+		0, 
+		signatureBlob->GetBufferPointer(), 
+		signatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(&rootSignature_));
 	assert(SUCCEEDED(hr));
 }
 
@@ -222,9 +300,11 @@ void ParticleManager::InitializeVertexData()
 
 	/*--------------[ VertexBufferViewを設定する ]-----------------*/
 
-	//vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();				//リソースの先頭のアドレスから使う
-	//vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());	//使用するリソースのサイズは頂点のサイズ
-	//vertexBufferView_.StrideInBytes = sizeof(VertexData);									//１頂点当たりのサイズ
+	ModelData modelData_;
+	modelData_ = Model::LoadObjFile("Resources", "axis.obj");
+	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();				//リソースの先頭のアドレスから使う
+	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData_.vertices.size());	//使用するリソースのサイズは頂点のサイズ
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);									//１頂点当たりのサイズ
 
 	/*--------------[ VertexResourceにデータを書き込むためのアドレスを取得してvertexDataに割り当てる ]-----------------*/
 
@@ -348,6 +428,10 @@ void ParticleManager::CreateGraphicsPipelineState()
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	//実際に生成
 
-	hr = dxCommon_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState_));
+	hr = dxCommon_->GetDevice()->CreateGraphicsPipelineState(
+		&graphicsPipelineStateDesc, 
+		IID_PPV_ARGS(&graphicsPipelineState_)
+	);
+
 	assert(SUCCEEDED(hr));
 }

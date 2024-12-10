@@ -7,6 +7,7 @@
 
 #include "base/Camera.h"
 #include "base/GraphicsTypes.h"
+#include "3d/Model.h"
 
 //前方宣言
 class DirectXCommon;
@@ -28,6 +29,15 @@ struct ParticleGroup
 class ParticleManager
 {
 public:
+
+	//シングルトンのインスタンスを取得
+	static ParticleManager* GetInstance();
+
+	/**
+	 * \brief 終了
+	 */
+	static void Finalize();
+
 	/**
 	 * \brief 初期化
 	 * \param dxCommon 
@@ -40,6 +50,8 @@ public:
 	void Draw();
 
 	void CreateParticleGroup(const std::string& groupName, const std::string& textureFilePath);
+
+	void Emit(const std::string& groupName, const Vector3& position, uint32_t count);
 
 private: /*========[ メンバ関数 ]========*/
 
@@ -64,11 +76,12 @@ private: /*========[ メンバ変数 ]========*/
 
 	DirectXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
+	Model* model_ = nullptr;
 
 	//ルートシグネチャ
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_ = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	//パイプライン
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_ = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
 
 	//ランダムエンジン
 	std::mt19937 mt_;
@@ -87,5 +100,14 @@ private: /*========[ メンバ変数 ]========*/
 	//グループ名をキーとしてパーティクルグループを管理
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
 
+
+private:
+	/*========[ シングルトン ]========*/
+	static ParticleManager* instance_;
+	//コピー禁止
+	ParticleManager() = default;
+	~ParticleManager() = default;
+	ParticleManager(const ParticleManager& rhs) = delete;
+	ParticleManager& operator=(const ParticleManager& rhs) = delete;
 };
 
