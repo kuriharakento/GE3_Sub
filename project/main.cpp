@@ -52,9 +52,7 @@ TextureManager* TextureManager::instance_ = nullptr;
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-
 	D3DResourceLeakChecker leakCheck;
-
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>基盤システム初期化<<<						///
@@ -105,6 +103,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	cameraManager->GetActiveCamera()->SetTranslate({ 0.0f,4.0f,-10.0f });
 	cameraManager->GetActiveCamera()->SetRotate({ 0.0f,0.0f,0.0f });
 
+	//3Dオブジェクト共通部にカメラを設定
 	objectCommon->SetDefaultCamera(cameraManager->GetActiveCamera());
 
 	///////////////////////////////////////////////////////////////////////
@@ -117,7 +116,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//テクスチャの読み込み
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
-
 	#pragma endregion
 
 	#pragma region 宣言と初期化
@@ -130,7 +128,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
-
 	#pragma endregion
 
 	#pragma region 宣言と初期化
@@ -173,20 +170,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		///////////////////////////////////////////
 		///		>>>汎用機能の更新ここまで<<<		///
 		///////////////////////////////////////////
-
-		
-
 		
 #ifdef _DEBUG
 		/*--------------[ ImGui ]-----------------*/
 
 		#pragma region シーン全体の設定
-		ImGui::Begin("Setting");
+		ImGui::Begin("Settings");
 
 		ImGui::End();
 		#pragma endregion
-
-
 
 #endif
 
@@ -256,7 +248,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete objectCommon;							//3Dオブジェクト共通部の解放
 	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
 	delete input;									//入力の解放
-
 
 	return 0;
 }
