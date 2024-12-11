@@ -23,8 +23,10 @@ void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon
 	};
 }
 
-void Player::Update()
+void Player::Update(CameraManager* camera)
 {
+	object3d_->Update(camera);
+
 	if(Input::GetInstance()->PushKey(DIK_W))
 	{
 		transform_.translate.z += status_.speed;

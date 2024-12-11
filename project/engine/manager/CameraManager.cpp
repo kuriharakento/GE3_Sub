@@ -56,6 +56,7 @@ void CameraManager::Update() {
             ImGui::Text("Camera: %s", camera.first.c_str());
 		}
     }
+    ImGui::Text("Active Camera");
 	// カメラの位置
 	Vector3 cameraPosition = activeCamera_->GetTranslate();
 	ImGui::DragFloat3("translate", &cameraPosition.x, 0.1f);

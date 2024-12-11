@@ -17,7 +17,7 @@ public:
 
 	void Initialize(const std::string& filePath, Object3dCommon* objectCommon);
 
-	void Update();
+	void Update(CameraManager* camera = nullptr);
 
 	void Draw();
 

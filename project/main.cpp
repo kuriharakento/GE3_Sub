@@ -179,7 +179,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #endif
 
 		//プレイヤーの更新
-		player->Update();
+		player->Update(cameraManager.get());
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
