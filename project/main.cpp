@@ -21,6 +21,7 @@
 #include "3d/Object3dCommon.h"
 #include "3d/Object3d.h"
 #include "3d/ModelManager.h"
+#include "application/Entities/Player.h"
 #include "manager/CameraManager.h"
 #include "manager/ImGuiManager.h"
 #include "manager/SrvManager.h"
@@ -93,14 +94,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///////////////////////////////////////////////////////////////////////
 
 	//入力の初期化
-	Input* input = new Input();
-	input->Initialize(winApp);
+	Input::GetInstance()->Initialize(winApp);
 
 	//カメラマネージャーの初期化
 	std::unique_ptr<CameraManager> cameraManager = std::make_unique<CameraManager>();
 	cameraManager->AddCamera("main");
 	cameraManager->SetActiveCamera("main");
-	cameraManager->GetActiveCamera()->SetTranslate({ 0.0f,4.0f,-10.0f });
+	cameraManager->GetActiveCamera()->SetTranslate({ 0.0f,2.0f,-7.0f });
 	cameraManager->GetActiveCamera()->SetRotate({ 0.0f,0.0f,0.0f });
 
 	//3Dオブジェクト共通部にカメラを設定
@@ -110,19 +110,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>変数の宣言<<<								///
 	///////////////////////////////////////////////////////////////////////
 
-	/*--------------[ スプライト ]-----------------*/
 
 	#pragma region テクスチャの読み込み
 	//テクスチャの読み込み
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 	#pragma endregion
-
-	#pragma region 宣言と初期化
-	
-	#pragma endregion
-
-	/*--------------[ 3Dオブジェクト ]-----------------*/
 
 	#pragma region モデルの読み込み
 	// .objファイルからモデルを読み込む
@@ -131,7 +124,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	#pragma endregion
 
 	#pragma region 宣言と初期化
-	
+	std::unique_ptr<Player> player = std::make_unique<Player>();
+	player->Initialize("plane.obj", objectCommon);
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -153,16 +147,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//フレームの先頭でImGuiに、ここからフレームが始まる旨を告げる
 		imguiManager->Begin();
 
-		///////////////////////////////////////////////////////////////////////
-		///						>>>更新処理ここから<<<							///
-		///////////////////////////////////////////////////////////////////////
-
 		///////////////////////////////////////////
 		///		>>>汎用機能の更新ここから<<<		///
 		///////////////////////////////////////////
 		
 		//入力の更新
-		input->Update();
+		Input::GetInstance()->Update();
 
 		//カメラの更新
 		cameraManager->Update();
@@ -170,6 +160,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		///////////////////////////////////////////
 		///		>>>汎用機能の更新ここまで<<<		///
 		///////////////////////////////////////////
+
+		///////////////////////////////////////////////////////////////////////
+		///						>>>更新処理ここから<<<							///
+		///////////////////////////////////////////////////////////////////////
 		
 #ifdef _DEBUG
 		/*--------------[ ImGui ]-----------------*/
@@ -181,6 +175,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		#pragma endregion
 
 #endif
+
+		player->Update();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
@@ -202,6 +198,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//NOTE:3Dオブジェクトの描画準備。共通の設定を行う
 		objectCommon->CommonRenderingSetting();
+
+		player->Draw();
 
 		/*--------------[ スプライトの描画 ]-----------------*/
 
@@ -247,7 +245,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete spriteCommon;							//スプライト共通部の解放
 	delete objectCommon;							//3Dオブジェクト共通部の解放
 	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
-	delete input;									//入力の解放
+	Input::GetInstance()->Finalize();				//入力の解放
 
 	return 0;
 }

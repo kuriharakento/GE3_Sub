@@ -125,8 +125,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\manager\ImGuiManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
+    <ClCompile Include="application\Entities\Mech.cpp" />
+    <ClCompile Include="application\Entities\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\Collision\AABB.h" />
+    <ClInclude Include="application\Collision\ICollidable.h" />
+    <ClInclude Include="application\Collision\ObjectType.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
     <ClInclude Include="engine\2d\SpriteCommon.h" />
@@ -156,6 +161,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="engine\manager\SrvManager.h" />
     <ClInclude Include="engine\manager\ImGuiManager.h" />
+    <ClInclude Include="application\Entities\Mech.h" />
+    <ClInclude Include="application\Entities\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
