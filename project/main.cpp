@@ -47,8 +47,6 @@
 ///						>>>グローバル変数の宣言<<<						///
 ///////////////////////////////////////////////////////////////////////
 
-//テクスチャマネージャーのインスタンス
-TextureManager* TextureManager::instance_ = nullptr;
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
@@ -59,6 +57,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>基盤システム初期化<<<						///
 	///////////////////////////////////////////////////////////////////////
 
+	#pragma region 基盤システム初期化
 	//ウィンドウアプリケーションの初期化
 	WinApp* winApp = new WinApp();
 	winApp->Initialize();
@@ -88,6 +87,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon);
+
+	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>汎用機能初期化<<<							///
@@ -124,6 +125,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	#pragma endregion
 
 	#pragma region 宣言と初期化
+	/*===[ プレイヤー ]===*/
 	std::unique_ptr<Player> player = std::make_unique<Player>();
 	player->Initialize("plane.obj", objectCommon);
 	#pragma endregion
@@ -176,6 +178,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #endif
 
+		//プレイヤーの更新
 		player->Update();
 
 		///////////////////////////////////////////////////////////////////////
@@ -199,6 +202,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//NOTE:3Dオブジェクトの描画準備。共通の設定を行う
 		objectCommon->CommonRenderingSetting();
 
+		//プレイヤーの描画
 		player->Draw();
 
 		/*--------------[ スプライトの描画 ]-----------------*/

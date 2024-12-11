@@ -6,6 +6,9 @@
 // ImGuiで0番を使用するため、1番から開始
 uint32_t TextureManager::kSRVIndexTop = 1;
 
+//テクスチャマネージャーのインスタンス
+TextureManager* TextureManager::instance_ = nullptr;
+
 TextureManager* TextureManager::GetInstance()
 {
     if (instance_ == nullptr)
