@@ -47,9 +47,6 @@
 ///						>>>グローバル変数の宣言<<<						///
 ///////////////////////////////////////////////////////////////////////
 
-//テクスチャマネージャーのインスタンス
-TextureManager* TextureManager::instance_ = nullptr;
-
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
@@ -167,8 +164,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	objectAxis->SetTranslate({ 5.0f,3.0f,0.0f });
 
 	ParticleManager::GetInstance()->Initialize(dxCommon, srvManager.get());
-	std::unique_ptr<ParticleEmitter> particleEmitter = std::make_unique<ParticleEmitter>(Transform({1.0f,1.0f,1.0f,},{},{}),5);
-
+	ParticleManager::GetInstance()->CreateParticleGroup("particle", "./Resources/uvChecker.png");
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -214,8 +210,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//3Dオブジェクトの更新
 		object->Update(cameraManager.get());
 		objectAxis->Update(cameraManager.get());
-		ParticleManager::GetInstance()->Update(cameraManager->GetActiveCamera());
-		particleEmitter->Update();
+		ParticleManager::GetInstance()->Update(cameraManager.get());
+		
 
 
 		//スプライト（複数）
@@ -230,7 +226,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		#pragma region シーン全体の設定
 		ImGui::Begin("Setting");
-
+		if(ImGui::Button("Add Particle"))
+		{
+			ParticleManager::GetInstance()->Emit("particle", { 0.0f,3.0f,0.0f }, 5);
+		}
 		ImGui::End();
 		#pragma endregion
 

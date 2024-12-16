@@ -28,5 +28,8 @@ private:
 	//グループ番号
 	uint32_t groupIndex_ = 1;
 
+	//モデルのファイルパス
+	std::string modelFilePath_ = "Resources/axis.obj";
+
 };
 

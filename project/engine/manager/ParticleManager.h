@@ -5,7 +5,7 @@
 #include <list>
 #include <unordered_map>
 
-#include "base/Camera.h"
+#include "CameraManager.h"
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
 
@@ -45,7 +45,7 @@ public:
 	 */
 	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager);
 
-	void Update(Camera* camera);
+	void Update(CameraManager* camera);
 
 	void Draw();
 
@@ -100,7 +100,7 @@ private: /*========[ メンバ変数 ]========*/
 	//バッファのリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
 	//データ
-	ParticleForGPU* instancingData = nullptr;
+	VertexData* vertexData = nullptr;
 	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 
