@@ -26,6 +26,7 @@
 #include "manager/SrvManager.h"
 #include "effects/ParticleEmitter.h"
 #include "math/VectorFunc.h"
+#include "application/StageScene.h"
 #pragma endregion
 
 //コードを整理するときに使う
@@ -93,8 +94,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///////////////////////////////////////////////////////////////////////
 
 	//入力の初期化
-	Input* input = new Input();
-	input->Initialize(winApp);
+	Input::GetInstance()->Initialize(winApp);
 
 	//カメラの初期化
 	/*std::unique_ptr<Camera> camera = std::make_unique<Camera>();
@@ -140,8 +140,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	#pragma endregion
 
 	#pragma region 宣言と初期化
+	std::unique_ptr<StageScene> stageScene = std::make_unique<StageScene>();
+	stageScene->Init(spriteCommon);
 
-	
 	ParticleManager::GetInstance()->CreateParticleGroup("particle", "./Resources/uvChecker.png");
 	#pragma endregion
 
@@ -173,7 +174,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		///////////////////////////////////////////
 		
 		//入力の更新
-		input->Update();
+		Input::GetInstance()->Update();
 
 		//カメラの更新
 		cameraManager->Update();
@@ -185,6 +186,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//パーティクルの更新
 		ParticleManager::GetInstance()->Update(cameraManager.get());
 
+		stageScene->Update();
 		
 #ifdef _DEBUG
 		/*--------------[ ImGui ]-----------------*/
@@ -229,7 +231,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//スプライトの描画準備。共通の設定を行う
 		spriteCommon->CommonRenderingSetting();
 
-
+		stageScene->Draw();
 
 		imguiManager->Draw();
 
@@ -268,7 +270,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete objectCommon;							//3Dオブジェクト共通部の解放
 	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
 	ParticleManager::GetInstance()->Finalize();		//パーティクルマネージャーの終了処理
-	delete input;									//入力の解放
+	Input::GetInstance()->Finalize();				//入力の解放
 
 
 	return 0;

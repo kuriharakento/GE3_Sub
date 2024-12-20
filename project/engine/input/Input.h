@@ -14,6 +14,8 @@ public:
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public: //メンバ関数
+	static Input* GetInstance();
+	void Finalize();
 	//初期化
 	void Initialize(WinApp* winApp);
 	//更新
@@ -30,6 +32,12 @@ public: //メンバ関数
 	bool TriggerKey(BYTE keyNumber);
 
 private: //メンバ変数
+	static Input* instance_;
+	Input() = default;
+	~Input() = default;
+	Input(Input&) = delete;
+	Input& operator=(Input&) = delete;
+
 	//WindowsAPI
 	WinApp* winApp_ = nullptr;
 

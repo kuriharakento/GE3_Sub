@@ -99,6 +99,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\Command.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
@@ -124,12 +125,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="engine\manager\ImGuiManager.cpp" />
+    <ClCompile Include="application\InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
     <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
+    <ClCompile Include="application\Player.cpp" />
+    <ClCompile Include="application\StageScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\Command.h" />
     <ClInclude Include="engine\audio\Audio.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
@@ -162,6 +167,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\manager\ImGuiManager.h" />
     <ClInclude Include="engine\manager\ParticleManager.h" />
     <ClInclude Include="engine\effects\ParticleEmitter.h" />
+    <ClInclude Include="application\Player.h" />
+    <ClInclude Include="application\InputHandler.h" />
+    <ClInclude Include="application\StageScene.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
