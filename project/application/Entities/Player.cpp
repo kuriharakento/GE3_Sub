@@ -63,7 +63,7 @@ void Player::Update()
 
 	//カメラを追従させる
 	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
-	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.0f, -3.0f));
+	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.5f, -4.0f));
 
 	//行列の更新
 	UpdateObjTransform();
