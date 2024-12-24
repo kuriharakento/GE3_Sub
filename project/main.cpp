@@ -21,11 +21,12 @@
 #include "3d/Object3dCommon.h"
 #include "3d/Object3d.h"
 #include "3d/ModelManager.h"
-#include "application/Entities/Player.h"
 #include "manager/CameraManager.h"
 #include "manager/ImGuiManager.h"
 #include "manager/SrvManager.h"
 #include "math/VectorFunc.h"
+#include "application/Entities/Player.h"
+#include "application/Entities/Enemy.h"
 #pragma endregion
 
 //コードを整理するときに使う
@@ -128,6 +129,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	/*===[ プレイヤー ]===*/
 	std::unique_ptr<Player> player = std::make_unique<Player>();
 	player->Initialize("plane.obj", objectCommon);
+	/*===[ 敵 ]===*/
+	std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
+	enemy->Initialize("plane.obj", objectCommon);
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -181,6 +185,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//プレイヤーの更新
 		player->Update(cameraManager.get());
 
+		//敵の更新
+		enemy->Update(cameraManager.get());
+
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
 		///////////////////////////////////////////////////////////////////////
@@ -204,6 +211,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//プレイヤーの描画
 		player->Draw();
+
+		//敵の描画
+		enemy->Draw();
 
 		/*--------------[ スプライトの描画 ]-----------------*/
 
