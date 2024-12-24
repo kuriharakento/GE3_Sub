@@ -100,6 +100,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\Entities\Enemy.cpp" />
+    <ClCompile Include="application\Manager\EnemyManager.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
     <ClCompile Include="engine\2d\SpriteCommon.cpp" />
@@ -134,6 +135,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Collision\ICollidable.h" />
     <ClInclude Include="application\Collision\ObjectType.h" />
     <ClInclude Include="application\Entities\Enemy.h" />
+    <ClInclude Include="application\Manager\EnemyManager.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
     <ClInclude Include="engine\2d\SpriteCommon.h" />

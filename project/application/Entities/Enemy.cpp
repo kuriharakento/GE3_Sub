@@ -1,6 +1,8 @@
 #include "Enemy.h"
 
+#ifdef _DEBUG
 #include "externals/imgui/imgui.h"
+#endif
 
 void Enemy::Initialize(const std::string& filePath, Object3dCommon* objectCommon)
 {
@@ -20,12 +22,11 @@ void Enemy::Initialize(const std::string& filePath, Object3dCommon* objectCommon
 void Enemy::Update(CameraManager* camera)
 {
 #ifdef _DEBUG
-	ImGui::Begin("Enemy");
-	ImGui::End();
+	
 #endif
 
 	//行列の更新
-	UpdateObjTransform();
+	UpdateObjTransform(camera);
 }
 
 void Enemy::Draw()

@@ -27,6 +27,7 @@
 #include "math/VectorFunc.h"
 #include "application/Entities/Player.h"
 #include "application/Entities/Enemy.h"
+#include "application/Manager/EnemyManager.h"
 #pragma endregion
 
 //コードを整理するときに使う
@@ -128,10 +129,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	#pragma region 宣言と初期化
 	/*===[ プレイヤー ]===*/
 	std::unique_ptr<Player> player = std::make_unique<Player>();
-	player->Initialize("plane.obj", objectCommon);
+	player->Initialize("plane.obj", objectCommon,cameraManager.get());
 	/*===[ 敵 ]===*/
-	std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
-	enemy->Initialize("plane.obj", objectCommon);
+	std::unique_ptr<EnemyManager> enemyManager = std::make_unique<EnemyManager>();
+	enemyManager->Initialize(objectCommon, cameraManager.get(), "plane.obj");
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -183,10 +184,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #endif
 
 		//プレイヤーの更新
-		player->Update(cameraManager.get());
+		player->Update();
 
 		//敵の更新
-		enemy->Update(cameraManager.get());
+		enemyManager->Update();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
@@ -213,7 +214,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		player->Draw();
 
 		//敵の描画
-		enemy->Draw();
+		enemyManager->Draw();
 
 		/*--------------[ スプライトの描画 ]-----------------*/
 

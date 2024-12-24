@@ -41,9 +41,17 @@ public: // アクセッサ
 
     const AABB& GetBoundingBox() const override { return hitBox_; }
 
+	void SetPosition(const Vector3& position) { transform_.translate = position; }
+	void SetScale(const Vector3& scale) { transform_.scale = scale; }
+	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
+
+	Vector3 GetPosition() const { return transform_.translate; }
+	Vector3 GetScale() const { return transform_.scale; }
+	Vector3 GetRotate() const { return transform_.rotate; }
+
 private:
     // オブジェクトのTransform情報を更新
-    void UpdateObjTransform();
+    void UpdateObjTransform(CameraManager* camera);
 
     // 衝突判定用のAABB
     AABB hitBox_;
@@ -52,10 +60,10 @@ private:
     std::string enemyType_;
 };
 
-inline void Enemy::UpdateObjTransform()
+inline void Enemy::UpdateObjTransform(CameraManager* camera)
 {
     object3d_->SetScale(transform_.scale);
     object3d_->SetRotate(transform_.rotate);
     object3d_->SetTranslate(transform_.translate);
-    object3d_->Update();
+    object3d_->Update(camera);
 }

@@ -8,7 +8,7 @@
 #include "3d/ModelManager.h"
 #include "input/Input.h"
 
-void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon)
+void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon, CameraManager* camera)
 {
 	// モデルの初期化
 	object3d_ = std::make_unique<Object3d>();
@@ -21,11 +21,28 @@ void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon
 		{0.0f,0.0f,0.0f},
 		{0.0f,0.0f,0.0f}
 	};
+
+	//カメラマネージャーのポインタ取得
+	cameraManager_ = camera;
+
+	//カメラマネージャーにプレイヤーを追尾するカメラを登録
+	cameraManager_->AddCamera("FollowPlayer");
+	//カメラマネージャーにプレイヤーを追尾するカメラをセット
+	cameraManager_->SetActiveCamera("FollowPlayer");
 }
 
-void Player::Update(CameraManager* camera)
+void Player::Update()
 {
-	object3d_->Update(camera);
+#ifdef _DEBUG
+	ImGui::Begin("Player Status");
+	ImGui::Text("Health : %.1f", status_.health);
+	ImGui::Text("AttackPower : %.1f", status_.attackPower);
+	ImGui::Text("Speed : %.3f", status_.speed);
+	ImGui::DragFloat3("Position", &transform_.translate.x, 0.01f);
+	ImGui::DragFloat3("Rotation", &transform_.rotate.x, 0.01f);
+	ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
+	ImGui::End();
+#endif
 
 	if(Input::GetInstance()->PushKey(DIK_W))
 	{
@@ -44,17 +61,11 @@ void Player::Update(CameraManager* camera)
 		transform_.translate.x += status_.speed;
 	}
 
-#ifdef _DEBUG
-	ImGui::Begin("Player Status");
-	ImGui::Text("Health : %.1f", status_.health);
-	ImGui::Text("AttackPower : %.1f", status_.attackPower);
-	ImGui::Text("Speed : %.3f", status_.speed);
-	ImGui::DragFloat3("Position", &transform_.translate.x, 0.01f);
-	ImGui::DragFloat3("Rotation", &transform_.rotate.x, 0.01f);
-	ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
-	ImGui::End();
-#endif
+	//カメラを追従させる
+	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
+	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.0f, -3.0f));
 
+	//行列の更新
 	UpdateObjTransform();
 }
 

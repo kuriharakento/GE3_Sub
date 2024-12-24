@@ -15,9 +15,9 @@ public:
 		type_ = ObjectType::Player;
 	}
 
-	void Initialize(const std::string& filePath, Object3dCommon* objectCommon);
+	void Initialize(const std::string& filePath, Object3dCommon* objectCommon,CameraManager* camera);
 
-	void Update(CameraManager* camera = nullptr);
+	void Update();
 
 	void Draw();
 
@@ -39,6 +39,9 @@ private:
 
 	void UpdateObjTransform();
 
+private:
+	CameraManager* cameraManager_ = nullptr;
+
 };
 
 inline void Player::UpdateObjTransform()
@@ -46,6 +49,6 @@ inline void Player::UpdateObjTransform()
 	object3d_->SetScale(transform_.scale);
 	object3d_->SetRotate(transform_.rotate);
 	object3d_->SetTranslate(transform_.translate);
-	object3d_->Update();
+	object3d_->Update(cameraManager_);
 }
 
