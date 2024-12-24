@@ -1,38 +1,63 @@
 #pragma once
 #include <cmath>
 
+// Vector2
 struct Vector2 {
-    float x; ///< X成分
-    float y; ///< Y成分
+    float x, y;
 
-    // 加算オペレータ
+    // インスタンスメソッド
+    Vector2 Normalize() const {
+        float len = Length();
+        if (len == 0) return Vector2{ 0.0f, 0.0f };
+        return *this / len;
+    }
+
+    float Length() const {
+        return sqrtf(x * x + y * y);
+    }
+
+    float Dot(const Vector2& other) const {
+        return (x * other.x) + (y * other.y);
+    }
+
+    // スタティックメソッド
+    static Vector2 Normalize(const Vector2& vec) {
+        float len = vec.Length();
+        if (len == 0) return Vector2{ 0.0f, 0.0f };
+        return vec / len;
+    }
+
+    static float Length(const Vector2& vec) {
+        return sqrtf(vec.x * vec.x + vec.y * vec.y);
+    }
+
+    static float Dot(const Vector2& a, const Vector2& b) {
+        return (a.x * b.x) + (a.y * b.y);
+    }
+
+    // オペレータ
     Vector2 operator+(const Vector2& other) const {
         return Vector2{ x + other.x, y + other.y };
     }
 
-    // 減算オペレータ
     Vector2 operator-(const Vector2& other) const {
         return Vector2{ x - other.x, y - other.y };
     }
 
-    // スカラー乗算
     Vector2 operator*(float scalar) const {
         return Vector2{ x * scalar, y * scalar };
     }
 
-    // スカラー除算
     Vector2 operator/(float scalar) const {
         return Vector2{ x / scalar, y / scalar };
     }
 
-    // 加算代入
     Vector2& operator+=(const Vector2& other) {
         x += other.x;
         y += other.y;
         return *this;
     }
 
-    // 減算代入
     Vector2& operator-=(const Vector2& other) {
         x -= other.x;
         y -= other.y;
@@ -40,32 +65,73 @@ struct Vector2 {
     }
 };
 
+// Vector3
 struct Vector3 {
-    float x; ///< X成分
-    float y; ///< Y成分
-    float z; ///< Z成分
+    float x, y, z;
 
-    // 加算オペレータ
+    // インスタンスメソッド
+    Vector3 Normalize() const {
+        float len = Length();
+        if (len == 0) return Vector3{ 0.0f, 0.0f, 0.0f };
+        return *this / len;
+    }
+
+    float Length() const {
+        return sqrtf(x * x + y * y + z * z);
+    }
+
+    float Dot(const Vector3& other) const {
+        return (x * other.x) + (y * other.y) + (z * other.z);
+    }
+
+    Vector3 Cross(const Vector3& other) const {
+        return Vector3{
+            (y * other.z) - (z * other.y),
+            (z * other.x) - (x * other.z),
+            (x * other.y) - (y * other.x)
+        };
+    }
+
+    // スタティックメソッド
+    static Vector3 Normalize(const Vector3& vec) {
+        float len = vec.Length();
+        if (len == 0) return Vector3{ 0.0f, 0.0f, 0.0f };
+        return vec / len;
+    }
+
+    static float Length(const Vector3& vec) {
+        return sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+    }
+
+    static float Dot(const Vector3& a, const Vector3& b) {
+        return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+    }
+
+    static Vector3 Cross(const Vector3& a, const Vector3& b) {
+        return Vector3{
+            (a.y * b.z) - (a.z * b.y),
+            (a.z * b.x) - (a.x * b.z),
+            (a.x * b.y) - (a.y * b.x)
+        };
+    }
+
+    // オペレータ
     Vector3 operator+(const Vector3& other) const {
         return Vector3{ x + other.x, y + other.y, z + other.z };
     }
 
-    // 減算オペレータ
     Vector3 operator-(const Vector3& other) const {
         return Vector3{ x - other.x, y - other.y, z - other.z };
     }
 
-    // スカラー乗算
     Vector3 operator*(float scalar) const {
         return Vector3{ x * scalar, y * scalar, z * scalar };
     }
 
-    // スカラー除算
     Vector3 operator/(float scalar) const {
         return Vector3{ x / scalar, y / scalar, z / scalar };
     }
 
-    // 加算代入
     Vector3& operator+=(const Vector3& other) {
         x += other.x;
         y += other.y;
@@ -73,7 +139,6 @@ struct Vector3 {
         return *this;
     }
 
-    // 減算代入
     Vector3& operator-=(const Vector3& other) {
         x -= other.x;
         y -= other.y;
@@ -82,44 +147,57 @@ struct Vector3 {
     }
 };
 
-// Vector3の長さを計算
-inline float Length(const Vector3& v) {
-    return sqrtf((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
-}
-
-// Vector3を正規化
-inline Vector3 Normalize(const Vector3& v) {
-    float length = Length(v);
-    return Vector3{ v.x / length, v.y / length, v.z / length };
-}
-
+// Vector4
 struct Vector4 {
-    float x; ///< X成分
-    float y; ///< Y成分
-    float z; ///< Z成分
-    float w; ///< W成分
+    float x, y, z, w;
 
-    // 加算オペレータ
+    // インスタンスメソッド
+    Vector4 Normalize() const {
+        float len = Length();
+        if (len == 0) return Vector4{ 0.0f, 0.0f, 0.0f, 0.0f };
+        return *this / len;
+    }
+
+    float Length() const {
+        return sqrtf(x * x + y * y + z * z + w * w);
+    }
+
+    float Dot(const Vector4& other) const {
+        return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w);
+    }
+
+    // スタティックメソッド
+    static Vector4 Normalize(const Vector4& vec) {
+        float len = vec.Length();
+        if (len == 0) return Vector4{ 0.0f, 0.0f, 0.0f, 0.0f };
+        return vec / len;
+    }
+
+    static float Length(const Vector4& vec) {
+        return sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z + vec.w * vec.w);
+    }
+
+    static float Dot(const Vector4& a, const Vector4& b) {
+        return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
+    }
+
+    // オペレータ
     Vector4 operator+(const Vector4& other) const {
         return Vector4{ x + other.x, y + other.y, z + other.z, w + other.w };
     }
 
-    // 減算オペレータ
     Vector4 operator-(const Vector4& other) const {
         return Vector4{ x - other.x, y - other.y, z - other.z, w - other.w };
     }
 
-    // スカラー乗算
     Vector4 operator*(float scalar) const {
         return Vector4{ x * scalar, y * scalar, z * scalar, w * scalar };
     }
 
-    // スカラー除算
     Vector4 operator/(float scalar) const {
         return Vector4{ x / scalar, y / scalar, z / scalar, w / scalar };
     }
 
-    // 加算代入
     Vector4& operator+=(const Vector4& other) {
         x += other.x;
         y += other.y;
@@ -128,7 +206,6 @@ struct Vector4 {
         return *this;
     }
 
-    // 減算代入
     Vector4& operator-=(const Vector4& other) {
         x -= other.x;
         y -= other.y;

@@ -1,6 +1,7 @@
 #pragma once
 #include "Mech.h"
 #include "application/Collision/ICollidable.h"
+#include "application/Weapon/MachineGun.h"
 
 class Player : public Mech, public ICollidable
 {
@@ -35,12 +36,23 @@ public: //アクセッサ
 
 	const AABB& GetBoundingBox() const override;
 
+	Vector3 GetPosition() const { return transform_.translate; }
+	Vector3 GetScale() const { return transform_.scale; }
+	Vector3 GetRotate() const { return transform_.rotate; }
+
+	void SetPosition(const Vector3& position) { transform_.translate = position; }
+	void SetScale(const Vector3& scale) { transform_.scale = scale; }
+	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
+
 private:
 
 	void UpdateObjTransform();
 
-private:
+private: //メンバ変数
 	CameraManager* cameraManager_ = nullptr;
+
+	//プレイヤーの武器
+	std::unique_ptr<MachineGun> machineGun_ = nullptr;
 
 };
 

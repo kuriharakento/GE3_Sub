@@ -101,6 +101,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="application\Entities\Enemy.cpp" />
     <ClCompile Include="application\Manager\EnemyManager.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
     <ClCompile Include="engine\2d\SpriteCommon.cpp" />
@@ -125,6 +126,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="engine\manager\ImGuiManager.cpp" />
+    <ClCompile Include="application\Weapon\MachineGun.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="application\Entities\Mech.cpp" />
@@ -136,6 +138,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Collision\ObjectType.h" />
     <ClInclude Include="application\Entities\Enemy.h" />
     <ClInclude Include="application\Manager\EnemyManager.h" />
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
     <ClInclude Include="engine\2d\SpriteCommon.h" />
@@ -167,6 +170,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\manager\ImGuiManager.h" />
     <ClInclude Include="application\Entities\Mech.h" />
     <ClInclude Include="application\Entities\Player.h" />
+    <ClInclude Include="application\Weapon\IWeapon.h" />
+    <ClInclude Include="application\Weapon\MachineGun.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

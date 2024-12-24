@@ -22,6 +22,10 @@ void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon
 		{0.0f,0.0f,0.0f}
 	};
 
+	//武器の初期化
+	machineGun_ = std::make_unique<MachineGun>();
+	machineGun_->Initialize(objectCommon,this);
+
 	//カメラマネージャーのポインタ取得
 	cameraManager_ = camera;
 
@@ -61,6 +65,9 @@ void Player::Update()
 		transform_.translate.x += status_.speed;
 	}
 
+	//武器の更新
+	machineGun_->Update(cameraManager_);
+
 	//カメラを追従させる
 	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
 	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.5f, -4.0f));
@@ -71,7 +78,11 @@ void Player::Update()
 
 void Player::Draw()
 {
+	//プレイヤーの描画
 	object3d_->Draw();
+
+	//武器の描画
+	machineGun_->Draw();
 }
 
 void Player::OnCollision(ICollidable* other)

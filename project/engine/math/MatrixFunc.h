@@ -1,5 +1,6 @@
 #pragma once
 #include "math/VectorFunc.h"
+#include <cmath>
 
 /// \brief コタンジェント
 /// \param a 
