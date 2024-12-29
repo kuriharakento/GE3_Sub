@@ -123,7 +123,7 @@
     <ClCompile Include="application\Weapon\MachineGun.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Bullet.cpp">
+    <ClCompile Include="application\Weapon\Bullet.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="application\Weapon\Missile.cpp">
@@ -245,7 +245,7 @@
     <ClInclude Include="application\Weapon\MachineGun.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Bullet.h">
+    <ClInclude Include="application\Weapon\Bullet.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="application\Weapon\Missile.h">

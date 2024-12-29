@@ -1,5 +1,7 @@
 #include "Enemy.h"
 #include "application/Entities/Player.h"
+#include <cstdlib>
+#include <ctime>
 
 #ifdef _DEBUG
 #include "externals/imgui/imgui.h"
@@ -80,9 +82,14 @@ void Enemy::UpdateMissile()
 		//ベジェ曲線の制御点
         Vector3 startPosition = transform_.translate;
         Vector3 endPosition = player_->GetPosition();
-		float controlPointHeightOffset = 20.0f; // 高さオフセットを設定
+		// 制御点の高さとランダムオフセットを計算
+		float randomOffsetY = 20.0f;
+		float randomOffsetX = static_cast<float>(std::rand() % 10 - 5);
+		float randomOffsetZ = static_cast<float>(std::rand() % 10 - 5);
+		// 制御点を計算
 		Vector3 controlPoint =
-			(startPosition + endPosition) * 0.5f + Vector3(0, controlPointHeightOffset, 0);
+			(startPosition + endPosition) * 0.5f +
+			Vector3(randomOffsetX, randomOffsetY, randomOffsetZ);
 
         // ミサイルを生成
         auto missile = std::make_unique<Missile>();
