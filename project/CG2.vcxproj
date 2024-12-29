@@ -131,6 +131,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="application\Entities\Mech.cpp" />
     <ClCompile Include="application\Entities\Player.cpp" />
+    <ClCompile Include="application\Weapon\Missile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Collision\AABB.h" />
@@ -172,6 +173,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Entities\Player.h" />
     <ClInclude Include="application\Weapon\IWeapon.h" />
     <ClInclude Include="application\Weapon\MachineGun.h" />
+    <ClInclude Include="application\Weapon\Missile.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

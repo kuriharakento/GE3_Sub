@@ -2,7 +2,9 @@
 
 #include "Mech.h"
 #include "application/Collision/ICollidable.h"
+#include "application/Weapon/Missile.h"
 
+class Player;
 class Enemy : public Mech, public ICollidable
 {
 public:
@@ -41,6 +43,8 @@ public: // アクセッサ
 
     const AABB& GetBoundingBox() const override { return hitBox_; }
 
+	void SetPlayer(Player* player) { player_ = player; }
+
 	void SetPosition(const Vector3& position) { transform_.translate = position; }
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
@@ -53,11 +57,24 @@ private:
     // オブジェクトのTransform情報を更新
     void UpdateObjTransform(CameraManager* camera);
 
-    // 衝突判定用のAABB
-    AABB hitBox_;
+	void UpdateMissile();
 
-    // 敵の種類などを識別するための情報（必要に応じて追加）
-    std::string enemyType_;
+private: // メンバ変数
+    //プレイヤーのポインタ
+	Player* player_ = nullptr;
+
+	// 3Dオブジェクト共通情報
+	Object3dCommon* objectCommon_ = nullptr;
+
+    //ミサイルリスト
+    std::vector<std::unique_ptr<Missile>> missiles_;
+
+    //ミサイル発射間隔
+	float fireInterval_ = 2.0f;
+
+    //次の発射までの時間
+    float fireTimer_ = 0.0f;
+
 };
 
 inline void Enemy::UpdateObjTransform(CameraManager* camera)
@@ -66,4 +83,9 @@ inline void Enemy::UpdateObjTransform(CameraManager* camera)
     object3d_->SetRotate(transform_.rotate);
     object3d_->SetTranslate(transform_.translate);
     object3d_->Update(camera);
+    // ミサイルの更新
+    for (auto& missile : missiles_)
+    {
+        missile->Update(camera);
+    }
 }

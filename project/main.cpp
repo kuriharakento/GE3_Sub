@@ -132,7 +132,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	player->Initialize("plane.obj", objectCommon,cameraManager.get());
 	/*===[ 敵 ]===*/
 	std::unique_ptr<EnemyManager> enemyManager = std::make_unique<EnemyManager>();
-	enemyManager->Initialize(objectCommon, cameraManager.get(), "plane.obj");
+	enemyManager->Initialize(objectCommon, cameraManager.get(), player.get(), "plane.obj");
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////

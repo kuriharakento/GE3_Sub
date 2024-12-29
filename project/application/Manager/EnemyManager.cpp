@@ -1,12 +1,17 @@
 #include "EnemyManager.h"
 
-#include "externals/imgui/imgui.h"
+#include "application/Entities/Player.h"
 
-void EnemyManager::Initialize(Object3dCommon* objectCommon, CameraManager* camera, const std::string& filePath)
+#ifdef _DEBUG
+#include "externals/imgui/imgui.h"
+#endif
+
+void EnemyManager::Initialize(Object3dCommon* objectCommon, CameraManager* camera, Player* player, const std::string& filePath)
 {
 	//引数を受け取って初期化
 	objectCommon_ = objectCommon;
 	cameraManager_ = camera;
+	player_ = player;
 	filePath_ = filePath;
 }
 
@@ -65,6 +70,7 @@ void EnemyManager::SpawnEnemies(int count, const Vector3& basePosition, const Ve
 		// 敵の位置を計算
 		Vector3 position = basePosition + Vector3(offset.x * i, offset.y * i, offset.z * i);
 		enemy->SetPosition(position);
+		enemy->SetPlayer(player_);
 
 		enemies_.push_back(std::move(enemy));
 	}

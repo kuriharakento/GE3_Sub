@@ -7,11 +7,12 @@
 #include "application/Entities/Enemy.h"
 #include "manager/CameraManager.h"
 
+class Player;
 class EnemyManager
 {
 public:
     // 初期化
-    void Initialize(Object3dCommon* objectCommon, CameraManager* camera, const std::string& filePath);
+    void Initialize(Object3dCommon* objectCommon, CameraManager* camera, Player* player, const std::string& filePath);
 
     // 更新
     void Update();
@@ -34,6 +35,9 @@ private:
 
 	// カメラマネージャー
 	CameraManager* cameraManager_ = nullptr;
+
+    //プレイヤー
+	Player* player_ = nullptr;
 
     // 敵モデルのファイルパス
     std::string filePath_;
