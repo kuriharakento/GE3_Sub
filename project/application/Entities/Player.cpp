@@ -68,10 +68,6 @@ void Player::Update()
 	//武器の更新
 	machineGun_->Update(cameraManager_);
 
-	//カメラを追従させる
-	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
-	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.5f, -4.0f));
-
 	//行列の更新
 	UpdateObjTransform();
 }
@@ -113,4 +109,29 @@ float Player::GetSpeed() const
 const AABB& Player::GetBoundingBox() const
 {
 	return hitBox_;
+}
+
+void Player::CameraUpdate()
+{
+	//カメラを追従させる
+	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
+	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.5f, -4.0f));
+
+	// プレイヤーからのオフセット
+	Vector3 cameraOffset = Vector3(0.0f, 2.0f, -6.0f);
+	Vector3 cameraPosition = transform_.translate + cameraOffset;
+
+	// カメラの位置を設定
+	camera->SetTranslate(cameraPosition);
+
+	// プレイヤーへの方向ベクトルを計算
+	Vector3 directionToPlayer = transform_.translate - cameraPosition;
+	directionToPlayer.Normalize();
+
+	// 回転を計算
+	float yaw = std::atan2(directionToPlayer.x, directionToPlayer.z); // ヨー角
+	float pitch = std::atan2(directionToPlayer.y, std::sqrt(directionToPlayer.x * directionToPlayer.x + directionToPlayer.z * directionToPlayer.z)); // ピッチ角
+
+	// カメラの回転を設定
+	camera->SetRotate(Vector3(pitch, yaw, 0.0f)); // ロールは0で固定
 }

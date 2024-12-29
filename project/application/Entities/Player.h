@@ -48,6 +48,8 @@ private:
 
 	void UpdateObjTransform();
 
+	void CameraUpdate();
+
 private: //メンバ変数
 	CameraManager* cameraManager_ = nullptr;
 

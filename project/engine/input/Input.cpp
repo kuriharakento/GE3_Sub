@@ -54,6 +54,18 @@ void Input::Initialize(WinApp* winApp)
 	//排他制御7レベルのセット
 	result = keyboard_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(result));
+
+	// マウスデバイスの作成
+	result = directInput_->CreateDevice(GUID_SysMouse, &mouse_, NULL);
+	assert(SUCCEEDED(result));
+
+	// 入力データ形式のセット
+	result = mouse_->SetDataFormat(&c_dfDIMouse);
+	assert(SUCCEEDED(result));
+
+	// 排他制御レベルのセット
+	result = mouse_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	assert(SUCCEEDED(result));
 }
 
 void Input::Update()
@@ -67,6 +79,14 @@ void Input::Update()
 	result = keyboard_->Acquire();
 	//キーボード情報の取得
 	result = keyboard_->GetDeviceState(sizeof(key_), key_);
+
+	//前回のマウス情報の保存
+	memcpy(&mouseStatePre_, &mouseState_, sizeof(mouseState_));
+
+	//マウス情報の取得開始
+	result = mouse_->Acquire();
+	//マウス情報の取得
+	result = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
 }
 
 bool Input::PushKey(BYTE keyNumber)
@@ -81,6 +101,39 @@ bool Input::PushKey(BYTE keyNumber)
 bool Input::TriggerKey(BYTE keyNumber)
 {
 	if(key_[keyNumber] && !keyPre_[keyNumber])
+	{
+		return true;
+	}
+	return false;
+}
+
+long Input::GetMouseDeltaX() const
+{
+	return mouseState_.lX;
+}
+
+long Input::GetMouseDeltaY() const
+{
+	return mouseState_.lY;
+}
+
+long Input::GetMouseDeltaWheel() const
+{
+	return mouseState_.lZ;
+}
+
+bool Input::PushMouseButton(int buttonNumber) const
+{
+	if (mouseState_.rgbButtons[buttonNumber])
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Input::TriggerMouseButton(int buttonNumber) const
+{
+	if (mouseState_.rgbButtons[buttonNumber] && !mouseStatePre_.rgbButtons[buttonNumber])
 	{
 		return true;
 	}
