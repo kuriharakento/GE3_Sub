@@ -3,6 +3,7 @@
 #include "Bullet.h"
 #include <vector>
 
+class Object3dCommon;
 class Player;
 class MachineGun : public IWeapon
 {

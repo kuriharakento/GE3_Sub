@@ -27,7 +27,7 @@ public:
 
 protected:
 	// オブジェクトの種類
-	ObjectType type_;
+	ObjectType type_ = ObjectType::None;
 	//当たり判定用のAABB
-	AABB hitBox_;
+	AABB hitBox_ = {};
 };

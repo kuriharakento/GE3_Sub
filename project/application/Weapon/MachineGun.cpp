@@ -2,6 +2,7 @@
 
 #include "input/Input.h"
 #include "application/Entities/Player.h"
+#include "3d/Object3dCommon.h"
 #include "externals/imgui/imgui.h"
 
 void MachineGun::Initialize(Object3dCommon* object3dCommon, Player* player)

@@ -4,6 +4,15 @@
 #include "application/Collision/ICollidable.h"
 #include "application/Weapon/Missile.h"
 
+//行動パターン
+enum class EnemyState
+{
+	Idle,       //待機
+	Chase,      //追跡
+	Attack,     //攻撃
+	Escape,     //逃げる
+};
+
 class Player;
 class Enemy : public Mech, public ICollidable
 {

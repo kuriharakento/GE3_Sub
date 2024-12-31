@@ -6,4 +6,5 @@ enum class ObjectType {
 	Enemy,
 	Bullet,
 	Item,
+	None,
 };

@@ -11,7 +11,7 @@ struct Status
 	float speed;			//移動速度
 
 	//コンストラクタで初期化
-	Status() : health(0.0f), attackPower(0.0f) {}
+	Status() : health(0.0f), attackPower(0.0f), speed(0.0f) {}
 };
 
 //機体クラス。プレイヤーと敵の基底クラス
@@ -23,6 +23,11 @@ protected:
 	//モデル
 	std::unique_ptr<Object3d> object3d_;
 	//座標
-	Transform transform_;
+	Transform transform_ = {
+		{ 1.0f,1.0f,1.0f },
+		{},
+		{},
+	};
+
 };
 
