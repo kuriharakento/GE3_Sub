@@ -26,7 +26,7 @@
 #include "manager/SrvManager.h"
 #include "math/VectorFunc.h"
 #include "application/Entities/Player.h"
-#include "application/Entities/Enemy.h"
+#include "application/Manager/CollisionManager.h"
 #include "application/Manager/EnemyManager.h"
 #pragma endregion
 
@@ -37,13 +37,20 @@
 ///							>>>構造体の宣言<<<						///
 ///////////////////////////////////////////////////////////////////////
 
-
-
 ///////////////////////////////////////////////////////////////////////
 ///						>>>関数の宣言<<<								///
 ///////////////////////////////////////////////////////////////////////
 
-
+void AddCollisions(CollisionManager* collisionManager, Player* player, EnemyManager* enemyManager) {
+	collisionManager->Clear();
+	collisionManager->AddCollidable(player);
+	ICollidable* enemyCollidable;
+	for (int i = 0; i < enemyManager->GetEnemies().size(); i++)
+	{
+		enemyCollidable = enemyManager->GetEnemy(i);
+		collisionManager->AddCollidable(enemyCollidable);
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////
 ///						>>>グローバル変数の宣言<<<						///
@@ -133,6 +140,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	/*===[ 敵 ]===*/
 	std::unique_ptr<EnemyManager> enemyManager = std::make_unique<EnemyManager>();
 	enemyManager->Initialize(objectCommon, cameraManager.get(), player.get(), "plane.obj");
+	/*===[ 当たり判定マネージャー ]===*/
+	std::unique_ptr<CollisionManager> collisionManager = std::make_unique<CollisionManager>();
+	collisionManager->Initialize();
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -188,6 +198,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//敵の更新
 		enemyManager->Update();
+
+		//当たり判定の追加
+		AddCollisions(collisionManager.get(), player.get(), enemyManager.get());
+		//当たり判定の更新
+		collisionManager->Update();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///

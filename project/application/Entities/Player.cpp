@@ -86,7 +86,10 @@ void Player::Draw()
 
 void Player::OnCollision(ICollidable* other)
 {
-	other->GetAttackPower();
+ 	if (other->GetType() == ObjectType::Enemy)
+	{
+		status_.isAlive = false;
+	}
 }
 
 ObjectType Player::GetType() const

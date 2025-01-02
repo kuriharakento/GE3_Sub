@@ -5,12 +5,11 @@
 #include "application/Weapon/Missile.h"
 
 //行動パターン
-enum class EnemyState
+enum class State
 {
-	Idle,       //待機
-	Chase,      //追跡
-	Attack,     //攻撃
-	Escape,     //逃げる
+    Idle,     // 待機
+	Chase,    // 追跡
+	Approach, // 接近
 };
 
 class Player;
@@ -20,11 +19,13 @@ public:
     // コンストラクタ
     Enemy()
     {
+		state_ = State::Idle;            // 初期ステート
+		status_.isAlive = true;         // 生存フラグ
         status_.health = 50.0f;          // 初期体力
         status_.attackPower = 5.0f;      // 初期攻撃力
         status_.speed = 0.02f;           // 初期速度
-        hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f); // 衝突判定の最小座標
-        hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);    // 衝突判定の最大座標
+        hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f);
+        hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);
         type_ = ObjectType::Enemy;       // オブジェクトタイプ
     }
 
@@ -39,6 +40,10 @@ public:
 
     // 衝突時の処理
     void OnCollision(ICollidable* other) override;
+
+    
+
+	bool IsAlive() const { return status_.isAlive; }
 
 public: // アクセッサ
 
@@ -58,7 +63,7 @@ public: // アクセッサ
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 
-	Vector3 GetPosition() const { return transform_.translate; }
+    Vector3 GetPosition() const override { return transform_.translate; }
 	Vector3 GetScale() const { return transform_.scale; }
 	Vector3 GetRotate() const { return transform_.rotate; }
 
@@ -66,7 +71,23 @@ private:
     // オブジェクトのTransform情報を更新
     void UpdateObjTransform(CameraManager* camera);
 
-	void UpdateMissile();
+    // 待機状態の更新
+    void UpdateIdle();
+
+    // 巡回状態の更新
+    void UpdatePatrol();
+
+    // 攻撃状態の更新
+    void UpdateAttack();
+
+    // 退避状態の更新
+    void UpdateApproach();
+
+    // プレイヤーとの距離チェック
+    bool IsPlayerInRange(float range);
+
+    // ミサイルを発射
+    void FireMissile();
 
 private: // メンバ変数
     //プレイヤーのポインタ
@@ -78,12 +99,16 @@ private: // メンバ変数
     //ミサイルリスト
     std::vector<std::unique_ptr<Missile>> missiles_;
 
-    //ミサイル発射間隔
-	float fireInterval_ = 2.0f;
-
-    //次の発射までの時間
-    float fireTimer_ = 0.0f;
-
+    // 行動管理
+    State state_ = State::Idle;         // 現在のステート
+    float fireInterval_ = 2.0f;  // ミサイル発射間隔
+    float fireTimer_ = 0.0f;     // ミサイル発射タイマー
+    float patrolRange_ = 20.0f;   // 巡回範囲
+    // ランダムな巡回方向
+    Vector3 patrolDirection_ = Vector3(1.0f, 0.0f, 0.0f); // 初期は右方向に設定
+    // 巡回タイマー
+    float patrolTimer_ = 0.0f;
+    float retreatRange_ = 10.0f;  // 退避範囲
 };
 
 inline void Enemy::UpdateObjTransform(CameraManager* camera)
@@ -97,4 +122,10 @@ inline void Enemy::UpdateObjTransform(CameraManager* camera)
     {
         missile->Update(camera);
     }
+    // 無効なミサイルを削除
+    missiles_.erase(
+        std::remove_if(missiles_.begin(), missiles_.end(), [](const std::unique_ptr<Missile>& missile) {
+            return !missile->IsAlive();
+            }),
+        missiles_.end());
 }

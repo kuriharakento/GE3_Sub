@@ -36,7 +36,7 @@ public: //アクセッサ
 
 	const AABB& GetBoundingBox() const override;
 
-	Vector3 GetPosition() const { return transform_.translate; }
+	Vector3 GetPosition() const override { return transform_.translate; }
 	Vector3 GetScale() const { return transform_.scale; }
 	Vector3 GetRotate() const { return transform_.rotate; }
 

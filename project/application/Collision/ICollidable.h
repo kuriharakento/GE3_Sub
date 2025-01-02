@@ -10,6 +10,9 @@ public:
     // AABBの座標情報を取得
     virtual const AABB& GetBoundingBox() const = 0;
 
+    //位置の取得
+	virtual Vector3 GetPosition() const = 0;
+
     // 衝突時のコールバック関
     virtual void OnCollision(ICollidable* other) = 0;
 

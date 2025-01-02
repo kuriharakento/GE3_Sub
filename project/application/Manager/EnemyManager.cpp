@@ -48,6 +48,14 @@ void EnemyManager::Update()
 	{
 		enemy->Update(cameraManager_);
 	}
+
+	//死んだ敵を削除
+	enemies_.erase(
+		std::remove_if(enemies_.begin(), enemies_.end(),
+			[](const std::unique_ptr<Enemy>& enemy) {
+				return !enemy->IsAlive();
+			}),
+		enemies_.end());
 }
 
 void EnemyManager::Draw()

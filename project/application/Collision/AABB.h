@@ -8,9 +8,10 @@ struct AABB
 {
 	Vector3 min;	//最小座標
 	Vector3 max;	//最大座標
+	Vector3 pos;	//中心座標
 
 	//コンストラクタ
-	AABB() : min(Vector3()), max(Vector3()){}
+	AABB() : min(Vector3()), max(Vector3()),pos(Vector3()){}
 
 	//交差判定
 	bool Intersects(const AABB& other) const

@@ -27,6 +27,8 @@ void Enemy::Update(CameraManager* camera)
 {
 #ifdef _DEBUG
     ImGui::Begin("Enemy");
+    float distance = (player_->GetPosition() - transform_.translate).Length();
+    ImGui::Text("range %f",distance);
     if(ImGui::CollapsingHeader("missile"))
     {
 		for (auto& missile : missiles_)
@@ -48,7 +50,23 @@ void Enemy::Update(CameraManager* camera)
 	ImGui::End();
 #endif
 
-    UpdateMissile();
+    // ステートごとの動作を実行
+    switch (state_)
+    {
+    case State::Idle:
+        UpdateIdle();
+        break;
+    case State::Chase:
+        UpdatePatrol();
+        UpdateAttack();
+        break;
+    case State::Approach:
+		UpdateApproach();
+        break;
+    }
+
+    // 発射タイマーを更新
+    fireTimer_ -= 1.0f / 60.0f;
 
 	//行列の更新
 	UpdateObjTransform(camera);
@@ -56,7 +74,10 @@ void Enemy::Update(CameraManager* camera)
 
 void Enemy::Draw()
 {
-	object3d_->Draw();
+    if (status_.isAlive) 
+    {
+        object3d_->Draw();
+    }
 
 	// ミサイルの描画
 	for (auto& missile : missiles_)
@@ -68,45 +89,127 @@ void Enemy::Draw()
 void Enemy::OnCollision(ICollidable* other)
 {
 	// 衝突時の処理を記述
-	other->GetAttackPower();
+	if (other->GetType() == ObjectType::Player)
+	{
+		status_.isAlive = false;
+	}
 }
 
-void Enemy::UpdateMissile()
+// 待機状態の更新
+void Enemy::UpdateIdle()
 {
-    // 発射タイマーを更新
-    fireTimer_ -= 1.0f / 60.0f;
-
-    // 発射可能な場合
-    if (fireTimer_ <= 0.0f)
+    // プレイヤーが一定範囲に入ったら攻撃モードに遷移
+    if (IsPlayerInRange(patrolRange_))
     {
-		//ベジェ曲線の制御点
-        Vector3 startPosition = transform_.translate;
-        Vector3 endPosition = player_->GetPosition();
-		// 制御点の高さとランダムオフセットを計算
-		float randomOffsetY = 20.0f;
-		float randomOffsetX = static_cast<float>(std::rand() % 10 - 5);
-		float randomOffsetZ = static_cast<float>(std::rand() % 10 - 5);
-		// 制御点を計算
-		Vector3 controlPoint =
-			(startPosition + endPosition) * 0.5f +
-			Vector3(randomOffsetX, randomOffsetY, randomOffsetZ);
+        state_ = State::Chase;
+    }
+}
 
-        // ミサイルを生成
-        auto missile = std::make_unique<Missile>();
-        missile->Initialize(objectCommon_, startPosition, controlPoint, endPosition);
+// 巡回状態の更新
+void Enemy::UpdatePatrol()
+{
+    // ランダムに方向転換するためのタイマー
+    const float directionChangeInterval = 3.0f; // 方向転換の間隔（秒）
+	const float deltaTime = 1.0f / 60.0f; // 1フレームあたりの時間（秒）
 
-        // リストに追加
-        missiles_.emplace_back(std::move(missile));
+    // 一定の間隔ごとにランダムな方向に進む
+    if (patrolTimer_ >= directionChangeInterval)
+    {
+        // ランダムな方向を設定
+        float randomX = (std::rand() % 2 == 0 ? 1.0f : -1.0f); // 1か-1のランダム
+        float randomZ = (std::rand() % 2 == 0 ? 1.0f : -1.0f); // 1か-1のランダム
 
-        // タイマーをリセット
-        fireTimer_ = fireInterval_;
+		//ランダムなスピードを設定
+        float randomSpeed = 0.01f + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / (0.04 - 0.02f)));
+
+        // 新しい方向の設定
+        patrolDirection_ = Vector3(randomX, 0.0f, randomZ); // Y軸方向は固定
+
+		// スピードの設定
+		status_.speed = randomSpeed;
+
+        // タイマーリセット
+        patrolTimer_ = 0.0f;
     }
 
+    // 巡回方向に移動
+    transform_.translate += patrolDirection_ * status_.speed;
 
-    // 無効なミサイルを削除
-    missiles_.erase(
-        std::remove_if(missiles_.begin(), missiles_.end(), [](const std::unique_ptr<Missile>& missile) {
-            return !missile->IsAlive();
-            }),
-        missiles_.end());
+    // 時間経過を反映
+    patrolTimer_ += deltaTime;  // deltaTimeを加算してタイマーを進める
+
+	// プレイヤーが射程外に出たら待機状態に戻る
+    if (!IsPlayerInRange(patrolRange_))
+    {
+		state_ = State::Approach;
+    }
+}
+
+// 攻撃状態の更新
+void Enemy::UpdateAttack()
+{
+    fireTimer_ -= 1.0f / 60.0f; // 攻撃タイマーを減少
+
+    // プレイヤーが射程外に出た場合、待機状態に戻る
+    if (!IsPlayerInRange(15.0f))
+    {
+        state_ = State::Approach;
+        return;
+    }
+
+    // ミサイル発射
+    if (fireTimer_ <= 0.0f)
+    {
+        FireMissile();
+        fireTimer_ = fireInterval_; // タイマーリセット
+    }
+}
+
+//
+void Enemy::UpdateApproach()
+{
+    // プレイヤーに近づく
+    Vector3 direction = player_->GetPosition() - transform_.translate;
+    direction.Normalize();
+    transform_.translate += direction * (status_.speed / 10);
+
+    // 一定距離近づいたら待機状態に戻る
+    if (IsPlayerInRange(retreatRange_))
+    {
+        state_ = State::Idle;
+    }
+
+}
+
+// プレイヤーとの距離チェック
+bool Enemy::IsPlayerInRange(float range)
+{
+    float distance = (player_->GetPosition() - transform_.translate).Length();
+    return distance <= range;
+}
+
+// ミサイル発射
+void Enemy::FireMissile()
+{
+    //ベジェ曲線の制御点
+    Vector3 startPosition = transform_.translate;
+    Vector3 endPosition = player_->GetPosition();
+    // 制御点の高さとランダムオフセットを計算
+    float randomOffsetY = 20.0f;
+    float randomOffsetX = static_cast<float>(std::rand() % 10 - 5);
+    float randomOffsetZ = static_cast<float>(std::rand() % 10 - 5);
+    // 制御点を計算
+    Vector3 controlPoint =
+        (startPosition + endPosition) * 0.5f +
+        Vector3(randomOffsetX, randomOffsetY, randomOffsetZ);
+
+    // ミサイルを生成
+    auto missile = std::make_unique<Missile>();
+    missile->Initialize(objectCommon_, startPosition, controlPoint, endPosition);
+
+    // リストに追加
+    missiles_.emplace_back(std::move(missile));
+
+    // タイマーをリセット
+    fireTimer_ = fireInterval_;
 }

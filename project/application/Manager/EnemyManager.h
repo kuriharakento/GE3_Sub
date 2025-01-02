@@ -25,6 +25,7 @@ public:
 
     // 敵のリストを取得
     const std::vector<std::unique_ptr<Enemy>>& GetEnemies() const { return enemies_; }
+	Enemy* GetEnemy(int index) { return enemies_[index].get(); }
 
 private:
     // 敵のリスト
