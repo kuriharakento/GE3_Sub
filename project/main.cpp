@@ -49,6 +49,12 @@ void AddCollisions(CollisionManager* collisionManager, Player* player, EnemyMana
 	{
 		enemyCollidable = enemyManager->GetEnemy(i);
 		collisionManager->AddCollidable(enemyCollidable);
+
+		//ミサイルの当たり判定を追加
+		for (int j = 0; j < enemyManager->GetEnemy(i)->GetMissiles().size(); j++)
+		{
+			collisionManager->AddCollidable(enemyManager->GetEnemy(i)->GetMissile(j));
+		}
 	}
 }
 

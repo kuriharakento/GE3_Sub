@@ -67,6 +67,10 @@ public: // アクセッサ
 	Vector3 GetScale() const { return transform_.scale; }
 	Vector3 GetRotate() const { return transform_.rotate; }
 
+	//ミサイルのリストを取得
+	std::vector<std::unique_ptr<Missile>>& GetMissiles() { return missiles_; }
+	Missile* GetMissile(int index) { return missiles_[index].get(); }
+
 private:
     // オブジェクトのTransform情報を更新
     void UpdateObjTransform(CameraManager* camera);

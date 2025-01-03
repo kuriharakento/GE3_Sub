@@ -1,8 +1,9 @@
 #pragma once
 #include "3d/Object3d.h"
 #include "math/VectorFunc.h"
+#include "application/Collision/ICollidable.h"
 
-class Missile
+class Missile : public ICollidable
 {
 public:
     // 初期化
@@ -17,7 +18,12 @@ public:
     // ミサイルが有効かどうか
     bool IsAlive() const { return isAlive_; }
 
-	Vector3 GetPosition() const { return missile_->GetTranslate(); }
+    void OnCollision(ICollidable* other) override;
+
+    ObjectType GetType() const override { return type_; }
+    const AABB& GetBoundingBox() const override { return hitBox_; }
+
+	Vector3 GetPosition() const override { return missile_->GetTranslate(); }
 	Vector3 GetRotation() const { return missile_->GetRotate(); }
 	Vector3 GetScale() const { return missile_->GetScale(); }
 

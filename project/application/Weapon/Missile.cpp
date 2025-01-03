@@ -16,6 +16,13 @@ void Missile::Initialize(Object3dCommon* object3dCommon, const Vector3& startPos
 
 	// ミサイルの初期位置を設定
     missile_->SetTranslate(startPosition);
+
+	//ミサイルの当たり判定タイプを設定
+	type_ = ObjectType::Missile;
+
+	// ミサイルの当たり判定用のAABBを設定
+	hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f);
+	hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);
 }
 
 void Missile::Update(CameraManager* camera)
@@ -59,5 +66,13 @@ void Missile::Draw()
 {
     if (!isAlive_) return;
     missile_->Draw();
+}
+
+void Missile::OnCollision(ICollidable* other)
+{
+    if(other->GetType() == ObjectType::Player)
+    {
+		isAlive_ = false;
+    }
 }
 
