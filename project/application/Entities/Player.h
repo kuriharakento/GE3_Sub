@@ -40,7 +40,7 @@ public: //アクセッサ
 	Vector3 GetScale() const { return transform_.scale; }
 	Vector3 GetRotate() const { return transform_.rotate; }
 
-	void SetPosition(const Vector3& position) { transform_.translate = position; }
+	void SetPosition(const Vector3& position) override { transform_.translate = position; }
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 

@@ -27,7 +27,7 @@ public:
 	Vector3 GetRotation() const { return missile_->GetRotate(); }
 	Vector3 GetScale() const { return missile_->GetScale(); }
 
-	void SetPosition(const Vector3& position) { missile_->SetTranslate(position); }
+	void SetPosition(const Vector3& position) override { missile_->SetTranslate(position); }
 	void SetRotation(const Vector3& rotation) { missile_->SetRotate(rotation); }
 	void SetScale(const Vector3& scale) { missile_->SetScale(scale); }
 

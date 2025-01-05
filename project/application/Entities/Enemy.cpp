@@ -95,6 +95,11 @@ void Enemy::OnCollision(ICollidable* other)
 	}
 }
 
+void Enemy::SetPosition(const Vector3& position)
+{
+	transform_.translate = position;
+}
+
 // 待機状態の更新
 void Enemy::UpdateIdle()
 {

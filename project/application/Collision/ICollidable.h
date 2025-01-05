@@ -12,6 +12,7 @@ public:
 
     //位置の取得
 	virtual Vector3 GetPosition() const = 0;
+	virtual void SetPosition(const Vector3& position) = 0;
 
     // 衝突時のコールバック関
     virtual void OnCollision(ICollidable* other) = 0;

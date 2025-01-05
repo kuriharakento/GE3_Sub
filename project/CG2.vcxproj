@@ -103,6 +103,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Manager\EnemyManager.cpp" />
     <ClCompile Include="application\Weapon\Bullet.cpp" />
     <ClCompile Include="application\Manager\CollisionManager.cpp" />
+    <ClCompile Include="application\Entities\Building.cpp" />
+    <ClCompile Include="application\Manager\BuildingManager.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
     <ClCompile Include="engine\2d\SpriteCommon.cpp" />
@@ -138,10 +140,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Collision\AABB.h" />
     <ClInclude Include="application\Collision\ICollidable.h" />
     <ClInclude Include="application\Collision\ObjectType.h" />
+    <ClInclude Include="application\Collision\Status.h" />
     <ClInclude Include="application\Entities\Enemy.h" />
     <ClInclude Include="application\Manager\EnemyManager.h" />
     <ClInclude Include="application\Weapon\Bullet.h" />
     <ClInclude Include="application\Manager\CollisionManager.h" />
+    <ClInclude Include="application\Entities\Building.h" />
+    <ClInclude Include="application\Manager\BuildingManager.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
     <ClInclude Include="engine\2d\SpriteCommon.h" />

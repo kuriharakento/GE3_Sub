@@ -6,5 +6,6 @@ enum class ObjectType {
 	Enemy,
 	Bullet,
 	Missile,
+	Building,
 	None,
 };

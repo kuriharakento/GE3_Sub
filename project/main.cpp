@@ -26,6 +26,7 @@
 #include "manager/SrvManager.h"
 #include "math/VectorFunc.h"
 #include "application/Entities/Player.h"
+#include "application/Manager/BuildingManager.h"
 #include "application/Manager/CollisionManager.h"
 #include "application/Manager/EnemyManager.h"
 #pragma endregion
@@ -146,6 +147,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	/*===[ 敵 ]===*/
 	std::unique_ptr<EnemyManager> enemyManager = std::make_unique<EnemyManager>();
 	enemyManager->Initialize(objectCommon, cameraManager.get(), player.get(), "plane.obj");
+	/*===[ 建物 ]===*/
+	std::unique_ptr<BuildingManager> buildingManager = std::make_unique<BuildingManager>();
+	buildingManager->Initialize(objectCommon, cameraManager.get());
 	/*===[ 当たり判定マネージャー ]===*/
 	std::unique_ptr<CollisionManager> collisionManager = std::make_unique<CollisionManager>();
 	collisionManager->Initialize();
@@ -205,6 +209,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//敵の更新
 		enemyManager->Update();
 
+		//建物の更新
+		buildingManager->Update();
+
 		//当たり判定の追加
 		AddCollisions(collisionManager.get(), player.get(), enemyManager.get());
 		//当たり判定の更新
@@ -236,6 +243,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//敵の描画
 		enemyManager->Draw();
+
+		//建物の描画
+		buildingManager->Draw();
 
 		/*--------------[ スプライトの描画 ]-----------------*/
 
