@@ -1,7 +1,9 @@
 #pragma once
 #include "3d/Object3d.h"
+#include "application/Collision/ICollidable.h"
+#include "application/Collision/Status.h"
 
-class Bullet
+class Bullet : public ICollidable
 {
 public:
 	// 初期化
@@ -14,15 +16,21 @@ public:
 	void Draw();
 
 	// 弾が有効かどうか
-	bool IsAlive() const { return isAlive_; }
+	bool IsAlive() const { return status_.isAlive; }
 
-	Vector3 GetPosition() const { return bullet_->GetTranslate(); }
+	Vector3 GetPosition() const  override { return bullet_->GetTranslate(); }
 	Vector3 GetRotation() const { return bullet_->GetRotate(); }
 	Vector3 GetScale() const { return bullet_->GetScale(); }
 
-	void SetPosition(const Vector3& position) { bullet_->SetTranslate(position); }
+	void SetPosition(const Vector3& position) override { bullet_->SetTranslate(position); }
 	void SetRotation(const Vector3& rotation) { bullet_->SetRotate(rotation); }
 	void SetScale(const Vector3& scale) { bullet_->SetScale(scale); }
+
+	void OnCollision(ICollidable* other) override;
+
+	ObjectType GetType() const override { return type_; }
+
+	const AABB& GetBoundingBox() const override { return hitBox_; }
 
 private:
 	// 3Dオブジェクト
@@ -31,8 +39,8 @@ private:
 	//移動方向ベクトル
 	Vector3 velocity_ = {};
 
-	//有効のフラグ
-	bool isAlive_ = true;
+	//ステータス
+	Status status_ = Status();
 
 	//寿命
 	float lifeTime_ = 3.0f;

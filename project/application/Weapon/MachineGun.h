@@ -32,6 +32,10 @@ public:
     // リロード完了処理
     void FinishReload() override;
 
+	// 弾のリストを取得
+	std::vector<std::unique_ptr<Bullet>>& GetBullets() { return bullets_; }
+	Bullet* GetBullet(int index) { return bullets_[index].get(); }
+
 private:
 	// 3Dオブジェクト共通データ
     Object3dCommon* object3dCommon_;

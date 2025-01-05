@@ -91,6 +91,7 @@ void Player::Draw()
 
 void Player::OnCollision(ICollidable* other)
 {
+	if (other->GetType() == ObjectType::Bullet) { return; }
 	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
 	camera->StartShake(0.5f, 0.3f);
 }

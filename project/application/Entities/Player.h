@@ -44,6 +44,9 @@ public: //アクセッサ
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 
+	//弾のリストを取得
+	MachineGun* GetMachineGun() { return machineGun_.get(); }
+
 private:
 
 	void UpdateObjTransform();

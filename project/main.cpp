@@ -46,6 +46,11 @@ void AddCollisions(CollisionManager* collisionManager, Player* player, EnemyMana
 	collisionManager->Clear();
 	//プレイヤーの当たり判定を追加
 	collisionManager->AddCollidable(player);
+	//プレイヤーの弾の当たり判定を追加
+	for (int i = 0; i < player->GetMachineGun()->GetBullets().size(); i++)
+	{
+				collisionManager->AddCollidable(player->GetMachineGun()->GetBullet(i));
+	}
 	//敵の当たり判定を追加
 	ICollidable* enemyCollidable;
 	for (int i = 0; i < enemyManager->GetEnemies().size(); i++)

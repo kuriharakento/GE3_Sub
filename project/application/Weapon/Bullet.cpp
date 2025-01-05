@@ -14,6 +14,10 @@ void Bullet::Initialize(Object3dCommon* object3dCommon, const Vector3& position,
 
 	//移動方向を記録
 	velocity_ = direction;
+
+	status_.attackPower = 10.0f;
+
+	type_ = ObjectType::Bullet;
 }
 
 void Bullet::Update(CameraManager* camera)
@@ -23,7 +27,7 @@ void Bullet::Update(CameraManager* camera)
 	if (elapsedTime_ >= lifeTime_)
 	{
 		//寿命がすぎたのでフラグを下げる
-		isAlive_ = false;
+		status_.isAlive = false;
 	}
 
 	bullet_->SetTranslate(bullet_->GetTranslate() + velocity_);
@@ -35,4 +39,13 @@ void Bullet::Update(CameraManager* camera)
 void Bullet::Draw()
 {
 	bullet_->Draw();
+}
+
+void Bullet::OnCollision(ICollidable* other)
+{
+	//プレイヤーに当たったら何もしない
+	if (other->GetType() == ObjectType::Player ) { return; }
+
+	//弾が当たったらフラグを下げる
+	status_.isAlive = false;
 }
