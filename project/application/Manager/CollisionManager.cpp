@@ -1,7 +1,7 @@
 #include "CollisionManager.h"
 
 void CollisionManager::AddCollidable(ICollidable* collidable) {
-    collidables_.push_back(collidable);
+	collidables_.push_back(collidable);
 }
 
 void CollisionManager::Initialize()
@@ -11,22 +11,28 @@ void CollisionManager::Initialize()
 }
 
 void CollisionManager::Update() {
-    // リスト内のすべてのコライダブルオブジェクトをペアでチェック
-    for (auto itrA = collidables_.begin(); itrA != collidables_.end(); ++itrA) {
-        ICollidable* collidableA = *itrA;
+	// リスト内のすべてのコライダブルオブジェクトをペアでチェック
+	for (auto itrA = collidables_.begin(); itrA != collidables_.end(); ++itrA) {
+		ICollidable* collidableA = *itrA;
 
-        // 現在の要素以降を対象にペアを作成
-        for (auto itrB = std::next(itrA); itrB != collidables_.end(); ++itrB) {
-            ICollidable* collidableB = *itrB;
+		// 現在の要素以降を対象にペアを作成
+		for (auto itrB = std::next(itrA); itrB != collidables_.end(); ++itrB) {
+			ICollidable* collidableB = *itrB;
 
-            // 衝突判定
-            if (CheckCollision(collidableA, collidableB)) {
-                // 双方向で衝突時の処理を呼び出す
-                collidableA->OnCollision(collidableB);
-                collidableB->OnCollision(collidableA);
-            }
-        }
-    }
+			// 衝突判定
+			if (CheckCollision(collidableA, collidableB)) {
+				if ((collidableA->GetType() == ObjectType::Player && collidableB->GetType() == ObjectType::Building) || (collidableB->GetType() == ObjectType::Player && collidableA->GetType() == ObjectType::Building))
+				{
+					HandlePlayerBuildingCollision(collidableA, collidableB);
+				}else
+				{
+					// 双方向で衝突時の処理を呼び出す
+					collidableA->OnCollision(collidableB);
+					collidableB->OnCollision(collidableA);
+				}
+			}
+		}
+	}
 }
 
 void CollisionManager::Clear()
@@ -38,18 +44,81 @@ void CollisionManager::Clear()
 bool CollisionManager::CheckCollision(ICollidable* a, ICollidable* b) {
 	if (a->GetType() == b->GetType()) return false;
 
-    const AABB& boxA = a->GetBoundingBox();
-    const AABB& boxB = b->GetBoundingBox();
+	const AABB& boxA = a->GetBoundingBox();
+	const AABB& boxB = b->GetBoundingBox();
 
-    // オブジェクトの位置を取得
-    const Vector3& posA = a->GetPosition();
-    const Vector3& posB = b->GetPosition();
+	// オブジェクトの位置を取得
+	const Vector3& posA = a->GetPosition();
+	const Vector3& posB = b->GetPosition();
 
-    // 各軸での重なりをチェック
-    bool overlapX = (posA.x + boxA.max.x >= posB.x + boxB.min.x) && (posA.x + boxA.min.x <= posB.x + boxB.max.x);
-    bool overlapY = (posA.y + boxA.max.y >= posB.y + boxB.min.y) && (posA.y + boxA.min.y <= posB.y + boxB.max.y);
-    bool overlapZ = (posA.z + boxA.max.z >= posB.z + boxB.min.z) && (posA.z + boxA.min.z <= posB.z + boxB.max.z);
+	// 各軸での重なりをチェック
+	bool overlapX = (posA.x + boxA.max.x >= posB.x + boxB.min.x) && (posA.x + boxA.min.x <= posB.x + boxB.max.x);
+	bool overlapY = (posA.y + boxA.max.y >= posB.y + boxB.min.y) && (posA.y + boxA.min.y <= posB.y + boxB.max.y);
+	bool overlapZ = (posA.z + boxA.max.z >= posB.z + boxB.min.z) && (posA.z + boxA.min.z <= posB.z + boxB.max.z);
 
-    return overlapX && overlapY && overlapZ;
+	return overlapX && overlapY && overlapZ;
+}
+
+void CollisionManager::HandlePlayerBuildingCollision(ICollidable* a, ICollidable* b)
+{
+	ICollidable* player = nullptr;
+	ICollidable* building = nullptr;
+
+	// プレイヤーと建物のペアを特定
+	if (a->GetType() == ObjectType::Player && b->GetType() == ObjectType::Building) {
+		player = a;
+		building = b;
+	} else if (b->GetType() == ObjectType::Player && a->GetType() == ObjectType::Building) {
+		player = b;
+		building = a;
+	} else {
+		// プレイヤーと建物の組み合わせ以外は処理しない
+		return;
+	}
+
+	// プレイヤーと建物のAABBを取得
+	const AABB& playerBox = player->GetBoundingBox();
+	const AABB& buildingBox = building->GetBoundingBox();
+
+	// プレイヤーと建物の位置
+	Vector3 playerPos = player->GetPosition();
+	const Vector3& buildingPos = building->GetPosition();
+
+	// 重なり量を計算
+	float overlapX = std::min(playerPos.x + playerBox.max.x, buildingPos.x + buildingBox.max.x) -
+		std::max(playerPos.x + playerBox.min.x, buildingPos.x + buildingBox.min.x);
+
+	float overlapY = std::min(playerPos.y + playerBox.max.y, buildingPos.y + buildingBox.max.y) -
+		std::max(playerPos.y + playerBox.min.y, buildingPos.y + buildingBox.min.y);
+
+	float overlapZ = std::min(playerPos.z + playerBox.max.z, buildingPos.z + buildingBox.max.z) -
+		std::max(playerPos.z + playerBox.min.z, buildingPos.z + buildingBox.min.z);
+
+	// 重なりが小さい方向に押し戻す
+	if (overlapX < overlapY && overlapX < overlapZ) {
+		// X方向
+		if (playerPos.x < buildingPos.x) {
+			playerPos.x -= overlapX;
+		} else {
+			playerPos.x += overlapX;
+		}
+	} else if (overlapY < overlapX && overlapY < overlapZ) {
+		// Y方向
+		if (playerPos.y < buildingPos.y) {
+			playerPos.y -= overlapY;
+		} else {
+			playerPos.y += overlapY;
+		}
+	} else {
+		// Z方向
+		if (playerPos.z < buildingPos.z) {
+			playerPos.z -= overlapZ;
+		} else {
+			playerPos.z += overlapZ;
+		}
+	}
+
+	// プレイヤーの位置を更新
+	player->SetPosition(playerPos);
 }
 
