@@ -24,6 +24,9 @@ void CollisionManager::Update() {
 				if ((collidableA->GetType() == ObjectType::Player && collidableB->GetType() == ObjectType::Building) || (collidableB->GetType() == ObjectType::Player && collidableA->GetType() == ObjectType::Building))
 				{
 					HandlePlayerBuildingCollision(collidableA, collidableB);
+				} else if ((collidableA->GetType() == ObjectType::Enemy && collidableB->GetType() == ObjectType::Building) || (collidableB->GetType() == ObjectType::Enemy && collidableA->GetType() == ObjectType::Building))
+				{
+					HandleEnemyBuildingCollision(collidableA, collidableB);
 				}else
 				{
 					// 双方向で衝突時の処理を呼び出す
@@ -120,5 +123,67 @@ void CollisionManager::HandlePlayerBuildingCollision(ICollidable* a, ICollidable
 
 	// プレイヤーの位置を更新
 	player->SetPosition(playerPos);
+}
+
+void CollisionManager::HandleEnemyBuildingCollision(ICollidable* a, ICollidable* b)
+{
+	ICollidable* enemy = nullptr;
+	ICollidable* building = nullptr;
+
+	// プレイヤーと建物のペアを特定
+	if (a->GetType() == ObjectType::Enemy && b->GetType() == ObjectType::Building) {
+		enemy = a;
+		building = b;
+	} else if (b->GetType() == ObjectType::Enemy && a->GetType() == ObjectType::Building) {
+		enemy = b;
+		building = a;
+	} else {
+		// プレイヤーと建物の組み合わせ以外は処理しない
+		return;
+	}
+
+	// プレイヤーと建物のAABBを取得
+	const AABB& playerBox = enemy->GetBoundingBox();
+	const AABB& buildingBox = building->GetBoundingBox();
+
+	// プレイヤーと建物の位置
+	Vector3 enemyPos = enemy->GetPosition();
+	const Vector3& buildingPos = building->GetPosition();
+
+	// 重なり量を計算
+	float overlapX = std::min(enemyPos.x + playerBox.max.x, buildingPos.x + buildingBox.max.x) -
+		std::max(enemyPos.x + playerBox.min.x, buildingPos.x + buildingBox.min.x);
+
+	float overlapY = std::min(enemyPos.y + playerBox.max.y, buildingPos.y + buildingBox.max.y) -
+		std::max(enemyPos.y + playerBox.min.y, buildingPos.y + buildingBox.min.y);
+
+	float overlapZ = std::min(enemyPos.z + playerBox.max.z, buildingPos.z + buildingBox.max.z) -
+		std::max(enemyPos.z + playerBox.min.z, buildingPos.z + buildingBox.min.z);
+
+	// 重なりが小さい方向に押し戻す
+	if (overlapX < overlapY && overlapX < overlapZ) {
+		// X方向
+		if (enemyPos.x < buildingPos.x) {
+			enemyPos.x -= overlapX;
+		} else {
+			enemyPos.x += overlapX;
+		}
+	} else if (overlapY < overlapX && overlapY < overlapZ) {
+		// Y方向
+		if (enemyPos.y < buildingPos.y) {
+			enemyPos.y -= overlapY;
+		} else {
+			enemyPos.y += overlapY;
+		}
+	} else {
+		// Z方向
+		if (enemyPos.z < buildingPos.z) {
+			enemyPos.z -= overlapZ;
+		} else {
+			enemyPos.z += overlapZ;
+		}
+	}
+
+	enemy->SetPosition(enemyPos);
 }
 

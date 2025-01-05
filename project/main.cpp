@@ -29,6 +29,9 @@
 #include "application/Manager/BuildingManager.h"
 #include "application/Manager/CollisionManager.h"
 #include "application/Manager/EnemyManager.h"
+#include "application/Scene/GameScene.h"
+#include "application/Scene/SceneManager.h"
+#include "application/Scene/TitleScene.h"
 #pragma endregion
 
 //コードを整理するときに使う
@@ -41,35 +44,6 @@
 ///////////////////////////////////////////////////////////////////////
 ///						>>>関数の宣言<<<								///
 ///////////////////////////////////////////////////////////////////////
-
-void AddCollisions(CollisionManager* collisionManager, Player* player, EnemyManager* enemyManager, BuildingManager* buildingManager) {
-	collisionManager->Clear();
-	//プレイヤーの当たり判定を追加
-	collisionManager->AddCollidable(player);
-	//プレイヤーの弾の当たり判定を追加
-	for (int i = 0; i < player->GetMachineGun()->GetBullets().size(); i++)
-	{
-				collisionManager->AddCollidable(player->GetMachineGun()->GetBullet(i));
-	}
-	//敵の当たり判定を追加
-	ICollidable* enemyCollidable;
-	for (int i = 0; i < enemyManager->GetEnemies().size(); i++)
-	{
-		enemyCollidable = enemyManager->GetEnemy(i);
-		collisionManager->AddCollidable(enemyCollidable);
-
-		//ミサイルの当たり判定を追加
-		for (int j = 0; j < enemyManager->GetEnemy(i)->GetMissiles().size(); j++)
-		{
-			collisionManager->AddCollidable(enemyManager->GetEnemy(i)->GetMissile(j));
-		}
-	}
-	//建物の当たり判定を追加
-	for (int i = 0; i < buildingManager->GetBuildings().size(); i++)
-	{
-		collisionManager->AddCollidable(buildingManager->GetBuilding(i));
-	}
-}
 
 ///////////////////////////////////////////////////////////////////////
 ///						>>>グローバル変数の宣言<<<						///
@@ -115,7 +89,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon);
-
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -139,7 +112,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>変数の宣言<<<								///
 	///////////////////////////////////////////////////////////////////////
 
-
 	#pragma region テクスチャの読み込み
 	//テクスチャの読み込み
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
@@ -154,18 +126,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	#pragma endregion
 
 	#pragma region 宣言と初期化
-	/*===[ プレイヤー ]===*/
-	std::unique_ptr<Player> player = std::make_unique<Player>();
-	player->Initialize("Building.obj", objectCommon,cameraManager.get());
-	/*===[ 敵 ]===*/
-	std::unique_ptr<EnemyManager> enemyManager = std::make_unique<EnemyManager>();
-	enemyManager->Initialize(objectCommon, cameraManager.get(), player.get(), "plane.obj");
-	/*===[ 建物 ]===*/
-	std::unique_ptr<BuildingManager> buildingManager = std::make_unique<BuildingManager>();
-	buildingManager->Initialize(objectCommon, cameraManager.get());
-	/*===[ 当たり判定マネージャー ]===*/
-	std::unique_ptr<CollisionManager> collisionManager = std::make_unique<CollisionManager>();
-	collisionManager->Initialize();
+	std::unique_ptr<SceneManager> sceneManager = std::make_unique<SceneManager>();
+	sceneManager->Initialize(objectCommon, cameraManager.get());
+	// 最初のシーンを生成
+	sceneManager->ChangeScene("TitleScene");
 	#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -210,25 +174,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		#pragma region シーン全体の設定
 		ImGui::Begin("Settings");
-
+		if (ImGui::Button("TitleScene"))
+		{
+			sceneManager->ChangeScene("TitleScene");
+		}
+		if (ImGui::Button("GameScene"))
+		{
+			sceneManager->ChangeScene("GameScene");
+		}
 		ImGui::End();
 		#pragma endregion
 
 #endif
 
-		//プレイヤーの更新
-		player->Update();
-
-		//敵の更新
-		enemyManager->Update();
-
-		//建物の更新
-		buildingManager->Update();
-
-		//当たり判定の追加
-		AddCollisions(collisionManager.get(), player.get(), enemyManager.get(),buildingManager.get());
-		//当たり判定の更新
-		collisionManager->Update();
+		//シーンの更新
+		sceneManager->Update();
 
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここまで<<<							///
@@ -251,19 +211,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//NOTE:3Dオブジェクトの描画準備。共通の設定を行う
 		objectCommon->CommonRenderingSetting();
 
-		//プレイヤーの描画
-		player->Draw();
-
-		//敵の描画
-		enemyManager->Draw();
-
-		//建物の描画
-		buildingManager->Draw();
+		sceneManager->Draw3D();
 
 		/*--------------[ スプライトの描画 ]-----------------*/
 
 		//スプライトの描画準備。共通の設定を行う
 		spriteCommon->CommonRenderingSetting();
+
+		sceneManager->Draw2D();
 
 		/*--------------[ 汎用機能の処理 ]-----------------*/
 

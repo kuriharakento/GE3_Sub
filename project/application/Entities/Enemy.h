@@ -16,6 +16,7 @@ class Player;
 class Enemy : public Mech, public ICollidable
 {
 public:
+    ~Enemy();
     // コンストラクタ
     Enemy()
     {
@@ -24,8 +25,6 @@ public:
         status_.health = 50.0f;          // 初期体力
         status_.attackPower = 5.0f;      // 初期攻撃力
         status_.speed = 0.02f;           // 初期速度
-        hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f);
-        hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);
         type_ = ObjectType::Enemy;       // オブジェクトタイプ
     }
 
@@ -40,8 +39,6 @@ public:
 
     // 衝突時の処理
     void OnCollision(ICollidable* other) override;
-
-    
 
 	bool IsAlive() const { return status_.isAlive; }
 

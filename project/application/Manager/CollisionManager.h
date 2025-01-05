@@ -19,6 +19,8 @@ private:
 
 	//プレイヤーと建物の当たり判定
 	void HandlePlayerBuildingCollision(ICollidable* a, ICollidable* b);
+	//敵と建物の当たり判定
+	void HandleEnemyBuildingCollision(ICollidable* a, ICollidable* b);
 
 	//当たり判定を行うオブジェクトのリスト
     std::vector<ICollidable*> collidables_;

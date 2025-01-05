@@ -21,6 +21,10 @@ void Enemy::Initialize(const std::string& filePath, Object3dCommon* objectCommon
 		{ 0.0f,0.0f,0.0f },
 		{ 0.0f,0.0f,10.0f }
 	};
+
+	//ヒットボックスの初期化
+    hitBox_.min = transform_.scale;
+	hitBox_.max = transform_.scale;
 }
 
 void Enemy::Update(CameraManager* camera)
@@ -89,7 +93,7 @@ void Enemy::Draw()
 void Enemy::OnCollision(ICollidable* other)
 {
 	// 衝突時の処理を記述
-	if (other->GetType() == ObjectType::Player)
+	if (other->GetType() == ObjectType::Bullet)
 	{
 		status_.isAlive = false;
 	}

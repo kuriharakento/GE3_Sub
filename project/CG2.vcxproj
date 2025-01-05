@@ -130,11 +130,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="engine\manager\ImGuiManager.cpp" />
     <ClCompile Include="application\Weapon\MachineGun.cpp" />
+    <ClCompile Include="application\Scene\GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="application\Entities\Mech.cpp" />
     <ClCompile Include="application\Entities\Player.cpp" />
     <ClCompile Include="application\Weapon\Missile.cpp" />
+    <ClCompile Include="application\Scene\SceneManager.cpp" />
+    <ClCompile Include="application\Scene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Collision\AABB.h" />
@@ -143,6 +146,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Collision\Status.h" />
     <ClInclude Include="application\Entities\Enemy.h" />
     <ClInclude Include="application\Manager\EnemyManager.h" />
+    <ClInclude Include="application\Scene\IScene.h" />
     <ClInclude Include="application\Weapon\Bullet.h" />
     <ClInclude Include="application\Manager\CollisionManager.h" />
     <ClInclude Include="application\Entities\Building.h" />
@@ -181,6 +185,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Weapon\IWeapon.h" />
     <ClInclude Include="application\Weapon\MachineGun.h" />
     <ClInclude Include="application\Weapon\Missile.h" />
+    <ClInclude Include="application\Scene\SceneManager.h" />
+    <ClInclude Include="application\Scene\GameScene.h" />
+    <ClInclude Include="application\Scene\TitleScene.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
