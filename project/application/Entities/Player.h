@@ -56,6 +56,7 @@ private: //メンバ変数
 	//プレイヤーの武器
 	std::unique_ptr<MachineGun> machineGun_ = nullptr;
 
+	float cameraZOffset_ = -4.0f;
 };
 
 inline void Player::UpdateObjTransform()

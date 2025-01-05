@@ -23,6 +23,10 @@ void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon
 		{0.0f,0.0f,0.0f}
 	};
 
+	//スケールと当たり判定を一致させる
+	hitBox_.min = -transform_.scale;
+	hitBox_.max = transform_.scale;
+
 	//武器の初期化
 	machineGun_ = std::make_unique<MachineGun>();
 	machineGun_->Initialize(objectCommon,this);
@@ -40,6 +44,7 @@ void Player::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("Player Status");
+	ImGui::DragFloat("CameraZOffset", &cameraZOffset_, 0.1f);
 	ImGui::Text("Health : %.1f", status_.health);
 	ImGui::Text("AttackPower : %.1f", status_.attackPower);
 	ImGui::Text("Speed : %.3f", status_.speed);
@@ -119,5 +124,5 @@ void Player::CameraUpdate()
 {
 	// カメラを取得
 	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
-	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.5f, -4.0f));
+	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.5f,cameraZOffset_));
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "3d/Object3d.h"
 #include "application/Collision/ICollidable.h"
+#include "application/Collision/Status.h"
 #include "base/GraphicsTypes.h"
 #include "math/VectorFunc.h"
 
@@ -29,11 +30,15 @@ public:
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 
+    void UpdateAABB();
+
     // 衝突時のコールバック関数
     void OnCollision(ICollidable* other) override;
 
     // オブジェクトの種類を取得
     ObjectType GetType() const override;
+
+	bool IsAlive() const { return status_.isAlive; }
 
 private:
 	void UpdateOBJTransform(CameraManager* camera);
@@ -44,5 +49,8 @@ private:
 
     //３Dモデル
 	std::unique_ptr<Object3d> object3d_;
+
+    //ステータス
+	Status status_ = {};
 
 };

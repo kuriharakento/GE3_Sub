@@ -42,9 +42,11 @@
 ///						>>>関数の宣言<<<								///
 ///////////////////////////////////////////////////////////////////////
 
-void AddCollisions(CollisionManager* collisionManager, Player* player, EnemyManager* enemyManager) {
+void AddCollisions(CollisionManager* collisionManager, Player* player, EnemyManager* enemyManager, BuildingManager* buildingManager) {
 	collisionManager->Clear();
+	//プレイヤーの当たり判定を追加
 	collisionManager->AddCollidable(player);
+	//敵の当たり判定を追加
 	ICollidable* enemyCollidable;
 	for (int i = 0; i < enemyManager->GetEnemies().size(); i++)
 	{
@@ -56,6 +58,11 @@ void AddCollisions(CollisionManager* collisionManager, Player* player, EnemyMana
 		{
 			collisionManager->AddCollidable(enemyManager->GetEnemy(i)->GetMissile(j));
 		}
+	}
+	//建物の当たり判定を追加
+	for (int i = 0; i < buildingManager->GetBuildings().size(); i++)
+	{
+		collisionManager->AddCollidable(buildingManager->GetBuilding(i));
 	}
 }
 
@@ -138,12 +145,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("Building.obj");
 	#pragma endregion
 
 	#pragma region 宣言と初期化
 	/*===[ プレイヤー ]===*/
 	std::unique_ptr<Player> player = std::make_unique<Player>();
-	player->Initialize("plane.obj", objectCommon,cameraManager.get());
+	player->Initialize("Building.obj", objectCommon,cameraManager.get());
 	/*===[ 敵 ]===*/
 	std::unique_ptr<EnemyManager> enemyManager = std::make_unique<EnemyManager>();
 	enemyManager->Initialize(objectCommon, cameraManager.get(), player.get(), "plane.obj");
@@ -213,7 +221,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		buildingManager->Update();
 
 		//当たり判定の追加
-		AddCollisions(collisionManager.get(), player.get(), enemyManager.get());
+		AddCollisions(collisionManager.get(), player.get(), enemyManager.get(),buildingManager.get());
 		//当たり判定の更新
 		collisionManager->Update();
 

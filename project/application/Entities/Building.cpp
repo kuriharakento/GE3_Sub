@@ -27,11 +27,20 @@ void Building::Initialize(const std::string& filePath, Object3dCommon* objectCom
 			{ 0.0f,0.0f,0.0f },
 			{ 0.0f,0.0f,10.0f }
 	};
+
+	//ステータスの初期化
+	status_.isAlive = true;
+	status_.health = 100.0f;
+	status_.attackPower = 0.0f;
+	status_.speed = 0.0f;
 }
 
 void Building::Update(CameraManager* camera)
 {
+	//行列の更新
 	UpdateOBJTransform(camera);
+	//AABBの更新
+	UpdateAABB();
 }
 
 void Building::Draw()
@@ -54,20 +63,15 @@ void Building::SetPosition(const Vector3& position)
 	transform_.translate = position;
 }
 
+void Building::UpdateAABB()
+{
+	hitBox_.min = -transform_.scale;
+	hitBox_.max = transform_.scale;
+}
+
 void Building::OnCollision(ICollidable* other)
 {
-	//プレイヤーがぶつかった場合
-	if (other->GetType() == ObjectType::Player)
-	{
-		// プレイヤーオブジェクトにキャスト
-		Player* player = dynamic_cast<Player*>(other);
-		if (player)
-		{
-			// プレイヤーの位置を取得
-			Vector3 playerPos = player->GetPosition();
-			
-		}
-	}
+	status_.isAlive = false;
 }
 
 ObjectType Building::GetType() const

@@ -18,6 +18,9 @@ public:
 
 	void GenerateBuilding(int count);
 
+	std::vector<std::unique_ptr<Building>>& GetBuildings() { return buildings_; }
+	Building* GetBuilding(int index) { return buildings_[index].get(); }
+
 private:
 	//ポインタ
 	Object3dCommon* objectCommon_;
@@ -27,6 +30,6 @@ private:
 	std::vector<std::unique_ptr<Building>> buildings_;
 
 	// テクスチャのファイルパス
-	std::string filePath_ = "axis.obj";
+	std::string filePath_ = "Building.obj";
 };
 
