@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 
+#include "GameClearScene.h"
 #include "GameScene.h"
 #include "TitleScene.h"
 #include "base/Logger.h"
@@ -12,17 +13,24 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	//新しいシーンを作成
 	if(sceneName == "TitleScene")
 	{
-		currentScene_ = std::make_unique<TitleScene>(cameraManager_);
-		Logger::Log("Now Scene: TitleScen\n");
+		currentScene_ = std::make_unique<TitleScene>(cameraManager_);;
 	} else if (sceneName == "GameScene")
 	{
 		currentScene_ = std::make_unique<GameScene>(object3dCommon_, cameraManager_);
-		Logger::Log("Now Scene: GameScene\n");
-	} else
+	} else if (sceneName == "GameClearScene")
+	{
+		currentScene_ = std::make_unique<GameClearScene>(cameraManager_);
+	}else
 	{
 		Logger::Log("Unknown scene name: " + sceneName);
-		assert(false);
+		return;
 	}
+
+	//シーン名を保存
+	currentSceneName_ = sceneName;
+
+	//ログにシーン名を出力
+	Logger::Log("Now Scene: " + sceneName + "\n");
 
 	//初期化
 	currentScene_->Initialize(this);

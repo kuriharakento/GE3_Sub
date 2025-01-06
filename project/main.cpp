@@ -25,13 +25,8 @@
 #include "manager/ImGuiManager.h"
 #include "manager/SrvManager.h"
 #include "math/VectorFunc.h"
-#include "application/Entities/Player.h"
 #include "application/Manager/BuildingManager.h"
-#include "application/Manager/CollisionManager.h"
-#include "application/Manager/EnemyManager.h"
-#include "application/Scene/GameScene.h"
 #include "application/Scene/SceneManager.h"
-#include "application/Scene/TitleScene.h"
 #pragma endregion
 
 //コードを整理するときに使う
@@ -174,6 +169,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		#pragma region シーン全体の設定
 		ImGui::Begin("Settings");
+		ImGui::Text("Scene: %s", sceneManager->GetCurrentSceneName().c_str());
 		if (ImGui::Button("TitleScene"))
 		{
 			sceneManager->ChangeScene("TitleScene");
@@ -181,6 +177,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (ImGui::Button("GameScene"))
 		{
 			sceneManager->ChangeScene("GameScene");
+		}
+		if (ImGui::Button("GameClearScene"))
+		{
+			sceneManager->ChangeScene("GameClearScene");
 		}
 		ImGui::End();
 		#pragma endregion

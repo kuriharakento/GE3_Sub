@@ -35,6 +35,8 @@ public:
 	void Draw3D();
 	void Draw2D();
 
+	std::string GetCurrentSceneName() const { return currentSceneName_; }
+
 private:
     //ポインタ
 	Object3dCommon* object3dCommon_ = nullptr;

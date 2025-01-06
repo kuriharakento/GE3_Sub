@@ -16,7 +16,6 @@ class Player;
 class Enemy : public Mech, public ICollidable
 {
 public:
-    ~Enemy();
     // コンストラクタ
     Enemy()
     {
