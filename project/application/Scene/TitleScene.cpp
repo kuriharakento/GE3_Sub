@@ -19,7 +19,7 @@ void TitleScene::Update()
 	switch(currentPhase_)
 	{
 	case ScenePhase::Start:
-		
+		slide_->Update();
 		if (slide_->IsFinish())
 		{
 			ChangePhase(ScenePhase::Play);
@@ -32,13 +32,14 @@ void TitleScene::Update()
 		}
 		break;
 	case ScenePhase::End:
+		slide_->Update();
 		if (slide_->IsFinish())
 		{
 			isEnd_ = true;
 		}
 		break;
 	}
-	slide_->Update();
+	
 }
 
 void TitleScene::Draw3D()
