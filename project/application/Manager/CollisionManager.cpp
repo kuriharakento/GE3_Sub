@@ -1,5 +1,7 @@
 #include "CollisionManager.h"
 
+#include "base/Logger.h"
+
 void CollisionManager::AddCollidable(ICollidable* collidable) {
 	collidables_.push_back(collidable);
 }
@@ -130,7 +132,7 @@ void CollisionManager::HandleEnemyBuildingCollision(ICollidable* a, ICollidable*
 	ICollidable* enemy = nullptr;
 	ICollidable* building = nullptr;
 
-	// プレイヤーと建物のペアを特定
+	// エネミーと建物のペアを特定
 	if (a->GetType() == ObjectType::Enemy && b->GetType() == ObjectType::Building) {
 		enemy = a;
 		building = b;
@@ -138,27 +140,27 @@ void CollisionManager::HandleEnemyBuildingCollision(ICollidable* a, ICollidable*
 		enemy = b;
 		building = a;
 	} else {
-		// プレイヤーと建物の組み合わせ以外は処理しない
+		// エネミーと建物の組み合わせ以外は処理しない
 		return;
 	}
 
-	// プレイヤーと建物のAABBを取得
-	const AABB& playerBox = enemy->GetBoundingBox();
+	// エネミーと建物のAABBを取得
+	const AABB& enemyBox = enemy->GetBoundingBox();
 	const AABB& buildingBox = building->GetBoundingBox();
 
-	// プレイヤーと建物の位置
+	// エネミーと建物の位置
 	Vector3 enemyPos = enemy->GetPosition();
 	const Vector3& buildingPos = building->GetPosition();
 
 	// 重なり量を計算
-	float overlapX = std::min(enemyPos.x + playerBox.max.x, buildingPos.x + buildingBox.max.x) -
-		std::max(enemyPos.x + playerBox.min.x, buildingPos.x + buildingBox.min.x);
+	float overlapX = std::min(enemyPos.x + enemyBox.max.x, buildingPos.x + buildingBox.max.x) -
+		std::max(enemyPos.x + enemyBox.min.x, buildingPos.x + buildingBox.min.x);
 
-	float overlapY = std::min(enemyPos.y + playerBox.max.y, buildingPos.y + buildingBox.max.y) -
-		std::max(enemyPos.y + playerBox.min.y, buildingPos.y + buildingBox.min.y);
+	float overlapY = std::min(enemyPos.y + enemyBox.max.y, buildingPos.y + buildingBox.max.y) -
+		std::max(enemyPos.y + enemyBox.min.y, buildingPos.y + buildingBox.min.y);
 
-	float overlapZ = std::min(enemyPos.z + playerBox.max.z, buildingPos.z + buildingBox.max.z) -
-		std::max(enemyPos.z + playerBox.min.z, buildingPos.z + buildingBox.min.z);
+	float overlapZ = std::min(enemyPos.z + enemyBox.max.z, buildingPos.z + buildingBox.max.z) -
+		std::max(enemyPos.z + enemyBox.min.z, buildingPos.z + buildingBox.min.z);
 
 	// 重なりが小さい方向に押し戻す
 	if (overlapX < overlapY && overlapX < overlapZ) {
@@ -184,6 +186,9 @@ void CollisionManager::HandleEnemyBuildingCollision(ICollidable* a, ICollidable*
 		}
 	}
 
+	// エネミーの位置を更新
 	enemy->SetPosition(enemyPos);
+
+	Logger::Log("Enemy collided with Building. Push back");
 }
 

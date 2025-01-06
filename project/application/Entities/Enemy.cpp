@@ -23,7 +23,7 @@ void Enemy::Initialize(const std::string& filePath, Object3dCommon* objectCommon
 	};
 
 	//ヒットボックスの初期化
-    hitBox_.min = transform_.scale;
+    hitBox_.min = -transform_.scale;
 	hitBox_.max = transform_.scale;
 }
 
