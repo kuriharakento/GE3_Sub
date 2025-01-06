@@ -39,6 +39,9 @@ public:
 	std::string GetCurrentSceneName() const { return currentSceneName_; }
 
 private:
+	void NextScene();
+
+private:
     //ポインタ
 	Object3dCommon* object3dCommon_ = nullptr;
 	CameraManager* cameraManager_ = nullptr;

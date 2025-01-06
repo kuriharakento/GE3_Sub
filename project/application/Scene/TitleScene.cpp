@@ -11,7 +11,7 @@ void TitleScene::Initialize(SceneManager* sceneManager)
 	slide_->Initialize(spriteCommon_);
 
 	//スライド
-	slide_->Start(Slide::Status::SlideOutFromBothSides, 1.25f);
+	slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
 }
 
 void TitleScene::Update()
@@ -35,7 +35,7 @@ void TitleScene::Update()
 		slide_->Update();
 		if (slide_->IsFinish())
 		{
-			sceneManager_->ChangeScene("GameScene");
+			isEnd_ = true;
 		}
 		break;
 	}
@@ -57,13 +57,13 @@ void TitleScene::OnPhaseChanged(ScenePhase newPhase)
 	{
 	case ScenePhase::Start:
 		
-		slide_->Start(Slide::Status::SlideOutFromBothSides, 1.25f);
+		slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
 		break;
 	case ScenePhase::Play:
 
 		break;
 	case ScenePhase::End:
-		slide_->Start(Slide::Status::SlideInFromBothSides, 1.25f);
+		slide_->Start(Slide::Status::SlideInFromBothSides, 1.0f);
 		break;
 	}
 }

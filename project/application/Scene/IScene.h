@@ -28,6 +28,8 @@ public:
 		OnPhaseChanged(newPhase);
 	}
 
+	bool IsEnd() const { return isEnd_; }
+
 protected:
 	virtual void OnPhaseChanged(ScenePhase newPhase) = 0;
 
@@ -36,4 +38,7 @@ protected:
 
 	// シーンの状態
 	ScenePhase currentPhase_;
+
+	//終了フラグ
+	bool isEnd_ = false;
 };

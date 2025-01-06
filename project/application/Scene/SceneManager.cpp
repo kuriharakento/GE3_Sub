@@ -63,11 +63,16 @@ void SceneManager::Initialize(Object3dCommon* objectCommon, CameraManager* camer
 
 void SceneManager::Update()
 {
+	//シーンが終了していた場合は次のシーンに移行
+	NextScene();
+
+	//シーンの更新
     if (currentScene_) {
         currentScene_->Update();
     }
 }
 
+// 3D描画
 void SceneManager::Draw3D()
 {
 	if (currentScene_)
@@ -76,10 +81,32 @@ void SceneManager::Draw3D()
 	}
 }
 
+// 2D描画
 void SceneManager::Draw2D()
 {
 	if (currentScene_)
 	{
 		currentScene_->Draw2D();
+	}
+}
+
+void SceneManager::NextScene()
+{
+	//シーンの変更
+	if (currentScene_->IsEnd())
+	{
+		if (currentSceneName_ == "TitleScene")
+		{
+			ChangeScene("GameScene");
+		} else if (currentSceneName_ == "GameScene")
+		{
+			ChangeScene("GameClearScene");
+		} else if (currentSceneName_ == "GameClearScene")
+		{
+			ChangeScene("TitleScene");
+		} else if (currentSceneName_ == "GameOverScene")
+		{
+			ChangeScene("TitleScene");
+		}
 	}
 }
