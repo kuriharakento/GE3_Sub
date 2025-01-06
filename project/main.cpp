@@ -116,6 +116,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 //テクスチャの読み込み
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
 #pragma endregion
 
 #pragma region モデルの読み込み
@@ -134,7 +135,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region 宣言と初期化
 	std::unique_ptr<SceneManager> sceneManager = std::make_unique<SceneManager>();
-	sceneManager->Initialize(objectCommon, cameraManager.get());
+	sceneManager->Initialize(objectCommon, cameraManager.get(),spriteCommon);
 	
 
 	// カーソル表示状態を管理する変数

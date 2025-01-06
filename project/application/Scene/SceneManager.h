@@ -8,6 +8,7 @@
 #include "IScene.h"
 
 
+class SpriteCommon;
 class CameraManager;
 class Object3dCommon;
 
@@ -26,7 +27,7 @@ public:
     // シーンを変更
     void ChangeScene(const std::string& sceneName);
 
-    void Initialize(Object3dCommon* objectCommon, CameraManager* camera);
+    void Initialize(Object3dCommon* objectCommon, CameraManager* camera,SpriteCommon* spriteCommon);
 
     // 現在のシーンを更新
     void Update();
@@ -41,6 +42,7 @@ private:
     //ポインタ
 	Object3dCommon* object3dCommon_ = nullptr;
 	CameraManager* cameraManager_ = nullptr;
+	SpriteCommon* spriteCommon_ = nullptr;
 
     std::unordered_map<std::string, std::function<std::unique_ptr<IScene>()>> sceneFactories_;
     std::unique_ptr<IScene> currentScene_;

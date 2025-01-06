@@ -1,5 +1,7 @@
 #include "GameScene.h"
 #include "SceneManager.h"
+#include "2d/SpriteCommon.h"
+#include "input/Input.h"
 
 GameScene::~GameScene()
 {
@@ -29,6 +31,13 @@ void GameScene::Initialize(SceneManager* sceneManager)
 	// 当たり判定マネージャーの初期化
 	collisionManager_ = std::make_unique<CollisionManager>();
 	collisionManager_->Initialize();
+
+	// スライドの初期化
+	slide_ = std::make_unique<Slide>();
+	slide_->Initialize(spriteCommon_);
+
+	//スライドの最初の状態を設定
+	slide_->Start(Slide::Status::SlideOutFromBothSides, 1.25f);
 }
 
 void GameScene::Update()
@@ -36,7 +45,11 @@ void GameScene::Update()
 	switch (currentPhase_)
 	{
 	case ScenePhase::Start:
-		ChangePhase(ScenePhase::Play);
+		slide_->Update();
+		if (slide_->IsFinish())
+		{
+			ChangePhase(ScenePhase::Play);
+		}
 		break;
 	case ScenePhase::Play:
 		// カメラの更新
@@ -54,9 +67,17 @@ void GameScene::Update()
 		// 当たり判定の更新
 		AddCollisions(collisionManager_.get(), player_.get(), enemyManager_.get(), buildingManager_.get());
 		collisionManager_->Update();
+		if (Input::GetInstance()->TriggerKey(DIK_SPACE))
+		{
+			ChangePhase(ScenePhase::End);
+		}
 		break;
 	case ScenePhase::End:
-		sceneManager_->ChangeScene("TitleScene");
+		slide_->Update();
+		if (slide_->IsFinish()) 
+		{
+			sceneManager_->ChangeScene("GameClearScene");
+		}
 		break;
 	}
 }
@@ -75,7 +96,7 @@ void GameScene::Draw3D()
 
 void GameScene::Draw2D()
 {
-
+	slide_->Draw();
 }
 
 void GameScene::OnPhaseChanged(ScenePhase newPhase)
@@ -83,13 +104,13 @@ void GameScene::OnPhaseChanged(ScenePhase newPhase)
 	switch (newPhase)
 	{
 	case ScenePhase::Start:
-
+		slide_->Start(Slide::Status::SlideOutFromBothSides, 1.25f);
 		break;
 	case ScenePhase::Play:
 
 		break;
 	case ScenePhase::End:
-
+		slide_->Start(Slide::Status::SlideInFromBothSides, 1.25f);
 		break;
 	}
 }

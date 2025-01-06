@@ -99,6 +99,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\Animation\Slide.cpp" />
     <ClCompile Include="application\Entities\Enemy.cpp" />
     <ClCompile Include="application\Manager\EnemyManager.cpp" />
     <ClCompile Include="application\Weapon\Bullet.cpp" />
@@ -144,6 +145,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\math\MathUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\Animation\Slide.h" />
     <ClInclude Include="application\Collision\AABB.h" />
     <ClInclude Include="application\Collision\ICollidable.h" />
     <ClInclude Include="application\Collision\ObjectType.h" />

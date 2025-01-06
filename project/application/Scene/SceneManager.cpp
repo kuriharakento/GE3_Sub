@@ -5,6 +5,7 @@
 #include "GameScene.h"
 #include "TitleScene.h"
 #include "base/Logger.h"
+#include "2d/SpriteCommon.h"
 
 void SceneManager::ChangeScene(const std::string& sceneName)
 {
@@ -21,16 +22,16 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	//新しいシーンを作成
 	if(sceneName == "TitleScene")
 	{
-		currentScene_ = std::make_unique<TitleScene>(cameraManager_);;
+		currentScene_ = std::make_unique<TitleScene>(cameraManager_,spriteCommon_);;
 	} else if (sceneName == "GameScene")
 	{
-		currentScene_ = std::make_unique<GameScene>(object3dCommon_, cameraManager_);
+		currentScene_ = std::make_unique<GameScene>(object3dCommon_, cameraManager_, spriteCommon_);
 	} else if (sceneName == "GameClearScene")
 	{
-		currentScene_ = std::make_unique<GameClearScene>(cameraManager_);
+		currentScene_ = std::make_unique<GameClearScene>(cameraManager_, spriteCommon_);
 	} else if (sceneName == "GameOverScene")
 	{
-		currentScene_ = std::make_unique<GameOverScene>(cameraManager_);
+		currentScene_ = std::make_unique<GameOverScene>(cameraManager_,spriteCommon_);
 	}else
 	{
 		Logger::Log("Unknown scene name: " + sceneName);
@@ -47,11 +48,12 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	currentScene_->Initialize(this);
 }
 
-void SceneManager::Initialize(Object3dCommon* objectCommon, CameraManager* camera)
+void SceneManager::Initialize(Object3dCommon* objectCommon, CameraManager* camera, SpriteCommon* spriteCommon)
 {
 	//ポインタを受け取る
 	object3dCommon_ = objectCommon;
 	cameraManager_ = camera;
+	spriteCommon_ = spriteCommon;
 
 	//初期化
 	sceneFactories_.clear();
