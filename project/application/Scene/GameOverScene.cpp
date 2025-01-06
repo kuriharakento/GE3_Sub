@@ -19,6 +19,7 @@ void GameOverScene::Initialize(SceneManager* sceneManager)
 
 	//スライドの最初の状態を設定
 	slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
+	slide_->SetEasingFunc(EaseInOutElastic);
 }
 
 void GameOverScene::Update()

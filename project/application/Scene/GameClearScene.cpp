@@ -18,7 +18,7 @@ void GameClearScene::Initialize(SceneManager* sceneManager)
 	slide_->Initialize(spriteCommon_);
 
 	//スライドの最初の状態を設定
-	slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
+	slide_->Start(Slide::Status::SlideOutFromFourCorners, 1.0f);
 }
 
 void GameClearScene::Update()
@@ -63,12 +63,12 @@ void GameClearScene::OnPhaseChanged(ScenePhase newPhase)
 	switch (newPhase)
 	{
 	case ScenePhase::Start:
-		slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
+		slide_->Start(Slide::Status::SlideOutFromFourCorners, 1.0f);
 		break;
 	case ScenePhase::Play:
 		break;
 	case ScenePhase::End:
-		slide_->Start(Slide::Status::SlideInFromBothSides, 1.0f);
+		slide_->Start(Slide::Status::SlideInFromFourCorners, 1.0f);
 		break;
 	}
 }
