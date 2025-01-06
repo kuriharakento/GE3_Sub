@@ -2,6 +2,7 @@
 #include "IWeapon.h"
 #include "Bullet.h"
 #include <vector>
+#include <numbers>
 
 class Object3dCommon;
 class Player;
@@ -18,7 +19,7 @@ public:
     void Draw();
 
     // 武器を発射する
-    void Shoot(const Vector3& position, const Vector3& direction) override;
+    void Shoot() override;
 
     // 現在の弾薬数を取得
     int GetCurrentAmmo() const override { return currentAmmo_; }
@@ -48,6 +49,7 @@ private:
 
 	//1フレーム当たりの時間
 	const float kDeltaTime = 1.0f / 60.0f;
+	const float kDeg2Rad = std::numbers::pi_v<float> / 2.0f;
 
     // 弾薬数
     int currentAmmo_ = 30; // 初期弾薬数

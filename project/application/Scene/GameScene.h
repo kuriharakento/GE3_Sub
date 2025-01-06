@@ -13,7 +13,7 @@ class Object3dCommon;
 class GameScene : public IScene
 {
 public: // メンバ関数
-	~GameScene();
+	~GameScene() override;
 	GameScene(Object3dCommon* objectCommon, CameraManager* camera) : object3dCommon_(objectCommon), cameraManager_(camera) {}
 
 	void Initialize(SceneManager* sceneManager) override;

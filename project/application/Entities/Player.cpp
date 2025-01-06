@@ -150,8 +150,8 @@ void Player::CameraUpdate()
     float mouseY = static_cast<float>(Input::GetInstance()->GetMouseDeltaY());
 
     // マウスの入力に基づいてカメラの回転角度を更新
-    cameraYaw_ += mouseX * 0.001f;  // 感度調整
-    cameraPitch_ += mouseY * 0.001f;  // 感度調整
+    cameraYaw_ += mouseX * 0.003f;  // 感度調整
+    cameraPitch_ += mouseY * 0.003f;  // 感度調整
 
     // ピッチ角度を制限
     if (cameraPitch_ > DirectX::XM_PIDIV4) cameraPitch_ = DirectX::XM_PIDIV4;  // 45度に制限
@@ -172,10 +172,5 @@ void Player::CameraUpdate()
     float pitch = asinf(direction.y);
     float yaw = atan2f(direction.x, direction.z);
     camera->SetRotate(Vector3(0.0f, yaw, 0.0f));
-
-	//プレイヤーをカメラの方向に向ける
-	Vector3 playerRotate = camera->GetTranslate() - transform_.translate;
-	playerRotate.Normalize();
-	transform_.rotate.y = atan2f(playerRotate.x, playerRotate.z);
-	
+	transform_.rotate = Vector3(0.0f, yaw, 0.0f);
 }

@@ -64,9 +64,9 @@ void MachineGun::Update(CameraManager* camera)
     timeSinceLastShot_ += kDeltaTime;
     if (timeSinceLastShot_ >= fireRate_ && currentAmmo_ > 0 && !isReloading_)
     {
-        if(Input::GetInstance()->PushKey(DIK_SPACE))
+        if(Input::GetInstance()->PushMouseButton(0))
         {
-        	Shoot(player_->GetPosition(), Vector3(0.0f, 0.0f, 0.2f));
+        	Shoot();
         }
     }
 
@@ -98,10 +98,24 @@ void MachineGun::Draw()
 	}
 }
 
-void MachineGun::Shoot(const Vector3& position, const Vector3& direction)
+void MachineGun::Shoot()
 {
     if (isReloading_ || currentAmmo_ <= 0)
         return; // リロード中または弾薬がない場合は発射しない
+
+    // プレイヤーの位置と回転を取得
+    Vector3 position = player_->GetPosition();
+    Vector3 rotation = player_->GetRotate(); // プレイヤーの回転（Yaw, Pitch, Roll）
+
+    // 回転角度をラジアンに変換
+    float yaw = rotation.y;
+
+    // 前方向ベクトルを計算
+    Vector3 direction;
+    direction.x = sinf(yaw);
+    direction.y = 0.0f;
+    direction.z = cosf(yaw);
+    direction.Normalize();
 
     // 弾丸を発射
     std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();

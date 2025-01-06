@@ -7,7 +7,7 @@ public:
     virtual ~IWeapon() = default;
 
     // 武器を発射する
-    virtual void Shoot(const Vector3& position, const Vector3& direction) = 0;
+    virtual void Shoot() = 0;
 
     // 現在の弾薬数を取得
     virtual int GetCurrentAmmo() const = 0;

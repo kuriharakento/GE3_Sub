@@ -16,6 +16,7 @@ void Bullet::Initialize(Object3dCommon* object3dCommon, const Vector3& position,
 	velocity_ = direction;
 
 	status_.attackPower = 10.0f;
+	status_.speed = 0.3f;
 
 	type_ = ObjectType::Bullet;
 }
@@ -30,7 +31,9 @@ void Bullet::Update(CameraManager* camera)
 		status_.isAlive = false;
 	}
 
-	bullet_->SetTranslate(bullet_->GetTranslate() + velocity_);
+	Vector3 position = bullet_->GetTranslate();
+	position += velocity_ * status_.speed;
+	bullet_->SetTranslate(position);
 
 	//行列の更新
 	bullet_->Update(camera);

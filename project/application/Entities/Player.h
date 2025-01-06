@@ -64,7 +64,7 @@ private: //メンバ変数
 	std::unique_ptr<MachineGun> machineGun_ = nullptr;
 
 	//カメラのZ軸オフセット
-	float cameraZOffset_ = -4.0f;
+	float cameraZOffset_ = -6.0f;
 
 	//カメラの回転角度
 	float cameraYaw_ = 0.0f;

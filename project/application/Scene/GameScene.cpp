@@ -1,14 +1,12 @@
 #include "GameScene.h"
-#include "input/Input.h"
 #include "SceneManager.h"
-#include "externals/imgui/imgui.h"
 
 GameScene::~GameScene()
 {
-	player_.release();
-	enemyManager_.release();
-	buildingManager_.release();
-	collisionManager_.release();
+	player_.reset();
+	enemyManager_.reset();
+	buildingManager_.reset();
+	collisionManager_.reset();
 }
 
 void GameScene::Initialize(SceneManager* sceneManager)

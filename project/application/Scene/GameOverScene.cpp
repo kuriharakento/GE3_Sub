@@ -3,6 +3,11 @@
 #include "input/Input.h"
 #include "SceneManager.h"
 
+GameOverScene::~GameOverScene()
+{
+
+}
+
 void GameOverScene::Initialize(SceneManager* sceneManager)
 {
 	sceneManager_ = sceneManager;

@@ -6,6 +6,7 @@ class CameraManager;
 class GameOverScene : public IScene
 {
 public:
+	~GameOverScene() override;
 	GameOverScene(CameraManager* cameraManager) : cameraManager(cameraManager) {}
 	void Initialize(SceneManager* sceneManager) override;
 	void Update() override;

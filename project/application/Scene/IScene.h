@@ -12,6 +12,7 @@ public:
 		Play,
 		End,
 	};
+	virtual ~IScene() = default;
 
 	// 初期化
     virtual void Initialize(SceneManager* sceneManager) = 0;

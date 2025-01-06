@@ -55,8 +55,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>基盤システム初期化<<<						///
 	///////////////////////////////////////////////////////////////////////
 
-	#pragma region 基盤システム初期化
-	//ウィンドウアプリケーションの初期化
+#pragma region 基盤システム初期化
+//ウィンドウアプリケーションの初期化
 	WinApp* winApp = new WinApp();
 	winApp->Initialize();
 
@@ -70,10 +70,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//ImGuiの初期化
 	ImGuiManager* imguiManager = new ImGuiManager();
-	imguiManager->Initilize(winApp,dxCommon,srvManager.get());
+	imguiManager->Initilize(winApp, dxCommon, srvManager.get());
 
 	//テクスチャマネージャーの初期化
-	TextureManager::GetInstance()->Initialize(dxCommon,srvManager.get());
+	TextureManager::GetInstance()->Initialize(dxCommon, srvManager.get());
 
 	//スプライト共通部の初期化
 	SpriteCommon* spriteCommon = new SpriteCommon();
@@ -85,7 +85,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon);
-	#pragma endregion
+#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>汎用機能初期化<<<							///
@@ -108,25 +108,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>変数の宣言<<<								///
 	///////////////////////////////////////////////////////////////////////
 
-	#pragma region テクスチャの読み込み
-	//テクスチャの読み込み
+#pragma region テクスチャの読み込み
+//テクスチャの読み込み
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
-	#pragma endregion
+#pragma endregion
 
-	#pragma region モデルの読み込み
+#pragma region モデルの読み込み
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("Building.obj");
-	#pragma endregion
+#pragma endregion
 
-	#pragma region 宣言と初期化
+#pragma region 宣言と初期化
 	std::unique_ptr<SceneManager> sceneManager = std::make_unique<SceneManager>();
 	sceneManager->Initialize(objectCommon, cameraManager.get());
-	// 最初のシーンを生成
-	sceneManager->ChangeScene("TitleScene");
-	#pragma endregion
+	
+
+	// カーソル表示状態を管理する変数
+	static bool showCursor = true;
+	static bool prevShowCursor = true;
+#pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
 	///																	///
@@ -134,7 +137,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///																	///
 	///////////////////////////////////////////////////////////////////////
 
+	//メインループの開始
 	Logger::Log("\n\n/===== Start Main Loop!!! =====/\n");
+
+	// 最初のシーンを生成
+	sceneManager->ChangeScene("TitleScene");
 
 	//ゲームループ
 	while (true)
@@ -152,7 +159,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		///////////////////////////////////////////
 		///		>>>汎用機能の更新ここから<<<		///
 		///////////////////////////////////////////
-		
+
 		//入力の更新
 		Input::GetInstance()->Update();
 
@@ -166,12 +173,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		///////////////////////////////////////////////////////////////////////
 		///						>>>更新処理ここから<<<							///
 		///////////////////////////////////////////////////////////////////////
-		
+
 #ifdef _DEBUG
 		/*--------------[ ImGui ]-----------------*/
 
 		#pragma region シーン全体の設定
 		ImGui::Begin("Settings");
+		if (ImGui::Checkbox("Show Mouse Cursor", &showCursor))
+		{
+			// カーソルの表示状態が変化したとき
+			if (showCursor != prevShowCursor)
+			{
+				if (showCursor)
+				{
+					// カーソルを表示
+					while (ShowCursor(TRUE) < 0);
+				} else
+				{
+					// カーソルを非表示
+					while (ShowCursor(FALSE) >= 0);
+				}
+				prevShowCursor = showCursor;
+			}
+		}
 		ImGui::Text("Scene: %s", sceneManager->GetCurrentSceneName().c_str());
 		if (ImGui::Button("TitleScene"))
 		{
@@ -214,7 +238,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//描画前処理
 		dxCommon->PreDraw();
 		srvManager->PreDraw();
-		
+
 
 		/*--------------[ 3Dオブジェクトの描画 ]-----------------*/
 
@@ -246,14 +270,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///////////////////////////////////////////////////////////////////////
 	///						>>>解放処理ここから<<<							///
 	///////////////////////////////////////////////////////////////////////
-		
+
 	/*--------------[ スプライトの解放 ]-----------------*/
 
 
 
 	/*--------------[ オブジェクトの解放 ]-----------------*/
 
-
+	sceneManager.reset();
 
 	///////////////////////////////////
 	///		>>>基盤システム<<<		///

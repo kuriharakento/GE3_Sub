@@ -3,6 +3,11 @@
 #include "input/Input.h"
 #include "SceneManager.h"
 
+GameClearScene::~GameClearScene()
+{
+
+}
+
 void GameClearScene::Initialize(SceneManager* sceneManager)
 {
 	sceneManager_ = sceneManager;
