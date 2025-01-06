@@ -115,7 +115,6 @@ void MachineGun::Shoot()
     direction.x = sinf(yaw);
     direction.y = 0.0f;
     direction.z = cosf(yaw);
-    direction.Normalize();
 
     // 弾丸を発射
     std::unique_ptr<Bullet> newBullet = std::make_unique<Bullet>();

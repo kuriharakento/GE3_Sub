@@ -105,6 +105,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Manager\CollisionManager.cpp" />
     <ClCompile Include="application\Entities\Building.cpp" />
     <ClCompile Include="application\Manager\BuildingManager.cpp" />
+    <ClCompile Include="engine\audio\AudioManager.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
     <ClCompile Include="engine\2d\SpriteCommon.cpp" />
@@ -154,6 +155,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Manager\CollisionManager.h" />
     <ClInclude Include="application\Entities\Building.h" />
     <ClInclude Include="application\Manager\BuildingManager.h" />
+    <ClInclude Include="engine\audio\AudioManager.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
     <ClInclude Include="engine\2d\SpriteCommon.h" />

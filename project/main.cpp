@@ -27,6 +27,7 @@
 #include "math/VectorFunc.h"
 #include "application/Manager/BuildingManager.h"
 #include "application/Scene/SceneManager.h"
+#include "audio/AudioManager.h"
 #include "base/Logger.h"
 #pragma endregion
 
@@ -85,6 +86,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon);
+
+	//オーディオマネージャーの初期化
+	AudioManager::GetInstance()->Initialize();
 #pragma endregion
 
 	///////////////////////////////////////////////////////////////////////
@@ -121,6 +125,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	ModelManager::GetInstance()->LoadModel("Building.obj");
 #pragma endregion
 
+#pragma region 音声ファイルの読み込み
+	// 音声ファイルの読み込み
+	AudioManager::GetInstance()->LoadWavFile(L"pa", L"pa.wav");
+	AudioManager::GetInstance()->PlayMusic(L"pa", true);
+	AudioManager::GetInstance()->SetVolume(L"pa", 1.0f);
+#pragma endregion
+
 #pragma region 宣言と初期化
 	std::unique_ptr<SceneManager> sceneManager = std::make_unique<SceneManager>();
 	sceneManager->Initialize(objectCommon, cameraManager.get());
@@ -138,7 +149,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///////////////////////////////////////////////////////////////////////
 
 	//メインループの開始
-	Logger::Log("\n\n/===== Start Main Loop!!! =====/\n");
+	Logger::Log("\n/===== Start Main Loop!!! =====/\n\n");
 
 	// 最初のシーンを生成
 	sceneManager->ChangeScene("TitleScene");
@@ -284,6 +295,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///////////////////////////////////
 
 	//NOTE:ここは基本的に触らない
+	AudioManager::GetInstance()->Finalize();		//オーディオマネージャーの終了処理
 	winApp->Finalize();								//ウィンドウアプリケーションの終了処理
 	delete winApp;									//ウィンドウアプリケーションの解放
 	imguiManager->Finalize();						//ImGuiManagerの終了処理
