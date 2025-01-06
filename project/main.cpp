@@ -27,6 +27,7 @@
 #include "math/VectorFunc.h"
 #include "application/Manager/BuildingManager.h"
 #include "application/Scene/SceneManager.h"
+#include "base/Logger.h"
 #pragma endregion
 
 //コードを整理するときに使う
@@ -133,6 +134,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///																	///
 	///////////////////////////////////////////////////////////////////////
 
+	Logger::Log("\n\n/===== Start Main Loop!!! =====/\n");
+
 	//ゲームループ
 	while (true)
 	{
@@ -181,6 +184,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (ImGui::Button("GameClearScene"))
 		{
 			sceneManager->ChangeScene("GameClearScene");
+		}
+		if (ImGui::Button("GameOverScene"))
+		{
+			sceneManager->ChangeScene("GameOverScene");
+		}
+		{
+
 		}
 		ImGui::End();
 		#pragma endregion

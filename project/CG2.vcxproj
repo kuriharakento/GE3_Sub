@@ -132,6 +132,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Weapon\MachineGun.cpp" />
     <ClCompile Include="application\Scene\GameScene.cpp" />
     <ClCompile Include="application\Scene\GameClearScene.cpp" />
+    <ClCompile Include="application\Scene\GameOverScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="application\Entities\Mech.cpp" />
@@ -139,6 +140,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Weapon\Missile.cpp" />
     <ClCompile Include="application\Scene\SceneManager.cpp" />
     <ClCompile Include="application\Scene\TitleScene.cpp" />
+    <ClCompile Include="engine\math\MathUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Collision\AABB.h" />
@@ -190,6 +192,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Scene\GameScene.h" />
     <ClInclude Include="application\Scene\TitleScene.h" />
     <ClInclude Include="application\Scene\GameClearScene.h" />
+    <ClInclude Include="application\Scene\GameOverScene.h" />
+    <ClInclude Include="engine\math\MathUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

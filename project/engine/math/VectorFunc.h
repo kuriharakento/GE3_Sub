@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <cmath>
 
 // Vector2
@@ -153,6 +154,8 @@ struct Vector3 {
     Vector3 operator-() const {
         return Vector3{ -this->x, -this->y, -this->z };
     }
+
+
 };
 
 // Vector4

@@ -1,12 +1,20 @@
 #include "SceneManager.h"
 
 #include "GameClearScene.h"
+#include "GameOverScene.h"
 #include "GameScene.h"
 #include "TitleScene.h"
 #include "base/Logger.h"
 
 void SceneManager::ChangeScene(const std::string& sceneName)
 {
+	//同じシーンに移動しようとしているときは何もしない
+	if (currentSceneName_ == sceneName)
+	{
+		Logger::Log("The current scene has the same name: " + sceneName);
+		return;
+	}
+
 	//現在のシーンを削除
 	currentScene_.reset();
 
@@ -20,6 +28,9 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	} else if (sceneName == "GameClearScene")
 	{
 		currentScene_ = std::make_unique<GameClearScene>(cameraManager_);
+	} else if (sceneName == "GameOverScene")
+	{
+		currentScene_ = std::make_unique<GameOverScene>(cameraManager_);
 	}else
 	{
 		Logger::Log("Unknown scene name: " + sceneName);

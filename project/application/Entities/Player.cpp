@@ -9,6 +9,8 @@
 #include "input/Input.h"
 #include <algorithm>
 
+#include "math/MathUtils.h"
+
 void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon, CameraManager* camera)
 {
 	// モデルの初期化
@@ -35,9 +37,9 @@ void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon
 	cameraManager_ = camera;
 
 	//カメラマネージャーにプレイヤーを追尾するカメラを登録
-	cameraManager_->AddCamera("FollowPlayer");
+	cameraManager_->AddCamera(followCameraName_);
 	//カメラマネージャーにプレイヤーを追尾するカメラをセット
-	cameraManager_->SetActiveCamera("FollowPlayer");
+	cameraManager_->SetActiveCamera(followCameraName_);
 }
 
 void Player::Update()
@@ -54,23 +56,10 @@ void Player::Update()
 	ImGui::End();
 #endif
 
-	if(Input::GetInstance()->PushKey(DIK_W))
-	{
-		transform_.translate.z += status_.speed;
-	}
-	if (Input::GetInstance()->PushKey(DIK_S))
-	{
-		transform_.translate.z -= status_.speed;
-	}
-	if (Input::GetInstance()->PushKey(DIK_A))
-	{
-		transform_.translate.x -= status_.speed;
-	}
-	if (Input::GetInstance()->PushKey(DIK_D))
-	{
-		transform_.translate.x += status_.speed;
-	}
+	//移動
+	Move();
 
+	//カメラの更新
 	CameraUpdate();
 
 	//武器の更新
@@ -92,7 +81,7 @@ void Player::Draw()
 void Player::OnCollision(ICollidable* other)
 {
 	if (other->GetType() == ObjectType::Bullet) { return; }
-	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
+	Camera* camera = cameraManager_->GetCamera(followCameraName_);
 	camera->StartShake(0.5f, 0.3f);
 }
 
@@ -121,9 +110,72 @@ const AABB& Player::GetBoundingBox() const
 	return hitBox_;
 }
 
+void Player::Move()
+{
+	Vector3 velocity = { 0.0f,0.0f,0.0f };
+	if (Input::GetInstance()->PushKey(DIK_W))
+	{
+		velocity.z += status_.speed;
+	}
+	if (Input::GetInstance()->PushKey(DIK_S))
+	{
+		velocity.z -= status_.speed;
+	}
+	if (Input::GetInstance()->PushKey(DIK_A))
+	{
+		velocity.x -= status_.speed;
+	}
+	if (Input::GetInstance()->PushKey(DIK_D))
+	{
+		velocity.x += status_.speed;
+	}
+
+	if (velocity.Length() > 0.0f)
+	{
+		velocity = velocity.Normalize() * status_.speed;
+	}
+
+	velocity = MathUtils::Transform(velocity, MakeRotateYMatrix(cameraManager_->GetCamera(followCameraName_)->GetRotate().y));
+	transform_.translate += velocity;
+}
+
+
 void Player::CameraUpdate()
 {
 	// カメラを取得
-	Camera* camera = cameraManager_->GetCamera("FollowPlayer");
-	camera->SetTranslate(transform_.translate + Vector3(0.0f, 1.5f,cameraZOffset_));
+    Camera* camera = cameraManager_->GetCamera(followCameraName_);
+
+    // マウスの移動量を取得
+    float mouseX = static_cast<float>(Input::GetInstance()->GetMouseDeltaX());
+    float mouseY = static_cast<float>(Input::GetInstance()->GetMouseDeltaY());
+
+    // マウスの入力に基づいてカメラの回転角度を更新
+    cameraYaw_ += mouseX * 0.001f;  // 感度調整
+    cameraPitch_ += mouseY * 0.001f;  // 感度調整
+
+    // ピッチ角度を制限
+    if (cameraPitch_ > DirectX::XM_PIDIV4) cameraPitch_ = DirectX::XM_PIDIV4;  // 45度に制限
+    if (cameraPitch_ < -DirectX::XM_PIDIV4) cameraPitch_ = -DirectX::XM_PIDIV4;  // -45度に制限
+
+	// カメラの位置を計算
+	Vector3 offset;
+	offset.x = cameraZOffset_ * sinf(cameraYaw_);
+	offset.y = 1.5f;  // プレイヤーの上に固定オフセット
+	offset.z = cameraZOffset_ * cosf(cameraYaw_);
+
+    // カメラの位置を更新
+    camera->SetTranslate(transform_.translate + offset);
+
+    // カメラの回転を設定
+    Vector3 direction = transform_.translate - camera->GetTranslate();
+    direction.Normalize();
+    float pitch = asinf(direction.y);
+    float yaw = atan2f(direction.x, direction.z);
+    camera->SetRotate(Vector3(0.0f, yaw, 0.0f));
+
+	//プレイヤーをカメラの方向に向ける
+	Vector3 playerRotate = camera->GetTranslate() - transform_.translate;
+	playerRotate.Normalize();
+	transform_.rotate.y = atan2f(playerRotate.x, playerRotate.z);
+	
 }

@@ -48,9 +48,13 @@ public: //アクセッサ
 	MachineGun* GetMachineGun() { return machineGun_.get(); }
 
 private:
+	//移動
+	void Move();
 
+	//オブジェクトの座標変換
 	void UpdateObjTransform();
 
+	//カメラの更新
 	void CameraUpdate();
 
 private: //メンバ変数
@@ -59,7 +63,15 @@ private: //メンバ変数
 	//プレイヤーの武器
 	std::unique_ptr<MachineGun> machineGun_ = nullptr;
 
+	//カメラのZ軸オフセット
 	float cameraZOffset_ = -4.0f;
+
+	//カメラの回転角度
+	float cameraYaw_ = 0.0f;
+	float cameraPitch_ = 0.0f;
+
+	//追従させるカメラの名前
+	std::string followCameraName_ = "FollowPlayer";
 };
 
 inline void Player::UpdateObjTransform()

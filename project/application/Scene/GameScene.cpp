@@ -56,12 +56,6 @@ void GameScene::Update()
 		// 当たり判定の更新
 		AddCollisions(collisionManager_.get(), player_.get(), enemyManager_.get(), buildingManager_.get());
 		collisionManager_->Update();
-
-		if(Input::GetInstance()->TriggerKey(DIK_SPACE))
-		{
-			ChangePhase(ScenePhase::End);
-		}
-
 		break;
 	case ScenePhase::End:
 		sceneManager_->ChangeScene("TitleScene");
