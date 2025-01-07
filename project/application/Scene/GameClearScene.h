@@ -26,5 +26,7 @@ private:
 
 	//スライド
 	std::unique_ptr<Slide> slide_;
+	//ゲームクリア
+	std::unique_ptr<Sprite> gameClear_;
 };
 

@@ -34,7 +34,7 @@ void Building::Initialize(const std::string& filePath, Object3dCommon* objectCom
 
 	//ステータスの初期化
 	status_.isAlive = true;
-	status_.health = 100.0f;
+	status_.health = 100.0f * (object3d_->GetScale().Length() * 3.0f);
 	status_.attackPower = 0.0f;
 	status_.speed = 0.0f;
 }
@@ -79,6 +79,7 @@ void Building::UpdateAABB()
 
 void Building::OnCollision(ICollidable* other)
 {
+	//プレイヤーが撃った弾ならダメージを受けない
 	status_.health -= other->GetAttackPower();
 }
 

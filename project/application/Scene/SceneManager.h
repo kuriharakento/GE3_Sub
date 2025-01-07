@@ -38,6 +38,9 @@ public:
 
 	std::string GetCurrentSceneName() const { return currentSceneName_; }
 
+	void Clear() { isClear_ = true; }
+	void GameOver() { isGameOver_ = true; }
+
 private:
 	void NextScene();
 
@@ -50,5 +53,8 @@ private:
     std::unordered_map<std::string, std::function<std::unique_ptr<IScene>()>> sceneFactories_;
     std::unique_ptr<IScene> currentScene_;
     std::string currentSceneName_;
+
+	bool isClear_ = false;
+	bool isGameOver_ = false;
 };
 

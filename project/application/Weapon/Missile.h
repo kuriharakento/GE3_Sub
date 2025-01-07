@@ -24,6 +24,7 @@ public:
 
     ObjectType GetType() const override { return type_; }
     const AABB& GetBoundingBox() const override { return hitBox_; }
+    float GetAttackPower() const override { return status_.attackPower; }
 
 	Vector3 GetPosition() const override { return missile_->GetTranslate(); }
 	Vector3 GetRotation() const { return missile_->GetRotate(); }
@@ -60,5 +61,5 @@ private:
     const float kDeltaTime = 1.0f / 60.0f;
 
     // 3Dモデルのファイルパス
-    const std::string filePath_ = "plane.obj";
+    const std::string filePath_ = "missile.obj";
 };

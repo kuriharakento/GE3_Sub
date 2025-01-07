@@ -43,7 +43,7 @@ private:
 	Vector3 velocity_ = {};
 
 	//ステータス
-	Status status_ = Status();
+	Status status_;
 
 	//寿命
 	float lifeTime_ = 3.0f;
@@ -54,7 +54,7 @@ private:
 	const float kDeltaTime = 1.0f / 60.0f;
 
 	//３Dモデルのファイルパス
-	const std::string filePath_ = "plane.obj";
+	const std::string filePath_ = "bullet.obj";
 
 };
 

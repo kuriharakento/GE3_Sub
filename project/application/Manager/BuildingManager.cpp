@@ -93,7 +93,8 @@ void BuildingManager::GenerateBuilding(int count, float minRadius, float maxRadi
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> posDist(-50.0f, 50.0f); // 位置の範囲
-    std::uniform_real_distribution<float> scaleDist(0.5f, 8.0f);  // スケールの範囲
+	std::uniform_real_distribution<float> scaleXZDist(0.5f, 7.0f);  // スケールの範囲
+    std::uniform_real_distribution<float> scaleYDist(1.0f, 12.0f);  // スケールの範囲
 
     // 配置済みの位置を記録するセット
     std::unordered_set<std::string> occupiedPositions;
@@ -162,8 +163,8 @@ void BuildingManager::GenerateBuilding(int count, float minRadius, float maxRadi
             // 位置とスケールの設定
             building->SetPosition(position);
             Vector3 scale = building->GetScale();
-            scale.x = scale.z = scaleDist(gen);
-            scale.y = scaleDist(gen);
+            scale.x = scale.z = scaleXZDist(gen);
+            scale.y = scaleYDist(gen);
             building->SetScale(scale);
             building->UpdateAABB();
 

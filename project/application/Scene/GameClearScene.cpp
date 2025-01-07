@@ -19,6 +19,10 @@ void GameClearScene::Initialize(SceneManager* sceneManager)
 
 	//スライドの最初の状態を設定
 	slide_->Start(Slide::Status::SlideOutFromFourCorners, 1.0f);
+
+	//ゲームクリア
+	gameClear_ = std::make_unique<Sprite>();
+	gameClear_->Initialize(spriteCommon_, "./Resources/gameClear.png");
 }
 
 void GameClearScene::Update()
@@ -46,6 +50,8 @@ void GameClearScene::Update()
 		}
 		break;
 	}
+
+	gameClear_->Update();
 }
 
 void GameClearScene::Draw3D()
@@ -55,6 +61,8 @@ void GameClearScene::Draw3D()
 
 void GameClearScene::Draw2D()
 {
+	gameClear_->Draw();
+
 	slide_->Draw();
 }
 

@@ -19,7 +19,7 @@ public:
     // コンストラクタ
     Enemy()
     {
-		state_ = State::Idle;            // 初期ステート
+		state_ = State::Chase;            // 初期ステート
 		status_.isAlive = true;         // 生存フラグ
         status_.health = 50.0f;          // 初期体力
         status_.attackPower = 5.0f;      // 初期攻撃力
@@ -103,12 +103,12 @@ private: // メンバ変数
     State state_ = State::Idle;         // 現在のステート
     float fireInterval_ = 2.0f;  // ミサイル発射間隔
     float fireTimer_ = 0.0f;     // ミサイル発射タイマー
-    float patrolRange_ = 20.0f;   // 巡回範囲
+    float patrolRange_ = 40.0f;   // 巡回範囲
     // ランダムな巡回方向
     Vector3 patrolDirection_ = Vector3(1.0f, 0.0f, 0.0f); // 初期は右方向に設定
     // 巡回タイマー
     float patrolTimer_ = 0.0f;
-    float retreatRange_ = 10.0f;  // 退避範囲
+    float retreatRange_ = 110.0f;  // 退避範囲
 };
 
 inline void Enemy::UpdateObjTransform(CameraManager* camera)

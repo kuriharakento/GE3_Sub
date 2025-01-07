@@ -20,6 +20,10 @@ void GameOverScene::Initialize(SceneManager* sceneManager)
 	//スライドの最初の状態を設定
 	slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
 	slide_->SetEasingFunc(EaseInOutElastic);
+
+	//ゲームオーバースプライト
+	gameOver_ = std::make_unique<Sprite>();
+	gameOver_->Initialize(spriteCommon_, "./Resources/gameOver.png");
 }
 
 void GameOverScene::Update()
@@ -47,6 +51,8 @@ void GameOverScene::Update()
 		}
 		break;
 	}
+
+	gameOver_->Update();
 }
 
 void GameOverScene::Draw3D()
@@ -56,6 +62,8 @@ void GameOverScene::Draw3D()
 
 void GameOverScene::Draw2D()
 {
+	gameOver_->Draw();
+
 	slide_->Draw();
 }
 

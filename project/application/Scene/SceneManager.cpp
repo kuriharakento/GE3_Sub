@@ -26,6 +26,9 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	} else if (sceneName == "GameScene")
 	{
 		currentScene_ = std::make_unique<GameScene>(object3dCommon_, cameraManager_, spriteCommon_);
+		//クリア、ゲームオーバーフラグをリセット
+		isClear_ = false;
+		isGameOver_ = false;
 	} else if (sceneName == "GameClearScene")
 	{
 		currentScene_ = std::make_unique<GameClearScene>(cameraManager_, spriteCommon_);
@@ -100,7 +103,14 @@ void SceneManager::NextScene()
 			ChangeScene("GameScene");
 		} else if (currentSceneName_ == "GameScene")
 		{
-			ChangeScene("GameClearScene");
+			if (isClear_)
+			{
+				ChangeScene("GameClearScene");
+			}
+			if (isGameOver_)
+			{
+				ChangeScene("GameOverScene");
+			}
 		} else if (currentSceneName_ == "GameClearScene")
 		{
 			ChangeScene("TitleScene");

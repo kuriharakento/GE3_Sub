@@ -107,6 +107,8 @@ void MachineGun::Shoot()
     Vector3 position = player_->GetPosition();
     Vector3 rotation = player_->GetRotate(); // プレイヤーの回転（Yaw, Pitch, Roll）
 
+	position.y += 0.5f; // プレイヤーの頭の位置に弾丸を生成
+
     // 回転角度をラジアンに変換
     float yaw = rotation.y;
 

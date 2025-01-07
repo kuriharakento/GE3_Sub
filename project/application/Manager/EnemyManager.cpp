@@ -1,6 +1,9 @@
 #include "EnemyManager.h"
 
+#include <random>
+
 #include "application/Entities/Player.h"
+#include "base/Logger.h"
 
 #ifdef _DEBUG
 #include "externals/imgui/imgui.h"
@@ -81,5 +84,53 @@ void EnemyManager::SpawnEnemies(int count, const Vector3& basePosition, const Ve
 		enemy->SetPlayer(player_);
 
 		enemies_.push_back(std::move(enemy));
+	}
+}
+
+void EnemyManager::SpawnEnemies(int count, float minRadius, float maxRadius)
+{
+	if (minRadius < 0.0f || maxRadius < 0.0f) {
+		Logger::Log("最小半径および最大半径は0以上でなければなりません。");
+		return;
+	}
+
+	if (minRadius > maxRadius && maxRadius != 0.0f) {
+		Logger::Log("最小半径は最大半径以下でなければなりません。");
+		return;
+	}
+
+	// 乱数生成器の初期化
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> angleDist(0.0f, 2.0f * std::numbers::pi_v<float>);
+	std::uniform_real_distribution<float> radiusDist(minRadius, maxRadius);
+
+	for (int i = 0; i < count; ++i)
+	{
+		// ランダムな角度と半径を生成
+		float angle = angleDist(gen);
+		float radius = radiusDist(gen);
+
+		// 円周上の位置を計算
+		float x = radius * std::cos(angle);
+		float z = radius * std::sin(angle);
+		Vector3 position = { x, 1.0f, z };
+
+		// 新しい敵を生成
+		auto enemy = std::make_unique<Enemy>();
+		enemy->Initialize(filePath_, objectCommon_);
+
+		// 位置を設定
+		enemy->SetPosition(position);
+
+		// 必要に応じてスケールや回転を設定
+		enemy->SetScale(Vector3(1.0f, 1.0f, 1.0f));
+		enemy->SetRotate(Vector3(0.0f, 0.0f, 0.0f));
+
+		// プレイヤーを設定
+		enemy->SetPlayer(player_);
+
+		// 敵をリストに追加
+		enemies_.emplace_back(std::move(enemy));
 	}
 }

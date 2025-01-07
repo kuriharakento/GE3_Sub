@@ -5,7 +5,7 @@ Missile::Missile()
 {
 	status_.isAlive = true;
 	status_.attackPower = 10.0f;
-	status_.speed = 3.0f;
+	status_.speed = 2.0f;
 	status_.health = 30.0f;
 }
 
@@ -24,13 +24,14 @@ void Missile::Initialize(Object3dCommon* object3dCommon, const Vector3& startPos
 
 	// ミサイルの初期位置を設定
     missile_->SetTranslate(startPosition);
+	missile_->SetScale({ 0.7f,0.7f,0.7f });
 
 	//ミサイルの当たり判定タイプを設定
 	type_ = ObjectType::Missile;
 
 	// ミサイルの当たり判定用のAABBを設定
-	hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f);
-	hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);
+	hitBox_.min = -Vector3(1.0f,1.0f,1.0f);
+	hitBox_.max = Vector3(1.0f, 1.0f, 1.0f);
 }
 
 void Missile::Update(CameraManager* camera)

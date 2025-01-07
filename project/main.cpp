@@ -119,12 +119,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/reload.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/reloading.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/gameClear.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/gameOver.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/HP.png");
 #pragma endregion
 
 #pragma region モデルの読み込み
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("player.obj");
+	ModelManager::GetInstance()->LoadModel("enemy.obj");
+	ModelManager::GetInstance()->LoadModel("missile.obj");
+	ModelManager::GetInstance()->LoadModel("bullet.obj");
 	ModelManager::GetInstance()->LoadModel("Building.obj");
 	ModelManager::GetInstance()->LoadModel("gameName.obj");
 	ModelManager::GetInstance()->LoadModel("skydome.obj");
@@ -158,6 +165,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	// 最初のシーンを生成
 	sceneManager->ChangeScene("TitleScene");
+
+	// カーソルを非表示
+	while (ShowCursor(FALSE) >= 0);
 
 	//ゲームループ
 	while (true)

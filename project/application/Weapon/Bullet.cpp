@@ -21,6 +21,7 @@ void Bullet::Initialize(Object3dCommon* object3dCommon, const Vector3& position,
 
 	//移動方向を記録
 	velocity_ = direction;
+	bullet_->SetScale({ 0.3f,0.3f,0.7f });
 	//向きを変更
 	bullet_->SetRotate({ 0.0f, atan2f(velocity_.x, velocity_.z), 0.0f });
 

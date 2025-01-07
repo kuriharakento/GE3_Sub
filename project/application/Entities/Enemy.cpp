@@ -108,9 +108,9 @@ void Enemy::SetPosition(const Vector3& position)
 void Enemy::UpdateIdle()
 {
     // プレイヤーが一定範囲に入ったら攻撃モードに遷移
-    if (IsPlayerInRange(patrolRange_))
+    if (!IsPlayerInRange(patrolRange_))
     {
-        state_ = State::Chase;
+        state_ = State::Approach;
     }
 }
 
@@ -135,7 +135,7 @@ void Enemy::UpdatePatrol()
         patrolDirection_ = Vector3(randomX, 0.0f, randomZ); // Y軸方向は固定
 
 		// スピードの設定
-		status_.speed = randomSpeed;
+		status_.speed = randomSpeed * 1.5f;
 
         // タイマーリセット
         patrolTimer_ = 0.0f;
@@ -159,13 +159,6 @@ void Enemy::UpdateAttack()
 {
     fireTimer_ -= 1.0f / 60.0f; // 攻撃タイマーを減少
 
-    // プレイヤーが射程外に出た場合、待機状態に戻る
-    if (!IsPlayerInRange(15.0f))
-    {
-        state_ = State::Approach;
-        return;
-    }
-
     // ミサイル発射
     if (fireTimer_ <= 0.0f)
     {
@@ -183,9 +176,9 @@ void Enemy::UpdateApproach()
     transform_.translate += direction * (status_.speed / 10);
 
     // 一定距離近づいたら待機状態に戻る
-    if (IsPlayerInRange(retreatRange_))
+    if (IsPlayerInRange(patrolRange_))
     {
-        state_ = State::Idle;
+        state_ = State::Chase;
     }
 
 }

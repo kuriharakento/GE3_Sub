@@ -9,9 +9,10 @@ class Player : public Mech, public ICollidable
 public:
 	Player()
 	{
-		status_.health = 100.0f;
+		status_.health = 200.0f;
 		status_.attackPower = 10.0f;
-		status_.speed = 0.03f;
+		status_.speed = 0.07f;
+		status_.isAlive = true;
 		hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f);
 		hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);
 		type_ = ObjectType::Player;
@@ -50,6 +51,9 @@ public: //アクセッサ
 	//弾のリストを取得
 	MachineGun* GetMachineGun() { return machineGun_.get(); }
 
+	//生存しているか
+	bool IsAlive() const { return status_.isAlive; }
+
 private:
 	//移動
 	void Move();
@@ -81,6 +85,9 @@ private: //メンバ変数
 
 	//リロード中を表示するUI
 	std::unique_ptr<Sprite> reloadingUI_ = nullptr;
+
+	//HP
+	std::unique_ptr<Sprite> hpUI_ = nullptr;
 };
 
 inline void Player::UpdateObjTransform()

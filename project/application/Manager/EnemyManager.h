@@ -23,9 +23,14 @@ public:
     // 敵を指定数生成
     void SpawnEnemies(int count, const Vector3& basePosition, const Vector3& offset = Vector3());
 
+    void SpawnEnemies(int count, float minRadius = 0.0f, float maxRadius = 100.0f);
+
     // 敵のリストを取得
     const std::vector<std::unique_ptr<Enemy>>& GetEnemies() const { return enemies_; }
 	Enemy* GetEnemy(int index) { return enemies_[index].get(); }
+
+	//敵のリストが空かどうか
+	bool IsEmpty() const { return enemies_.empty(); }
 
 private:
     // 敵のリスト

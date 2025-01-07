@@ -1,7 +1,6 @@
 #include "GameScene.h"
 #include "SceneManager.h"
 #include "2d/SpriteCommon.h"
-#include "input/Input.h"
 
 GameScene::~GameScene()
 {
@@ -18,17 +17,17 @@ void GameScene::Initialize(SceneManager* sceneManager)
 
 	// プレイヤーの初期化
 	player_ = std::make_unique<Player>();
-	player_->Initialize("Building.obj", object3dCommon_, spriteCommon_, cameraManager_);
+	player_->Initialize("player.obj", object3dCommon_, spriteCommon_, cameraManager_);
 
 	// 敵の初期化
 	enemyManager_ = std::make_unique<EnemyManager>();
-	enemyManager_->Initialize(object3dCommon_, cameraManager_, player_.get(), "Building.obj");
+	enemyManager_->Initialize(object3dCommon_, cameraManager_, player_.get(), "enemy.obj");
 
 	// 建物の初期化
 	buildingManager_ = std::make_unique<BuildingManager>();
 	buildingManager_->Initialize(object3dCommon_, cameraManager_);
 	// 建物の生成
-	buildingManager_->GenerateBuilding(60, 10.0f,300.0f);
+	buildingManager_->GenerateBuilding(60, 10.0f,200.0f);
 
 	// 当たり判定マネージャーの初期化
 	collisionManager_ = std::make_unique<CollisionManager>();
@@ -45,6 +44,7 @@ void GameScene::Initialize(SceneManager* sceneManager)
 	skyDome_ = std::make_unique<Object3d>();
 	skyDome_->Initialize(object3dCommon_);
 	skyDome_->SetModel("skydome.obj");
+	skyDome_->SetScale({ 0.5f,0.5f,0.5f });
 
 	// 地面の初期化
 	ground_ = std::make_unique<Object3d>();
@@ -79,6 +79,16 @@ void GameScene::Update()
 		// 当たり判定の更新
 		AddCollisions(collisionManager_.get(), player_.get(), enemyManager_.get(), buildingManager_.get());
 		collisionManager_->Update();
+		if(enemyManager_->IsEmpty())
+		{
+			ChangePhase(ScenePhase::End);
+			sceneManager_->Clear();
+		}
+		if (!player_->IsAlive())
+		{
+			ChangePhase(ScenePhase::End);
+			sceneManager_->GameOver();
+		}
 		break;
 	case ScenePhase::End:
 		slide_->Update();
@@ -127,7 +137,7 @@ void GameScene::OnPhaseChanged(ScenePhase newPhase)
 		slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
 		break;
 	case ScenePhase::Play:
-
+		enemyManager_->SpawnEnemies(10, 15.0f);
 		break;
 	case ScenePhase::End:
 		slide_->Start(Slide::Status::SlideInFromBothSides, 1.0f);

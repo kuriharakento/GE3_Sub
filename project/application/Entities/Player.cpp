@@ -22,8 +22,10 @@ void Player::Initialize(const std::string& filePath, Object3dCommon* objectCommo
 	transform_ = {
 		{1.0f,1.0f,1.0f},
 		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f}
+		{0.0f,1.0f,0.0f}
 	};
+
+	transform_.scale = { 1.0f,1.0f,0.7f };
 
 	//スケールと当たり判定を一致させる
 	hitBox_.min = -transform_.scale;
@@ -53,8 +55,11 @@ void Player::Initialize(const std::string& filePath, Object3dCommon* objectCommo
 	reloadingUI_->SetAnchorPoint(Vector2(0.5f, 0.5f));
 	reloadingUI_->SetPosition(Vector2(640.0f, 100.0));
 
-	//スプライトの初期位置を設定
-
+	//HpUI
+	hpUI_ = std::make_unique<Sprite>();
+	hpUI_->Initialize(spriteCommon, "./Resources/HP.png");
+	hpUI_->SetAnchorPoint(Vector2(0.5f, 0.5f));
+	hpUI_->SetPosition(Vector2(640.0f, 650.0f));
 }
 
 void Player::Update()
@@ -78,6 +83,11 @@ void Player::Update()
 	ImGui::End();
 #endif
 
+	if(status_.health <= 0.0f)
+	{
+		status_.isAlive = false;
+	}
+
 	//移動
 	Move();
 
@@ -90,6 +100,8 @@ void Player::Update()
 	//スプライトの更新
 	reloadKeyUI_->Update();
 	reloadingUI_->Update();
+	hpUI_->SetSize(Vector2(status_.health * 3.0f, 25.0f));
+	hpUI_->Update();
 
 	//行列の更新
 	UpdateObjTransform();
@@ -114,13 +126,19 @@ void Player::DrawUI()
 	{
 		reloadKeyUI_->Draw();
 	}
+	if (status_.health > 0.0f)
+	{
+		hpUI_->Draw();
+	}
 }
 
 void Player::OnCollision(ICollidable* other)
 {
 	if (other->GetType() == ObjectType::Bullet) { return; }
 	Camera* camera = cameraManager_->GetCamera(followCameraName_);
-	camera->StartShake(0.5f, 0.3f);
+	camera->StartShake(1.5f, 0.5f);
+
+	status_.health -= other->GetAttackPower();
 }
 
 ObjectType Player::GetType() const
@@ -175,6 +193,26 @@ void Player::Move()
 
 	velocity = MathUtils::Transform(velocity, MakeRotateYMatrix(cameraManager_->GetCamera(followCameraName_)->GetRotate().y));
 	transform_.translate += velocity;
+
+	//移動範囲を制限
+	Vector2 moveRange = { 100.0f,100.0f };
+	if (transform_.translate.x < -moveRange.x)
+	{
+		transform_.translate.x = -moveRange.x;
+	}
+	if (transform_.translate.x > moveRange.x)
+	{
+		transform_.translate.x = moveRange.x;
+	}
+
+	if (transform_.translate.z < -moveRange.y)
+	{
+		transform_.translate.z = -moveRange.y;
+	}
+	if (transform_.translate.z > moveRange.y)
+	{
+		transform_.translate.z = moveRange.y;
+	}
 }
 
 
@@ -209,6 +247,6 @@ void Player::CameraUpdate()
     direction.Normalize();
     float pitch = asinf(direction.y);
     float yaw = atan2f(direction.x, direction.z);
-    camera->SetRotate(Vector3(0.0f, yaw, 0.0f));
-	transform_.rotate = Vector3(0.0f, yaw, 0.0f);
+    camera->SetRotate(Vector3(-0.06f, yaw, 0.0f));
+	transform_.rotate = camera->GetRotate();
 }
