@@ -12,6 +12,10 @@ Building::Building()
 	hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f);
 	hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);
 	type_ = ObjectType::Building;
+	status_.health = 100.0f;
+	status_.attackPower = 0.0f;
+	status_.speed = 0.0f;
+	status_.isAlive = true;
 }
 
 void Building::Initialize(const std::string& filePath, Object3dCommon* objectCommon)
@@ -37,6 +41,10 @@ void Building::Initialize(const std::string& filePath, Object3dCommon* objectCom
 
 void Building::Update(CameraManager* camera)
 {
+	if(status_.health <= 0.0f)
+	{
+		status_.isAlive = false;
+	}
 	//行列の更新
 	UpdateOBJTransform(camera);
 	//AABBの更新
@@ -71,7 +79,7 @@ void Building::UpdateAABB()
 
 void Building::OnCollision(ICollidable* other)
 {
-	status_.isAlive = false;
+	status_.health -= other->GetAttackPower();
 }
 
 ObjectType Building::GetType() const

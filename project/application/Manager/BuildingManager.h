@@ -16,7 +16,7 @@ public:
 
 	void Draw();
 
-	void GenerateBuilding(int count);
+	void GenerateBuilding(int count, float minRadius, float maxRadius);
 
 	std::vector<std::unique_ptr<Building>>& GetBuildings() { return buildings_; }
 	Building* GetBuilding(int index) { return buildings_[index].get(); }

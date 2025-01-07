@@ -4,6 +4,7 @@
 #include <unordered_set>
 
 #include "3d/ModelManager.h"
+#include "base/Logger.h"
 
 #ifdef _DEBUG
 #include "externals/imgui/imgui.h"
@@ -20,9 +21,6 @@ void BuildingManager::Initialize(Object3dCommon* objectCommon, CameraManager* ca
 
 	//リストの初期化
 	buildings_.clear();
-
-	//建物を生成
-	GenerateBuilding(10);
 }
 
 void BuildingManager::Update()
@@ -79,43 +77,100 @@ void BuildingManager::Draw()
 	}
 }
 
-void BuildingManager::GenerateBuilding(int count)
+void BuildingManager::GenerateBuilding(int count, float minRadius, float maxRadius)
 {
-	// 乱数生成器の初期化
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> posDist(-50.0f, 50.0f); // 位置の範囲
-	std::uniform_real_distribution<float> scaleDist(0.5f, 10.0f);  // Y軸の大きさの範囲
+    if (minRadius < 0.0f || maxRadius < 0.0f) {
+        Logger::Log("最小半径および最大半径は0以上でなければなりません。");
+        return;
+    }
 
-	// 配置済みの位置を記録するセット
-	std::unordered_set<std::string> occupiedPositions;
+    if (minRadius > maxRadius && maxRadius != 0.0f) {
+        Logger::Log("最小半径は最大半径以下でなければなりません。");
+        return;
+    }
 
-	// 建物を生成
-	for (int i = 0; i < count; i++)
-	{
-		Vector3 position;
-		std::string posKey;
-		do
-		{
-			position = { posDist(gen), 0.0f, posDist(gen) };
-			posKey = std::to_string(static_cast<int>(position.x)) + "_" + std::to_string(static_cast<int>(position.z));
-		} while (occupiedPositions.find(posKey) != occupiedPositions.end());
+    // 乱数生成器の初期化
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> posDist(-50.0f, 50.0f); // 位置の範囲
+    std::uniform_real_distribution<float> scaleDist(0.5f, 8.0f);  // スケールの範囲
 
-		// 位置を記録
-		occupiedPositions.insert(posKey);
+    // 配置済みの位置を記録するセット
+    std::unordered_set<std::string> occupiedPositions;
 
-		// 建物の生成と初期化
-		auto building = std::make_unique<Building>();
-		building->Initialize(filePath_, objectCommon_);
+    // カメラの位置を取得して中心点に設定
+    Camera* activeCamera = cameraManager_->GetActiveCamera();
+    if (!activeCamera) {
+        Logger::Log("アクティブなカメラが存在しません。");
+        return;
+    }
+    Vector3 cameraPosition = activeCamera->GetTranslate();
+    Vector3 exclusionCenter = cameraPosition;
 
-		// 位置とスケールの設定
-		building->SetPosition(position);
-		Vector3 scale = building->GetScale();
-		scale.x = scale.z = scaleDist(gen);
-		scale.y = scaleDist(gen);
-		building->SetScale(scale);
-		building->UpdateAABB();
+    // 建物を生成
+    for (int i = 0; i < count; i++)
+    {
+        Vector3 position;
+        std::string posKey;
+        bool validPosition = false;
+        int attempts = 0;
+        const int maxAttempts = 100;
 
-		buildings_.emplace_back(std::move(building));
-	}
+        // 有効な位置が見つかるまでループ
+        while (!validPosition && attempts < maxAttempts)
+        {
+            float x = posDist(gen);
+            float z = posDist(gen);
+            position = { x, 0.0f, z };
+            posKey = std::to_string(static_cast<int>(position.x)) + "_" + std::to_string(static_cast<int>(position.z));
+
+            // 既に占有されている位置をスキップ
+            if (occupiedPositions.find(posKey) != occupiedPositions.end())
+            {
+                attempts++;
+                continue;
+            }
+
+            // カメラ位置からの距離を計算
+            float distance = std::sqrt(
+                std::pow(position.x - exclusionCenter.x, 2) +
+                std::pow(position.y - exclusionCenter.y, 2) +
+                std::pow(position.z - exclusionCenter.z, 2)
+            );
+
+            bool withinMinRadius = distance >= minRadius;
+            bool withinMaxRadius = (maxRadius > 0.0f) ? (distance <= maxRadius) : true;
+
+            if (withinMinRadius && withinMaxRadius)
+            {
+                validPosition = true;
+            } else
+            {
+                attempts++;
+            }
+        }
+
+        if (validPosition)
+        {
+            // 位置を記録
+            occupiedPositions.insert(posKey);
+
+            // 建物の生成と初期化
+            auto building = std::make_unique<Building>();
+            building->Initialize(filePath_, objectCommon_);
+
+            // 位置とスケールの設定
+            building->SetPosition(position);
+            Vector3 scale = building->GetScale();
+            scale.x = scale.z = scaleDist(gen);
+            scale.y = scaleDist(gen);
+            building->SetScale(scale);
+            building->UpdateAABB();
+
+            buildings_.emplace_back(std::move(building));
+        } else
+        {
+            Logger::Log("有効なビルの位置が見つかりませんでした。");
+        }
+    }
 }

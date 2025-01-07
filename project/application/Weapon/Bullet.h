@@ -6,6 +6,7 @@
 class Bullet : public ICollidable
 {
 public:
+	Bullet();
 	// 初期化
 	void Initialize(Object3dCommon* object3dCommon, const Vector3& position, const Vector3& direction);
 
@@ -27,6 +28,8 @@ public:
 	void SetScale(const Vector3& scale) { bullet_->SetScale(scale); }
 
 	void OnCollision(ICollidable* other) override;
+
+	float GetAttackPower() const override;
 
 	ObjectType GetType() const override { return type_; }
 

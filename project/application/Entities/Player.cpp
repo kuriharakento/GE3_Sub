@@ -11,7 +11,7 @@
 
 #include "math/MathUtils.h"
 
-void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon, CameraManager* camera)
+void Player::Initialize(const std::string& filePath, Object3dCommon* objectCommon, SpriteCommon* spriteCommon, CameraManager* camera)
 {
 	// モデルの初期化
 	object3d_ = std::make_unique<Object3d>();
@@ -40,12 +40,34 @@ void Player::Initialize(const std::string& filePath,Object3dCommon* objectCommon
 	cameraManager_->AddCamera(followCameraName_);
 	//カメラマネージャーにプレイヤーを追尾するカメラをセット
 	cameraManager_->SetActiveCamera(followCameraName_);
+
+	//リロードUIの初期化
+	reloadKeyUI_ = std::make_unique<Sprite>();
+	reloadKeyUI_->Initialize(spriteCommon,"./Resources/reload.png");
+	reloadKeyUI_->SetAnchorPoint(Vector2(0.5f, 0.5f));
+	reloadKeyUI_->SetPosition(Vector2(640.0f,550.0f));
+
+	//リロード中UIの初期化
+	reloadingUI_ = std::make_unique<Sprite>();
+	reloadingUI_->Initialize(spriteCommon, "./Resources/reloading.png");
+	reloadingUI_->SetAnchorPoint(Vector2(0.5f, 0.5f));
+	reloadingUI_->SetPosition(Vector2(640.0f, 100.0));
+
+	//スプライトの初期位置を設定
+
 }
 
 void Player::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("Player Status");
+	//スプライト
+	Vector2 spritePosition = reloadKeyUI_->GetPosition();
+	ImGui::DragFloat2("SpritePosition", &spritePosition.x, 0.1f);
+	reloadKeyUI_->SetPosition(spritePosition);
+	Vector2 reloadingPosition = reloadingUI_->GetPosition();
+	ImGui::DragFloat2("ReloadingPosition", &reloadingPosition.x, 0.1f);
+	reloadingUI_->SetPosition(reloadingPosition);
 	ImGui::DragFloat("CameraZOffset", &cameraZOffset_, 0.1f);
 	ImGui::Text("Health : %.1f", status_.health);
 	ImGui::Text("AttackPower : %.1f", status_.attackPower);
@@ -65,6 +87,10 @@ void Player::Update()
 	//武器の更新
 	machineGun_->Update(cameraManager_);
 
+	//スプライトの更新
+	reloadKeyUI_->Update();
+	reloadingUI_->Update();
+
 	//行列の更新
 	UpdateObjTransform();
 }
@@ -76,6 +102,18 @@ void Player::Draw()
 
 	//武器の描画
 	machineGun_->Draw();
+}
+
+void Player::DrawUI()
+{
+	if (machineGun_->IsReloading())
+	{
+		reloadingUI_->Draw();
+	}
+	if (machineGun_->GetCurrentAmmo() <= 0 && !machineGun_->IsReloading())
+	{
+		reloadKeyUI_->Draw();
+	}
 }
 
 void Player::OnCollision(ICollidable* other)

@@ -1,5 +1,12 @@
 #include "Bullet.h"
 
+Bullet::Bullet()
+{
+	status_.isAlive = true;
+	status_.attackPower = 30.0f;
+	status_.speed = 1.0f;
+}
+
 void Bullet::Initialize(Object3dCommon* object3dCommon, const Vector3& position, const Vector3& direction)
 {
 	//生成した弾を初期化
@@ -20,10 +27,11 @@ void Bullet::Initialize(Object3dCommon* object3dCommon, const Vector3& position,
 	//移動方向を正規化
 	velocity_.Normalize();
 
-	status_.attackPower = 10.0f;
-	status_.speed = 0.3f;
-
 	type_ = ObjectType::Bullet;
+
+	//ヒットボックスの設定
+	hitBox_.min = -bullet_->GetScale();
+	hitBox_.max = bullet_->GetScale();
 }
 
 void Bullet::Update(CameraManager* camera)
@@ -56,4 +64,9 @@ void Bullet::OnCollision(ICollidable* other)
 
 	//弾が当たったらフラグを下げる
 	status_.isAlive = false;
+}
+
+float Bullet::GetAttackPower() const
+{
+	return status_.attackPower;
 }

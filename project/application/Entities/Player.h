@@ -1,5 +1,6 @@
 #pragma once
 #include "Mech.h"
+#include "2d/Sprite.h"
 #include "application/Collision/ICollidable.h"
 #include "application/Weapon/MachineGun.h"
 
@@ -16,11 +17,13 @@ public:
 		type_ = ObjectType::Player;
 	}
 
-	void Initialize(const std::string& filePath, Object3dCommon* objectCommon,CameraManager* camera);
+	void Initialize(const std::string& filePath, Object3dCommon* objectCommon, SpriteCommon* spriteCommon, CameraManager* camera);
 
 	void Update();
 
 	void Draw();
+
+	void DrawUI();
 
 	void OnCollision(ICollidable* other) override;
 
@@ -72,6 +75,12 @@ private: //メンバ変数
 
 	//追従させるカメラの名前
 	std::string followCameraName_ = "FollowPlayer";
+
+	//リロードを表示するUI
+	std::unique_ptr<Sprite> reloadKeyUI_ = nullptr;
+
+	//リロード中を表示するUI
+	std::unique_ptr<Sprite> reloadingUI_ = nullptr;
 };
 
 inline void Player::UpdateObjTransform()

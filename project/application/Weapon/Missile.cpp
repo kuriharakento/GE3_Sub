@@ -1,6 +1,14 @@
 #include "Missile.h"
 #include "math/VectorFunc.h"
 
+Missile::Missile()
+{
+	status_.isAlive = true;
+	status_.attackPower = 10.0f;
+	status_.speed = 3.0f;
+	status_.health = 30.0f;
+}
+
 void Missile::Initialize(Object3dCommon* object3dCommon, const Vector3& startPosition, const Vector3& controlPoint, const Vector3& endPosition)
 {
     // ミサイルモデルを生成
@@ -27,16 +35,16 @@ void Missile::Initialize(Object3dCommon* object3dCommon, const Vector3& startPos
 
 void Missile::Update(CameraManager* camera)
 {
-    if (!isAlive_) return;
+    if (!status_.isAlive) return;
 
     // 時間を更新（スピード倍率を掛ける）
-    elapsedTime_ += kDeltaTime * speed_;
+    elapsedTime_ += kDeltaTime * status_.speed;
     float t = elapsedTime_ / lifeTime_;
 
     // 寿命を超えたら破棄
     if (t >= 1.0f)
     {
-        isAlive_ = false;
+        status_.isAlive = false;
         return;
     }
 
@@ -64,7 +72,7 @@ void Missile::Update(CameraManager* camera)
 
 void Missile::Draw()
 {
-    if (!isAlive_) return;
+    if (!status_.isAlive) return;
     missile_->Draw();
 }
 
@@ -72,7 +80,7 @@ void Missile::OnCollision(ICollidable* other)
 {
     if(other->GetType() == ObjectType::Player)
     {
-		isAlive_ = false;
+		status_.isAlive = false;
     }
 }
 

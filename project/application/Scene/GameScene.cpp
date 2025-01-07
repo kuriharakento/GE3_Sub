@@ -18,7 +18,7 @@ void GameScene::Initialize(SceneManager* sceneManager)
 
 	// プレイヤーの初期化
 	player_ = std::make_unique<Player>();
-	player_->Initialize("Building.obj", object3dCommon_, cameraManager_);
+	player_->Initialize("Building.obj", object3dCommon_, spriteCommon_, cameraManager_);
 
 	// 敵の初期化
 	enemyManager_ = std::make_unique<EnemyManager>();
@@ -27,6 +27,8 @@ void GameScene::Initialize(SceneManager* sceneManager)
 	// 建物の初期化
 	buildingManager_ = std::make_unique<BuildingManager>();
 	buildingManager_->Initialize(object3dCommon_, cameraManager_);
+	// 建物の生成
+	buildingManager_->GenerateBuilding(60, 10.0f,300.0f);
 
 	// 当たり判定マネージャーの初期化
 	collisionManager_ = std::make_unique<CollisionManager>();
@@ -38,6 +40,16 @@ void GameScene::Initialize(SceneManager* sceneManager)
 
 	//スライドの最初の状態を設定
 	slide_->Start(Slide::Status::SlideOutFromBothSides, 1.0f);
+
+	// 天球の初期化
+	skyDome_ = std::make_unique<Object3d>();
+	skyDome_->Initialize(object3dCommon_);
+	skyDome_->SetModel("skydome.obj");
+
+	// 地面の初期化
+	ground_ = std::make_unique<Object3d>();
+	ground_->Initialize(object3dCommon_);
+	ground_->SetModel("ground.obj");
 }
 
 void GameScene::Update()
@@ -67,10 +79,6 @@ void GameScene::Update()
 		// 当たり判定の更新
 		AddCollisions(collisionManager_.get(), player_.get(), enemyManager_.get(), buildingManager_.get());
 		collisionManager_->Update();
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE))
-		{
-			ChangePhase(ScenePhase::End);
-		}
 		break;
 	case ScenePhase::End:
 		slide_->Update();
@@ -80,6 +88,9 @@ void GameScene::Update()
 		}
 		break;
 	}
+
+	ground_->Update(cameraManager_);
+	skyDome_->Update(cameraManager_);
 }
 
 void GameScene::Draw3D()
@@ -92,10 +103,19 @@ void GameScene::Draw3D()
 
 	//建物の描画
 	buildingManager_->Draw();
+
+	//地面の描画
+	ground_->Draw();
+
+	//天球の描画
+	skyDome_->Draw();
 }
 
 void GameScene::Draw2D()
 {
+	//プレイヤーのUIの描画
+	player_->DrawUI();
+	//スライドの描画
 	slide_->Draw();
 }
 

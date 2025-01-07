@@ -64,7 +64,7 @@ void MachineGun::Update(CameraManager* camera)
     timeSinceLastShot_ += kDeltaTime;
     if (timeSinceLastShot_ >= fireRate_ && currentAmmo_ > 0 && !isReloading_)
     {
-        if(Input::GetInstance()->PushMouseButton(0))
+        if(Input::GetInstance()->PushKey(DIK_SPACE))
         {
         	Shoot();
         }

@@ -2,10 +2,12 @@
 #include "3d/Object3d.h"
 #include "math/VectorFunc.h"
 #include "application/Collision/ICollidable.h"
+#include "application/Collision/Status.h"
 
 class Missile : public ICollidable
 {
 public:
+    Missile();
     // 初期化
     void Initialize(Object3dCommon* object3dCommon, const Vector3& startPosition, const Vector3& controlPoint, const Vector3& endPosition);
 
@@ -16,7 +18,7 @@ public:
     void Draw();
 
     // ミサイルが有効かどうか
-    bool IsAlive() const { return isAlive_; }
+    bool IsAlive() const { return status_.isAlive; }
 
     void OnCollision(ICollidable* other) override;
 
@@ -41,13 +43,12 @@ private:
     Vector3 endPoint_;
 
     // 速度
-    float speed_ = 2.0f;
 
     // ターゲット位置
     Vector3 targetPosition_ = {};
 
-    // ミサイルが有効かどうか
-    bool isAlive_ = true;
+    //ステータス
+	Status status_;
 
     // 寿命
     float lifeTime_ = 5.0f;

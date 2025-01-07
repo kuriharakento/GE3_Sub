@@ -22,7 +22,7 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	//新しいシーンを作成
 	if(sceneName == "TitleScene")
 	{
-		currentScene_ = std::make_unique<TitleScene>(cameraManager_,spriteCommon_);;
+		currentScene_ = std::make_unique<TitleScene>(cameraManager_,spriteCommon_,object3dCommon_);;
 	} else if (sceneName == "GameScene")
 	{
 		currentScene_ = std::make_unique<GameScene>(object3dCommon_, cameraManager_, spriteCommon_);

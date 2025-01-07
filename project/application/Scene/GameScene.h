@@ -47,5 +47,9 @@ private: // メンバ変数
 	std::unique_ptr<CollisionManager> collisionManager_;
 	/*===[スライド]===*/
 	std::unique_ptr<Slide> slide_;
+	/*===[ 天球 ]===*/
+	std::unique_ptr<Object3d> skyDome_;
+	/*===[ 地面 ]===*/
+	std::unique_ptr<Object3d> ground_;
 };
 

@@ -117,6 +117,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/reload.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/reloading.png");
 #pragma endregion
 
 #pragma region モデルの読み込み
@@ -124,6 +126,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	ModelManager::GetInstance()->LoadModel("plane.obj");
 	ModelManager::GetInstance()->LoadModel("axis.obj");
 	ModelManager::GetInstance()->LoadModel("Building.obj");
+	ModelManager::GetInstance()->LoadModel("gameName.obj");
+	ModelManager::GetInstance()->LoadModel("skydome.obj");
+	ModelManager::GetInstance()->LoadModel("ground.obj");
 #pragma endregion
 
 #pragma region 音声ファイルの読み込み
@@ -136,7 +141,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region 宣言と初期化
 	std::unique_ptr<SceneManager> sceneManager = std::make_unique<SceneManager>();
 	sceneManager->Initialize(objectCommon, cameraManager.get(),spriteCommon);
-	
 
 	// カーソル表示状態を管理する変数
 	static bool showCursor = true;
