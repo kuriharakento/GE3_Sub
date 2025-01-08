@@ -39,6 +39,10 @@ public:
 	void Initialize();
 
 	SoundData LoadWave(const char* filename);
+	void SoundUnload(SoundData* soundData);
+
+	//解放
+	void SoundUnload(SoundData* soundData);
 
 private:
 	//IXAudio2
