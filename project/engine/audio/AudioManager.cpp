@@ -1,261 +1,155 @@
-// AudioManager.cpp
-
 #include "AudioManager.h"
+
+#include <cassert>
 #include <fstream>
+#include <stdexcept>
 #include <sstream>
-#include <cstring> // for std::strncmp
-#include "base/Logger.h"
 
-AudioManager* AudioManager::instance = nullptr;
+// インスタンスの初期化
+AudioManager* AudioManager::instance_ = nullptr;
 
-AudioManager::AudioManager() : pXAudio2_(nullptr), pMasterVoice_(nullptr) {}
+AudioManager::AudioManager() {}
 
-AudioManager* AudioManager::GetInstance() {
-    if (!instance) {
-        instance = new AudioManager();
+AudioManager::~AudioManager() {}
+
+AudioManager* AudioManager::GetInstance()
+{
+    if (instance_ == nullptr) {
+        instance_ = new AudioManager();
     }
-    return instance;
+    return instance_;
 }
 
-AudioManager::~AudioManager() {
-    Finalize();
-}
-
-bool AudioManager::Initialize() {
-    HRESULT hr;
-
-    // XAudio2の初期化
-    hr = XAudio2Create(&pXAudio2_, 0);
+void AudioManager::Initialize()
+{
+    HRESULT hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
     if (FAILED(hr)) {
-        Logger::Log("Failed to initialize XAudio2.");
-        return false;
+        throw std::runtime_error("Failed to create XAudio2 engine.");
     }
 
-    // マスターボイスの作成
-    hr = pXAudio2_->CreateMasteringVoice(&pMasterVoice_);
+    hr = pXAudio2->CreateMasteringVoice(&pMasterVoice);
     if (FAILED(hr)) {
-        Logger::Log("Failed to create mastering voice.");
-        return false;
+        throw std::runtime_error("Failed to create mastering voice.");
     }
-
-    Logger::Log("XAudio2 initialized successfully.");
-    return true;
 }
 
-void AudioManager::Finalize() {
-    // 全てのSourceVoiceを停止して破棄
-    for (auto& [name, sound] : soundMap_) {
-        if (sound.sourceVoice) {
-            sound.sourceVoice->Stop();
-            sound.sourceVoice->DestroyVoice();
-            sound.sourceVoice = nullptr;
-        }
-        // WAVEFORMATEX の解放
-        if (sound.waveFormat) {
-            delete sound.waveFormat;
-            sound.waveFormat = nullptr;
-        }
+void AudioManager::Finalize()
+{
+    for (auto& source : sources) {
+        source.second->DestroyVoice();
     }
-    soundMap_.clear();
+    if (pMasterVoice) pMasterVoice->DestroyVoice();
+    if (pXAudio2) pXAudio2->Release();
+    pXAudio2 = nullptr;
+    pMasterVoice = nullptr;
+    sources.clear();
+    sounds.clear();
 
-    // MasteringVoice を破棄
-    if (pMasterVoice_) {
-        pMasterVoice_->DestroyVoice();
-        pMasterVoice_ = nullptr;
-    }
-
-    // XAudio2 エンジンを停止して解放
-    if (pXAudio2_) {
-        pXAudio2_->StopEngine();
-        pXAudio2_->Release();
-        pXAudio2_ = nullptr;
-    }
-
-    // シングルトンインスタンスを解除
-    instance = nullptr;
-
-    Logger::Log("AudioManager finalized successfully.");
+    delete instance_;
+    instance_ = nullptr;
 }
 
-void AudioManager::LoadWavFile(const std::wstring& fileName, const std::wstring& filePath) {
-    // すでにロードされているか確認
-    if (soundMap_.find(fileName) != soundMap_.end()) {
-        Logger::Log(L"Audio file already loaded: " + fileName);
-        return; // 早期リターン
-    }
-
-    // フルパスを作成
-    std::wstring fullPath = basePath_ + filePath;
-
+void AudioManager::LoadSound(const std::string& name, const std::string& fileName)
+{
+    std::string fullPath = baseDir + fileName;
     std::ifstream file(fullPath, std::ios::binary);
-    if (!file.is_open()) {
-        Logger::Log(L"Failed to open WAV file: " + fullPath);
-        return;
+    if (!file) {
+        throw std::runtime_error("Failed to open sound file: " + fullPath);
     }
 
-    // ヘッダーの読み込み
-    WAVHeader header;
-    file.read(reinterpret_cast<char*>(&header), sizeof(WAVHeader));
-
-    // ヘッダーの検証
-    if (std::strncmp(header.riff, "RIFF", 4) != 0 ||
-        std::strncmp(header.wave, "WAVE", 4) != 0 ||
-        std::strncmp(header.fmt, "fmt ", 4) != 0 ||
-        std::strncmp(header.data, "data", 4) != 0) {
-        Logger::Log(L"Invalid WAV file format: " + fullPath);
-        file.close();
-        return;
+    char riffHeader[4];
+    file.read(riffHeader, 4);
+    if (std::strncmp(riffHeader, "RIFF", 4) != 0) {
+        throw std::runtime_error("Invalid WAV file: Missing 'RIFF' header.");
     }
 
-    if (header.audioFormat != 1) { // PCM 形式か確認
-        Logger::Log(L"Unsupported audio format (Not PCM): " + fullPath);
-        file.close();
-        return;
+    file.seekg(4, std::ios::cur); // ファイルサイズをスキップ
+
+    char waveHeader[4];
+    file.read(waveHeader, 4);
+    if (std::strncmp(waveHeader, "WAVE", 4) != 0) {
+        throw std::runtime_error("Invalid WAV file: Missing 'WAVE' header.");
     }
 
-    // 音声データの読み込み
-    std::vector<BYTE> audioData(header.dataSize);
-    file.read(reinterpret_cast<char*>(audioData.data()), header.dataSize);
-    file.close();
+    char fmtHeader[4];
+    file.read(fmtHeader, 4);
+    if (std::strncmp(fmtHeader, "fmt ", 4) != 0) {
+        throw std::runtime_error("Invalid WAV file: Missing 'fmt ' chunk.");
+    }
 
-    // マップに保存
-    SoundData sound;
-    sound.audioData = std::move(audioData);
+    uint32_t fmtChunkSize;
+    file.read(reinterpret_cast<char*>(&fmtChunkSize), sizeof(fmtChunkSize));
 
-    // WAVEFORMATEX の構築
-    WAVEFORMATEX* waveFormat = new WAVEFORMATEX();
-    waveFormat->wFormatTag = header.audioFormat;
-    waveFormat->nChannels = header.numChannels;
-    waveFormat->nSamplesPerSec = header.sampleRate;
-    waveFormat->nAvgBytesPerSec = header.byteRate;
-    waveFormat->nBlockAlign = header.blockAlign;
-    waveFormat->wBitsPerSample = header.bitsPerSample;
-    waveFormat->cbSize = 0;
+    WAVEFORMATEX waveFormat;
+    file.read(reinterpret_cast<char*>(&waveFormat), sizeof(WAVEFORMATEX));
+    if (fmtChunkSize > sizeof(WAVEFORMATEX)) {
+        file.seekg(fmtChunkSize - sizeof(WAVEFORMATEX), std::ios::cur);
+    }
 
-    sound.waveFormat = waveFormat;
-    sound.volume = 1.0f; // デフォルト音量
+    char dataHeader[4];
+    uint32_t dataSize;
+    while (file.read(dataHeader, 4)) {
+        file.read(reinterpret_cast<char*>(&dataSize), sizeof(dataSize));
+        if (std::strncmp(dataHeader, "data", 4) == 0) {
+            break;
+        }
+        file.seekg(dataSize, std::ios::cur);
+    }
 
-    soundMap_[fileName] = std::move(sound);
+    if (std::strncmp(dataHeader, "data", 4) != 0) {
+        throw std::runtime_error("Invalid WAV file: Missing 'data' chunk.");
+    }
 
-    Logger::Log(L"Successfully loaded WAV file: " + fileName);
+    std::vector<BYTE> audioData(dataSize);
+    file.read(reinterpret_cast<char*>(audioData.data()), dataSize);
+
+    SoundData soundData;
+    soundData.wfx = std::make_unique<WAVEFORMATEX>(waveFormat);
+    soundData.bufferData.AudioBytes = dataSize;
+    soundData.bufferData.pAudioData = audioData.data();
+    soundData.bufferData.Flags = XAUDIO2_END_OF_STREAM;
+
+    sounds[name] = std::move(soundData);
 }
 
-void AudioManager::PlayMusic(const std::wstring& fileName, bool loop) {
-    // 音声データが事前にロードされているか確認
-    auto it = soundMap_.find(fileName);
-    if (it == soundMap_.end()) {
-        Logger::Log(L"Audio data not loaded for file: " + fileName);
-        return;
+void AudioManager::PlaySound(const std::string& name, bool loop)
+{
+    auto it = sounds.find(name);
+    if (it == sounds.end()) {
+        throw std::runtime_error("Sound not found: " + name);
     }
 
-    SoundData& sound = it->second;
-
-    if (sound.sourceVoice) {
-        Logger::Log(L"SourceVoice already exists for: " + fileName);
-        return;
+    SoundData& soundData = it->second;
+    if (sources.find(name) == sources.end()) {
+        IXAudio2SourceVoice* pSourceVoice;
+        HRESULT hr = pXAudio2->CreateSourceVoice(&pSourceVoice, soundData.wfx.get());
+        assert(SUCCEEDED(hr));
+        sources[name] = std::unique_ptr<IXAudio2SourceVoice>(pSourceVoice);
     }
 
-    // SourceVoice の作成
-    HRESULT hr = pXAudio2_->CreateSourceVoice(&sound.sourceVoice, sound.waveFormat);
-    if (FAILED(hr)) {
-        Logger::Log("Failed to create source voice.");
-        return;
-    }
-
-    // バッファの作成と再生
-    XAUDIO2_BUFFER audioBuffer = { 0 };
-    audioBuffer.AudioBytes = static_cast<UINT32>(sound.audioData.size());
-    audioBuffer.pAudioData = sound.audioData.data();
-    audioBuffer.Flags = loop ? XAUDIO2_LOOP_INFINITE : XAUDIO2_END_OF_STREAM;
-
-    hr = sound.sourceVoice->SubmitSourceBuffer(&audioBuffer);
-    if (FAILED(hr)) {
-        Logger::Log("Failed to submit source buffer.");
-        return;
-    }
-
-    // 音量を設定
-    hr = sound.sourceVoice->SetVolume(sound.volume);
-    if (FAILED(hr)) {
-        Logger::Log("Failed to set volume.");
-    }
-
-    // 再生開始
-    hr = sound.sourceVoice->Start(0);
-    if (FAILED(hr)) {
-        Logger::Log("Failed to start audio.");
-    } else {
-        Logger::Log(L"Started playback for: " + fileName);
-    }
-}
-
-void AudioManager::StopMusic(const std::wstring& fileName) {
-    auto it = soundMap_.find(fileName);
-    if (it == soundMap_.end()) {
-        Logger::Log(L"Audio data not loaded for file: " + fileName);
-        return;
-    }
-
-    SoundData& sound = it->second;
-
-    if (sound.sourceVoice) {
-        sound.sourceVoice->Stop();
-        sound.sourceVoice->FlushSourceBuffers();
-        sound.sourceVoice->DestroyVoice();
-        sound.sourceVoice = nullptr;
-        Logger::Log(L"Stopped playback for: " + fileName);
-    }
-}
-
-bool AudioManager::IsMusicPlaying(const std::wstring& fileName) const {
-    auto it = soundMap_.find(fileName);
-    if (it == soundMap_.end()) {
-        return false;
-    }
-
-    const SoundData& sound = it->second;
-
-    if (sound.sourceVoice) {
-        XAUDIO2_VOICE_STATE state;
-        sound.sourceVoice->GetState(&state);
-        return state.BuffersQueued > 0;
-    }
-    return false;
-}
-
-// 音量を設定するメソッドの実装
-void AudioManager::SetVolume(const std::wstring& fileName, float volume) {
-    auto it = soundMap_.find(fileName);
-    if (it == soundMap_.end()) {
-        Logger::Log(L"Audio data not loaded for file: " + fileName);
-        return;
-    }
-
-    SoundData& sound = it->second;
-
-    // 音量を範囲内にクランプ
-    if (volume < 0.0f) volume = 0.0f;
-    if (volume > 1.0f) volume = 1.0f;
-
-    sound.volume = volume;
-
-    if (sound.sourceVoice) {
-        HRESULT hr = sound.sourceVoice->SetVolume(sound.volume);
+    IXAudio2SourceVoice* pSourceVoice = sources[name].get();
+    soundData.bufferData.LoopCount = loop ? XAUDIO2_LOOP_INFINITE : 0;
+    HRESULT hr = pSourceVoice->SubmitSourceBuffer(&soundData.bufferData);
+    if (SUCCEEDED(hr)) {
+        hr = pSourceVoice->Start();
         if (FAILED(hr)) {
-            Logger::Log("Failed to set volume.");
-        } else {
-            Logger::Log(L"Volume set to " + std::to_wstring(sound.volume) + L" for: " + fileName);
+            throw std::runtime_error("Failed to start sound playback.");
         }
     }
 }
 
-float AudioManager::GetVolume(const std::wstring& fileName) const {
-    auto it = soundMap_.find(fileName);
-    if (it == soundMap_.end()) {
-        Logger::Log(L"Audio data not loaded for file: " + fileName);
-        return 0.0f;
+void AudioManager::StopSound(const std::string& name)
+{
+    auto it = sources.find(name);
+    if (it != sources.end()) {
+        it->second->Stop();
     }
+}
 
-    const SoundData& sound = it->second;
-    return sound.volume;
+void AudioManager::SetVolume(const std::string& name, float volume)
+{
+    auto it = sources.find(name);
+    if (it != sources.end()) {
+        it->second->SetVolume(volume, XAUDIO2_COMMIT_NOW);
+    }
 }

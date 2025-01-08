@@ -140,9 +140,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region 音声ファイルの読み込み
 	// 音声ファイルの読み込み
-	AudioManager::GetInstance()->LoadWavFile(L"pa", L"pa.wav");
-	AudioManager::GetInstance()->PlayMusic(L"pa", true);
-	AudioManager::GetInstance()->SetVolume(L"pa", 1.0f);
+	AudioManager::GetInstance()->LoadSound("bgm", "bgm.wav");
+	AudioManager::GetInstance()->PlaySoundW("bgm", true);
 #pragma endregion
 
 #pragma region 宣言と初期化
