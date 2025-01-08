@@ -96,12 +96,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Input* input = new Input();
 	input->Initialize(winApp);
 
-	//カメラの初期化
-	/*std::unique_ptr<Camera> camera = std::make_unique<Camera>();
-	camera->SetRotate({});
-	camera->SetTranslate({ 0.0f,4.0f,-10.0f });
-	objectCommon->SetDefaultCamera(camera.get());*/
-
 	//カメラマネージャーの初期化
 	std::unique_ptr<CameraManager> cameraManager = std::make_unique<CameraManager>();
 	cameraManager->AddCamera("main");
