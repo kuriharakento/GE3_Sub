@@ -8,7 +8,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//実行
 	game->Run();
-
+  
 	//解放
 	delete game;
 
