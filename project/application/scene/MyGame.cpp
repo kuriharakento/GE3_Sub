@@ -6,13 +6,13 @@ void MyGame::Initialize()
 	Framework::Initialize();
 
 	//ゲームの初期化処理
-
+	sceneManager_->Initialize();
 }
 
 void MyGame::Finalize()
 {
 	//ゲームの終了処理
-
+	sceneManager_->Finalize();
 
 	//フレームワークの終了処理
 	Framework::Finalize();
@@ -23,14 +23,8 @@ void MyGame::Update()
 	//フレームワークの更新処理
 	Framework::Update();
 
-	/////////////////< 更新処理ここから >////////////////////
-
-
-
-	/////////////////< 更新処理ここまで >////////////////////
-	
-	//フレームワークの更新後処理
-	Framework::PostUpdate();
+	//ゲームの更新処理
+	sceneManager_->Update();
 }
 
 void MyGame::Draw()
@@ -44,11 +38,13 @@ void MyGame::Draw()
 	//3D描画用設定
 	Framework::Draw3DSetting();
 
+	sceneManager_->Draw3D();
 	
 	/*----[ スプライトの描画 ]----*/
 	//2D描画用設定
 	Framework::Draw2DSetting();
 
+	sceneManager_->Draw2D();
 
 	/////////////////< 描画ここまで >////////////////////
 

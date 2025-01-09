@@ -1,4 +1,6 @@
 #pragma once
+class SceneManager;
+
 class IScene
 {
 public: //メンバ関数
@@ -12,8 +14,13 @@ public: //メンバ関数
 	//更新
 	virtual void Update() = 0;
 	//描画
-	virtual void Draw3D();
-	virtual void Draw2D();
-	
+	virtual void Draw3D() = 0;
+	virtual void Draw2D() = 0;
+
+protected:
+	//コンストラクタ
+	IScene(SceneManager* sceneManager) : sceneManager_(sceneManager) {}
+private:
+	SceneManager* sceneManager_ = nullptr;
 };
 

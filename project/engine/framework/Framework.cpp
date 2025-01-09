@@ -53,11 +53,15 @@ void Framework::Initialize()
 
 	//3Dオブジェクト共通部に初期カメラをセット
 	objectCommon_->SetDefaultCamera(cameraManager_->GetActiveCamera());
+
+	//シーンマネージャーの初期化
+	sceneManager_ = std::make_unique<SceneManager>();
 }
 
 void Framework::Finalize()
 {
 	//NOTE:ここは基本的に触らない
+	sceneManager_.reset();							//シーンマネージャーの解放
 	winApp_->Finalize();							//ウィンドウアプリケーションの終了処理
 	delete winApp_;									//ウィンドウアプリケーションの解放
 	imguiManager_->Finalize();						//ImGuiManagerの終了処理
