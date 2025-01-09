@@ -12,7 +12,7 @@ void CameraManager::AddCamera(const std::string& name) {
     if (cameras_.find(name) == cameras_.end()) {
         // 新しいカメラをunique_ptrで生成してマップに追加
         cameras_[name] = std::make_unique<Camera>(); // unique_ptrでインスタンスを生成
-        Logger::Log("Add Camera: " + name);
+        Logger::Log("Add Camera: " + name + "\n");
 
     }
 }
