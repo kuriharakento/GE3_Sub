@@ -14,6 +14,11 @@ public:
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public: //メンバ関数
+	//インスタンス取得
+	static Input* GetInstance();
+	//解放
+	void Finalize();
+
 	//初期化
 	void Initialize(WinApp* winApp);
 	//更新
@@ -45,5 +50,13 @@ private: //メンバ変数
 	//前回の全キーの状態
 	BYTE keyPre_[256] = {};
 
+private: //シングルトン
+	static Input* instance_;
+
+	//コピー禁止
+	Input() = default;
+	~Input() = default;
+	Input(const Input&) = delete;
+	Input& operator=(const Input&) = delete;
 };
 
