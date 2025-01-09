@@ -21,6 +21,7 @@
 #include "3d/Object3dCommon.h"
 #include "3d/Object3d.h"
 #include "3d/ModelManager.h"
+#include "base/Logger.h"
 #include "manager/CameraManager.h"
 #include "manager/ImGuiManager.h"
 #include "manager/SrvManager.h"
@@ -166,6 +167,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	///						>>>メインループ<<<							///
 	///																	///
 	///////////////////////////////////////////////////////////////////////
+
+	//メインループ開始
+	Logger::Log("/*==== Start Main Loop!!! ====*/");
+
+	//マウスカーソルの表示,マウスカーソルを非表示にする場合は、ShowCursor(false)を使う
+	while (ShowCursor(true) < 0);
 
 	//ゲームループ
 	while (true)
