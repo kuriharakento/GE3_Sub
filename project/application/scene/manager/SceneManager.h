@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "application/scene/interface/AbstractSceneFactory.h"
 #include "application/scene/interface/IScene.h"
 
@@ -18,9 +16,7 @@ public: //メンバ関数
 	void Draw3D() override;
 	void Draw2D() override;
 
-public: //アクセッサ
-	//次のシーンを設定
-	void SetNextScene(IScene* nextScene) { nextScene_ = nextScene; }
+	void ChangeScene(const std::string& sceneName);
 
 private: //メンバ関数
 	//次のシーンが予約されているか
@@ -32,7 +28,7 @@ private: //メンバ変数
 	//次のシーン
 	IScene* nextScene_;
 
-	//シーン工場
-	std::unique_ptr<AbstractSceneFactory> sceneFactory_;
+	//シーンファクトリー
+	AbstractSceneFactory* sceneFactory_;
 };
 

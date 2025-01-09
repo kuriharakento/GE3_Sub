@@ -1,5 +1,7 @@
 #include "SceneManager.h"
 
+#include <assert.h>
+
 SceneManager::~SceneManager()
 {
 	//現在のシーンを終了
@@ -30,6 +32,16 @@ void SceneManager::Draw3D()
 void SceneManager::Draw2D()
 {
 	currentScene_->Draw2D();
+}
+
+void SceneManager::ChangeScene(const std::string& sceneName)
+{
+	//nullチェック
+	assert(sceneFactory_);
+	assert(nextScene_ == nullptr);
+
+	//次のシーンを生成
+	nextScene_ = sceneFactory_->CreateScene(sceneName);
 }
 
 void SceneManager::ReserveNextScene()

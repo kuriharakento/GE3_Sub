@@ -1,5 +1,7 @@
 #include "SceneFactory.h"
 
+#include "application/scene/play/GamePlayScene.h"
+#include "application/scene/play/TitleScene.h"
 #include "base/Logger.h"
 
 IScene* SceneFactory::CreateScene(const std::string& sceneName)

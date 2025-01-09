@@ -6,9 +6,8 @@ class IScene
 public: //メンバ関数
 	//デストラクタ
 	virtual ~IScene() = default;
-
 	//初期化
-	virtual void Initialize() = 0;
+	virtual void Initialize(SceneManager* sceneManager) = 0;
 	//終了
 	virtual void Finalize() = 0;
 	//更新
@@ -16,11 +15,6 @@ public: //メンバ関数
 	//描画
 	virtual void Draw3D() = 0;
 	virtual void Draw2D() = 0;
-
-protected:
-	//コンストラクタ
-	IScene(SceneManager* sceneManager) : sceneManager_(sceneManager) {}
 private:
 	SceneManager* sceneManager_ = nullptr;
 };
-
