@@ -1,5 +1,9 @@
 #pragma once
-#include "application/scene/IScene.h"
+
+#include <memory>
+
+#include "application/scene/interface/AbstractSceneFactory.h"
+#include "application/scene/interface/IScene.h"
 
 class SceneManager : public IScene
 {
@@ -25,8 +29,10 @@ private: //メンバ関数
 private: //メンバ変数
 	//今のシーン
 	IScene* currentScene_;
-
 	//次のシーン
 	IScene* nextScene_;
+
+	//シーン工場
+	std::unique_ptr<AbstractSceneFactory> sceneFactory_;
 };
 

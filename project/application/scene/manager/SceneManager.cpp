@@ -10,7 +10,7 @@ SceneManager::~SceneManager()
 
 void SceneManager::Initialize()
 {
-	//今のところ必要ない
+	//
 }
 
 void SceneManager::Update()
