@@ -127,7 +127,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\manager\ImGuiManager.cpp" />
     <ClCompile Include="engine\framework\Framework.cpp" />
     <ClCompile Include="application\scene\GamePlayScene.cpp" />
-    <ClCompile Include="application\scene\IScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
