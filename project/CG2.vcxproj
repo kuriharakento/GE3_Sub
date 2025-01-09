@@ -130,7 +130,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
     <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
-    <ClCompile Include="engine\framework\MyGame.cpp" />
+    <ClCompile Include="application\scene\MyGame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\audio\Audio.h" />
@@ -165,8 +165,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\manager\ImGuiManager.h" />
     <ClInclude Include="engine\manager\ParticleManager.h" />
     <ClInclude Include="engine\effects\ParticleEmitter.h" />
-    <ClInclude Include="engine\framework\MyGame.h" />
-    <ClInclude Include="Framework.h" />
+    <ClInclude Include="application\scene\MyGame.h" />
+    <ClInclude Include="engine\framework\Framework.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

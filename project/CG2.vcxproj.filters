@@ -117,7 +117,7 @@
     <ClCompile Include="engine\effects\ParticleEmitter.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="engine\framework\MyGame.cpp">
+    <ClCompile Include="application\scene\MyGame.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="engine\framework\Framework.cpp">
@@ -221,10 +221,10 @@
     <ClInclude Include="engine\effects\ParticleEmitter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="engine\framework\MyGame.h">
+    <ClInclude Include="application\scene\MyGame.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Framework.h">
+    <ClInclude Include="engine\framework\Framework.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
