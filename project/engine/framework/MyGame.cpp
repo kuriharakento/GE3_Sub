@@ -1,10 +1,5 @@
 #include "MyGame.h"
 
-#include "3d/ModelManager.h"
-#include "input/Input.h"
-#include "manager/ParticleManager.h"
-#include "manager/TextureManager.h"
-
 void MyGame::Initialize()
 {
 	//フレームワークの初期化
@@ -28,9 +23,12 @@ void MyGame::Update()
 	//フレームワークの更新処理
 	Framework::Update();
 
-	//ゲームの更新処理
+	/////////////////< 更新処理ここから >////////////////////
 
 
+
+	/////////////////< 更新処理ここまで >////////////////////
+	
 	//フレームワークの更新後処理
 	Framework::PostUpdate();
 }
