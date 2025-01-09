@@ -26,6 +26,7 @@
 #include "manager/ImGuiManager.h"
 #include "manager/SrvManager.h"
 #include "effects/ParticleEmitter.h"
+#include "framework/MyGame.h"
 #include "math/VectorFunc.h"
 #pragma endregion
 
@@ -105,6 +106,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	cameraManager->GetActiveCamera()->SetRotate({ 0.0f,0.0f,0.0f });
 
 	objectCommon->SetDefaultCamera(cameraManager->GetActiveCamera());
+
+	std::unique_ptr<MyGame> game = std::make_unique<MyGame>();
+	game->Initialize();
 
 	///////////////////////////////////////////////////////////////////////
 	///						>>>変数の宣言<<<								///
