@@ -52,50 +52,15 @@
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	//ゲームの初期化
-	std::unique_ptr<MyGame> game = std::make_unique<MyGame>();
-	game->Initialize();
+	//フレームワーク
+	Framework* game = new MyGame();
 
-	///////////////////////////////////////////////////////////////////////
-	///						>>>変数の宣言<<<								///
-	///////////////////////////////////////////////////////////////////////
+	//実行
+	game->Run();
 
-	#pragma region テクスチャの読み込み
-	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
-	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
-	#pragma endregion
+	//解放
+	delete game;
 
-	#pragma region モデルの読み込み
-	ModelManager::GetInstance()->LoadModel("plane.obj");
-	ModelManager::GetInstance()->LoadModel("axis.obj");
-	#pragma endregion
-
-
-	/////////////////////////////////////////////////////////////////////// ///
-	///						>>>メインループ<<<							///
-	///////////////////////////////////////////////////////////////////////
-
-	//メインループ開始
-	Logger::Log("/*==== Start Main Loop!!! ====*/");
-
-	//マウスカーソルの表示,マウスカーソルを非表示にする場合は、ShowCursor(false)を使う
-	while (ShowCursor(true) < 0);
-
-	//ゲームループ
-	while (true)
-	{
-		//ゲームの更新
-		game->Update();
-		//終了リクエストが来たらループを抜ける
-		if (game->IsEndRequest())
-		{
-			break;
-		}
-		//ゲームの描画
-		game->Draw();
-	}
-	//ゲームの終了
-	game->Finalize();
-	
+	//終了
 	return 0;
 }
