@@ -31,6 +31,10 @@ public: //セッター
 	//回転の設定
 	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
 
+public:
+	// シェイク開始メソッド
+	void StartShake(float intensity, float duration);
+
 private:
 	//トランスフォーム
 	Transform transform_ = {
@@ -56,6 +60,12 @@ private:
 	float nearClip_ = 0.1f;
 	//ファークリップ距離
 	float farClip_ = 100.0f;
+
+	// シェイク関連のメンバー変数
+	Vector3 shakeOffset_ = { 0.0f, 0.0f, 0.0f }; // シェイクによるオフセット
+	float shakeDuration_ = 0.0f; // シェイクの持続時間
+	float shakeTimer_ = 0.0f; // 残り時間
+	float shakeIntensity_ = 0.0f; // シェイクの強度
 
 };
 
