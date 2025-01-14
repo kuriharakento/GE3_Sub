@@ -1,8 +1,8 @@
 #pragma once
 #include "2d/SpriteCommon.h"
 #include "3d/Object3dCommon.h"
-#include "application/scene/factory/SceneFactory.h"
-#include "application/scene/manager/SceneManager.h"
+#include "engine/scene/factory/SceneFactory.h"
+#include "engine/scene/manager/SceneManager.h"
 #include "base/DirectXCommon.h"
 #include "base/WinApp.h"
 #include "manager/CameraManager.h"

@@ -1,6 +1,6 @@
 #include "GamePlayScene.h"
 #include "input/Input.h"
-#include "application/scene/manager/SceneManager.h"
+#include "engine/scene/manager/SceneManager.h"
 
 
 void GamePlayScene::Initialize()
