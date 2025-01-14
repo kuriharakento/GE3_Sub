@@ -83,6 +83,9 @@ public:
 	void FadeIn(const std::string& name, float duration);
 	void FadeOut(const std::string& name, float duration);
 
+private: //メンバ関数
+	void InitializeEffect();
+
 private:
 	//IXAudio2
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
@@ -97,6 +100,8 @@ private:
 	std::unordered_map<SoundGroup, std::vector<IXAudio2SourceVoice*>> groupVoicesMap_;
 	// フェード操作を管理するリスト
 	std::vector<FadeData> fadeList_;
+	//エフェクトチェーン
+	IXAudio2SubmixVoice* submixVoice_;
 
 	//ディレクトリパス
 	const std::string directoryPath = "Resources/audio/";

@@ -20,6 +20,8 @@ void Audio::Initialize()
 	XAudio2Create(&xAudio2,0,XAUDIO2_DEFAULT_PROCESSOR);
 	//マスターボイスを生成
 	xAudio2->CreateMasteringVoice(&masterVoice);
+
+	InitializeEffect();
 }
 
 void Audio::Finalize()
@@ -295,7 +297,23 @@ void Audio::PlayWave(const std::string& name, bool loop)
 
 	HRESULT hr;
 	IXAudio2SourceVoice* sourceVoice = nullptr;
-	hr = xAudio2->CreateSourceVoice(&sourceVoice, &soundData.wfex);
+	// サブミックスボイスへのセンドディスクリプタを設定
+	XAUDIO2_SEND_DESCRIPTOR sendDescriptor = {};
+	sendDescriptor.pOutputVoice = submixVoice_;
+
+	XAUDIO2_VOICE_SENDS sendList = {};
+	sendList.SendCount = 1;
+	sendList.pSends = &sendDescriptor;
+
+	// ソースボイスの作成時にセンドリストを指定
+	hr = xAudio2->CreateSourceVoice(
+		&sourceVoice,
+		&soundData.wfex,
+		0,
+		XAUDIO2_DEFAULT_FREQ_RATIO,
+		nullptr,
+		&sendList
+	);
 	assert(SUCCEEDED(hr));
 
 	XAUDIO2_BUFFER buffer = {};
@@ -442,4 +460,52 @@ void Audio::FadeOut(const std::string& name, float duration)
 		fadeData.isFading = true;
 		fadeList_.push_back(fadeData);
 	}
+}
+
+void Audio::InitializeEffect()
+{
+	// リバーブエフェクトの作成
+	IUnknown* reverbEffect = nullptr;
+	HRESULT hr = XAudio2CreateReverb(&reverbEffect);
+	if (FAILED(hr)) {
+		// エラーハンドリング
+		return;
+	}
+
+	// エフェクトディスクリプタの設定
+	XAUDIO2_EFFECT_DESCRIPTOR effectDescriptor = {};
+	effectDescriptor.InitialState = TRUE;
+	effectDescriptor.OutputChannels = 2; // ステレオ出力
+	effectDescriptor.pEffect = reverbEffect;
+
+	XAUDIO2_EFFECT_CHAIN effectChain = {};
+	effectChain.EffectCount = 1;
+	effectChain.pEffectDescriptors = &effectDescriptor;
+
+	// サブミックスボイスの作成
+	hr = xAudio2->CreateSubmixVoice(
+		&submixVoice_,
+		2,                         // チャンネル数
+		44100,                     // サンプルレート
+		0,                         // フラグ
+		0,                         // プロセッサ
+		nullptr,                   // センドリスト
+		&effectChain               // エフェクトチェーン
+	);
+	// リバーブパラメータの設定（必要に応じて）
+	XAUDIO2FX_REVERB_PARAMETERS reverbParameters = {};
+	reverbParameters.ReflectionsDelay = 5;
+	reverbParameters.ReverbDelay = 5;
+	// 他のパラメータを設定
+
+	submixVoice_->SetEffectParameters(0, &reverbParameters, sizeof(reverbParameters));
+
+	if (FAILED(hr)) {
+		// エラーハンドリング
+		reverbEffect->Release();
+		return;
+	}
+
+	// エフェクトの解放
+	reverbEffect->Release();
 }
