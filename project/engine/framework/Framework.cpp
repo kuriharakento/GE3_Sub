@@ -99,6 +99,9 @@ void Framework::Update()
 
 	//カメラの更新
 	cameraManager_->Update();
+
+	//オーディオの更新
+	Audio::GetInstance()->Update();
 }
 
 void Framework::PostUpdate()

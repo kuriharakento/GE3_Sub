@@ -20,9 +20,6 @@ void Audio::Initialize()
 	XAudio2Create(&xAudio2,0,XAUDIO2_DEFAULT_PROCESSOR);
 	//マスターボイスを生成
 	xAudio2->CreateMasteringVoice(&masterVoice);
-	// リバーブエフェクトの作成
-	HRESULT hr = XAudio2CreateReverb(&reverbEffect_);
-	assert(SUCCEEDED(hr));
 }
 
 void Audio::Finalize()
@@ -30,19 +27,20 @@ void Audio::Finalize()
 	// フェードリストをクリア
 	fadeList_.clear();
 
-	// グループごとのソースボイスを解放
-	for (auto& groupPair : groupVoicesMap_)
+	// 再生中のすべてのソースボイスを停止および破棄
+	for (auto& pair : sourceVoiceMap_)
 	{
-		for (auto& sourceVoice : groupPair.second)
+		IXAudio2SourceVoice* sourceVoice = pair.second;
+		if (sourceVoice)
 		{
-			if (sourceVoice)
-			{
-				sourceVoice->Stop(0);
-				sourceVoice->FlushSourceBuffers();
-				sourceVoice->DestroyVoice();
-			}
+			sourceVoice->Stop(0);
+			sourceVoice->FlushSourceBuffers();
+			sourceVoice->DestroyVoice();
 		}
 	}
+	sourceVoiceMap_.clear();
+
+	// グループごとのソースボイスリストをクリア
 	groupVoicesMap_.clear();
 
 	// 全ての音声データを解放
@@ -55,18 +53,6 @@ void Audio::Finalize()
 		}
 	}
 	soundDataMap_.clear();
-
-	// 再生中のソースボイスを解放
-	for (auto& pair : sourceVoiceMap_)
-	{
-		if (pair.second)
-		{
-			pair.second->Stop(0);
-			pair.second->FlushSourceBuffers();
-			pair.second->DestroyVoice();
-		}
-	}
-	sourceVoiceMap_.clear();
 
 	//マスターボイスを破棄
 	masterVoice->DestroyVoice();
@@ -83,16 +69,17 @@ void Audio::Finalize()
 	}
 }
 
+// Audio::Update 内のフェード処理を修正
 void Audio::Update()
 {
-	//1フレームあたりの時間
+	// 1フレームあたりの時間
 	const float deltaTime = 1.0f / 60.0f;
 
 	// フェード処理の更新
 	for (auto it = fadeList_.begin(); it != fadeList_.end(); )
 	{
 		FadeData& fadeData = *it;
-		if (fadeData.isFading)
+		if (fadeData.isFading && fadeData.sourceVoice)
 		{
 			fadeData.currentTime += deltaTime;
 			float t = fadeData.currentTime / fadeData.duration;
@@ -109,8 +96,6 @@ void Audio::Update()
 			if (!fadeData.isFading && fadeData.targetVolume == 0.0f)
 			{
 				fadeData.sourceVoice->Stop(0);
-				fadeData.sourceVoice->FlushSourceBuffers();
-				fadeData.sourceVoice->DestroyVoice();
 				// sourceVoiceMap_から削除
 				for (auto mapIt = sourceVoiceMap_.begin(); mapIt != sourceVoiceMap_.end(); ++mapIt)
 				{
@@ -208,10 +193,12 @@ SoundData Audio::LoadWave(const char* filename)
 
 void Audio::LoadWave(const std::string& name, const char* filename, SoundGroup group)
 {
+	//フルパス
+	std::string fullpath = directoryPath + std::string(filename);
 	// ファイル入力ストリームのインスタンスを生成
 	std::ifstream file;
 	// バイナリモードでファイルを開く
-	file.open(filename, std::ios::binary);
+	file.open(fullpath, std::ios::binary);
 	// ファイルが開けなかった場合
 	assert(file.is_open());
 
@@ -301,105 +288,30 @@ void Audio::PlayWave(SoundData* soundData, bool loop)
 void Audio::PlayWave(const std::string& name, bool loop)
 {
 	auto it = soundDataMap_.find(name);
-	if (it == soundDataMap_.end())
-	{
-		return;
-	}
-
-	SoundData& soundData = it->second;
-
-	HRESULT hr;
-
-	// エフェクトチェーンの設定（必要に応じて）
-	XAUDIO2_EFFECT_DESCRIPTOR effects[] = {
-		{ reverbEffect_.Get(), TRUE, 1 } // リバーブエフェクトを有効化
-	};
-	XAUDIO2_EFFECT_CHAIN effectChain = { 1, effects };
-
-	// ソースボイスを生成（エフェクトチェーン付き）
-	IXAudio2SourceVoice* sourceVoice = nullptr;
-	hr = xAudio2->CreateSourceVoice(&sourceVoice, &soundData.wfex, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr, nullptr, &effectChain);
-	assert(SUCCEEDED(hr));
-
-	// エフェクトパラメータの設定（例としてリバーブ）
-	XAUDIO2FX_REVERB_PARAMETERS reverbParams = {};
-	reverbParams.WetDryMix = 50.0f; // リバーブの混合率
-	sourceVoice->SetEffectParameters(0, &reverbParams, sizeof(reverbParams));
-
-	// 再生する波形データをセット
-	XAUDIO2_BUFFER buffer = {};
-	buffer.AudioBytes = soundData.bufferSize;
-	buffer.pAudioData = soundData.pBuffer;
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
-
-	if (loop)
-	{
-		buffer.LoopCount = XAUDIO2_LOOP_INFINITE; // 無限ループ
-	}
-
-	// 波形データの再生
-	hr = sourceVoice->SubmitSourceBuffer(&buffer);
-	assert(SUCCEEDED(hr));
-
-	hr = sourceVoice->Start(0);
-	assert(SUCCEEDED(hr));
-
-	// ソースボイスをマップに保存
-	sourceVoiceMap_[name] = sourceVoice;
-
-	// ソースボイスをグループにも保存
-	groupVoicesMap_[soundData.group].push_back(sourceVoice);
-}
-
-void Audio::PlayWaveWithEffect(const std::string& name, bool loop, const XAUDIO2_EFFECT_CHAIN& effectChain)
-{
-	// サウンドデータの検索
-	auto it = soundDataMap_.find(name);
 	if (it == soundDataMap_.end()) {
 		return;
 	}
 	SoundData& soundData = it->second;
 
 	HRESULT hr;
-
-	// ソースボイスの作成
 	IXAudio2SourceVoice* sourceVoice = nullptr;
-	hr = xAudio2->CreateSourceVoice(&sourceVoice, &soundData.wfex, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr, nullptr, &effectChain);
+	hr = xAudio2->CreateSourceVoice(&sourceVoice, &soundData.wfex);
 	assert(SUCCEEDED(hr));
 
-	// バッファの用意
 	XAUDIO2_BUFFER buffer = {};
 	buffer.AudioBytes = soundData.bufferSize;
 	buffer.pAudioData = soundData.pBuffer;
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
 	buffer.LoopCount = loop ? XAUDIO2_LOOP_INFINITE : 0;
 
-	// バッファの送信
 	hr = sourceVoice->SubmitSourceBuffer(&buffer);
 	assert(SUCCEEDED(hr));
 
-	// 再生開始
 	hr = sourceVoice->Start(0);
 	assert(SUCCEEDED(hr));
 
-	// ソースボイスの管理
 	sourceVoiceMap_[name] = sourceVoice;
 	groupVoicesMap_[soundData.group].push_back(sourceVoice);
-}
-
-void Audio::SetReverbParameters(const XAUDIO2FX_REVERB_PARAMETERS& params)
-{
-	// リバーブエフェクトが初期化されているか確認
-	if (!reverbEffect_) {
-		return;
-	}
-
-	// 再生中のすべてのソースボイスにパラメータを適用
-	for (auto& pair : sourceVoiceMap_) {
-		IXAudio2SourceVoice* sourceVoice = pair.second;
-		HRESULT hr = sourceVoice->SetEffectParameters(0, &params, sizeof(params), XAUDIO2_COMMIT_NOW);
-		assert(SUCCEEDED(hr));
-	}
 }
 
 void Audio::StopWave(const std::string& name)
@@ -455,21 +367,63 @@ void Audio::SetGroupVolume(SoundGroup group, float volume)
 
 void Audio::FadeIn(const std::string& name, float duration)
 {
+	// 既存のソースボイスを検索
 	auto it = sourceVoiceMap_.find(name);
+	IXAudio2SourceVoice* sourceVoice = nullptr;
+
 	if (it != sourceVoiceMap_.end())
 	{
-		IXAudio2SourceVoice* sourceVoice = it->second;
-		// フェードデータを追加
-		FadeData fadeData = {};
-		fadeData.sourceVoice = sourceVoice;
-		fadeData.startVolume = 0.0f;
-		fadeData.targetVolume = 1.0f;
-		fadeData.currentTime = 0.0f;
-		fadeData.duration = duration;
-		fadeData.isFading = true;
-		sourceVoice->SetVolume(0.0f);
-		fadeList_.push_back(fadeData);
+		sourceVoice = it->second;
+	} else
+	{
+		// ソースボイスが存在しない場合は新たに作成
+		auto soundIt = soundDataMap_.find(name);
+		if (soundIt == soundDataMap_.end()) {
+			return;
+		}
+
+		SoundData& soundData = soundIt->second;
+		HRESULT hr = xAudio2->CreateSourceVoice(&sourceVoice, &soundData.wfex);
+		if (FAILED(hr)) {
+			// エラーハンドリング
+			return;
+		}
+
+		XAUDIO2_BUFFER buffer = {};
+		buffer.AudioBytes = soundData.bufferSize;
+		buffer.pAudioData = soundData.pBuffer;
+		buffer.Flags = XAUDIO2_END_OF_STREAM;
+		buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+
+		hr = sourceVoice->SubmitSourceBuffer(&buffer);
+		if (FAILED(hr)) {
+			// エラーハンドリング
+			sourceVoice->DestroyVoice();
+			return;
+		}
+
+		hr = sourceVoice->Start(0);
+		if (FAILED(hr)) {
+			// エラーハンドリング
+			sourceVoice->DestroyVoice();
+			return;
+		}
+
+		// マップに追加
+		sourceVoiceMap_[name] = sourceVoice;
+		groupVoicesMap_[soundData.group].push_back(sourceVoice);
 	}
+
+	// フェードデータを追加
+	FadeData fadeData = {};
+	fadeData.sourceVoice = sourceVoice;
+	fadeData.startVolume = 0.0f;
+	fadeData.targetVolume = 1.0f;
+	fadeData.currentTime = 0.0f;
+	fadeData.duration = duration;
+	fadeData.isFading = true;
+	sourceVoice->SetVolume(0.0f);
+	fadeList_.push_back(fadeData);
 }
 
 void Audio::FadeOut(const std::string& name, float duration)

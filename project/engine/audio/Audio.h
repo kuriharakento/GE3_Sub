@@ -73,10 +73,6 @@ public:
 	//再生
 	void PlayWave(SoundData* soundData, bool loop = false);
 	void PlayWave(const std::string& name, bool loop = false);
-	//エフェクト
-	void PlayWaveWithEffect(const std::string& name, bool loop, const XAUDIO2_EFFECT_CHAIN& effectChain);
-	void SetReverbParameters(const XAUDIO2FX_REVERB_PARAMETERS& params);
-
 	//停止
 	void StopWave(const std::string& name);
 	void StopGroup(SoundGroup group);
@@ -101,8 +97,9 @@ private:
 	std::unordered_map<SoundGroup, std::vector<IXAudio2SourceVoice*>> groupVoicesMap_;
 	// フェード操作を管理するリスト
 	std::vector<FadeData> fadeList_;
-	// エフェクトインターフェース
-	Microsoft::WRL::ComPtr<IUnknown> reverbEffect_;
+
+	//ディレクトリパス
+	const std::string directoryPath = "Resources/audio/";
 
 private: //シングルトン
 	static Audio* instance_;
