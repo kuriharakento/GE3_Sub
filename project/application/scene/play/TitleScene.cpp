@@ -6,8 +6,8 @@
 
 void TitleScene::Initialize()
 {
-	Audio::GetInstance()->LoadWave("fanfare", "Resources/game.wav");
-	Audio::GetInstance()->PlayWave("fanfare",true);
+	Audio::GetInstance()->LoadWave("fanfare", "Resources/game.wav",SoundGroup::BGM);
+	Audio::GetInstance()->PlayWaveWithEffect("fanfare",true,)
 }
 
 void TitleScene::Finalize()
@@ -32,6 +32,11 @@ void TitleScene::Update()
         // 音量を下げる
         Audio::GetInstance()->SetVolume("fanfare", 0.5f); // 50%の音量
     }
+	if (Input::GetInstance()->TriggerKey(DIK_LEFT))
+	{
+		// フェードイン
+		Audio::GetInstance()->FadeIn("fanfare", 2.0f); // 2秒かけてフェードイン
+	}
 }
 
 void TitleScene::Draw3D()
