@@ -5,6 +5,27 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
+//シングルトンのインスタンス
+Input* Input::instance_ = nullptr;
+
+Input* Input::GetInstance()
+{
+	if (!instance_)
+	{
+		instance_ = new Input();
+	}
+	return instance_;
+}
+
+void Input::Finalize()
+{
+	if (instance_)
+	{
+		delete instance_;
+		instance_ = nullptr;
+	}
+}
+
 void Input::Initialize(WinApp* winApp)
 {
 	//借りてきたWinAppのインスタンスを記録
