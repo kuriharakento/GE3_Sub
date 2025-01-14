@@ -49,8 +49,10 @@ public:
 	//再生
 	void PlayWave(SoundData* soundData, bool loop = false);
 	void PlayWave(const std::string& name, bool loop = false);
-	//解放
-	void SoundUnload(SoundData* soundData);
+	//停止
+	void StopWave(const std::string& name);
+	//音量調整
+	void SetVolume(const std::string& name, float volume);
 
 private:
 	//IXAudio2
@@ -60,6 +62,8 @@ private:
 
 	// 音声データのマップ
 	std::unordered_map<std::string, SoundData> soundDataMap_;
+	// 再生中の音声ソースボイスのマップ
+	std::unordered_map<std::string, IXAudio2SourceVoice*> sourceVoiceMap_;
 
 private: //シングルトン
 	static Audio* instance_;

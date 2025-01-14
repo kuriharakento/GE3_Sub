@@ -35,6 +35,18 @@ void Audio::Finalize()
 	}
 	soundDataMap_.clear();
 
+	// 再生中のソースボイスを解放
+	for (auto& pair : sourceVoiceMap_)
+	{
+		if (pair.second)
+		{
+			pair.second->Stop(0);
+			pair.second->FlushSourceBuffers();
+			pair.second->DestroyVoice();
+		}
+	}
+	sourceVoiceMap_.clear();
+
 	//マスターボイスを破棄
 	masterVoice->DestroyVoice();
 	masterVoice = nullptr;
@@ -137,57 +149,58 @@ void Audio::LoadWave(const std::string& name, const char* filename)
 	RiffHeader riff;
 	file.read((char*)&riff, sizeof(riff));
 	// ファイルがRIFFかチェック
-	if (strncmp(riff.chunk.id, "RIFF", 4) != 0)
-	{
-		assert(0);
-	}
+	assert(strncmp(riff.chunk.id, "RIFF", 4) == 0);
 	// タイプがWAVEかチェック
-	if (strncmp(riff.type, "WAVE", 4) != 0)
-	{
-		assert(0);
-	}
+	assert(strncmp(riff.type, "WAVE", 4) == 0);
 
-	// Formatチャンクの読み込み
+	// 'fmt 'チャンクと'data'チャンクを見つけるまでループ
 	FormatChunk format = {};
-	// チャンクヘッダーの確認
-	file.read((char*)&format, sizeof(ChunkHeader));
-	if (strncmp(format.chunk.id, "fmt ", 4) != 0)
+	BYTE* buffer = nullptr;
+	unsigned int dataSize = 0;
+
+	while (file.peek() != EOF)
 	{
-		assert(0);
+		// チャンクヘッダの読み込み
+		ChunkHeader chunkHeader;
+		file.read((char*)&chunkHeader, sizeof(chunkHeader));
+
+		// チャンクIDに応じて処理
+		if (strncmp(chunkHeader.id, "fmt ", 4) == 0)
+		{
+			// 'fmt 'チャンクの読み込み
+			assert(chunkHeader.size <= sizeof(format.fmt));
+			file.read((char*)&format.fmt, chunkHeader.size);
+		} else if (strncmp(chunkHeader.id, "data", 4) == 0)
+		{
+			// 'data'チャンクの読み込み
+			buffer = new BYTE[chunkHeader.size];
+			dataSize = chunkHeader.size;
+			file.read(reinterpret_cast<char*>(buffer), chunkHeader.size);
+		} else
+		{
+			// 他のチャンクは読み飛ばす
+			file.seekg(chunkHeader.size, std::ios::cur);
+		}
+
+		// 必要なチャンクが見つかったら終了
+		if (format.fmt.wFormatTag && buffer)
+		{
+			break;
+		}
 	}
 
-	// チャンク本体の読み込み
-	assert(format.chunk.size <= sizeof(format.fmt));
-	file.read((char*)&format.fmt, format.chunk.size);
+	// チャンクが見つかったか確認
+	assert(format.fmt.wFormatTag != 0);
+	assert(buffer != nullptr);
 
-	// Dataチャンクの読み込み
-	ChunkHeader data;
-	file.read((char*)&data, sizeof(data));
-	// JUNKチャンクを検出した場合
-	if (strncmp(data.id, "JUNK", 4) == 0)
-	{
-		// JUNKチャンクをスキップ
-		file.seekg(data.size, std::ios::cur);
-		// 次のチャンクを読み込む
-		file.read((char*)&data, sizeof(data));
-	}
-
-	if (strncmp(data.id, "data", 4) != 0)
-	{
-		assert(0);
-	}
-
-	BYTE* buffer = new BYTE[data.size];
-	file.read(reinterpret_cast<char*>(buffer), data.size);
-
-	// waveファイルを閉じる
+	// ファイルを閉じる
 	file.close();
 
 	// 読み込んだ音声データをマップに保存
 	SoundData soundData = {};
 	soundData.wfex = format.fmt;
 	soundData.pBuffer = buffer;
-	soundData.bufferSize = data.size;
+	soundData.bufferSize = dataSize;
 
 	soundDataMap_[name] = soundData;
 }
@@ -248,14 +261,31 @@ void Audio::PlayWave(const std::string& name, bool loop)
 
 	hr = sourceVoice->Start(0);
 	assert(SUCCEEDED(hr));
+
+	// ソースボイスをマップに保存
+	sourceVoiceMap_[name] = sourceVoice;
 }
 
-void Audio::SoundUnload(SoundData* soundData)
+void Audio::StopWave(const std::string& name)
 {
-	delete[] soundData->pBuffer;
+	auto it = sourceVoiceMap_.find(name);
+	if (it != sourceVoiceMap_.end())
+	{
+		IXAudio2SourceVoice* sourceVoice = it->second;
+		sourceVoice->Stop(0);
+		sourceVoice->FlushSourceBuffers();
+		sourceVoice->DestroyVoice();
+		sourceVoiceMap_.erase(it);
+	}
+}
 
-	soundData->pBuffer = nullptr;
-	soundData->bufferSize = 0;
-	soundData->wfex = {};
-
+void Audio::SetVolume(const std::string& name, float volume)
+{
+	auto it = sourceVoiceMap_.find(name);
+	if (it != sourceVoiceMap_.end())
+	{
+		IXAudio2SourceVoice* sourceVoice = it->second;
+		// 音量を設定（0.0f～1.0f）
+		sourceVoice->SetVolume(volume);
+	}
 }

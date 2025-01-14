@@ -29,6 +29,14 @@ void SceneManager::Update()
 #ifdef _DEBUG
 	ImGui::Begin("SceneManager");
 	ImGui::Text("CurrentScene: %s", currentSceneName_.c_str());
+	if (ImGui::Button("Title"))
+	{
+		ChangeScene("TITLE");
+	}
+	if (ImGui::Button("GamePlay"))
+	{
+		ChangeScene("GAMEPLAY");
+	}
 	ImGui::End();
 #endif
 
