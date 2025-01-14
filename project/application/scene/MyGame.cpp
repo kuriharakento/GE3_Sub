@@ -12,8 +12,7 @@ void MyGame::Initialize()
 void MyGame::Finalize()
 {
 	//ゲームの終了処理
-	sceneManager_->Finalize();
-
+	sceneManager_.reset();
 	//フレームワークの終了処理
 	Framework::Finalize();
 }
@@ -25,6 +24,9 @@ void MyGame::Update()
 
 	//ゲームの更新処理
 	sceneManager_->Update();
+
+	//フレームワークの更新後処理
+	Framework::PostUpdate();
 }
 
 void MyGame::Draw()

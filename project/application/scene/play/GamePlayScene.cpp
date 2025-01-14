@@ -1,6 +1,9 @@
 #include "GamePlayScene.h"
+#include "input/Input.h"
+#include "application/scene/manager/SceneManager.h"
 
-void GamePlayScene::Initialize(SceneManager* sceneManager)
+
+void GamePlayScene::Initialize()
 {
 
 }
@@ -12,7 +15,10 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
-
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE))
+	{
+		sceneManager_->ChangeScene("TITLE");
+	}
 }
 
 void GamePlayScene::Draw3D()

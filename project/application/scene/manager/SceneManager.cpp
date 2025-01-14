@@ -1,18 +1,19 @@
 #include "SceneManager.h"
-
+#include "application/scene/factory/SceneFactory.h"
 #include <assert.h>
 
 SceneManager::~SceneManager()
 {
 	//現在のシーンを終了
 	currentScene_->Finalize();
-	//現在のシーンを解放
-	delete currentScene_;
 }
 
 void SceneManager::Initialize()
 {
-	//
+	//最初のシーンを生成
+	currentScene_.reset(sceneFactory_->CreateScene("TITLE"));
+	currentScene_->SetSceneManager(this);
+	currentScene_->Initialize();
 }
 
 void SceneManager::Update()
@@ -41,7 +42,7 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	assert(nextScene_ == nullptr);
 
 	//次のシーンを生成
-	nextScene_ = sceneFactory_->CreateScene(sceneName);
+	nextScene_.reset(sceneFactory_->CreateScene(sceneName));
 }
 
 void SceneManager::ReserveNextScene()
@@ -51,13 +52,13 @@ void SceneManager::ReserveNextScene()
 	{
 		//現在のシーンを終了
 		currentScene_->Finalize();
-		delete currentScene_;
+		currentScene_.reset();
 
 		//シーンを切り替え
-		currentScene_ = nextScene_;
-		nextScene_ = nullptr;
+		currentScene_ = std::move(nextScene_);
+		nextScene_.reset();
 		//次のシーンを初期化
+		currentScene_->SetSceneManager(this);
 		currentScene_->Initialize();
-
 	}
 }

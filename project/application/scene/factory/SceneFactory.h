@@ -10,6 +10,6 @@ public:
 	 * \param name シーン名
 	 * \return 生成したシーン
 	 */
-	IScene* CreateScene(const std::string& sceneName) override;
+	BaseScene* CreateScene(const std::string& sceneName) override;
 };
 

@@ -1,11 +1,11 @@
 #pragma once
-#include "application/scene/interface/IScene.h"
+#include "application/scene/interface/BaseScene.h"
 
-class GamePlayScene : public IScene
+class GamePlayScene : public BaseScene
 {
 public:
 	//初期化
-	void Initialize(SceneManager* sceneManager) override;
+	void Initialize() override;
 	//終了
 	void Finalize() override;
 	//更新

@@ -173,7 +173,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\scene\MyGame.h" />
     <ClInclude Include="engine\framework\Framework.h" />
     <ClInclude Include="application\scene\play\GamePlayScene.h" />
-    <ClInclude Include="application\scene\interface\IScene.h" />
+    <ClInclude Include="application\scene\interface\BaseScene.h" />
     <ClInclude Include="application\scene\play\TitleScene.h" />
     <ClInclude Include="application\scene\manager\SceneManager.h" />
     <ClInclude Include="application\scene\factory\SceneFactory.h" />

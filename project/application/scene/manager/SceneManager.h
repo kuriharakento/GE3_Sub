@@ -1,21 +1,29 @@
 #pragma once
 
-#include "application/scene/interface/AbstractSceneFactory.h"
-#include "application/scene/interface/IScene.h"
+#include <memory>
+#include <string>
 
-class SceneManager : public IScene
+#include "application/scene/interface/BaseScene.h"
+
+class SceneFactory;
+
+class SceneManager
 {
 public: //メンバ関数
 	//デストラクタ
 	~SceneManager();
-	//初期化
-	void Initialize() override;
-	//更新
-	void Update() override;
-	//描画
-	void Draw3D() override;
-	void Draw2D() override;
+	//コンストラクタ
+	SceneManager(SceneFactory* sceneFactory) : currentScene_(nullptr), nextScene_(nullptr), sceneFactory_(sceneFactory) {}
 
+	//初期化
+	void Initialize();;
+	//更新
+	void Update();
+	//描画
+	void Draw3D();
+	void Draw2D();
+
+	//シーンの変更
 	void ChangeScene(const std::string& sceneName);
 
 private: //メンバ関数
@@ -24,11 +32,11 @@ private: //メンバ関数
 
 private: //メンバ変数
 	//今のシーン
-	IScene* currentScene_;
+	std::unique_ptr<BaseScene> currentScene_;
 	//次のシーン
-	IScene* nextScene_;
+	std::unique_ptr<BaseScene> nextScene_;
 
 	//シーンファクトリー
-	AbstractSceneFactory* sceneFactory_;
+	SceneFactory* sceneFactory_;
 };
 

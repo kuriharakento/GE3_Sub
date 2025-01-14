@@ -1,6 +1,7 @@
 #pragma once
 #include "2d/SpriteCommon.h"
 #include "3d/Object3dCommon.h"
+#include "application/scene/factory/SceneFactory.h"
 #include "application/scene/manager/SceneManager.h"
 #include "base/DirectXCommon.h"
 #include "base/WinApp.h"
@@ -58,5 +59,7 @@ protected: //メンバ変数
 	std::unique_ptr<CameraManager> cameraManager_;
 	//シーンマネージャー
 	std::unique_ptr<SceneManager> sceneManager_;
+	//シーンファクトリ
+	std::unique_ptr<SceneFactory> sceneFactory_;
 };
 

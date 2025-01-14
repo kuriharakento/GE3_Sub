@@ -245,7 +245,7 @@
     <ClInclude Include="application\scene\play\TitleScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="application\scene\interface\IScene.h">
+    <ClInclude Include="application\scene\interface\BaseScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="application\scene\manager\SceneManager.h">

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IScene.h"
+#include "BaseScene.h"
 #include <string>
 
 //シーン工場の抽象クラス
@@ -10,6 +10,6 @@ public:
 	//仮想デストラクタ
 	virtual ~AbstractSceneFactory() = default;
 	//シーンの生成
-	virtual IScene* CreateScene(const std::string& name) = 0;
+	virtual BaseScene* CreateScene(const std::string& name) = 0;
 };
 

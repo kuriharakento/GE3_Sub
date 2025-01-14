@@ -4,10 +4,10 @@
 #include "application/scene/play/TitleScene.h"
 #include "base/Logger.h"
 
-IScene* SceneFactory::CreateScene(const std::string& sceneName)
+BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
 {
 	//次のシーンを生成
-	IScene* newScene = nullptr;
+	BaseScene* newScene = nullptr;
 
 	if(sceneName == "TITLE")
 	{
@@ -17,6 +17,7 @@ IScene* SceneFactory::CreateScene(const std::string& sceneName)
 		newScene = new GamePlayScene();
 	}else
 	{
+		//名前のシーンがない場合
 		Logger::Log("Can't Create Scene\n");
 	}
 

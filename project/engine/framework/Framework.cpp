@@ -54,8 +54,11 @@ void Framework::Initialize()
 	//3Dオブジェクト共通部に初期カメラをセット
 	objectCommon_->SetDefaultCamera(cameraManager_->GetActiveCamera());
 
+	//シーンファクトリーの初期化
+	sceneFactory_ = std::make_unique<SceneFactory>();
+
 	//シーンマネージャーの初期化
-	sceneManager_ = std::make_unique<SceneManager>();
+	sceneManager_ = std::make_unique<SceneManager>(sceneFactory_.get());
 }
 
 void Framework::Finalize()

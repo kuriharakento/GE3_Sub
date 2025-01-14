@@ -1,13 +1,15 @@
 #pragma once
 class SceneManager;
 
-class IScene
+class BaseScene
 {
 public: //メンバ関数
+	//コンストラクタ
+	BaseScene() = default;
 	//デストラクタ
-	virtual ~IScene() = default;
+	virtual ~BaseScene() = default;
 	//初期化
-	virtual void Initialize(SceneManager* sceneManager) = 0;
+	virtual void Initialize() = 0;
 	//終了
 	virtual void Finalize() = 0;
 	//更新
@@ -15,6 +17,10 @@ public: //メンバ関数
 	//描画
 	virtual void Draw3D() = 0;
 	virtual void Draw2D() = 0;
-private:
+
+	//シーンマネージャーのセット
+	void SetSceneManager(SceneManager* sceneManager) { sceneManager_ = sceneManager; }
+
+protected:
 	SceneManager* sceneManager_ = nullptr;
 };
