@@ -126,13 +126,18 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="engine\manager\ImGuiManager.cpp" />
     <ClCompile Include="engine\framework\Framework.cpp" />
+    <ClCompile Include="application\scene\play\GamePlayScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
     <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
-    <ClCompile Include="application\scene\MyGame.cpp" />
+    <ClCompile Include="engine\scene\MyGame.cpp" />
+    <ClCompile Include="application\scene\play\TitleScene.cpp" />
+    <ClCompile Include="engine\scene\manager\SceneManager.cpp" />
+    <ClCompile Include="engine\scene\factory\SceneFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine\scene\interface\AbstractSceneFactory.h" />
     <ClInclude Include="engine\audio\Audio.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
     <ClInclude Include="engine\2d\Sprite.h" />
@@ -165,8 +170,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\manager\ImGuiManager.h" />
     <ClInclude Include="engine\manager\ParticleManager.h" />
     <ClInclude Include="engine\effects\ParticleEmitter.h" />
-    <ClInclude Include="application\scene\MyGame.h" />
+    <ClInclude Include="engine\scene\MyGame.h" />
     <ClInclude Include="engine\framework\Framework.h" />
+    <ClInclude Include="application\scene\play\GamePlayScene.h" />
+    <ClInclude Include="engine\scene\interface\BaseScene.h" />
+    <ClInclude Include="application\scene\play\TitleScene.h" />
+    <ClInclude Include="engine\scene\manager\SceneManager.h" />
+    <ClInclude Include="engine\scene\factory\SceneFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

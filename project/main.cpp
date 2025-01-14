@@ -1,4 +1,4 @@
-#include "application/scene/MyGame.h"
+#include "engine/scene/MyGame.h"
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
