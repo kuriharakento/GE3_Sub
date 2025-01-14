@@ -1,6 +1,7 @@
 #include "Framework.h"
 
 #include "3d/ModelManager.h"
+#include "audio/Audio.h"
 #include "base/Logger.h"
 #include "input/Input.h"
 #include "manager/ParticleManager.h"
@@ -44,6 +45,9 @@ void Framework::Initialize()
 	//入力の初期化
 	Input::GetInstance()->Initialize(winApp_);
 
+	//オーディオの初期化
+	Audio::GetInstance()->Initialize();
+
 	//カメラマネージャーの初期化
 	cameraManager_ = std::make_unique<CameraManager>();
 	cameraManager_->AddCamera("main");
@@ -76,6 +80,7 @@ void Framework::Finalize()
 	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
 	ParticleManager::GetInstance()->Finalize();		//パーティクルマネージャーの終了処理
 	Input::GetInstance()->Finalize();				//入力の解放
+	Audio::GetInstance()->Finalize();				//オーディオの解放
 }
 
 void Framework::Update()
