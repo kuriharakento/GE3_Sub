@@ -38,5 +38,9 @@ private: //メンバ変数
 
 	//シーンファクトリー
 	SceneFactory* sceneFactory_;
+
+	//シーンの名前
+	std::string currentSceneName_ = "";
+	std::string nextSceneName_ = "";
 };
 

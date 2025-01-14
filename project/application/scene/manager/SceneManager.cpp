@@ -2,6 +2,8 @@
 #include "application/scene/factory/SceneFactory.h"
 #include <assert.h>
 
+#include "externals/imgui/imgui.h"
+
 SceneManager::~SceneManager()
 {
 	//現在のシーンを終了
@@ -10,14 +12,28 @@ SceneManager::~SceneManager()
 
 void SceneManager::Initialize()
 {
+	//初期シーンの名前
+	std::string startSceneName = "TITLE";
+
 	//最初のシーンを生成
-	currentScene_.reset(sceneFactory_->CreateScene("TITLE"));
+	currentScene_.reset(sceneFactory_->CreateScene(startSceneName));
 	currentScene_->SetSceneManager(this);
 	currentScene_->Initialize();
+	currentSceneName_ = startSceneName;
 }
 
 void SceneManager::Update()
 {
+#pragma region ImGui
+
+#ifdef _DEBUG
+	ImGui::Begin("SceneManager");
+	ImGui::Text("CurrentScene: %s", currentSceneName_.c_str());
+	ImGui::End();
+#endif
+
+#pragma endregion
+
 	//次のシーンが予約されているか
 	ReserveNextScene();
 
@@ -43,6 +59,8 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 
 	//次のシーンを生成
 	nextScene_.reset(sceneFactory_->CreateScene(sceneName));
+	//次のシーンの名前をセット
+	nextSceneName_ = sceneName;
 }
 
 void SceneManager::ReserveNextScene()
@@ -56,7 +74,9 @@ void SceneManager::ReserveNextScene()
 
 		//シーンを切り替え
 		currentScene_ = std::move(nextScene_);
+		currentSceneName_ = nextSceneName_;
 		nextScene_.reset();
+		nextSceneName_ = "";
 		//次のシーンを初期化
 		currentScene_->SetSceneManager(this);
 		currentScene_->Initialize();
