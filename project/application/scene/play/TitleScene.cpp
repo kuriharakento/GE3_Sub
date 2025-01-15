@@ -2,11 +2,10 @@
 #include "engine/scene/manager/SceneManager.h"
 #include "input/Input.h"
 #include "2d/SpriteCommon.h"
+#include "audio/Audio.h"
 
 void TitleScene::Initialize()
 {
-
-
 	//カメラを作成しアクティブにする
 	sceneManager_->GetCameraManager()->AddCamera("TitleCamera");
 	sceneManager_->GetCameraManager()->SetActiveCamera("TitleCamera");
@@ -24,7 +23,7 @@ void TitleScene::Initialize()
 	gameName_->Initialize(sceneManager_->GetObject3dCommon());
 	gameName_->SetModel("gameName.obj");
 	gameName_->SetTranslate({ 0.0f, 1.3f, 0.0f });
-	gameName_->SetScale({0.5f,0.5f,0.5f });
+	gameName_->SetScale({ 0.5f,0.5f,0.5f });
 
 	//初期位置
 	initialPosition_ = gameName_->GetTranslate();
@@ -42,12 +41,18 @@ void TitleScene::Initialize()
 	//ビルの初期化
 	buildingManager_ = std::make_unique<BuildingManager>();;
 	buildingManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetCameraManager());
-	buildingManager_->GenerateBuilding(60, 15.0f,60.0f);
+	buildingManager_->GenerateBuilding(60, 15.0f, 60.0f);
+
+	//音声
+	Audio::GetInstance()->LoadWave("titlebgm", "title/bgm.wav", SoundGroup::BGM);
+	Audio::GetInstance()->PlayWave("titlebgm", true);
+	Audio::GetInstance()->SetVolume("titlebgm", 0.5f);
 }
 
 void TitleScene::Finalize()
 {
 	buildingManager_.reset();
+	Audio::GetInstance()->StopWave("titlebgm");
 }
 
 void TitleScene::Update()

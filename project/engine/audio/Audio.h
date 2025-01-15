@@ -69,7 +69,7 @@ public:
 	void Update();
 	//音声データの読み込み
 	SoundData LoadWave(const char* filename);
-	void LoadWave(const std::string& name, const char* filename, SoundGroup group);
+	void LoadWave(const std::string& name, const std::string& filename, SoundGroup group);
 	//再生
 	void PlayWave(SoundData* soundData, bool loop = false);
 	void PlayWave(const std::string& name, bool loop = false);
@@ -98,6 +98,8 @@ private:
 	std::unordered_map<std::string, IXAudio2SourceVoice*> sourceVoiceMap_;
 	// グループごとのソースボイスリスト
 	std::unordered_map<SoundGroup, std::vector<IXAudio2SourceVoice*>> groupVoicesMap_;
+	//読み込んだファイルネームのリスト
+	std::vector<std::string> loadedFilenames_;
 	// フェード操作を管理するリスト
 	std::vector<FadeData> fadeList_;
 	//エフェクトチェーン

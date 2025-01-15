@@ -188,7 +188,5 @@ void CollisionManager::HandleEnemyBuildingCollision(ICollidable* a, ICollidable*
 
 	// エネミーの位置を更新
 	enemy->SetPosition(enemyPos);
-
-	Logger::Log("Enemy collided with Building. Push back");
 }
 

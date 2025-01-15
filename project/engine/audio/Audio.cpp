@@ -3,6 +3,8 @@
 #include <cstring>
 #include <cassert>
 
+#include "base/Logger.h"
+
 // シングルトンインスタンスの初期化
 Audio* Audio::instance_ = nullptr;
 
@@ -31,6 +33,8 @@ void Audio::Initialize()
 // 終了処理
 void Audio::Finalize()
 {
+	// 読み込んだファイル名のリストをクリア
+	loadedFilenames_.clear();
 	// フェードリストをクリア
 	fadeList_.clear();
 
@@ -195,8 +199,14 @@ SoundData Audio::LoadWave(const char* filename)
 }
 
 // WAVファイルの読み込み（名前付き）
-void Audio::LoadWave(const std::string& name, const char* filename, SoundGroup group)
+void Audio::LoadWave(const std::string& name, const std::string& filename, SoundGroup group)
 {
+	// すでにファイルが読み込まれている場合は早期リターン
+	if (std::find(loadedFilenames_.begin(), loadedFilenames_.end(), filename) != loadedFilenames_.end()) {
+		Logger::Log(filename + " has already been loaded");
+		return;
+	}
+
 	// フルパス
 	std::string fullpath = directoryPath + std::string(filename);
 	// ファイル入力ストリームのインスタンスを生成
@@ -265,6 +275,7 @@ void Audio::LoadWave(const std::string& name, const char* filename, SoundGroup g
 	soundData.group = group; // グループ情報を設定
 
 	soundDataMap_[name] = soundData;
+	loadedFilenames_.emplace_back(filename);
 }
 
 // 音声の再生
