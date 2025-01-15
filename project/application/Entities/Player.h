@@ -1,0 +1,100 @@
+#pragma once
+#include "Mech.h"
+#include "2d/Sprite.h"
+#include "application/Collision/ICollidable.h"
+#include "application/Weapon/MachineGun.h"
+
+class Player : public Mech, public ICollidable
+{
+public:
+	Player()
+	{
+		status_.health = 200.0f;
+		status_.attackPower = 10.0f;
+		status_.speed = 0.07f;
+		status_.isAlive = true;
+		hitBox_.min = Vector3(-0.5f, -0.5f, -0.5f);
+		hitBox_.max = Vector3(0.5f, 0.5f, 0.5f);
+		type_ = ObjectType::Player;
+	}
+
+	void Initialize(const std::string& filePath, Object3dCommon* objectCommon, SpriteCommon* spriteCommon, CameraManager* camera);
+
+	void Update();
+
+	void Draw();
+
+	void DrawUI();
+
+	void OnCollision(ICollidable* other) override;
+
+public: //アクセッサ
+
+	ObjectType GetType() const override;
+
+	float GetHealth() const override;
+
+	float GetAttackPower() const override;
+
+	float GetSpeed() const override;
+
+	const AABB& GetBoundingBox() const override;
+
+	Vector3 GetPosition() const override { return transform_.translate; }
+	Vector3 GetScale() const { return transform_.scale; }
+	Vector3 GetRotate() const { return transform_.rotate; }
+
+	void SetPosition(const Vector3& position) override { transform_.translate = position; }
+	void SetScale(const Vector3& scale) { transform_.scale = scale; }
+	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
+
+	//弾のリストを取得
+	MachineGun* GetMachineGun() { return machineGun_.get(); }
+
+	//生存しているか
+	bool IsAlive() const { return status_.isAlive; }
+
+private:
+	//移動
+	void Move();
+
+	//オブジェクトの座標変換
+	void UpdateObjTransform();
+
+	//カメラの更新
+	void CameraUpdate();
+
+private: //メンバ変数
+	CameraManager* cameraManager_ = nullptr;
+
+	//プレイヤーの武器
+	std::unique_ptr<MachineGun> machineGun_ = nullptr;
+
+	//カメラのZ軸オフセット
+	float cameraZOffset_ = -6.0f;
+
+	//カメラの回転角度
+	float cameraYaw_ = 0.0f;
+	float cameraPitch_ = 0.0f;
+
+	//追従させるカメラの名前
+	std::string followCameraName_ = "FollowPlayer";
+
+	//リロードを表示するUI
+	std::unique_ptr<Sprite> reloadKeyUI_ = nullptr;
+
+	//リロード中を表示するUI
+	std::unique_ptr<Sprite> reloadingUI_ = nullptr;
+
+	//HP
+	std::unique_ptr<Sprite> hpUI_ = nullptr;
+};
+
+inline void Player::UpdateObjTransform()
+{
+	object3d_->SetScale(transform_.scale);
+	object3d_->SetRotate(transform_.rotate);
+	object3d_->SetTranslate(transform_.translate);
+	object3d_->Update(cameraManager_);
+}
+

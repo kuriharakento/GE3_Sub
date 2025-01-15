@@ -100,6 +100,20 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\Animation\Slide.cpp" />
+    <ClCompile Include="application\Entities\Building.cpp" />
+    <ClCompile Include="application\Entities\Enemy.cpp" />
+    <ClCompile Include="application\Entities\Mech.cpp" />
+    <ClCompile Include="application\Entities\Player.cpp" />
+    <ClCompile Include="application\Manager\BuildingManager.cpp" />
+    <ClCompile Include="application\Manager\CollisionManager.cpp" />
+    <ClCompile Include="application\Manager\EnemyManager.cpp" />
+    <ClCompile Include="application\scene\play\GameClearScene.cpp" />
+    <ClCompile Include="application\scene\play\GameOverScene.cpp" />
+    <ClCompile Include="application\scene\play\GameScene.cpp" />
+    <ClCompile Include="application\Weapon\Bullet.cpp" />
+    <ClCompile Include="application\Weapon\MachineGun.cpp" />
+    <ClCompile Include="application\Weapon\Missile.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
@@ -117,6 +131,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\manager\TextureManager.cpp" />
     <ClCompile Include="engine\base\WinApp.cpp" />
     <ClCompile Include="engine\input\Input.cpp" />
+    <ClCompile Include="engine\math\MathUtils.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -137,6 +152,27 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\scene\factory\SceneFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\Animation\Slide.h" />
+    <ClInclude Include="application\Collision\AABB.h" />
+    <ClInclude Include="application\Collision\ICollidable.h" />
+    <ClInclude Include="application\Collision\ObjectType.h" />
+    <ClInclude Include="application\Collision\Status.h" />
+    <ClInclude Include="application\Entities\Building.h" />
+    <ClInclude Include="application\Entities\Enemy.h" />
+    <ClInclude Include="application\Entities\Mech.h" />
+    <ClInclude Include="application\Entities\Player.h" />
+    <ClInclude Include="application\Manager\BuildingManager.h" />
+    <ClInclude Include="application\Manager\CollisionManager.h" />
+    <ClInclude Include="application\Manager\EnemyManager.h" />
+    <ClInclude Include="application\scene\play\GameClearScene.h" />
+    <ClInclude Include="application\scene\play\GameOverScene.h" />
+    <ClInclude Include="application\scene\play\GameScene.h" />
+    <ClInclude Include="application\Weapon\Bullet.h" />
+    <ClInclude Include="application\Weapon\IWeapon.h" />
+    <ClInclude Include="application\Weapon\MachineGun.h" />
+    <ClInclude Include="application\Weapon\Missile.h" />
+    <ClInclude Include="engine\math\Easing.h" />
+    <ClInclude Include="engine\math\MathUtils.h" />
     <ClInclude Include="engine\scene\SceneContext.h" />
     <ClInclude Include="engine\scene\interface\AbstractSceneFactory.h" />
     <ClInclude Include="engine\audio\Audio.h" />

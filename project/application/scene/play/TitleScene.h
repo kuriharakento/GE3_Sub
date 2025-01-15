@@ -1,25 +1,45 @@
 #pragma once
-#include <memory>
+#include "3d/Object3d.h"
+#include "application/Animation/Slide.h"
+#include "application/Manager/BuildingManager.h"
+#include "scene/interface/BaseScene.h"
 
-#include "2d/Sprite.h"
-#include "engine/scene/interface/BaseScene.h"
-
-class TitleScene : public BaseScene
+class TitleScene : public  BaseScene
 {
-public:
-	//初期化
+public: // メンバ関数
 	void Initialize() override;
-	//終了
+
 	void Finalize() override;
-	//更新
+
 	void Update() override;
-	//描画
+
 	void Draw3D() override;
+
 	void Draw2D() override;
 
-private: //メンバ変数
-	//スプライト
-	std::unique_ptr<Sprite> sprite_;
+private: // メンバ関数
+	void OnPhaseChanged(ScenePhase newPhase) override;
 
+	//ゲーム名のオブジェクトの更新
+	void UpdateGameNameOBJ();
+
+private: // メンバ変数
+	//スライド
+	std::unique_ptr<Slide> slide_;
+	//ゲーム名のオブジェクト
+	std::unique_ptr<Object3d> gameName_;
+	//天球
+	std::unique_ptr<Object3d> skyDome_;
+	//地面
+	std::unique_ptr<Object3d> ground_;
+	//ビル
+	std::unique_ptr<BuildingManager> buildingManager_;
+
+
+	//ゲーム名オブジェクトを動かすための変数
+	Vector3 initialPosition_;
+	float rotationAngle_;
+	float moveTimer_;
+	float rotationTimer_;
 };
 

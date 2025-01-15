@@ -4,6 +4,13 @@ class SceneManager;
 class BaseScene
 {
 public: //メンバ関数
+	// シーンの状態
+	enum class ScenePhase
+	{
+		Start,
+		Play,
+		End,
+	};
 	//コンストラクタ
 	BaseScene() = default;
 	//デストラクタ
@@ -18,9 +25,22 @@ public: //メンバ関数
 	virtual void Draw3D() = 0;
 	virtual void Draw2D() = 0;
 
+	// フェーズの切り替え
+	void ChangePhase(ScenePhase newPhase) {
+		currentPhase_ = newPhase;
+		OnPhaseChanged(newPhase);
+	}
+
 	//シーンマネージャーのセット
 	void SetSceneManager(SceneManager* sceneManager) { sceneManager_ = sceneManager; }
 
 protected:
+	//フェーズの切り替えたときの処理
+	virtual void OnPhaseChanged(ScenePhase newPhase) = 0;
+
+	// シーンマネージャーのポインタ
 	SceneManager* sceneManager_ = nullptr;
+
+	// シーンの状態
+	ScenePhase currentPhase_;
 };
