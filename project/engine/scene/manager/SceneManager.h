@@ -29,11 +29,11 @@ public: //メンバ関数
 
 public: //アクセッサ
 	//カメラマネージャーの取得
-	CameraManager* GetCameraManager() { return context_.cameraManager; }
+	CameraManager* GetCameraManager() const { return context_.cameraManager; }
 	//スプライト共通部の取得
-	SpriteCommon* GetSpriteCommon() { return context_.spriteCommon; }
+	SpriteCommon* GetSpriteCommon() const { return context_.spriteCommon; }
 	//3Dオブジェクト共通部の取得
-	Object3dCommon* GetObject3dCommon() { return context_.object3dCommon; }
+	Object3dCommon* GetObject3dCommon() const { return context_.object3dCommon; }
 
 private: //メンバ関数
 	//次のシーンが予約されているか

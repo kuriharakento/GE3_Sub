@@ -12,11 +12,10 @@ void TitleScene::Initialize()
     // 音声の再生
     Audio::GetInstance()->PlayWave("fanfare", true);
 
-	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
-
+	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 	// スプライトの生成
 	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize(sceneManager_->GetSpriteCommon(),"./Resources/monsterBall.png");
+	sprite_->Initialize(sceneManager_->GetSpriteCommon(),"./Resources/uvChecker.png");
     sprite_->SetAnchorPoint({ 0.5f,0.5f });
 }
 
@@ -32,6 +31,9 @@ void TitleScene::Update()
 	Vector2 pos = sprite_->GetPosition();
 	ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
 	sprite_->SetPosition(pos);
+	Vector4 color = sprite_->GetColor();
+	ImGui::ColorEdit4("Color", &color.x);
+	sprite_->SetColor(color);
 	ImGui::End();
 #endif
     if (Input::GetInstance()->TriggerKey(DIK_SPACE))

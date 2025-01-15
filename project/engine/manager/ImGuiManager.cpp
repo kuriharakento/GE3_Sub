@@ -21,15 +21,18 @@ void ImGuiManager::Initilize(WinApp* winApp, DirectXCommon* dxCommon, SrvManager
 
 	//Win32用の初期化
 	ImGui_ImplWin32_Init(winApp_->GetHwnd());
+	uint32_t srvIndex = srvManager_->Allocate();
+
 	//DX12用の初期化
 	ImGui_ImplDX12_Init(
 		dxCommon_->GetDevice(),
 		static_cast<int>(dxCommon_->GetBackBufferCount()),
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 		srvManager_->GetSrvHeap(),
-		srvManager_->GetSrvHeap()->GetCPUDescriptorHandleForHeapStart(),
-		srvManager_->GetSrvHeap()->GetGPUDescriptorHandleForHeapStart()
+		srvManager_->GetCPUDescriptorHandle(srvIndex),
+		srvManager_->GetGPUDescriptorHandle(srvIndex)
 	);
+	
 }
 
 void ImGuiManager::Finalize()
