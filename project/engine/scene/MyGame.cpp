@@ -5,8 +5,16 @@ void MyGame::Initialize()
 	//フレームワークの初期化
 	Framework::Initialize();
 
+	//シーンコンテキストの作成
+	SceneContext context;
+	context = {
+		spriteCommon_,
+		objectCommon_,
+		cameraManager_.get()
+	};
+
 	//ゲームの初期化処理
-	sceneManager_->Initialize();
+	sceneManager_->Initialize(context);
 }
 
 void MyGame::Finalize()

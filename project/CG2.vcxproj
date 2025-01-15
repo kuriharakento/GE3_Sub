@@ -137,6 +137,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\scene\factory\SceneFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine\scene\SceneContext.h" />
     <ClInclude Include="engine\scene\interface\AbstractSceneFactory.h" />
     <ClInclude Include="engine\audio\Audio.h" />
     <ClInclude Include="engine\manager\CameraManager.h" />
