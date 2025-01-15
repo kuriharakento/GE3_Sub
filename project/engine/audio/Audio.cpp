@@ -3,8 +3,10 @@
 #include <cstring>
 #include <cassert>
 
+// シングルトンインスタンスの初期化
 Audio* Audio::instance_ = nullptr;
 
+// シングルトンインスタンスの取得
 Audio* Audio::GetInstance()
 {
 	if (!instance_)
@@ -14,16 +16,19 @@ Audio* Audio::GetInstance()
 	return instance_;
 }
 
+// 初期化処理
 void Audio::Initialize()
 {
-	//XAudio2エンジンのインスタンスを生成
-	XAudio2Create(&xAudio2,0,XAUDIO2_DEFAULT_PROCESSOR);
-	//マスターボイスを生成
+	// XAudio2エンジンのインスタンスを生成
+	XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	// マスターボイスを生成
 	xAudio2->CreateMasteringVoice(&masterVoice);
 
+	// エフェクトの初期化
 	InitializeEffect();
 }
 
+// 終了処理
 void Audio::Finalize()
 {
 	// フェードリストをクリア
@@ -45,7 +50,7 @@ void Audio::Finalize()
 	// グループごとのソースボイスリストをクリア
 	groupVoicesMap_.clear();
 
-	// 全ての音声データを解放
+	// すべての音声データを解放
 	for (auto& pair : soundDataMap_)
 	{
 		if (pair.second.pBuffer)
@@ -56,14 +61,14 @@ void Audio::Finalize()
 	}
 	soundDataMap_.clear();
 
-	//マスターボイスを破棄
+	// マスターボイスを破棄
 	masterVoice->DestroyVoice();
 	masterVoice = nullptr;
-	//XAudio2エンジンを破棄
+	// XAudio2エンジンを停止および破棄
 	xAudio2->StopEngine();
 	xAudio2.Reset();
 
-	//シングルトンの解放
+	// シングルトンの解放
 	if (instance_)
 	{
 		delete instance_;
@@ -71,7 +76,7 @@ void Audio::Finalize()
 	}
 }
 
-// Audio::Update 内のフェード処理を修正
+// フェード処理の更新
 void Audio::Update()
 {
 	// 1フレームあたりの時間
@@ -119,55 +124,52 @@ void Audio::Update()
 	}
 }
 
+// WAVファイルの読み込み
 SoundData Audio::LoadWave(const char* filename)
 {
-	/*--------------[ ファイルの読み込み ]-----------------*/
-
-	//ファイル入力ストリームのインスタンスを生成
+	// ファイル入力ストリームのインスタンスを生成
 	std::ifstream file;
-	//バイナリモードでファイルを開く
+	// バイナリモードでファイルを開く
 	file.open(filename, std::ios::binary);
-	//ファイルが開けなかった場合
+	// ファイルが開けなかった場合
 	assert(file.is_open());
 
-	/*--------------[ wavデータ読み込み ]-----------------*/
-
-	//RIFFヘッダの読み込み
+	// RIFFヘッダの読み込み
 	RiffHeader riff;
 	file.read((char*)&riff, sizeof(riff));
-	//ファイルがRIFFかチェック
+	// ファイルがRIFFかチェック
 	if (strncmp(riff.chunk.id, "RIFF", 4) != 0)
 	{
 		assert(0);
 	}
-	//タイプがWAVEかチェック
+	// タイプがWAVEかチェック
 	if (strncmp(riff.type, "WAVE", 4) != 0)
 	{
 		assert(0);
 	}
 
-	//Formatチャンクの読み込み
+	// Formatチャンクの読み込み
 	FormatChunk format = {};
-	//チャンクヘッダーの確認
+	// チャンクヘッダーの確認
 	file.read((char*)&format, sizeof(ChunkHeader));
 	if (strncmp(format.chunk.id, "fmt ", 4) != 0)
 	{
 		assert(0);
 	}
 
-	//チャンク本体の読み込み
+	// チャンク本体の読み込み
 	assert(format.chunk.size <= sizeof(format.fmt));
 	file.read((char*)&format.fmt, format.chunk.size);
 
-	//Dataチャンクの読み込み
+	// Dataチャンクの読み込み
 	ChunkHeader data;
 	file.read((char*)&data, sizeof(data));
-	//JUNKチャンクを検出した場合
+	// JUNKチャンクを検出した場合
 	if (strncmp(data.id, "JUNK", 4) == 0)
 	{
-		//JUNKチャンクをスキップ
+		// JUNKチャンクをスキップ
 		file.seekg(data.size, std::ios::cur);
-		//次のチャンクを読み込む
+		// 次のチャンクを読み込む
 		file.read((char*)&data, sizeof(data));
 	}
 
@@ -176,15 +178,14 @@ SoundData Audio::LoadWave(const char* filename)
 		assert(0);
 	}
 
-	//Dataチャンクのデータ部分を読み込む
+	// Dataチャンクのデータ部分を読み込む
 	char* buffer = new char[data.size];
 	file.read(buffer, data.size);
 
-	//waveファイルを閉じる
+	// WAVファイルを閉じる
 	file.close();
 
-	/*--------------[ 読み込んだ音声データをreturn ]-----------------*/
-
+	// 読み込んだ音声データを返す
 	SoundData soundData = {};
 	soundData.wfex = format.fmt;
 	soundData.pBuffer = reinterpret_cast<BYTE*>(buffer);
@@ -193,9 +194,10 @@ SoundData Audio::LoadWave(const char* filename)
 	return soundData;
 }
 
+// WAVファイルの読み込み（名前付き）
 void Audio::LoadWave(const std::string& name, const char* filename, SoundGroup group)
 {
-	//フルパス
+	// フルパス
 	std::string fullpath = directoryPath + std::string(filename);
 	// ファイル入力ストリームのインスタンスを生成
 	std::ifstream file;
@@ -265,28 +267,32 @@ void Audio::LoadWave(const std::string& name, const char* filename, SoundGroup g
 	soundDataMap_[name] = soundData;
 }
 
+// 音声の再生
 void Audio::PlayWave(SoundData* soundData, bool loop)
 {
 	HRESULT result;
 
-	//波形フォーマットをもとにソースボイスを生成
+	// 波形フォーマットをもとにソースボイスを生成
 	IXAudio2SourceVoice* sourceVoice;
 	result = xAudio2->CreateSourceVoice(&sourceVoice, &soundData->wfex);
 	assert(SUCCEEDED(result));
 
-	//再生する波形データをセット
+	// 再生する波形データをセット
 	XAUDIO2_BUFFER buffer = {};
 	buffer.AudioBytes = soundData->bufferSize;
 	buffer.pAudioData = soundData->pBuffer;
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
 
-	buffer.LoopCount = XAUDIO2_LOOP_INFINITE;	//無限ループ
+	buffer.LoopCount = loop ? XAUDIO2_LOOP_INFINITE : 0; // ループ設定
 
-	//波形データの再生
+	// 波形データの再生
 	result = sourceVoice->SubmitSourceBuffer(&buffer);
+	assert(SUCCEEDED(result));
 	result = sourceVoice->Start();
+	assert(SUCCEEDED(result));
 }
 
+// 名前付き音声の再生
 void Audio::PlayWave(const std::string& name, bool loop)
 {
 	auto it = soundDataMap_.find(name);
@@ -328,10 +334,12 @@ void Audio::PlayWave(const std::string& name, bool loop)
 	hr = sourceVoice->Start(0);
 	assert(SUCCEEDED(hr));
 
+	// ソースボイスをマップに追加
 	sourceVoiceMap_[name] = sourceVoice;
 	groupVoicesMap_[soundData.group].push_back(sourceVoice);
 }
 
+// 音声の停止
 void Audio::StopWave(const std::string& name)
 {
 	auto it = sourceVoiceMap_.find(name);
@@ -345,6 +353,7 @@ void Audio::StopWave(const std::string& name)
 	}
 }
 
+// グループ内の音声の停止
 void Audio::StopGroup(SoundGroup group)
 {
 	auto it = groupVoicesMap_.find(group);
@@ -360,6 +369,7 @@ void Audio::StopGroup(SoundGroup group)
 	}
 }
 
+// 音量の設定
 void Audio::SetVolume(const std::string& name, float volume)
 {
 	auto it = sourceVoiceMap_.find(name);
@@ -371,6 +381,7 @@ void Audio::SetVolume(const std::string& name, float volume)
 	}
 }
 
+// グループ内の音量の設定
 void Audio::SetGroupVolume(SoundGroup group, float volume)
 {
 	auto it = groupVoicesMap_.find(group);
@@ -383,6 +394,7 @@ void Audio::SetGroupVolume(SoundGroup group, float volume)
 	}
 }
 
+// フェードイン処理
 void Audio::FadeIn(const std::string& name, float duration)
 {
 	// 既存のソースボイスを検索
@@ -444,6 +456,7 @@ void Audio::FadeIn(const std::string& name, float duration)
 	fadeList_.push_back(fadeData);
 }
 
+// フェードアウト処理
 void Audio::FadeOut(const std::string& name, float duration)
 {
 	auto it = sourceVoiceMap_.find(name);
@@ -462,6 +475,7 @@ void Audio::FadeOut(const std::string& name, float duration)
 	}
 }
 
+// エフェクトの初期化
 void Audio::InitializeEffect()
 {
 	// リバーブエフェクトの作成
@@ -492,6 +506,12 @@ void Audio::InitializeEffect()
 		nullptr,                   // センドリスト
 		&effectChain               // エフェクトチェーン
 	);
+	if (FAILED(hr)) {
+		// エラーハンドリング
+		reverbEffect->Release();
+		return;
+	}
+
 	// リバーブパラメータの設定（必要に応じて）
 	XAUDIO2FX_REVERB_PARAMETERS reverbParameters = {};
 	reverbParameters.ReflectionsDelay = 5;
@@ -500,12 +520,7 @@ void Audio::InitializeEffect()
 
 	submixVoice_->SetEffectParameters(0, &reverbParameters, sizeof(reverbParameters));
 
-	if (FAILED(hr)) {
-		// エラーハンドリング
-		reverbEffect->Release();
-		return;
-	}
-
 	// エフェクトの解放
 	reverbEffect->Release();
 }
+

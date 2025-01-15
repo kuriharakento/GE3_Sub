@@ -8,7 +8,7 @@
 
 void TitleScene::Initialize()
 {
-	Audio::GetInstance()->LoadWave("fanfare", "fanfare.wav",SoundGroup::BGM);
+	Audio::GetInstance()->LoadWave("fanfare", "game.wav",SoundGroup::BGM);
     // 音声の再生
     Audio::GetInstance()->PlayWave("fanfare", true);
 
