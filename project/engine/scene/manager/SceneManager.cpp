@@ -10,8 +10,11 @@ SceneManager::~SceneManager()
 	currentScene_->Finalize();
 }
 
-void SceneManager::Initialize()
+void SceneManager::Initialize(const SceneContext& context)
 {
+	//コンテキストをセット
+	context_ = context;
+
 	//初期シーンの名前
 	std::string startSceneName = "TITLE";
 

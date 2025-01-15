@@ -4,6 +4,7 @@
 #include <string>
 
 #include "engine/scene/interface/BaseScene.h"
+#include "scene/SceneContext.h"
 
 class SceneFactory;
 
@@ -16,7 +17,7 @@ public: //メンバ関数
 	SceneManager(SceneFactory* sceneFactory) : currentScene_(nullptr), nextScene_(nullptr), sceneFactory_(sceneFactory) {}
 
 	//初期化
-	void Initialize();;
+	void Initialize(const SceneContext& context);
 	//更新
 	void Update();
 	//描画
@@ -25,6 +26,14 @@ public: //メンバ関数
 
 	//シーンの変更
 	void ChangeScene(const std::string& sceneName);
+
+public: //アクセッサ
+	//カメラマネージャーの取得
+	CameraManager* GetCameraManager() { return context_.cameraManager; }
+	//スプライト共通部の取得
+	SpriteCommon* GetSpriteCommon() { return context_.spriteCommon; }
+	//3Dオブジェクト共通部の取得
+	Object3dCommon* GetObject3dCommon() { return context_.object3dCommon; }
 
 private: //メンバ関数
 	//次のシーンが予約されているか
@@ -42,5 +51,8 @@ private: //メンバ変数
 	//シーンの名前
 	std::string currentSceneName_ = "";
 	std::string nextSceneName_ = "";
+
+	//シーンコンテキスト
+	SceneContext context_;
 };
 
