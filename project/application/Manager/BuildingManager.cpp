@@ -133,10 +133,10 @@ void BuildingManager::GenerateBuilding(int count, float minRadius, float maxRadi
             }
 
             // カメラ位置からの距離を計算
-            float distance = std::sqrt(
-                std::pow(position.x - exclusionCenter.x, 2) +
-                std::pow(position.y - exclusionCenter.y, 2) +
-                std::pow(position.z - exclusionCenter.z, 2)
+            float distance = std::sqrtf(
+                std::powf(position.x - exclusionCenter.x, 2) +
+                std::powf(position.y - exclusionCenter.y, 2) +
+                std::powf(position.z - exclusionCenter.z, 2)
             );
 
             bool withinMinRadius = distance >= minRadius;

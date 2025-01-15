@@ -5,6 +5,8 @@
 
 void TitleScene::Initialize()
 {
+
+
 	//カメラを作成しアクティブにする
 	sceneManager_->GetCameraManager()->AddCamera("TitleCamera");
 	sceneManager_->GetCameraManager()->SetActiveCamera("TitleCamera");

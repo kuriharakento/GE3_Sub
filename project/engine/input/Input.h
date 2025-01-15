@@ -14,9 +14,9 @@ public:
 	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public: //メンバ関数
-	//インスタンス取得
+	//シングルトン
 	static Input* GetInstance();
-	//解放
+	//終了
 	void Finalize();
 
 	//初期化
@@ -34,12 +34,37 @@ public: //メンバ関数
 	/// \return トリガーか
 	bool TriggerKey(BYTE keyNumber);
 
+	/// \brief マウスの移動量（X方向）を取得
+	/// \return 移動量
+	long GetMouseDeltaX() const;
+
+	/// \brief マウスの移動量（Y方向）を取得
+	/// \return 移動量
+	long GetMouseDeltaY() const;
+
+	/// \brief マウスホイールの移動量を取得
+	/// \return 移動量
+	long GetMouseDeltaWheel() const;
+
+	/// \brief マウスボタンの押下をチェック
+	/// \param buttonNumber ボタン番号（0: 左, 1: 右, 2: 中央）
+	/// \return 押されているか
+	bool PushMouseButton(int buttonNumber) const;
+
+	/// \brief マウスボタンのトリガーをチェック
+	/// \param buttonNumber ボタン番号（0: 左, 1: 右, 2: 中央）
+	/// \return トリガーか
+	bool TriggerMouseButton(int buttonNumber) const;
+
 private: //メンバ変数
 	//WindowsAPI
 	WinApp* winApp_ = nullptr;
 
 	//キーボードデバイス
 	ComPtr<IDirectInputDevice8> keyboard_;
+
+	//マウス
+	ComPtr<IDirectInputDevice8> mouse_;
 
 	//DirectInputのインスタンス
 	ComPtr<IDirectInput8> directInput_;
@@ -50,10 +75,15 @@ private: //メンバ変数
 	//前回の全キーの状態
 	BYTE keyPre_[256] = {};
 
+	// マウスの現在の状態
+	DIMOUSESTATE mouseState_ = {};
+
+	// マウスの前回の状態
+	DIMOUSESTATE mouseStatePre_ = {};
+
 private: //シングルトン
 	static Input* instance_;
 
-	//コピー禁止
 	Input() = default;
 	~Input() = default;
 	Input(const Input&) = delete;

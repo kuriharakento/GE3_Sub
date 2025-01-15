@@ -1,9 +1,18 @@
 #include "MyGame.h"
 
+#include "3d/ModelManager.h"
+#include "base/Logger.h"
+#include "manager/TextureManager.h"
+
 void MyGame::Initialize()
 {
 	//フレームワークの初期化
 	Framework::Initialize();
+
+	//テクスチャの読み込み
+	LoadTextures();
+	//モデルの読み込み
+	LoadModels();
 
 	//シーンコンテキストの作成
 	SceneContext context;
@@ -60,4 +69,35 @@ void MyGame::Draw()
 
 	//フレームワークの描画後処理
 	Framework::PostDraw();
+}
+
+void MyGame::LoadModels()
+{
+	Logger::Log("LoadModels\n");
+	// .objファイルからモデルを読み込む
+	ModelManager::GetInstance()->LoadModel("plane.obj");
+	ModelManager::GetInstance()->LoadModel("axis.obj");
+	ModelManager::GetInstance()->LoadModel("player.obj");
+	ModelManager::GetInstance()->LoadModel("enemy.obj");
+	ModelManager::GetInstance()->LoadModel("missile.obj");
+	ModelManager::GetInstance()->LoadModel("bullet.obj");
+	ModelManager::GetInstance()->LoadModel("Building.obj");
+	ModelManager::GetInstance()->LoadModel("gameName.obj");
+	ModelManager::GetInstance()->LoadModel("skydome.obj");
+	ModelManager::GetInstance()->LoadModel("ground.obj");
+	Logger::Log("LoadModels Complete!\n");
+}
+
+void MyGame::LoadTextures()
+{
+	Logger::Log("LoadTextures\n");
+	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/reload.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/reloading.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/gameClear.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/gameOver.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/HP.png");
+	Logger::Log("LoadTextures Complete!\n");
 }
