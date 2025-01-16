@@ -1,5 +1,7 @@
 #include "MyGame.h"
 
+#include "manager/TextureManager.h"
+
 void MyGame::Initialize()
 {
 	//フレームワークの初期化
@@ -12,6 +14,15 @@ void MyGame::Initialize()
 		objectCommon_,
 		cameraManager_.get()
 	};
+
+#pragma region テクスチャの読み込み
+	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/testSprite.png");
+#pragma endregion
+
+#pragma region モデルの読み込み
+
+#pragma endregion
 
 	//ゲームの初期化処理
 	sceneManager_->Initialize(context);

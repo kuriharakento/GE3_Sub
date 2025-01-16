@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "2d/Sprite.h"
+#include "application/Animation/Slide.h"
 #include "engine/scene/interface/BaseScene.h"
 
 class TitleScene : public BaseScene
@@ -20,6 +21,9 @@ public:
 private: //メンバ変数
 	//スプライト
 	std::unique_ptr<Sprite> sprite_;
+
+	//スライド
+	std::unique_ptr<Slide> slide_;
 
 };
 

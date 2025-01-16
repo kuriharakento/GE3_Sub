@@ -17,6 +17,10 @@ void TitleScene::Initialize()
 	sprite_ = std::make_unique<Sprite>();
 	sprite_->Initialize(sceneManager_->GetSpriteCommon(),"./Resources/uvChecker.png");
     sprite_->SetAnchorPoint({ 0.5f,0.5f });
+
+	// スライドの生成
+	slide_ = std::make_unique<Slide>();
+	slide_->Initialize(sceneManager_->GetSpriteCommon());
 }
 
 void TitleScene::Finalize()
@@ -65,6 +69,8 @@ void TitleScene::Update()
 	// スプライトの更新
 	sprite_->Update();
 
+	// スライドの更新
+	slide_->Update();
 }
 
 void TitleScene::Draw3D()
@@ -75,4 +81,7 @@ void TitleScene::Draw3D()
 void TitleScene::Draw2D()
 {
 	sprite_->Draw();
+
+	// スライドの描画
+	slide_->Draw();
 }
