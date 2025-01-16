@@ -1,62 +1,141 @@
 #pragma once
-#include <Windows.h>
-#include <wrl.h>
 
 #define DIRECTINPUT_VERSION 0x0800 //DirectInputのバージョン指定
 #include <dinput.h>
 
-#include "base/WinApp.h"
+#include <Xinput.h>
+#pragma comment(lib, "Xinput.lib")
 
-class Input
-{
-public:
-	//namespace省略
-	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+#include <wrl.h>
+#include <array>
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
-public: //メンバ関数
-	//インスタンス取得
-	static Input* GetInstance();
-	//解放
-	void Finalize();
 
-	//初期化
-	void Initialize(WinApp* winApp);
-	//更新
-	void Update();
 
-	/// \brief キーの押下をチェック
-	/// \param keyNumber キー番号
-	/// \return 押されているか
-	bool PushKey(BYTE keyNumber);
+// 前方宣言
+class WinApp;
 
-	/// \brief キーのトリガーをチェック
-	/// \param keyNumber キー番号
-	/// \return トリガーか
-	bool TriggerKey(BYTE keyNumber);
-
-private: //メンバ変数
-	//WindowsAPI
-	WinApp* winApp_ = nullptr;
-
-	//キーボードデバイス
-	ComPtr<IDirectInputDevice8> keyboard_;
-
-	//DirectInputのインスタンス
-	ComPtr<IDirectInput8> directInput_;
-
-	//全キーの入力情報を取得する
-	BYTE key_[256] = {};
-
-	//前回の全キーの状態
-	BYTE keyPre_[256] = {};
-
-private: //シングルトン
-	static Input* instance_;
-
-	//コピー禁止
-	Input() = default;
-	~Input() = default;
-	Input(const Input&) = delete;
-	Input& operator=(const Input&) = delete;
+// アクションの列挙型
+enum class Action {
+    MoveLeft,
+    MoveRight,
+    Jump,
+    Shoot,
+    // 他のアクションを追加...
 };
 
+// 入力デバイスのタイプ
+enum class InputType {
+    Keyboard,
+    Gamepad
+};
+
+class Input {
+public:
+    // シングルトンの取得
+    static Input* GetInstance();
+
+    // 初期化
+    void Initialize(WinApp* winApp);
+
+    // 終了処理
+    void Finalize();
+
+    // 更新
+    void Update();
+
+    // キーの押下チェック
+    bool PushKey(BYTE keyNumber) const;
+
+    // キーのトリガーチェック
+    bool TriggerKey(BYTE keyNumber) const;
+
+    // キーのリリースチェック
+    bool ReleaseTrigger(BYTE keyNumber) const;
+
+    // ゲームパッドボタンのリリースチェック
+    bool ReleaseButton(DWORD gamepadIndex, DWORD buttonCode) const;
+
+    // デッドゾーンの設定
+    void SetDeadZone(float deadZone);
+
+    // ゲームパッドの振動設定
+    void SetVibration(DWORD gamepadIndex, WORD leftMotor, WORD rightMotor);
+
+    // ボタンのリマッピング
+    void RemapButton(Action action, InputType type, DWORD code);
+
+    // アクションのバインディング
+    void BindAction(Action action, std::function<void()> callback);
+
+    // 入力の記録開始
+    void StartRecording();
+
+    // 入力の記録停止
+    void StopRecording();
+
+    // 入力の再生開始
+    void PlayRecording();
+
+
+	//ボタンの押下チェック
+    bool IsButtonPressed(DWORD gamepadIndex, DWORD buttonCode) const;
+
+	// ボタンのトリガーチェック
+    bool IsButtonTriggered(DWORD gamepadIndex, DWORD buttonCode) const;
+
+private:
+    // コンストラクタとデストラクタ
+    Input();
+    ~Input();
+
+    // コピーと代入を禁止
+    Input(const Input&) = delete;
+    Input& operator=(const Input&) = delete;
+
+    // ゲームパッドの状態構造体
+    struct GamepadState {
+        XINPUT_STATE state;
+        XINPUT_STATE prevState; // 前回の状態を保存
+        bool isConnected;
+        XINPUT_VIBRATION vibration;
+    };
+
+    // シングルトンのインスタンス
+    static Input* instance_;
+
+    // Windows API
+    WinApp* winApp_;
+
+    // DirectInput関連
+    Microsoft::WRL::ComPtr<IDirectInput8> directInput_;
+    Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard_;
+
+    // キーボードの状態
+    BYTE key_[256] = {};
+    BYTE keyPre_[256] = {};
+
+    // デッドゾーン
+    float deadZone_;
+
+    // ゲームパッドの状態
+    std::array<GamepadState, XUSER_MAX_COUNT> gamepads_;
+
+    // ボタンリマッピング
+    struct InputBinding {
+        InputType type;
+        DWORD code;
+    };
+    std::unordered_map<Action, InputBinding> buttonMappings_;
+
+    // アクションのコールバック
+    std::unordered_map<Action, std::function<void()>> actionCallbacks_;
+
+    // 入力の記録
+    bool isRecording_;
+    bool isPlaying_;
+    std::vector<std::pair<Action, DWORD>> recordedInputs_;
+    size_t playIndex_;
+};
