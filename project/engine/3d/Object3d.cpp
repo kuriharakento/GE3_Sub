@@ -117,7 +117,7 @@ void Object3d::CreateDirectionalLightData()
 
 	//デフォルト値は以下のようにしておく
 	directionalLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
-	directionalLightData_->direction = Normalize({ 0.0f,-1.0f,0.0f });
+	directionalLightData_->direction = Vector3::Normalize({ 0.0f,-1.0f,0.0f });
 	directionalLightData_->intensity = 1.0f;
 
 }
