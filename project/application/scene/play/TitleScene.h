@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "2d/Sprite.h"
+#include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
 #include "engine/scene/interface/BaseScene.h"
 
@@ -19,11 +20,14 @@ public:
 	void Draw2D() override;
 
 private: //メンバ変数
-	//スプライト
+	//デバック用スプライト
 	std::unique_ptr<Sprite> sprite_;
-
+	//デバック用オブジェクト
+	std::unique_ptr<Object3d> object3d_;
 	//スライド
 	std::unique_ptr<Slide> slide_;
+
+	
 
 };
 

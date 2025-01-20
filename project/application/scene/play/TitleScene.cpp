@@ -21,6 +21,11 @@ void TitleScene::Initialize()
 	// スライドの生成
 	slide_ = std::make_unique<Slide>();
 	slide_->Initialize(sceneManager_->GetSpriteCommon());
+
+	//デバック用オブジェクトの生成
+	object3d_ = std::make_unique<Object3d>();
+	object3d_->Initialize(sceneManager_->GetObject3dCommon());
+	object3d_->SetModel("sphere.obj");
 }
 
 void TitleScene::Finalize()
@@ -32,12 +37,48 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
-	Vector2 pos = sprite_->GetPosition();
-	ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
-	sprite_->SetPosition(pos);
-	Vector4 color = sprite_->GetColor();
-	ImGui::ColorEdit4("Color", &color.x);
-	sprite_->SetColor(color);
+	#pragma region Debug Sprite
+	if (ImGui::CollapsingHeader("Sprite"))
+	{
+		Vector2 pos = sprite_->GetPosition();
+		ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
+		sprite_->SetPosition(pos);
+		Vector4 color = sprite_->GetColor();
+		ImGui::ColorEdit4("Color", &color.x);
+		sprite_->SetColor(color);
+	}
+	#pragma endregion
+
+#pragma region Debug Object3D
+	if (ImGui::CollapsingHeader("Object3D"))
+	{
+		//モデルの変更
+		ImGui::Text("Change Model :");
+		ImGui::SameLine();
+		if (ImGui::Button("cube"))
+		{
+			object3d_->SetModel("cube.obj");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("sphere"))
+		{
+			object3d_->SetModel("sphere.obj");
+		}
+
+		Vector3 pos3d = object3d_->GetTranslate();
+		ImGui::DragFloat3("Position", &pos3d.x, 0.1f);
+		object3d_->SetTranslate(pos3d);
+		Vector3 scale = object3d_->GetScale();
+		ImGui::DragFloat3("Scale", &scale.x, 0.1f);
+		object3d_->SetScale(scale);
+		Vector3 rotate = object3d_->GetRotate();
+		ImGui::DragFloat3("Rotate", &rotate.x, 0.01f);
+		object3d_->SetRotate(rotate);
+		Vector4 color3d = object3d_->GetColor();
+		ImGui::ColorEdit4("Color", &color3d.x);
+		object3d_->SetColor(color3d);
+	}
+#pragma endregion
 	ImGui::End();
 #endif
     if (Input::GetInstance()->TriggerKey(DIK_SPACE))
@@ -69,13 +110,16 @@ void TitleScene::Update()
 	// スプライトの更新
 	sprite_->Update();
 
+	//オブジェクトの更新
+	object3d_->Update(sceneManager_->GetCameraManager());
+
 	// スライドの更新
 	slide_->Update();
 }
 
 void TitleScene::Draw3D()
 {
-
+	object3d_->Draw();
 }
 
 void TitleScene::Draw2D()

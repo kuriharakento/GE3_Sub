@@ -37,11 +37,13 @@ public:	/*========[ メンバ関数 ]========*/
 	void UpdateMatrix(Camera* camera);
 
 public: /*========[ ゲッター ]========*/
-
 	//Transform
-	void SetScale(const Vector3& scale) { transform_.scale = scale; }
-	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
-	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
+	const Vector3& GetScale() const { return transform_.scale; }
+	const Vector3& GetRotate() const { return transform_.rotate; }
+	const Vector3& GetTranslate() const { return transform_.translate; }
+
+	//色
+	Vector4 GetColor() const { return model_->GetColor(); }
 
 public: /*========[ セッター ]========*/
 
@@ -53,9 +55,12 @@ public: /*========[ セッター ]========*/
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
 	//Transform
-	const Vector3& GetScale() const { return transform_.scale; }
-	const Vector3& GetRotate() const { return transform_.rotate; }
-	const Vector3& GetTranslate() const { return transform_.translate; }
+	void SetScale(const Vector3& scale) { transform_.scale = scale; }
+	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
+	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
+
+	//色
+	void SetColor(const Vector4& color) { model_->SetColor(color); }
 
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
