@@ -25,7 +25,7 @@ void TitleScene::Initialize()
 	//デバック用オブジェクトの生成
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
-	object3d_->SetModel("cube.obj");
+	object3d_->SetModel("sphere.obj");
 }
 
 void TitleScene::Finalize()
@@ -37,12 +37,35 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
-	Vector2 pos = sprite_->GetPosition();
-	ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
-	sprite_->SetPosition(pos);
-	Vector4 color = sprite_->GetColor();
-	ImGui::ColorEdit4("Color", &color.x);
-	sprite_->SetColor(color);
+	#pragma region Debug Sprite
+	if (ImGui::CollapsingHeader("Sprite"))
+	{
+		Vector2 pos = sprite_->GetPosition();
+		ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
+		sprite_->SetPosition(pos);
+		Vector4 color = sprite_->GetColor();
+		ImGui::ColorEdit4("Color", &color.x);
+		sprite_->SetColor(color);
+	}
+	#pragma endregion
+
+#pragma region Debug Object3D
+	if (ImGui::CollapsingHeader("Object3D"))
+	{
+		Vector3 pos3d = object3d_->GetTranslate();
+		ImGui::DragFloat3("Position", &pos3d.x, 0.1f);
+		object3d_->SetTranslate(pos3d);
+		Vector3 scale = object3d_->GetScale();
+		ImGui::DragFloat3("Scale", &scale.x, 0.1f);
+		object3d_->SetScale(scale);
+		Vector3 rotate = object3d_->GetRotate();
+		ImGui::DragFloat3("Rotate", &rotate.x, 0.01f);
+		object3d_->SetRotate(rotate);
+		Vector4 color3d = object3d_->GetColor();
+		ImGui::ColorEdit4("Color", &color3d.x);
+		object3d_->SetColor(color3d);
+	}
+#pragma endregion
 	ImGui::End();
 #endif
     if (Input::GetInstance()->TriggerKey(DIK_SPACE))
