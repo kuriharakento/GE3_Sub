@@ -17,6 +17,8 @@ void TitleScene::Initialize()
 	sprite_ = std::make_unique<Sprite>();
 	sprite_->Initialize(sceneManager_->GetSpriteCommon(),"./Resources/uvChecker.png");
     sprite_->SetAnchorPoint({ 0.5f,0.5f });
+	sprite_->SetSize({ 340.0f,315.0f });
+	sprite_->SetPosition({ 200.0f,180.0f });
 
 	// スライドの生成
 	slide_ = std::make_unique<Slide>();
@@ -26,6 +28,7 @@ void TitleScene::Initialize()
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
 	object3d_->SetModel("sphere.obj");
+	object3d_->SetTranslate({ 0.0f,3.0f,1.0f });
 }
 
 void TitleScene::Finalize()
@@ -43,6 +46,9 @@ void TitleScene::Update()
 		Vector2 pos = sprite_->GetPosition();
 		ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
 		sprite_->SetPosition(pos);
+		Vector2 size = sprite_->GetSize();
+		ImGui::SliderFloat2("Size", &size.x, 0.0f, 1280.0f);
+		sprite_->SetSize(size);
 		Vector4 color = sprite_->GetColor();
 		ImGui::ColorEdit4("Color", &color.x);
 		sprite_->SetColor(color);
