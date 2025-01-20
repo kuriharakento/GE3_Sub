@@ -7,7 +7,7 @@
 #include "manager/SrvManager.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 
-void ImGuiManager::Initilize(WinApp* winApp, DirectXCommon* dxCommon, SrvManager* srvManager)
+void ImGuiManager::Initialize(WinApp* winApp, DirectXCommon* dxCommon, SrvManager* srvManager)
 {
 	//引数をメンバ変数に記録
 	winApp_ = winApp;
