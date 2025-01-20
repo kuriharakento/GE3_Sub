@@ -22,8 +22,8 @@ struct Material
 {
 	Vector4 color;
 	int32_t enableLighting;
-	float padding[3];
 	Matrix4x4 uvTransform;
+	float shininess;
 };
 
 /**
@@ -89,3 +89,7 @@ struct ParticleForGPU
 	Vector4 color;
 };
 
+struct CameraForGPU
+{
+	Vector3 worldPos;
+};

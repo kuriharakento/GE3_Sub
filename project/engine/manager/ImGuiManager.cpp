@@ -22,6 +22,8 @@ void ImGuiManager::Initialize([[maybe_unused]] WinApp* winApp, [[maybe_unused]] 
 
 	//Win32用の初期化
 	ImGui_ImplWin32_Init(winApp_->GetHwnd());
+
+	//SRVの確保とインデックスの取得
 	uint32_t srvIndex = srvManager_->Allocate();
 
 	//DX12用の初期化

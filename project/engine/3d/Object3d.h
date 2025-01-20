@@ -45,6 +45,11 @@ public: /*========[ ゲッター ]========*/
 	//色
 	Vector4 GetColor() const { return model_->GetColor(); }
 
+	//ライト
+	Vector4 GetDirectionalLightColor() const { return directionalLightData_->color; }
+	Vector3 GetDirectionalLightDirection() const { return directionalLightData_->direction; }
+	float GetDirectionalLightIntensity() const { return directionalLightData_->intensity; }
+
 public: /*========[ セッター ]========*/
 
 	//モデルの設定
@@ -62,6 +67,11 @@ public: /*========[ セッター ]========*/
 	//色
 	void SetColor(const Vector4& color) { model_->SetColor(color); }
 
+	//ライト
+	void SetDirectionalLightColor(const Vector4& color) { directionalLightData_->color = color; }
+	void SetDirectionalLightDirection(const Vector3& direction) { directionalLightData_->direction = direction; }
+	void SetDirectionalLightIntensity(float intensity) { directionalLightData_->intensity = intensity; }
+
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
 	/**
@@ -73,6 +83,11 @@ private: /*========[ プライベートメンバ関数(このクラス内でし�
 	 * \brief 平行光源データの生成
 	 */
 	void CreateDirectionalLightData();
+
+	/**
+	 * \brief カメラデータの生成
+	 */
+	void CreateCameraData();
 
 	/**
 	 * \brief 描画設定の初期化
@@ -87,10 +102,12 @@ private: /*========[ 描画用変数 ]========*/
 	//バッファリソース	
 	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_;
 
 	//バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	DirectionalLight* directionalLightData_ = nullptr;
+	CameraForGPU* cameraData_ = nullptr;
 
 private: /*========[ メンバ変数 ]========*/
 	//カメラ
