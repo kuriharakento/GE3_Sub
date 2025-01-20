@@ -12,7 +12,7 @@ public:
 	 * \param dxCommon 
 	 * \param srvManager 
 	 */
-	void Initilize(WinApp* winApp, DirectXCommon* dxCommon, SrvManager* srvManager);
+	void Initialize(WinApp* winApp, DirectXCommon* dxCommon, SrvManager* srvManager);
 
 	/**
 	 * \brief 終了

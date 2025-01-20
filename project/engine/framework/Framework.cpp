@@ -23,7 +23,7 @@ void Framework::Initialize()
 
 	//ImGuiの初期化
 	imguiManager_ = new ImGuiManager();
-	imguiManager_->Initilize(winApp_, dxCommon_, srvManager_.get());
+	imguiManager_->Initialize(winApp_, dxCommon_, srvManager_.get());
 
 	//テクスチャマネージャーの初期化
 	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager_.get());
