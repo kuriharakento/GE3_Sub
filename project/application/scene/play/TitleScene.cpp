@@ -21,6 +21,11 @@ void TitleScene::Initialize()
 	// スライドの生成
 	slide_ = std::make_unique<Slide>();
 	slide_->Initialize(sceneManager_->GetSpriteCommon());
+
+	//デバック用オブジェクトの生成
+	object3d_ = std::make_unique<Object3d>();
+	object3d_->Initialize(sceneManager_->GetObject3dCommon());
+	object3d_->SetModel("cube.obj");
 }
 
 void TitleScene::Finalize()
@@ -69,13 +74,16 @@ void TitleScene::Update()
 	// スプライトの更新
 	sprite_->Update();
 
+	//オブジェクトの更新
+	object3d_->Update(sceneManager_->GetCameraManager());
+
 	// スライドの更新
 	slide_->Update();
 }
 
 void TitleScene::Draw3D()
 {
-
+	object3d_->Draw();
 }
 
 void TitleScene::Draw2D()

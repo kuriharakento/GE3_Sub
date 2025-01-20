@@ -10,9 +10,6 @@
 #include "base/WinApp.h"
 #include "externals/DirectXTex/DirectXTex.h"
 
-/*--------------[  ]-----------------*/
-
-
 class DirectXCommon
 {
 public: //メンバ関数
@@ -83,6 +80,8 @@ public://アクセッサ
 
 	//バックバッファの取得
 	size_t GetBackBufferCount() { return swapChainResources_.size(); }
+
+
 
 private: //メンバ関数
 	/// \brief デバイスの初期化
