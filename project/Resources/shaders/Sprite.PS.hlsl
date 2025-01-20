@@ -4,9 +4,7 @@ struct Material
 {
     float32_t4 color;
     int32_t enableLighting;
-    float32_t3 padding;
     float32_t4x4 uvTransform;
-    float32_t shininess;
 };
 
 struct DirectionalLight
@@ -16,14 +14,9 @@ struct DirectionalLight
     float intensity;
 };
 
-struct Camera
-{
-    float32_t3 worldPos;
-};
 
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
-ConstantBuffer<Camera> gCamera : register(b2);
 Texture2D<float32_t4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
 struct PixelShaderOutput
@@ -41,22 +34,8 @@ PixelShaderOutput main(VertexShaderOutput input)
     {
         discard;
     }
-
-    //カメラが設定されている場合はライティングを有効にする
-    if (gCamera.worldPos != 0.0)
-    {
-        float32_t3 toEye = normalize(gCamera.worldPos - input.worldPos);
-        float32_t3 reflecLight = reflect(gDirectionalLight.direction, normalize(input.normal));
-        float RdotE = dot(reflecLight, toEye);
-        float speculaPow = pow(saturate(RdotE),gMaterial.shininess); //反射強度
-        //拡散反射
-        float32_t3 ddiffuse = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
-        //鏡面反射
-        float32_t3 specula = 
-
-    }
-	//ライティングを有効にしている場合はライティングを適用
-	else if(gMaterial.enableLighting != 0)
+    //ライティングを有効にしている場合はライティングを適用
+	if(gMaterial.enableLighting != 0)
     {
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);

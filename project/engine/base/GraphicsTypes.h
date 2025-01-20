@@ -20,10 +20,10 @@ struct VertexData
  */
 struct Material
 {
-	Vector4 color;
-	int32_t enableLighting;
-	float padding[3];
-	Matrix4x4 uvTransform;
+	Vector4 color;			// 16バイト
+	int32_t enableLighting;	// 4バイト
+	float padding[3];		// 12バイト（アラインメント用）
+	Matrix4x4 uvTransform;	// 64バイト
 };
 
 /**
@@ -89,3 +89,8 @@ struct ParticleForGPU
 	Vector4 color;
 };
 
+//カメラ
+struct CameraForGPU
+{
+	Vector3 worldPos;
+};
