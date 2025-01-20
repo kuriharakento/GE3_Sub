@@ -52,6 +52,19 @@ void TitleScene::Update()
 #pragma region Debug Object3D
 	if (ImGui::CollapsingHeader("Object3D"))
 	{
+		//モデルの変更
+		ImGui::Text("Change Model :");
+		ImGui::SameLine();
+		if (ImGui::Button("cube"))
+		{
+			object3d_->SetModel("cube.obj");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("sphere"))
+		{
+			object3d_->SetModel("sphere.obj");
+		}
+
 		Vector3 pos3d = object3d_->GetTranslate();
 		ImGui::DragFloat3("Position", &pos3d.x, 0.1f);
 		object3d_->SetTranslate(pos3d);
