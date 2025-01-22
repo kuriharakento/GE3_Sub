@@ -18,10 +18,8 @@ class Slide
 		SlideOutFromBothSides,		//両サイドへスライドアウト
 		SlideInFromFourCorners,     //四つ角からスライドイン
 		SlideOutFromFourCorners,    //四つ角へスライドアウト
-		SlideInWithRotation,        //回転しながらスライドイン
-		SlideOutWithRotation,       //回転しながらスライドアウト
-		SlideInDiagonal,            //斜め方向からスライドイン
-		SlideOutDiagonal            //斜め方向へスライドアウト
+		SlideInBothSideSpritesWithDelay,      //遅延してスライドイン
+		SideOutBothSIdeSpritesWithDelay,      //遅延してスライドアウト
 	};
 
 	/// \brief 初期化
@@ -89,25 +87,16 @@ private: //メンバ関数
 	void SlideOutFromFourCorners(float progress);
 
 	/**
-	 * \brief 回転しながらスライドイン
-	 * \param progress
+	 * \brief 
+	 * \param progress 遅延してスライドイン
 	 */
-	void SlideInWithRotation(float progress);
+	void SlideInBothSideSpritesWithDelay(float progress);
+
 	/**
-	 * \brief 回転しながらスライドアウト
-	 * \param progress
+	 * \brief 
+	 * \param progress 遅延してスライドアウト
 	 */
-	void SlideOutWithRotation(float progress);
-	/**
-	 * \brief 斜め方向からスライドイン
-	 * \param progress
-	 */
-	void SlideInDiagonal(float progress);
-	/**
-	 * \brief 斜め方向へスライドアウト
-	 * \param progress
-	 */
-	void SlideOutDiagonal(float progress);
+	void SideOutBothSIdeSpritesWithDelay(float progress);
 
 private:
 
@@ -117,6 +106,7 @@ private:
 	{
 		std::unique_ptr<Sprite> sprite = nullptr;
 		bool isMove = false;
+		float timingOffset = 0.0f;
 	};
 
 	// スライドの初期位置を表す構造体
@@ -134,6 +124,9 @@ private:
 
 	/// \brief スライド用スプライトの複数バージョン
 	std::array<SlideSprite, 4> sprites_;
+
+	//フェードスライド用スプライト。(0~2は左、3~5は右)
+	std::array<SlideSprite, 6> fadeSprites_;
 
 	// \brief テクスチャハンドル
 	const std::string kDebugPngPath = "./Resources/testSprite.png";
@@ -189,8 +182,15 @@ private:
 	//四つ角からスライドするときの移動量
 	const Vector2 kSlideFourCornersDistance_ = Vector2(640.0f, 360.0f);
 
-	/*----------------[ 回転スライド用 ]------------------*/
+	/*----------------[ 遅延スライド用 ]------------------*/
 
-	//回転スライドの中心
-	const Vector2 kRotationCenter_ = Vector2(640.0f, 360.0f);
+	//遅延スライドインの初期位置
+	Direction kSlideInBothSidesWithDelayStartPos_ = Direction(1280.0f, -1280.0f, 0.0f, 0.0f);
+
+	//遅延スライドアウトの初期位置
+	Direction kSlideOutBothSidesWithDelayStartPos_ = Direction(640.0f, 0.0f, 0.0f, 0.0f);
+
+	//遅延スライドの移動量
+	const float kSlideBothSidesWithDelayDistance_ = 640.0f;
+
 };
