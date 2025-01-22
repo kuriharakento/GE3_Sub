@@ -74,6 +74,9 @@ private: /*========[ プライベートメンバ関数(このクラス内でし�
 	 */
 	void CreateDirectionalLightData();
 
+	//カメラデータの生成
+	void CreateCameraData();
+
 	/**
 	 * \brief 描画設定の初期化
 	 */
@@ -87,10 +90,12 @@ private: /*========[ 描画用変数 ]========*/
 	//バッファリソース	
 	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_;
 
 	//バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	DirectionalLight* directionalLightData_ = nullptr;
+	CameraForGPU* cameraData_ = nullptr;
 
 private: /*========[ メンバ変数 ]========*/
 	//カメラ

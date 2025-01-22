@@ -53,6 +53,9 @@ void Object3d::Draw()
 	//座標変換行列CBufferの場所を設定
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 	//平行光源CBufferの場所を設定
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+	//カメラCBufferの場所を設定
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
 
 	//3Dモデルが割り当てられていれば描画する
 	if(model_)
@@ -74,6 +77,7 @@ void Object3d::UpdateMatrix(Camera* camera)
 	{
 		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
+		cameraData_->worldPos = camera->GetTranslate();
 	} else {
 		worldViewProjectionMatrix = worldMatrix;
 	}
@@ -122,6 +126,22 @@ void Object3d::CreateDirectionalLightData()
 
 }
 
+void Object3d::CreateCameraData()
+{
+	/*--------------[ カメラリソースを作る ]-----------------*/
+
+	cameraResource_ = object3dCommon_->GetDXCommon()->CreateBufferResource(sizeof(CameraForGPU));
+
+	/*--------------[ カメラリソースにデータを書き込むためのアドレスを取得してcameraDataに割り当てる ]-----------------*/
+	cameraResource_->Map(
+		0,
+		nullptr,
+		reinterpret_cast<void**>(&cameraData_)
+	);
+	//デフォルト値は以下のようにしておく
+	cameraData_->worldPos = camera_->GetTranslate();
+}
+
 void Object3d::InitializeRenderingSettings()
 {
 	//座標変換行列の生成
@@ -129,4 +149,7 @@ void Object3d::InitializeRenderingSettings()
 
 	//平行光源データの生成
 	CreateDirectionalLightData();
+
+	//カメラデータの生成
+	CreateCameraData();
 }

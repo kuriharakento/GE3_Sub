@@ -42,25 +42,24 @@ PixelShaderOutput main(VertexShaderOutput input)
         discard;
     }
 
-    //カメラが設定されている場合はライティングを有効にする
-    if (gCamera.worldPos != 0.0)
-    {
-        float32_t3 toEye = normalize(gCamera.worldPos - input.worldPos);
-        float32_t3 reflecLight = reflect(gDirectionalLight.direction, normalize(input.normal));
-        float RdotE = dot(reflecLight, toEye);
-        float speculaPow = pow(saturate(RdotE),gMaterial.shininess); //反射強度
-        //拡散反射
-        float32_t3 ddiffuse = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
-        //鏡面反射
-        float32_t3 specula = 
-
-    }
 	//ライティングを有効にしている場合はライティングを適用
 	else if(gMaterial.enableLighting != 0)
     {
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
         output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        output.color.a = gMaterial.color.a * textureColor.a;
+        float32_t3 toEye = normalize(gCamera.worldPos - input.worldPos);
+        float32_t3 reflecLight = reflect(gDirectionalLight.direction, normalize(input.normal));
+        float RdotE = dot(reflecLight, toEye);
+        float speculaPow = pow(saturate(RdotE), gMaterial.shininess); //反射強度
+        //拡散反射
+        float32_t3 ddiffuse = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
+        //鏡面反射
+        float32_t3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * speculaPow * float32_t3(1.0f, 1.0f, 1.0f);
+        //拡散反射 + 鏡面反射
+        output.color.rgb = ddiffuse + specular;
+        //アルファ値
         output.color.a = gMaterial.color.a * textureColor.a;
     }else
     {

@@ -93,4 +93,5 @@ struct ParticleForGPU
 struct CameraForGPU
 {
 	Vector3 worldPos;
+	float padding;
 };
