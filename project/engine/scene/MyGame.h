@@ -16,7 +16,9 @@ public:
 	//描画
 	void Draw()override;
 private:
-	void LoadModels();
+	//テクスチャの読み込み
 	void LoadTextures();
+	//モデルの読み込み
+	void LoadModels();
 };
 

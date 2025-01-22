@@ -1,17 +1,16 @@
 #pragma once
-#include <Windows.h>
-#include <wrl.h>
 
 #define DIRECTINPUT_VERSION 0x0800 //DirectInputのバージョン指定
 #include <dinput.h>
 
-#include "base/WinApp.h"
+#include <Xinput.h>
+#pragma comment(lib, "Xinput.lib")
 
-class Input
-{
-public:
-	//namespace省略
-	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+#include <wrl.h>
+#include <array>
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
 public: //メンバ関数
 	//シングルトン
@@ -19,20 +18,41 @@ public: //メンバ関数
 	//終了
 	void Finalize();
 
-	//初期化
-	void Initialize(WinApp* winApp);
-	//更新
-	void Update();
+    // 初期化
+    void Initialize(WinApp* winApp);
 
-	/// \brief キーの押下をチェック
-	/// \param keyNumber キー番号
-	/// \return 押されているか
-	bool PushKey(BYTE keyNumber);
+    // 終了処理
+    void Finalize();
 
-	/// \brief キーのトリガーをチェック
-	/// \param keyNumber キー番号
-	/// \return トリガーか
-	bool TriggerKey(BYTE keyNumber);
+    // 更新
+    void Update();
+
+    // キーの押下チェック
+    bool PushKey(BYTE keyNumber) const;
+
+    // キーのトリガーチェック
+    bool TriggerKey(BYTE keyNumber) const;
+
+    // キーのリリースチェック
+    bool ReleaseTrigger(BYTE keyNumber) const;
+
+    // ゲームパッドボタンのリリースチェック
+    bool ReleaseButton(DWORD gamepadIndex, DWORD buttonCode) const;
+
+    // デッドゾーンの設定
+    void SetDeadZone(float deadZone);
+
+    // ゲームパッドの振動設定
+    void SetVibration(DWORD gamepadIndex, WORD leftMotor, WORD rightMotor);
+
+    // ボタンのリマッピング
+    void RemapButton(Action action, InputType type, DWORD code);
+
+    // アクションのバインディング
+    void BindAction(Action action, std::function<void()> callback);
+
+    // 入力の記録開始
+    void StartRecording();
 
 	/// \brief マウスの移動量（X方向）を取得
 	/// \return 移動量
@@ -60,8 +80,8 @@ private: //メンバ変数
 	//WindowsAPI
 	WinApp* winApp_ = nullptr;
 
-	//キーボードデバイス
-	ComPtr<IDirectInputDevice8> keyboard_;
+    // 入力の再生開始
+    void PlayRecording();
 
 	//マウス
 	ComPtr<IDirectInputDevice8> mouse_;
@@ -69,11 +89,11 @@ private: //メンバ変数
 	//DirectInputのインスタンス
 	ComPtr<IDirectInput8> directInput_;
 
-	//全キーの入力情報を取得する
-	BYTE key_[256] = {};
+	//ボタンの押下チェック
+    bool IsButtonPressed(DWORD gamepadIndex, DWORD buttonCode) const;
 
-	//前回の全キーの状態
-	BYTE keyPre_[256] = {};
+	// ボタンのトリガーチェック
+    bool IsButtonTriggered(DWORD gamepadIndex, DWORD buttonCode) const;
 
 	// マウスの現在の状態
 	DIMOUSESTATE mouseState_ = {};
@@ -90,3 +110,9 @@ private: //シングルトン
 	Input& operator=(const Input&) = delete;
 };
 
+    // 入力の記録
+    bool isRecording_;
+    bool isPlaying_;
+    std::vector<std::pair<Action, DWORD>> recordedInputs_;
+    size_t playIndex_;
+};

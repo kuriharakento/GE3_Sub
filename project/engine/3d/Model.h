@@ -46,6 +46,10 @@ public:
 	 */
 	//static ModelData LoadObjFile(const std::string& filePath);
 
+public: //アクセッサ
+	Vector4 GetColor() const { return materialData_->color; }
+	void SetColor(const Vector4& color) { materialData_->color = color; }
+
 private: //メンバ関数
 	/**
 	 * \brief 頂点データの生成
