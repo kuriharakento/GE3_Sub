@@ -1,196 +1,82 @@
 #pragma once
 #include <memory>
 #include <array>
-
 #include "engine/math/Easing.h"
 #include "engine/2d/Sprite.h"
 
-class Slide
-{
-	public:
-	/// \brief スライドの状態
-	enum class Status
-	{
-		None,						//スライドなし
-		SlideInFromLeft,			//左からスライドイン
-		SlideOutFromLeft,			//左へスライドアウト
-		SlideInFromBothSides,		//両サイドからスライドイン
-		SlideOutFromBothSides,		//両サイドへスライドアウト
-		SlideInFromFourCorners,     //四つ角からスライドイン
-		SlideOutFromFourCorners,    //四つ角へスライドアウト
-		SlideInBothSideSpritesWithDelay,      //遅延してスライドイン
-		SideOutBothSIdeSpritesWithDelay,      //遅延してスライドアウト
-	};
+class Slide {
+public:
+    enum class Status {
+        None,                        // スライドなし
+        SlideInFromLeft,             // 左からスライドイン
+        SlideOutFromLeft,            // 左へスライドアウト
+        SlideInFromBothSides,        // 両サイドからスライドイン
+        SlideOutFromBothSides,       // 両サイドへスライドアウト
+        SlideInFromFourCorners,      // 四つ角からスライドイン
+        SlideOutFromFourCorners,     // 四つ角へスライドアウト
+        SlideInBothSideSpritesWithDelay, // 遅延してスライドイン
+        SideOutBothSIdeSpritesWithDelay  // 遅延してスライドアウト
+    };
 
-	/// \brief 初期化
-	void Initialize(SpriteCommon* spriteCommon);
-	/// \brief 更新
-	void Update();
-	/// \brief 描画
-	void Draw();
-	/// \brief スライド開始
-	void Start(Status status, float duration);
+    void Initialize(SpriteCommon* spriteCommon);
+    void Update();
+    void Draw();
+    void Start(Status status, float duration);
 
-public: //アクセッサ
-	
-	/**
-	 * \brief イージング関数の設定
-	 * \param pEasingFunc 
-	 */
-	void SetEasingFunc(float (*pEasingFunc)(float)) { pEasingFunc_ = pEasingFunc; }
-	/**
-	 * \brief イージング関数の取得
-	 * \return 現在のイージング関数
-	 */
-	float (*GetEasingFunc() const)(float) { return pEasingFunc_; }
-	/**
-	 * \brief スライドが終了したかどうか
-	 * \return 終了したらtrue
-	 */
-	bool IsFinish() const { return isFinish_; }
-
-	/**
-	 * \brief 経過時間取得
-	 * \return 
-	 */
-	float GetCounter() const { return counter_; }
-
-private: //メンバ関数
-
-	/**
-	 * \brief スプライトの初期化
-	 */
-	void InitializeSprites();
-	/**
-	 * \brief 演出終了後に呼び出される
-	 */
-	void Finish();
-	/**
-	 * \brief 両サイドからスプライトをスライドイン
-	 * \param progress 進行具合
-	 */
-	void SlideInFromBothSides(float progress);
-	/**
-	 * \brief 両サイドからスライドアウト
-	 * \param progress 
-	 */
-	void SlideOutFromBothSides(float progress);
-	/**
-	 * \brief 四つ角からスライドイン
-	 * \param progress 
-	 */
-	void SlideInFromFourCorners(float progress);
-	/**
-	 * \brief 四つ角からスライドアウト
-	 * \param progress 
-	 */
-	void SlideOutFromFourCorners(float progress);
-
-	/**
-	 * \brief 
-	 * \param progress 遅延してスライドイン
-	 */
-	void SlideInBothSideSpritesWithDelay(float progress);
-
-	/**
-	 * \brief 
-	 * \param progress 遅延してスライドアウト
-	 */
-	void SideOutBothSIdeSpritesWithDelay(float progress);
+    void SetEasingFunc(float (*pEasingFunc)(float)) { pEasingFunc_ = pEasingFunc; }
+    float (*GetEasingFunc() const)(float) { return pEasingFunc_; }
+    bool IsFinish() const { return isFinish_; }
+    float GetCounter() const { return counter_; }
 
 private:
+    void InitializeSprites();
+    void Finish();
+    void SlideInFromBothSides(float progress);
+    void SlideOutFromBothSides(float progress);
+    void SlideInFromFourCorners(float progress);
+    void SlideOutFromFourCorners(float progress);
+    void SlideInBothSideSpritesWithDelay(float progress);
 
-	/*----------------[ 構造体 ]------------------*/
+    struct SlideSprite {
+        std::unique_ptr<Sprite> sprite = nullptr;
+        bool isMove = false;
+        float timingOffset = 0.0f;
+    };
 
-	struct SlideSprite
-	{
-		std::unique_ptr<Sprite> sprite = nullptr;
-		bool isMove = false;
-		float timingOffset = 0.0f;
-	};
+    struct Direction {
+        const float right;
+        const float left;
+        const float top;
+        const float bottom;
 
-	// スライドの初期位置を表す構造体
-	struct Direction {
-		const float right;  // 右方向
-		const float left;   // 左方向
-		const float top;    // 上方向
-		const float bottom; // 下方向
+        Direction(float right, float left, float top, float bottom) : right(right), left(left), top(top), bottom(bottom) {}
+    };
 
-		// コンストラクタ
-		Direction(float right, float left, float top, float bottom) : right(right), left(left), top(top), bottom(bottom) {}
-	};
+    std::array<SlideSprite, 4> sprites_;
+    std::array<SlideSprite, 6> fadeSprites_;
 
-	/*----------------[ 変数 ]------------------*/
+    const std::string kDebugPngPath = "./Resources/testSprite.png";
+    const std::string kBlackPngPath = "./Resources/black.png";
 
-	/// \brief スライド用スプライトの複数バージョン
-	std::array<SlideSprite, 4> sprites_;
+    Status status_ = Status::None;
+    bool isFinish_ = false;
+    float duration_ = 0.0f;
+    float counter_ = 0.0f;
+    float (*pEasingFunc_)(float) = EaseInSine;
+    float easingTime_ = 1.0f;
 
-	//フェードスライド用スプライト。(0~2は左、3~5は右)
-	std::array<SlideSprite, 6> fadeSprites_;
+    const float kSlideDistance_ = 1280.0f;
+    const float kSlideInStartPos_ = -1280.0f;
+    const float kSlideOutStartPos_ = 0.0f;
 
-	// \brief テクスチャハンドル
-	const std::string kDebugPngPath = "./Resources/testSprite.png";
-	const std::string kBlackPngPath = "./Resources/black.png";
+    Direction kSlideInBothSidesStartPos_ = { 1280.0f, -640.0f, 0.0f, 0.0f };
+    Direction kSlideOutBothSidesStartPos_ = { 640.0f, 0.0f, 0.0f, 0.0f };
+    const float kSlideBothSidesDistance_ = 640.0f;
 
-	//現在のスライドの状態;
-	Status status_ = Status::None;
+    Direction kSlideInFourCornersStartPos_ = { 1280.0f, -640.0f, -360.0f, 720.0f };
+    Direction kSlideOutFourCornersStartPos_ = { 640.0f, 0.0f, 0.0f, 360.0f };
+    const Vector2 kSlideFourCornersDistance_ = { 640.0f, 360.0f };
 
-	//終了
-	bool isFinish_ = false;
-
-	//スライドの持続時間
-	float duration_ = 0.0f;
-
-	//経過時間カウンター
-	float counter_ = 0.0f;
-
-	//イージング関数
-	float (*pEasingFunc_)(float) = EaseInSine;
-
-	//スライドの時間
-	float easingTime_ = 1.0f;
-
-	/*----------------[ 通常スライド用 ]------------------*/
-	//ウィンドウのサイズ分
-	//移動量
-	const float kSlideDistance_ = 1280.0f;
-
-	//画面イン時の初期位置
-	const float kSlideInStartPos_ = -1280.0f;
-	//画面アウト時の初期位置
-	const float kSlideOutStartPos_ = 0.0f;
-
-	/*----------------[ 両サイドスライド用 ]------------------*/
-
-	//両サイドからスライドイン時の初期位置
-	Direction kSlideInBothSidesStartPos_ = Direction(1280.0f, -640.0f,0.0f,0.0f);
-
-	//両サイドからスライドアウト時の初期位置
-	Direction kSlideOutBothSidesStartPos_ = Direction(640.0f, 0.0f,0.0f,0.0f);
-
-	//両サイドからスライドするときの移動量
-	const float kSlideBothSidesDistance_ = 640.0f;
-
-	/*----------------[ 四つ角スライド用 ]------------------*/
-
-	//四つ角からスライドイン時のx初期位置
-	Direction kSlideInFourCornersStartPos_ = Direction(1280.0f, -640.0f,-360.0f,720.0f);
-
-	//四つ角からスライドアウト時の初期位置
-	Direction kSlideOutFourCornersStartPos_ = Direction(640.0f, 0.0f,0.0f,360.0f);
-
-	//四つ角からスライドするときの移動量
-	const Vector2 kSlideFourCornersDistance_ = Vector2(640.0f, 360.0f);
-
-	/*----------------[ 遅延スライド用 ]------------------*/
-
-	//遅延スライドインの初期位置
-	Direction kSlideInBothSidesWithDelayStartPos_ = Direction(1280.0f, -1280.0f, 0.0f, 0.0f);
-
-	//遅延スライドアウトの初期位置
-	Direction kSlideOutBothSidesWithDelayStartPos_ = Direction(640.0f, 0.0f, 0.0f, 0.0f);
-
-	//遅延スライドの移動量
-	const float kSlideBothSidesWithDelayDistance_ = 640.0f;
-
+    Direction kSlideInBothSidesWithDelayStartPos_ = { 1280.0f, -1280.0f, 0.0f, 0.0f };
+    const float kSlideBothSidesWithDelayDistance_ = 640.0f;
 };
