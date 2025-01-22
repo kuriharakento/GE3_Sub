@@ -3,6 +3,7 @@
 #include "input/Input.h"
 #include "2d/SpriteCommon.h"
 #include "audio/Audio.h"
+#include "externals/imgui/imgui.h"
 
 void TitleScene::Initialize()
 {
@@ -43,6 +44,10 @@ void TitleScene::Initialize()
 	buildingManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetCameraManager());
 	buildingManager_->GenerateBuilding(60, 15.0f, 60.0f);
 
+	debugSprite_ = std::make_unique<Sprite>();
+	debugSprite_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/testSprite.png");
+	debugSprite_->SetSize(Vector2(1280.0f, 720.0f));
+
 	//音声
 	Audio::GetInstance()->LoadWave("titlebgm", "title/bgm.wav", SoundGroup::BGM);
 	Audio::GetInstance()->PlayWave("titlebgm", true);
@@ -79,6 +84,23 @@ void TitleScene::Update()
 		}
 		break;
 	}
+#ifdef _DEBUG
+	ImGui::Begin("TitleScene");
+	if(ImGui::CollapsingHeader("Debug Sprite"))
+	{
+		Vector2 pos = debugSprite_->GetPosition();
+		ImGui::DragFloat2("Position", &pos.x, 1.0f);
+		debugSprite_->SetPosition(pos);
+		Vector2 size = debugSprite_->GetSize();
+		ImGui::DragFloat2("Size", &size.x, 1.0f);
+		debugSprite_->SetSize(size);
+		Vector4 color = debugSprite_->GetColor();
+		ImGui::ColorEdit4("Color", &color.x);
+		debugSprite_->SetColor(color);
+	}
+	ImGui::End();
+#endif
+
 	//スライドの更新
 	slide_->Update();
 	//ゲーム名のオブジェクトの更新
@@ -91,6 +113,8 @@ void TitleScene::Update()
 	ground_->Update(sceneManager_->GetCameraManager());
 	//ゲーム名の更新
 	gameName_->Update(sceneManager_->GetCameraManager());
+	//デバック用スプライトの更新
+	debugSprite_->Update();
 }
 
 void TitleScene::Draw3D()
@@ -107,6 +131,7 @@ void TitleScene::Draw3D()
 
 void TitleScene::Draw2D()
 {
+	//debugSprite_->Draw();
 	slide_->Draw();
 }
 

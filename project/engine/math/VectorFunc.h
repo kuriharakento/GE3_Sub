@@ -64,6 +64,11 @@ struct Vector2 {
         y -= other.y;
         return *this;
     }
+
+    // 単項マイナス演算子のオーバーロード
+    Vector2 operator-() const {
+        return Vector2{ -this->x, -this->y };
+    }
 };
 
 // Vector3

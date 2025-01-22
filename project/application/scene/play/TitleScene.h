@@ -34,7 +34,8 @@ private: // メンバ変数
 	std::unique_ptr<Object3d> ground_;
 	//ビル
 	std::unique_ptr<BuildingManager> buildingManager_;
-
+	//デバック用スプライト
+	std::unique_ptr<Sprite> debugSprite_;
 
 	//ゲーム名オブジェクトを動かすための変数
 	Vector3 initialPosition_;
