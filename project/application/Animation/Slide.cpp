@@ -8,16 +8,36 @@
 
 void Slide::Initialize(SpriteCommon* spriteCommon) {
 	/*----------------[ スプライトの初期化 ]------------------*/
-	
+
 	for (std::size_t i = 0; i < sprites_.size(); i++) {
 		sprites_[i].sprite = std::make_unique<Sprite>();
-		sprites_[i].sprite->Initialize(spriteCommon,kBlackPngPath);
+		sprites_[i].sprite->Initialize(spriteCommon, kBlackPngPath);
 #ifdef _DEBUG
 		sprites_[i].sprite->SetTexture(kDebugPngPath);
 #endif
 		sprites_[i].sprite->SetSize(Vector2(1280.0f, 720.0f));
 		sprites_[i].sprite->SetPosition(Vector2(1280.0f, 720.0f));
 		sprites_[i].sprite->SetColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+
+	for (std::size_t i = 0; i < fadeSprites_.size(); i++) {
+		fadeSprites_[i].sprite = std::make_unique<Sprite>();
+		fadeSprites_[i].sprite->Initialize(spriteCommon, kBlackPngPath);
+#ifdef _DEBUG
+		fadeSprites_[i].sprite->SetTexture(kDebugPngPath);
+#endif
+		fadeSprites_[i].sprite->SetSize(Vector2(1280.0f, 720.0f));
+		fadeSprites_[i].sprite->SetPosition(Vector2(1280.0f, 720.0f));
+		float alpha;
+		if (i < 3)
+		{
+			alpha = 0.5f + 0.25f * static_cast<float>(i);
+		} else
+		{
+			alpha = 0.5f + 0.25f * static_cast<float>(i - 3);
+		}
+
+		fadeSprites_[i].sprite->SetColor(Vector4(1.0f, 1.0f, 1.0f, alpha));
 	}
 }
 
@@ -80,10 +100,22 @@ void Slide::Update() {
 		progress = counter_ / duration_;
 		SlideOutFromFourCorners(progress);
 		break;
+	case Status::SlideInBothSideSpritesWithDelay:
+		counter_ += 1.0f / 60.0f;
+		if (counter_ >= duration_) {
+			Finish();
+		}
+		progress = counter_ / duration_;
+		SlideInBothSideSpritesWithDelay(progress);
+		break;
 	}
 
 	for (auto& sprite : sprites_) {
 		sprite.sprite->Update();
+	}
+
+	for (auto& fadeSprite : fadeSprites_) {
+		fadeSprite.sprite->Update();
 	}
 
 	/*----------------[ ImGui ]------------------*/
@@ -116,8 +148,8 @@ void Slide::Update() {
 	static int currentEasingIndex = 0;
 
 	ImGui::Begin("Slide");
-	ImGui::DragFloat("EasingTime", &easingTime_,0.01f);
-	#pragma region SelectEasingFunction
+	ImGui::DragFloat("EasingTime", &easingTime_, 0.01f);
+#pragma region SelectEasingFunction
 	// イージング関数の選択
 	if (ImGui::Combo("Easing Function", &currentEasingIndex, easingOptions, IM_ARRAYSIZE(easingOptions))) {
 		switch (currentEasingIndex) {
@@ -144,10 +176,11 @@ void Slide::Update() {
 		case 20: pEasingFunc_ = EaseInOutBounce<float>; break;
 		}
 	}
+#pragma endregion
 
-	#pragma region SlideButton
+#pragma region SlideButton
 	if (ImGui::Button("SlideInBothSides")) {
-		Start(Slide::Status::SlideInFromBothSides,easingTime_);
+		Start(Slide::Status::SlideInFromBothSides, easingTime_);
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("SlideOutBothSides"))
@@ -172,7 +205,10 @@ void Slide::Update() {
 	{
 		Start(Slide::Status::SlideOutFromFourCorners, easingTime_);
 	}
-	#pragma endregion
+	if (ImGui::Button("SlideInBothSideSpritesWithDelay")) {
+		Start(Slide::Status::SlideInBothSideSpritesWithDelay, easingTime_);
+	}
+#pragma endregion
 
 	ImGui::Text("Status: %d", static_cast<int>(status_));
 	ImGui::Text("Duration: %f", duration_);
@@ -183,12 +219,25 @@ void Slide::Update() {
 		ImGui::Text("Sprite[%d] Position: (%f, %f)", i, sprites_[i].sprite->GetPosition().x, sprites_[i].sprite->GetPosition().y);
 		ImGui::Text("Sprite[%d] Size: (%f, %f)", i, sprites_[i].sprite->GetSize().x, sprites_[i].sprite->GetSize().y);
 	}
+	for (std::size_t i = 0; i < fadeSprites_.size(); i++)
+	{
+		ImGui::Text("FadeSprite[%d]: %s", i, fadeSprites_[i].isMove ? "true" : "false");
+		ImGui::Text("FadeSprite[%d] Position: (%f, %f)", i, fadeSprites_[i].sprite->GetPosition().x, fadeSprites_[i].sprite->GetPosition().y);
+		ImGui::Text("FadeSprite[%d] Size: (%f, %f)", i, fadeSprites_[i].sprite->GetSize().x, fadeSprites_[i].sprite->GetSize().y);
+		ImGui::Text("FadeSprite[%d] Alpha: %f", i, fadeSprites_[i].sprite->GetColor().w);
+	}
 	ImGui::End();
 #endif // DEBUG
 }
 
 void Slide::Draw() {
 	std::for_each(sprites_.begin(), sprites_.end(), [&](SlideSprite& sprite) {
+		if (sprite.isMove) {
+			sprite.sprite->Draw();
+		}
+	});
+
+	std::for_each(fadeSprites_.begin(), fadeSprites_.end(), [&](SlideSprite& sprite) {
 		if (sprite.isMove) {
 			sprite.sprite->Draw();
 		}
@@ -295,6 +344,25 @@ void Slide::Start(Status status, float duration) {
 		sprites_[3].sprite->SetTextureSize(Vector2(640.0f, 360.0f));
 		sprites_[3].sprite->SetSize(Vector2(640.0f, 360.0f));
 		break;
+	case Status::SlideInBothSideSpritesWithDelay: //6枚使う
+		for (std::size_t i = 0; i < fadeSprites_.size(); i++) {
+			fadeSprites_[i].isMove = true;
+			if (i < 3) {
+				//左側
+				fadeSprites_[i].sprite->SetPosition(Vector2(-1280.0f, 720.0f));
+			} else {
+				//右側
+				fadeSprites_[i].sprite->SetPosition(Vector2(1280.0f, 720.0f));
+			}
+			//時間差をつける
+			fadeSprites_[i].timingOffset = 0.1f * static_cast<float>(i);
+			//サイズは通常
+			fadeSprites_[i].sprite->SetSize(Vector2(1280.0f, 720.0f));
+			fadeSprites_[i].sprite->SetTextureSize(Vector2(1280.0f, 720.0f));
+			fadeSprites_[i].sprite->SetTextureLeftTop(Vector2(0.0f, 0.0f));
+		}
+
+		break;
 	}
 }
 
@@ -330,37 +398,58 @@ void Slide::SlideOutFromBothSides(float progress) {
 void Slide::SlideInFromFourCorners(float progress) {
 	// 左上
 	sprites_[0].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右上
 	sprites_[1].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 左下
 	sprites_[2].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右下
 	sprites_[3].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 }
 
 void Slide::SlideOutFromFourCorners(float progress) {
 	// 左上
 	sprites_[0].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右上
 	sprites_[1].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 左下
 	sprites_[2].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右下
 	sprites_[3].sprite->SetPosition(Vector2(
-	    EasingByAmout(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-	    EasingByAmout(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmout(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmout(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+}
+
+void Slide::SlideInBothSideSpritesWithDelay(float progress)
+{
+	for (std::size_t i = 0; i < fadeSprites_.size(); i++)
+	{
+		if (fadeSprites_[i].timingOffset - progress > 0.0f) { continue; }
+		if (i < 3) {
+			//左側
+			fadeSprites_[i].sprite->SetPosition(Vector2(
+				EasingByAmout(kSlideInBothSidesWithDelayStartPos_.left, kSlideBothSidesWithDelayDistance_, pEasingFunc_, progress),
+				0.0f
+			));
+		}else {
+			//右側
+			fadeSprites_[i].sprite->SetPosition(Vector2(
+				EasingByAmout(kSlideInBothSidesWithDelayStartPos_.right, -kSlideBothSidesWithDelayDistance_, pEasingFunc_, progress),
+				0.0f
+			));
+		}
+	}
 }

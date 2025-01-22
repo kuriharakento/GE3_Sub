@@ -46,7 +46,7 @@ void TitleScene::Initialize()
 	//音声
 	Audio::GetInstance()->LoadWave("titlebgm", "title/bgm.wav", SoundGroup::BGM);
 	Audio::GetInstance()->PlayWave("titlebgm", true);
-	Audio::GetInstance()->SetVolume("titlebgm", 0.5f);
+	Audio::GetInstance()->SetVolume("titlebgm", 0.2f);
 }
 
 void TitleScene::Finalize()
@@ -60,7 +60,7 @@ void TitleScene::Update()
 	switch(currentPhase_)
 	{
 	case ScenePhase::Start:
-		slide_->Update();
+		
 		if (slide_->IsFinish())
 		{
 			ChangePhase(ScenePhase::Play);
@@ -73,14 +73,14 @@ void TitleScene::Update()
 		}
 		break;
 	case ScenePhase::End:
-		slide_->Update();
 		if (slide_->IsFinish())
 		{
 			sceneManager_->ChangeScene("GAME");
 		}
 		break;
 	}
-
+	//スライドの更新
+	slide_->Update();
 	//ゲーム名のオブジェクトの更新
 	UpdateGameNameOBJ();
 	//ビルの更新
