@@ -11,13 +11,17 @@ class Slide
 	/// \brief スライドの状態
 	enum class Status
 	{
-		None,					//スライドなし
-		SlideInFromLeft,		//左からスライドイン
-		SlideOutFromLeft,		//左へスライドアウト
-		SlideInFromBothSides,	//両サイドからスライドイン
-		SlideOutFromBothSides,	//両サイドへスライドアウト
-		SlideInFromFourCorners, //四つ角からスライドイン
-		SlideOutFromFourCorners //四つ角へスライドアウト
+		None,						//スライドなし
+		SlideInFromLeft,			//左からスライドイン
+		SlideOutFromLeft,			//左へスライドアウト
+		SlideInFromBothSides,		//両サイドからスライドイン
+		SlideOutFromBothSides,		//両サイドへスライドアウト
+		SlideInFromFourCorners,     //四つ角からスライドイン
+		SlideOutFromFourCorners,    //四つ角へスライドアウト
+		SlideInWithRotation,        //回転しながらスライドイン
+		SlideOutWithRotation,       //回転しながらスライドアウト
+		SlideInDiagonal,            //斜め方向からスライドイン
+		SlideOutDiagonal            //斜め方向へスライドアウト
 	};
 
 	/// \brief 初期化
@@ -84,6 +88,27 @@ private: //メンバ関数
 	 */
 	void SlideOutFromFourCorners(float progress);
 
+	/**
+	 * \brief 回転しながらスライドイン
+	 * \param progress
+	 */
+	void SlideInWithRotation(float progress);
+	/**
+	 * \brief 回転しながらスライドアウト
+	 * \param progress
+	 */
+	void SlideOutWithRotation(float progress);
+	/**
+	 * \brief 斜め方向からスライドイン
+	 * \param progress
+	 */
+	void SlideInDiagonal(float progress);
+	/**
+	 * \brief 斜め方向へスライドアウト
+	 * \param progress
+	 */
+	void SlideOutDiagonal(float progress);
+
 private:
 
 	/*----------------[ 構造体 ]------------------*/
@@ -110,8 +135,9 @@ private:
 	/// \brief スライド用スプライトの複数バージョン
 	std::array<SlideSprite, 4> sprites_;
 
-	/// \brief テクスチャハンドル
-	const std::string filePath_ = "./Resources/black.png";
+	// \brief テクスチャハンドル
+	const std::string kDebugPngPath = "./Resources/testSprite.png";
+	const std::string kBlackPngPath = "./Resources/black.png";
 
 	//現在のスライドの状態;
 	Status status_ = Status::None;
@@ -126,7 +152,7 @@ private:
 	float counter_ = 0.0f;
 
 	//イージング関数
-	float (*pEasingFunc_)(float) = EaseOutBounce;
+	float (*pEasingFunc_)(float) = EaseInSine;
 
 	//スライドの時間
 	float easingTime_ = 1.0f;
@@ -155,12 +181,16 @@ private:
 	/*----------------[ 四つ角スライド用 ]------------------*/
 
 	//四つ角からスライドイン時のx初期位置
-	Direction kSlideInFourCornersStartPos_ = Direction(1280.0f, -1280.0f,-720.0f,720.0f);
+	Direction kSlideInFourCornersStartPos_ = Direction(1280.0f, -640.0f,-360.0f,720.0f);
 
 	//四つ角からスライドアウト時の初期位置
-	Direction kSlideOutFourCornersStartPos_ = Direction(640.0f, -640.0f,-360.0f,360.0f);
+	Direction kSlideOutFourCornersStartPos_ = Direction(640.0f, 0.0f,0.0f,360.0f);
 
 	//四つ角からスライドするときの移動量
 	const Vector2 kSlideFourCornersDistance_ = Vector2(640.0f, 360.0f);
 
+	/*----------------[ 回転スライド用 ]------------------*/
+
+	//回転スライドの中心
+	const Vector2 kRotationCenter_ = Vector2(640.0f, 360.0f);
 };
