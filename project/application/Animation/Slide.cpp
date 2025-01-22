@@ -55,7 +55,7 @@ void Slide::Update() {
 		}
 		// 進行具合を時間に関係なく0.0f～1.0fの範囲で取得
 		progress = counter_ / duration_;
-		sprites_[0].sprite->SetPosition(Vector2(EasingByAmout<float>(kSlideInStartPos_, kSlideDistance_, pEasingFunc_, progress), 0.0f));
+		sprites_[0].sprite->SetPosition(Vector2(EasingByAmount<float>(kSlideInStartPos_, kSlideDistance_, pEasingFunc_, progress), 0.0f));
 		break;
 	case Status::SlideOutFromLeft:
 		counter_ += 1.0f / 60.0f;
@@ -64,7 +64,7 @@ void Slide::Update() {
 		}
 		// 進行具合を時間に関係なく0.0f～1.0fの範囲で取得
 		progress = counter_ / duration_;
-		sprites_[0].sprite->SetPosition(Vector2(EasingByAmout<float>(kSlideOutStartPos_, kSlideDistance_, pEasingFunc_, progress), 0.0f));
+		sprites_[0].sprite->SetPosition(Vector2(EasingByAmount<float>(kSlideOutStartPos_, kSlideDistance_, pEasingFunc_, progress), 0.0f));
 		break;
 	case Status::SlideInFromBothSides:
 		counter_ += 1.0f / 60.0f;
@@ -383,54 +383,54 @@ void Slide::Finish() {
 
 void Slide::SlideInFromBothSides(float progress) {
 	// 左からスライドイン
-	sprites_[0].sprite->SetPosition(Vector2(EasingByAmout(kSlideInBothSidesStartPos_.left, kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
+	sprites_[0].sprite->SetPosition(Vector2(EasingByAmount(kSlideInBothSidesStartPos_.left, kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
 	// 右からスライドイン
-	sprites_[1].sprite->SetPosition(Vector2(EasingByAmout(kSlideInBothSidesStartPos_.right, -kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
+	sprites_[1].sprite->SetPosition(Vector2(EasingByAmount(kSlideInBothSidesStartPos_.right, -kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
 }
 
 void Slide::SlideOutFromBothSides(float progress) {
 	// 左へスライドアウト
-	sprites_[0].sprite->SetPosition(Vector2(EasingByAmout(kSlideOutBothSidesStartPos_.left, -kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
+	sprites_[0].sprite->SetPosition(Vector2(EasingByAmount(kSlideOutBothSidesStartPos_.left, -kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
 	// 右へスライドアウト
-	sprites_[1].sprite->SetPosition(Vector2(EasingByAmout(kSlideOutBothSidesStartPos_.right, kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
+	sprites_[1].sprite->SetPosition(Vector2(EasingByAmount(kSlideOutBothSidesStartPos_.right, kSlideBothSidesDistance_, pEasingFunc_, progress), 0.0f));
 }
 
 void Slide::SlideInFromFourCorners(float progress) {
 	// 左上
 	sprites_[0].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右上
 	sprites_[1].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideInFourCornersStartPos_.top, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 左下
 	sprites_[2].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideInFourCornersStartPos_.left, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右下
 	sprites_[3].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideInFourCornersStartPos_.right, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideInFourCornersStartPos_.bottom, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 }
 
 void Slide::SlideOutFromFourCorners(float progress) {
 	// 左上
 	sprites_[0].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右上
 	sprites_[1].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideOutFourCornersStartPos_.top, -kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 左下
 	sprites_[2].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideOutFourCornersStartPos_.left, -kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 	// 右下
 	sprites_[3].sprite->SetPosition(Vector2(
-		EasingByAmout(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
-		EasingByAmout(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
+		EasingByAmount(kSlideOutFourCornersStartPos_.right, kSlideFourCornersDistance_.x, pEasingFunc_, progress),
+		EasingByAmount(kSlideOutFourCornersStartPos_.bottom, kSlideFourCornersDistance_.y, pEasingFunc_, progress)));
 }
 
 void Slide::SlideInBothSideSpritesWithDelay(float progress)
@@ -441,13 +441,13 @@ void Slide::SlideInBothSideSpritesWithDelay(float progress)
 		if (i < 3) {
 			//左側
 			fadeSprites_[i].sprite->SetPosition(Vector2(
-				EasingByAmout(kSlideInBothSidesWithDelayStartPos_.left, kSlideBothSidesWithDelayDistance_, pEasingFunc_, progress),
+				EasingByAmount(kSlideInBothSidesWithDelayStartPos_.left, kSlideBothSidesWithDelayDistance_, pEasingFunc_, progress),
 				0.0f
 			));
 		}else {
 			//右側
 			fadeSprites_[i].sprite->SetPosition(Vector2(
-				EasingByAmout(kSlideInBothSidesWithDelayStartPos_.right, -kSlideBothSidesWithDelayDistance_, pEasingFunc_, progress),
+				EasingByAmount(kSlideInBothSidesWithDelayStartPos_.right, -kSlideBothSidesWithDelayDistance_, pEasingFunc_, progress),
 				0.0f
 			));
 		}

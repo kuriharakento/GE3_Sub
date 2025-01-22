@@ -29,7 +29,7 @@ template<class T> T EasingToEnd(T start, T end, T (*func)(T), T progress) { retu
  * \param progress イージングの進行具合。0.0f は開始点、1.0f は終了点に対応。0.0f 〜 1.0f の範囲で指定。
  * \return 開始位置から動かしたい量に応じた補間値を返します。
  **/
-template<class T> T EasingByAmout(T start, T amount, T (*func)(T), T progress) { return start + func(progress) * amount; }
+template<class T> T EasingByAmount(T start, T amount, T (*func)(T), T progress) { return start + func(progress) * amount; }
 
 //============================================
 // Sine
