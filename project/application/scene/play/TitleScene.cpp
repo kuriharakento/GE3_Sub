@@ -83,6 +83,18 @@ void TitleScene::Update()
 		Vector4 color3d = object3d_->GetColor();
 		ImGui::ColorEdit4("Color", &color3d.x);
 		object3d_->SetColor(color3d);
+		bool enableLighting = object3d_->IsEnableLighting();
+		ImGui::Checkbox("Enable Lighting", &enableLighting);
+		object3d_->SetEnableLighting(enableLighting);
+		Vector4 lightingColor = object3d_->GetLightingColor();
+		ImGui::ColorEdit4("Lighting Color", &lightingColor.x);
+		object3d_->SetLightingColor(lightingColor);
+		Vector3 lightingDirection = object3d_->GetLightingDirection();
+		ImGui::DragFloat3("Lighting Direction", &lightingDirection.x, 0.01f);
+		object3d_->SetLightingDirection(lightingDirection);
+		float shininess = object3d_->GetShininess();
+		ImGui::DragFloat("Shininess", &shininess, 0.1f);
+		object3d_->SetShininess(shininess);
 	}
 #pragma endregion
 	ImGui::End();

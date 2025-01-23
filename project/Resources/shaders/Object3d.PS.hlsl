@@ -54,11 +54,11 @@ PixelShaderOutput main(VertexShaderOutput input)
         float RdotE = dot(reflecLight, toEye);
         float speculaPow = pow(saturate(RdotE), gMaterial.shininess); //反射強度
         //拡散反射
-        float32_t3 ddiffuse = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
+        float32_t3 diffuse = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
         //鏡面反射
         float32_t3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * speculaPow * float32_t3(1.0f, 1.0f, 1.0f);
         //拡散反射 + 鏡面反射
-        output.color.rgb = ddiffuse + specular;
+        output.color.rgb = diffuse + specular;
         //アルファ値
         output.color.a = gMaterial.color.a * textureColor.a;
     }else

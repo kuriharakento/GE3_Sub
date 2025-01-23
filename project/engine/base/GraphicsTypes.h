@@ -24,6 +24,8 @@ struct Material
 	int32_t enableLighting;	// 4バイト
 	float padding[3];		// 12バイト（アラインメント用）
 	Matrix4x4 uvTransform;	// 64バイト
+	float shininess;		// 4バイト
+	float padding2[3];		// 12バイト（アラインメント用）
 };
 
 /**

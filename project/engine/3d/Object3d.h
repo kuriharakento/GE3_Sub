@@ -45,8 +45,19 @@ public: /*========[ ゲッター ]========*/
 	//色
 	Vector4 GetColor() const { return model_->GetColor(); }
 
-public: /*========[ セッター ]========*/
+	//ライティングの有効無効
+	bool IsEnableLighting() const { return model_->IsEnableLighting(); }
 
+	//ライティングのカラー
+	Vector4 GetLightingColor() const { return directionalLightData_->color; }
+
+	//ライティングの向き
+	Vector3 GetLightingDirection() const { return directionalLightData_->direction; }
+
+	//反射強度
+	float GetShininess() const { return model_->GetShininess(); }
+
+public: /*========[ セッター ]========*/
 	//モデルの設定
 	void SetModel(Model* model) { model_ = model; }
 	void SetModel(const std::string& filePath) { model_ = ModelManager::GetInstance()->FindModel(filePath); }
@@ -60,7 +71,19 @@ public: /*========[ セッター ]========*/
 	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
 
 	//色
-	void SetColor(const Vector4& color) { model_->SetColor(color); }
+	void SetColor(const Vector4& color) const { model_->SetColor(color); }
+
+	//ライティングの有効無効
+	void SetEnableLighting(bool enable) const { model_->SetEnableLighting(enable); }
+
+	//ライティングのカラー
+	void SetLightingColor(const Vector4& color) const { directionalLightData_->color  = color; }
+
+	//ライティングの向き
+	void SetLightingDirection(const Vector3& direction) const { directionalLightData_->direction = direction; }
+
+	//反射強度
+	void SetShininess(float shininess) const { model_->SetShininess(shininess); }
 
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
