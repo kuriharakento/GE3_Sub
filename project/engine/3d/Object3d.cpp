@@ -102,7 +102,6 @@ void Object3d::CreateWvpData()
 	//単位行列を書き込んでおく
 	transformationMatrixData_->WVP = MakeIdentity4x4();
 	transformationMatrixData_->World = MakeIdentity4x4();
-
 }
 
 void Object3d::CreateDirectionalLightData()
@@ -123,7 +122,6 @@ void Object3d::CreateDirectionalLightData()
 	directionalLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
 	directionalLightData_->direction = Vector3::Normalize({ 0.0f,-1.0f,0.0f });
 	directionalLightData_->intensity = 1.0f;
-
 }
 
 void Object3d::CreateCameraData()

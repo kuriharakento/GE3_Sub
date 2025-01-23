@@ -444,9 +444,6 @@ void DirectXCommon::CreateRenderTargetView()
 	rtvHandles_[1].ptr = rtvHandles_[0].ptr + device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	//２つ目を作る
 	device_->CreateRenderTargetView(swapChainResources_[1].Get(), &rtvDesc, rtvHandles_[1]);
-
-
-
 }
 
 void DirectXCommon::CreateDepthStencilView()

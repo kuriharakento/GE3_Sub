@@ -15,7 +15,7 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 	// スプライトの生成
 	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize(sceneManager_->GetSpriteCommon(),"./Resources/uvChecker.png");
+	sprite_->Initialize(sceneManager_->GetSpriteCommon(),"./Resources/monsterBall.png");
     sprite_->SetAnchorPoint({ 0.5f,0.5f });
 	sprite_->SetSize({ 340.0f,315.0f });
 	sprite_->SetPosition({ 200.0f,180.0f });

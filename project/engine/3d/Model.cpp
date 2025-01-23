@@ -270,7 +270,6 @@ void Model::CreateVertexData()
 	/*--------------[ モデルデータの頂点情報をコピーする ]-----------------*/
 
 	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());
-
 }
 
 void Model::CreateMaterialData()
@@ -291,7 +290,6 @@ void Model::CreateMaterialData()
 	materialData_->enableLighting = true;
 	materialData_->uvTransform = MakeIdentity4x4();
 	materialData_->shininess = 30.0f;
-
 }
 
 void Model::InitializeRenderingSettings()

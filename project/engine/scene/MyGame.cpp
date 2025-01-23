@@ -101,6 +101,7 @@ void MyGame::LoadTextures()
 {
 	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/testSprite.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
 }
 
 void MyGame::LoadModels()

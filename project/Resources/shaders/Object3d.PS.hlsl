@@ -47,8 +47,8 @@ PixelShaderOutput main(VertexShaderOutput input)
     {
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
-        output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-        output.color.a = gMaterial.color.a * textureColor.a;
+        //output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        //output.color.a = gMaterial.color.a * textureColor.a;
         float32_t3 toEye = normalize(gCamera.worldPos - input.worldPos);
         float32_t3 reflecLight = reflect(gDirectionalLight.direction, normalize(input.normal));
         float RdotE = dot(reflecLight, toEye);
