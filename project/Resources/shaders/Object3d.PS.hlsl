@@ -34,10 +34,23 @@ struct PointLight
     float decay;
 };
 
+//スポットライト
+struct SpotLight
+{
+    float4 color;
+    float3 position;
+	float intensity;
+    float3 direction;
+    float distance;
+    float decay;
+    float cosAngle;
+};
+
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 ConstantBuffer<Camera> gCamera : register(b2);
 ConstantBuffer<PointLight> gPointLight : register(b3);
+ConstantBuffer<SpotLight> gSpotLight : register(b4);
 
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
@@ -110,6 +123,34 @@ PixelShaderOutput main(VertexShaderOutput input)
         float pointSpecularPow = pow(pointNdotH, gMaterial.shininess);
         float3 pointSpecular = gPointLight.color.rgb * gPointLight.intensity * pointSpecularPow * factor;
 
+        /*-----[ スポットライト ]-----*/
+
+        //入射光を計算
+        float3 spotLightDirOnSurface = normalize(input.worldPos - gSpotLight.position);
+
+       //逆二乗の法則による減衰
+        float spotDistance = length(gSpotLight.position - input.worldPos); //スポットライトとの距離
+        float spotFactor = pow(saturate(-spotDistance / gSpotLight.radius + 1.0f), gSpotLight.decay);
+
+    	//フォールオフ
+        float cosAngle = dot(spotLightDirOnSurface, gSpotLight.direction);
+        float falloffFactor = saturate((cosAngle - gSpotLight.cosAngle) / (1.0f - gSpotLight.cosAngle));
+
+        //内積の計算と調整
+        float spotNdotL = dot(normal, spotLightDirOnSurface);
+        spotNdotL = spotNdotL * 0.5f + 0.5f;
+        spotNdotL = pow(spotNdotL, 2.0f);
+
+        //拡散反射の計算
+        float3 spotDiffuse = gMaterial.color.rgb * textureColor.rgb * gSpotLight.color.rgb * spotNdotL * gSpotLight.intensity * spotFactor * falloffFactor;
+
+        //鏡面反射の計算
+        float3 spotHalfVector = normalize(spotLightDirOnSurface + toEye);
+        float spotNdotH = dot(normal, spotHalfVector);
+        spotNdotH = max(spotNdotH, 0.0f);
+        float spotSpecularPow = pow(spotNdotH, gMaterial.shininess);
+        float3 spotSpecular = gSpotLight.color.rgb * gSpotLight.intensity * spotSpecularPow * spotFactor * falloffFactor;
+       
         /*-----[ 結果の合成 ]-----*/
 
         output.color.rgb = diffuse + specular + pointDiffuse + pointSpecular;

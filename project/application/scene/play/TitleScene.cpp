@@ -43,6 +43,15 @@ void TitleScene::Initialize()
 	pointLight_.intensity = 1.0f;
 	pointLight_.radius = 3.0f;
 	pointLight_.decay = 1.0f;
+
+	//スポットライトの設定
+	spotLight_.color = { 1.0f,1.0f,1.0f,1.0f };
+	spotLight_.position = { 2.0f,1.25f,0.0f };
+	spotLight_.distance = 7.0f;
+	spotLight_.intensity = 4.0f;
+	spotLight_.direction = Vector3::Normalize({ -1.0f,-1.0f,0.0f });
+	spotLight_.cosAngle = std::cos(std::numbers::pi_v<float> / 3.0f);
+	spotLight_.decay = 2.0f;
 }
 
 void TitleScene::Finalize()
@@ -84,7 +93,7 @@ void TitleScene::Update()
 		{
 			object3d_->SetModel("highPolygonSphere.obj");
 		}
-
+	#pragma region Transform
 		Vector3 pos3d = object3d_->GetTranslate();
 		ImGui::DragFloat3("Position", &pos3d.x, 0.1f);
 		object3d_->SetTranslate(pos3d);
@@ -97,25 +106,46 @@ void TitleScene::Update()
 		Vector4 color3d = object3d_->GetColor();
 		ImGui::ColorEdit4("Color", &color3d.x);
 		object3d_->SetColor(color3d);
+	#pragma endregion
+
+	#pragma region Lighting
 		bool enableLighting = object3d_->IsEnableLighting();
 		ImGui::Checkbox("Enable Lighting", &enableLighting);
 		object3d_->SetEnableLighting(enableLighting);
-		Vector4 lightingColor = object3d_->GetLightingColor();
-		ImGui::ColorEdit4("Lighting Color", &lightingColor.x);
-		object3d_->SetLightingColor(lightingColor);
-		Vector3 lightingDirection = object3d_->GetLightingDirection();
-		ImGui::DragFloat3("Lighting Direction", &lightingDirection.x, 0.01f,-1.0f,1.0f);
-		object3d_->SetLightingDirection(lightingDirection);
-		float shininess = object3d_->GetShininess();
-		ImGui::DragFloat("Shininess", &shininess, 0.1f);
-		object3d_->SetShininess(shininess);
-		Vector4 pointLightColor = object3d_->GetPointLightColor();
-		ImGui::ColorEdit4("PointLight Color", &pointLightColor.x);
-		pointLight_.color = pointLightColor;
-		ImGui::DragFloat3("PointLight Position", &pointLight_.position.x, 0.1f);
-		ImGui::DragFloat("PointLight Intensity", &pointLight_.intensity, 0.1f,0.0f,1.0f);
-		ImGui::DragFloat("PointLight Radius", &pointLight_.radius, 0.1f,0.0f,10.0f);
-		ImGui::DragFloat("PointLight Decay", &pointLight_.decay, 0.1f,0.0f,5.0f);
+		//ディレクショナルライトの設定
+		#pragma region DirectionalLight
+		if (ImGui::CollapsingHeader("DirectionalLight")) {
+			Vector4 lightingColor = object3d_->GetLightingColor();
+			ImGui::ColorEdit4("Lighting Color", &lightingColor.x);
+			object3d_->SetLightingColor(lightingColor);
+			Vector3 lightingDirection = object3d_->GetLightingDirection();
+			ImGui::DragFloat3("Lighting Direction", &lightingDirection.x, 0.01f,-1.0f,1.0f);
+			object3d_->SetLightingDirection(lightingDirection);
+			float shininess = object3d_->GetShininess();
+			ImGui::DragFloat("Shininess", &shininess, 0.1f);
+			object3d_->SetShininess(shininess);
+		}
+		#pragma endregion
+		//ポイントライトの設定
+		#pragma region PointLight
+		if (ImGui::CollapsingHeader("PointLight")) {
+			ImGui::DragFloat3("PointLight Position", &pointLight_.position.x, 0.1f);
+			ImGui::DragFloat("PointLight Intensity", &pointLight_.intensity, 0.1f, 0.0f, 1.0f);
+			ImGui::DragFloat("PointLight Radius", &pointLight_.radius, 0.1f, 0.0f, 10.0f);
+			ImGui::DragFloat("PointLight Decay", &pointLight_.decay, 0.1f, 0.0f, 5.0f);
+		}
+		#pragma endregion
+		//スポットライトの設定
+		if (ImGui::CollapsingHeader("SpotLight")) {
+			ImGui::DragFloat3("SpotLight Position", &spotLight_.position.x, 0.1f);
+			ImGui::DragFloat3("SpotLight Direction", &spotLight_.direction.x, 0.01f, -1.0f, 1.0f);
+			ImGui::DragFloat("SpotLight Intensity", &spotLight_.intensity, 0.1f, 0.0f, 10.0f);
+			ImGui::DragFloat("SpotLight Distance", &spotLight_.distance, 0.1f, 0.0f, 10.0f);
+			ImGui::DragFloat("SpotLight CosAngle", &spotLight_.cosAngle, 0.01f, -1.0f, 1.0f);
+			ImGui::DragFloat("SpotLight Decay", &spotLight_.decay, 0.1f, 0.0f, 5.0f);
+		}
+
+	#pragma endregion
 	}
 #pragma endregion
 	ImGui::End();
@@ -157,6 +187,9 @@ void TitleScene::Update()
 	terrain_->SetPointLightRadius(pointLight_.radius);
 	object3d_->SetPointLightDecay(pointLight_.decay);
 	terrain_->SetPointLightDecay(pointLight_.decay);
+
+	object3d_->SetSpotLight(spotLight_);
+	terrain_->SetSpotLight(spotLight_);
 
 	// スプライトの更新
 	sprite_->Update();
