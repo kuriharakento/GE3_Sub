@@ -56,7 +56,6 @@ void Object3d::Draw()
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 	//カメラCBufferの場所を設定
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
-
 	//3Dモデルが割り当てられていれば描画する
 	if(model_)
 	{
@@ -131,11 +130,13 @@ void Object3d::CreateCameraData()
 	cameraResource_ = object3dCommon_->GetDXCommon()->CreateBufferResource(sizeof(CameraForGPU));
 
 	/*--------------[ カメラリソースにデータを書き込むためのアドレスを取得してcameraDataに割り当てる ]-----------------*/
+
 	cameraResource_->Map(
 		0,
 		nullptr,
 		reinterpret_cast<void**>(&cameraData_)
 	);
+  
 	//デフォルト値は以下のようにしておく
 	cameraData_->worldPos = {};
 }

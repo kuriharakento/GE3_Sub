@@ -91,6 +91,11 @@ public: /*========[ セッター ]========*/
 	//反射強度
 	void SetShininess(float shininess) const { model_->SetShininess(shininess); }
 
+	//ライト
+	void SetDirectionalLightColor(const Vector4& color) { directionalLightData_->color = color; }
+	void SetDirectionalLightDirection(const Vector3& direction) { directionalLightData_->direction = direction; }
+	void SetDirectionalLightIntensity(float intensity) { directionalLightData_->intensity = intensity; }
+
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
 	/**
@@ -104,6 +109,11 @@ private: /*========[ プライベートメンバ関数(このクラス内でし�
 	void CreateDirectionalLightData();
 
 	//カメラデータの生成
+	void CreateCameraData();
+
+	/**
+	 * \brief カメラデータの生成
+	 */
 	void CreateCameraData();
 
 	/**
