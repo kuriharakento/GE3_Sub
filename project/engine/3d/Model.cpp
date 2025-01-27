@@ -28,8 +28,6 @@ void Model::Draw()
 {
 	//3D描画
 	modelCommon_->GetDXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	////形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけばよい
-	//object3dCommon_->GetDXCommon()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//マテリアルCBufferの場所を設定
 	modelCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	//SRVのDescriptorTableの先頭を設定。2はrootPatameter[2]である。
@@ -272,7 +270,6 @@ void Model::CreateVertexData()
 	/*--------------[ モデルデータの頂点情報をコピーする ]-----------------*/
 
 	std::memcpy(vertexData_, modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());
-
 }
 
 void Model::CreateMaterialData()
@@ -292,7 +289,7 @@ void Model::CreateMaterialData()
 	materialData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialData_->enableLighting = true;
 	materialData_->uvTransform = MakeIdentity4x4();
-	materialData_->shininess = 10.0f;
+	materialData_->shininess = 30.0f;
 }
 
 void Model::InitializeRenderingSettings()

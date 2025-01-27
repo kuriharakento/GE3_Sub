@@ -148,6 +148,7 @@ void SpriteCommon::CreateGraphicsPipelineState()
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
+
 	///===================================================================
 	///RasterizerState(ラスタライザステート)
 	///===================================================================

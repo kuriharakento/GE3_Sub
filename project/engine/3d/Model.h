@@ -50,6 +50,14 @@ public: //アクセッサ
 	Vector4 GetColor() const { return materialData_->color; }
 	void SetColor(const Vector4& color) { materialData_->color = color; }
 
+	//ライティングの有効無効
+	bool IsEnableLighting() const { return materialData_->enableLighting; }
+	void SetEnableLighting(bool enable) { materialData_->enableLighting = enable; }
+
+	//反射強度
+	void SetShininess(float shininess) { materialData_->shininess = shininess; }
+	float GetShininess() const { return materialData_->shininess; }
+
 private: //メンバ関数
 	/**
 	 * \brief 頂点データの生成

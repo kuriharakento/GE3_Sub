@@ -76,7 +76,7 @@ void Object3d::UpdateMatrix(Camera* camera)
 	{
 		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
-		cameraData_->worldPos = camera->GetTranslate();
+		cameraData_->worldPos = { camera->GetWorldMatrix().m[3][0],camera->GetWorldMatrix().m[3][1],camera->GetWorldMatrix().m[3][2]};
 	} else {
 		worldViewProjectionMatrix = worldMatrix;
 	}
@@ -101,7 +101,6 @@ void Object3d::CreateWvpData()
 	//単位行列を書き込んでおく
 	transformationMatrixData_->WVP = MakeIdentity4x4();
 	transformationMatrixData_->World = MakeIdentity4x4();
-
 }
 
 void Object3d::CreateDirectionalLightData()
@@ -137,9 +136,9 @@ void Object3d::CreateCameraData()
 		nullptr,
 		reinterpret_cast<void**>(&cameraData_)
 	);
-
-	//カメラのデータを書き込んでおく
-	cameraData_->worldPos = camera_->GetTranslate();
+  
+	//デフォルト値は以下のようにしておく
+	cameraData_->worldPos = {};
 }
 
 void Object3d::InitializeRenderingSettings()
