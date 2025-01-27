@@ -52,7 +52,7 @@ void Framework::Initialize()
 	cameraManager_ = std::make_unique<CameraManager>();
 	cameraManager_->AddCamera("main");
 	cameraManager_->SetActiveCamera("main");
-	cameraManager_->GetActiveCamera()->SetTranslate({ 0.0f,4.0f,-10.0f });
+	cameraManager_->GetActiveCamera()->SetTranslate({ 0.0f,1.0f,-10.0f });
 	cameraManager_->GetActiveCamera()->SetRotate({ 0.0f,0.0f,0.0f });
 
 	//3Dオブジェクト共通部に初期カメラをセット

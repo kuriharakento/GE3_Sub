@@ -108,5 +108,4 @@ void MyGame::LoadModels()
 {
 	ModelManager::GetInstance()->LoadModel("cube.obj");
 	ModelManager::GetInstance()->LoadModel("highPolygonSphere.obj");
-	//ModelManager::GetInstance()->LoadModel("bunny.obj");
 }

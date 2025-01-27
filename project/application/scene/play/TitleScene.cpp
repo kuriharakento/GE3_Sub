@@ -28,7 +28,7 @@ void TitleScene::Initialize()
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
 	object3d_->SetModel("highPolygonSphere.obj");
-	object3d_->SetTranslate({ 0.0f,3.0f,1.0f });
+	object3d_->SetTranslate({ 0.0f,0.0f,1.0f });
 }
 
 void TitleScene::Finalize()
@@ -61,9 +61,9 @@ void TitleScene::Update()
 		//モデルの変更
 		ImGui::Text("Change Model :");
 		ImGui::SameLine();
-		if (ImGui::Button("bunny"))
+		if (ImGui::Button("cube"))
 		{
-			object3d_->SetModel("bunny.obj");
+			object3d_->SetModel("cube.obj");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("sphere"))
