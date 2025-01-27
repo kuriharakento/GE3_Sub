@@ -1,6 +1,7 @@
 #include "3d/Object3d.h"
 
 #include "3d/Object3dCommon.h"
+#include "math/MathUtils.h"
 
 ///////////////////////////////////////////////////////////////////////
 ///						>>>基本的な処理<<<							///
@@ -53,7 +54,9 @@ void Object3d::Draw()
 	//座標変換行列CBufferの場所を設定
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 	//平行光源CBufferの場所を設定
-
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+	//カメラCBufferの場所を設定
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
 	//3Dモデルが割り当てられていれば描画する
 	if(model_)
 	{
@@ -69,17 +72,20 @@ void Object3d::UpdateMatrix(Camera* camera)
 {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
+	Matrix4x4 worldInverseTransposeMatrix = MathUtils::Transpose(Inverse(worldMatrix));
 
 	if(camera)
 	{
 		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
+		cameraData_->worldPos = { camera->GetWorldMatrix().m[3][0],camera->GetWorldMatrix().m[3][1],camera->GetWorldMatrix().m[3][2]};
 	} else {
 		worldViewProjectionMatrix = worldMatrix;
 	}
 
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
 	transformationMatrixData_->World = worldMatrix;
+	transformationMatrixData_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 
 void Object3d::CreateWvpData()
@@ -98,7 +104,6 @@ void Object3d::CreateWvpData()
 	//単位行列を書き込んでおく
 	transformationMatrixData_->WVP = MakeIdentity4x4();
 	transformationMatrixData_->World = MakeIdentity4x4();
-
 }
 
 void Object3d::CreateDirectionalLightData()
@@ -119,7 +124,24 @@ void Object3d::CreateDirectionalLightData()
 	directionalLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
 	directionalLightData_->direction = Vector3::Normalize({ 0.0f,-1.0f,0.0f });
 	directionalLightData_->intensity = 1.0f;
+}
 
+void Object3d::CreateCameraData()
+{
+	/*--------------[ カメラリソースを作る ]-----------------*/
+
+	cameraResource_ = object3dCommon_->GetDXCommon()->CreateBufferResource(sizeof(CameraForGPU));
+
+	/*--------------[ カメラリソースにデータを書き込むためのアドレスを取得してcameraDataに割り当てる ]-----------------*/
+
+	cameraResource_->Map(
+		0,
+		nullptr,
+		reinterpret_cast<void**>(&cameraData_)
+	);
+  
+	//デフォルト値は以下のようにしておく
+	cameraData_->worldPos = {};
 }
 
 void Object3d::InitializeRenderingSettings()
@@ -129,4 +151,7 @@ void Object3d::InitializeRenderingSettings()
 
 	//平行光源データの生成
 	CreateDirectionalLightData();
+
+	//カメラデータの生成
+	CreateCameraData();
 }
