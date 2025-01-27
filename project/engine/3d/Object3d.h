@@ -64,6 +64,8 @@ public: /*========[ ゲッター ]========*/
 	Vector4 GetPointLightColor() const { return pointLightData_->color; }
 	Vector3 GetPointLightPosition() const { return pointLightData_->position; }
 	float GetPointLightIntensity() const { return pointLightData_->intensity; }
+	float GetPointLightRadius() const { return pointLightData_->radius; }
+	float GetPointLightDecay() const { return pointLightData_->decay; }
 
 public: /*========[ セッター ]========*/
 	//モデルの設定
@@ -105,6 +107,8 @@ public: /*========[ セッター ]========*/
 	void SetPointLightColor(const Vector4& color) { pointLightData_->color = color; }
 	void SetPointLightPosition(const Vector3& position) { pointLightData_->position = position; }
 	void SetPointLightIntensity(float intensity) { pointLightData_->intensity = intensity; }
+	void SetPointLightRadius(float radius) { pointLightData_->radius = radius; }
+	void SetPointLightDecay(float decay) { pointLightData_->decay = decay; }
 
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 

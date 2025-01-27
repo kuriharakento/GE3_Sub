@@ -30,7 +30,8 @@ struct PointLight
     float4 color;
     float3 position;
     float intensity;
-
+    float radius;
+    float decay;
 };
 
 ConstantBuffer<Material> gMaterial : register(b0);
@@ -90,29 +91,28 @@ PixelShaderOutput main(VertexShaderOutput input)
     	//入射光を計算
         float3 pointLightDir = normalize(gPointLight.position - input.worldPos);
 
-        //内積の計算と調整
+    	//逆二乗の法則による減衰
+        float distance = length(gPointLight.position - input.worldPos); //ポイントライトとの距離
+        float factor = pow(saturate(-distance / gPointLight.radius + 1.0f),gPointLight.decay);
+
+    	//内積の計算と調整
         float pointNdotL = dot(normal, pointLightDir);
         pointNdotL = pointNdotL * 0.5f + 0.5f;
         pointNdotL = pow(pointNdotL, 2.0f);
 
         //拡散反射の計算
-        float3 pointDiffuse = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * pointNdotL * gPointLight.intensity;
+        float3 pointDiffuse = gMaterial.color.rgb * textureColor.rgb * gPointLight.color.rgb * pointNdotL * gPointLight.intensity * factor;
 
     	//鏡面反射の計算
         float3 pointHalfVector = normalize(pointLightDir + toEye);
         float pointNdotH = dot(normal, pointHalfVector);
         pointNdotH = max(pointNdotH, 0.0f);
         float pointSpecularPow = pow(pointNdotH, gMaterial.shininess);
-        float3 pointSpecular = gPointLight.color.rgb * gPointLight.intensity * pointSpecularPow;
-
-        //逆二乗の法則による減衰
-        float distance = length(gPointLight.position - input.worldPos); //ポイントライトとの距離
-        float factor = 1.0f / (distance * distance); // 逆二乗の法則による減衰係数
+        float3 pointSpecular = gPointLight.color.rgb * gPointLight.intensity * pointSpecularPow * factor;
 
         /*-----[ 結果の合成 ]-----*/
 
         output.color.rgb = diffuse + specular + pointDiffuse + pointSpecular;
-        output.color.rgb *= factor;
     	output.color.a = gMaterial.color.a * textureColor.a;
     }
     else

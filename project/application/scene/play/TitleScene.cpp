@@ -16,9 +16,8 @@ void TitleScene::Initialize()
 	// スプライトの生成
 	sprite_ = std::make_unique<Sprite>();
 	sprite_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/uvChecker.png");
-	sprite_->SetAnchorPoint({ 0.5f,0.5f });
-	sprite_->SetSize({ 340.0f,315.0f });
-	sprite_->SetPosition({ 200.0f,180.0f });
+	sprite_->SetSize({ 150.0f,150.0f });
+	sprite_->SetPosition({ 0.0f,0.0f });
 
 	// スライドの生成
 	slide_ = std::make_unique<Slide>();
@@ -114,9 +113,9 @@ void TitleScene::Update()
 		ImGui::ColorEdit4("PointLight Color", &pointLightColor.x);
 		pointLight_.color = pointLightColor;
 		ImGui::DragFloat3("PointLight Position", &pointLight_.position.x, 0.1f);
-		ImGui::DragFloat("PointLight Intensity", &pointLight_.intensity, 0.1f);
-		ImGui::DragFloat("PointLight Radius", &pointLight_.radius, 0.1f);
-		ImGui::DragFloat("PointLight Decay", &pointLight_.decay, 0.1f);
+		ImGui::DragFloat("PointLight Intensity", &pointLight_.intensity, 0.1f,0.0f,1.0f);
+		ImGui::DragFloat("PointLight Radius", &pointLight_.radius, 0.1f,0.0f,10.0f);
+		ImGui::DragFloat("PointLight Decay", &pointLight_.decay, 0.1f,0.0f,5.0f);
 	}
 #pragma endregion
 	ImGui::End();
@@ -150,6 +149,14 @@ void TitleScene::Update()
 	// ポイントライトの設定
 	object3d_->SetPointLightPosition(pointLight_.position);
 	terrain_->SetPointLightPosition(pointLight_.position);
+	object3d_->SetPointLightColor(pointLight_.color);
+	terrain_->SetPointLightColor(pointLight_.color);
+	object3d_->SetPointLightIntensity(pointLight_.intensity);
+	terrain_->SetPointLightIntensity(pointLight_.intensity);
+	object3d_->SetPointLightRadius(pointLight_.radius);
+	terrain_->SetPointLightRadius(pointLight_.radius);
+	object3d_->SetPointLightDecay(pointLight_.decay);
+	terrain_->SetPointLightDecay(pointLight_.decay);
 
 	// スプライトの更新
 	sprite_->Update();
