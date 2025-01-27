@@ -29,7 +29,6 @@ void TitleScene::Initialize()
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
 	object3d_->SetModel("highPolygonSphere.obj");
 	object3d_->SetTranslate({ 0.0f,3.0f,1.0f });
-	object3d_->SetRotate({ 0.0f,1.55f,0.0f });
 }
 
 void TitleScene::Finalize()

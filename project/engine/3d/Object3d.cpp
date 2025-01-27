@@ -1,6 +1,7 @@
 #include "3d/Object3d.h"
 
 #include "3d/Object3dCommon.h"
+#include "math/MathUtils.h"
 
 ///////////////////////////////////////////////////////////////////////
 ///						>>>基本的な処理<<<							///
@@ -71,6 +72,7 @@ void Object3d::UpdateMatrix(Camera* camera)
 {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
+	Matrix4x4 worldInverseTransposeMatrix = MathUtils::Transpose(Inverse(worldMatrix));
 
 	if(camera)
 	{
@@ -83,6 +85,7 @@ void Object3d::UpdateMatrix(Camera* camera)
 
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
 	transformationMatrixData_->World = worldMatrix;
+	transformationMatrixData_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 
 void Object3d::CreateWvpData()
