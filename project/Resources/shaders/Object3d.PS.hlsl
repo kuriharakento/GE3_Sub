@@ -34,38 +34,38 @@ struct PixelShaderOutput
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    float3 transformedUV = mul(float32_t4(input.texcoord,0.0f, 1.0f), gMaterial.uvTransform);
+    //テクスチャUV
+    float4 transformedUV = mul(float32_t4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
+    //テクスチャカラー
     float32_t4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
-    //テクスチャの透明度が0以下の場合は描画しない
-	if(textureColor.a == 0.0)
+    if (textureColor.a == 0.0)
     {
         discard;
     }
 
-	//ライティングを有効にしている場合はライティングを適用
-	else if(gMaterial.enableLighting != 0)
-    {
+    //Cameraへの方向
+    float32_t3 toEye = normalize(gCamera.worldPos - input.worldPos);
+    //入射角の反射ベクトル
+    float32_t3 reflectLight = reflect(gDirectionalLight.direction, normalize(input.normal));
+    //outputカラー
+    if (gMaterial.enableLighting != 0)
+    { //Lightingする場合
+        //拡散反射
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
-        //output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-        //output.color.a = gMaterial.color.a * textureColor.a;
-        float32_t3 toEye = normalize(gCamera.worldPos - input.worldPos);
-        float32_t3 reflecLight = reflect(gDirectionalLight.direction, normalize(input.normal));
-        float RdotE = dot(reflecLight, toEye);
-        float speculaPow = pow(saturate(RdotE), gMaterial.shininess); //反射強度
-        //拡散反射
-        float32_t3 diffuse = gMaterial.color.rgb * textureColor.rgb * cos * gDirectionalLight.intensity;
+        float32_t3 diffuse = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
         //鏡面反射
-        float32_t3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * speculaPow * float32_t3(1.0f, 1.0f, 1.0f);
-        //拡散反射 + 鏡面反射
+        float RdotE = dot(reflectLight, toEye);
+        float specularPow = pow(saturate(RdotE), gMaterial.shininess); //反射強度
+        float32_t3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * float32_t3(1.0f, 1.0f, 1.0f);
+        //拡散反射・鏡面反射
         output.color.rgb = diffuse + specular;
-        //アルファ値
         output.color.a = gMaterial.color.a * textureColor.a;
-    }else
+    }
+    else
     {
         output.color = gMaterial.color * textureColor;
     }
-    //Output.colorが透明度0以下の場合は描画しない
     if (output.color.a == 0.0)
     {
         discard;

@@ -77,7 +77,7 @@ void Object3d::UpdateMatrix(Camera* camera)
 	{
 		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
-		cameraData_->worldPos = camera->GetTranslate();
+		cameraData_->worldPos = { camera->GetWorldMatrix().m[3][0],camera->GetWorldMatrix().m[3][1],camera->GetWorldMatrix().m[3][2]};
 	} else {
 		worldViewProjectionMatrix = worldMatrix;
 	}
@@ -137,7 +137,7 @@ void Object3d::CreateCameraData()
 		reinterpret_cast<void**>(&cameraData_)
 	);
 	//デフォルト値は以下のようにしておく
-	cameraData_->worldPos = camera_->GetTranslate();
+	cameraData_->worldPos = {};
 }
 
 void Object3d::InitializeRenderingSettings()

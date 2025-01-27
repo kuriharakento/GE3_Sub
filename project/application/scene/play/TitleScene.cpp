@@ -8,15 +8,15 @@
 
 void TitleScene::Initialize()
 {
-	Audio::GetInstance()->LoadWave("fanfare", "game.wav",SoundGroup::BGM);
-    // 音声の再生
-    Audio::GetInstance()->PlayWave("fanfare", true);
+	Audio::GetInstance()->LoadWave("fanfare", "game.wav", SoundGroup::BGM);
+	// 音声の再生
+	Audio::GetInstance()->PlayWave("fanfare", true);
 
 	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 	// スプライトの生成
 	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize(sceneManager_->GetSpriteCommon(),"./Resources/monsterBall.png");
-    sprite_->SetAnchorPoint({ 0.5f,0.5f });
+	sprite_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/uvChecker.png");
+	sprite_->SetAnchorPoint({ 0.5f,0.5f });
 	sprite_->SetSize({ 340.0f,315.0f });
 	sprite_->SetPosition({ 200.0f,180.0f });
 
@@ -27,8 +27,9 @@ void TitleScene::Initialize()
 	//デバック用オブジェクトの生成
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
-	object3d_->SetModel("sphere.obj");
+	object3d_->SetModel("highPolygonSphere.obj");
 	object3d_->SetTranslate({ 0.0f,3.0f,1.0f });
+	object3d_->SetRotate({ 0.0f,1.55f,0.0f });
 }
 
 void TitleScene::Finalize()
@@ -61,14 +62,14 @@ void TitleScene::Update()
 		//モデルの変更
 		ImGui::Text("Change Model :");
 		ImGui::SameLine();
-		if (ImGui::Button("cube"))
+		if (ImGui::Button("bunny"))
 		{
-			object3d_->SetModel("cube.obj");
+			object3d_->SetModel("bunny.obj");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("sphere"))
 		{
-			object3d_->SetModel("sphere.obj");
+			object3d_->SetModel("highPolygonSphere.obj");
 		}
 
 		Vector3 pos3d = object3d_->GetTranslate();
@@ -90,7 +91,7 @@ void TitleScene::Update()
 		ImGui::ColorEdit4("Lighting Color", &lightingColor.x);
 		object3d_->SetLightingColor(lightingColor);
 		Vector3 lightingDirection = object3d_->GetLightingDirection();
-		ImGui::DragFloat3("Lighting Direction", &lightingDirection.x, 0.01f);
+		ImGui::DragFloat3("Lighting Direction", &lightingDirection.x, 0.01f,-1.0f,1.0f);
 		object3d_->SetLightingDirection(lightingDirection);
 		float shininess = object3d_->GetShininess();
 		ImGui::DragFloat("Shininess", &shininess, 0.1f);
@@ -142,6 +143,7 @@ void TitleScene::Draw3D()
 
 void TitleScene::Draw2D()
 {
+	// スプライトの描画
 	sprite_->Draw();
 
 	// スライドの描画

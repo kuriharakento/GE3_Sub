@@ -51,6 +51,9 @@ public: /*========[ ゲッター ]========*/
 	//ライティングのカラー
 	Vector4 GetLightingColor() const { return directionalLightData_->color; }
 
+	//ライティングの強さ
+	float GetLightingIntensity() const { return directionalLightData_->intensity; }
+
 	//ライティングの向き
 	Vector3 GetLightingDirection() const { return directionalLightData_->direction; }
 
@@ -78,6 +81,9 @@ public: /*========[ セッター ]========*/
 
 	//ライティングのカラー
 	void SetLightingColor(const Vector4& color) const { directionalLightData_->color  = color; }
+
+	//ライティングの強さ
+	void SetLightingIntensity(float intensity) const { directionalLightData_->intensity = intensity; }
 
 	//ライティングの向き
 	void SetLightingDirection(const Vector3& direction) const { directionalLightData_->direction = direction; }
