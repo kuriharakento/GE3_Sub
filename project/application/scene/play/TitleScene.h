@@ -24,10 +24,11 @@ private: //メンバ変数
 	std::unique_ptr<Sprite> sprite_;
 	//デバック用オブジェクト
 	std::unique_ptr<Object3d> object3d_;
+	//デバック用オブジェクト地面
+	std::unique_ptr<Object3d> terrain_;
 	//スライド
 	std::unique_ptr<Slide> slide_;
-
-	
-
+	//ポイントライト
+	PointLight pointLight_;
 };
 

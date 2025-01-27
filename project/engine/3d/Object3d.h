@@ -60,6 +60,11 @@ public: /*========[ ゲッター ]========*/
 	//反射強度
 	float GetShininess() const { return model_->GetShininess(); }
 
+	//ポイントライト
+	Vector4 GetPointLightColor() const { return pointLightData_->color; }
+	Vector3 GetPointLightPosition() const { return pointLightData_->position; }
+	float GetPointLightIntensity() const { return pointLightData_->intensity; }
+
 public: /*========[ セッター ]========*/
 	//モデルの設定
 	void SetModel(Model* model) { model_ = model; }
@@ -96,6 +101,11 @@ public: /*========[ セッター ]========*/
 	void SetDirectionalLightDirection(const Vector3& direction) { directionalLightData_->direction = direction; }
 	void SetDirectionalLightIntensity(float intensity) { directionalLightData_->intensity = intensity; }
 
+	//ポイントライト
+	void SetPointLightColor(const Vector4& color) { pointLightData_->color = color; }
+	void SetPointLightPosition(const Vector3& position) { pointLightData_->position = position; }
+	void SetPointLightIntensity(float intensity) { pointLightData_->intensity = intensity; }
+
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
 	/**
@@ -114,6 +124,11 @@ private: /*========[ プライベートメンバ関数(このクラス内でし�
 	void CreateCameraData();
 
 	/**
+	 * \brief ポイントライトデータの生成
+	 */
+	void CreatePointLightData();
+
+	/**
 	 * \brief 描画設定の初期化
 	 */
 	void InitializeRenderingSettings();
@@ -127,11 +142,13 @@ private: /*========[ 描画用変数 ]========*/
 	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> pointLightResource_;
 
 	//バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	DirectionalLight* directionalLightData_ = nullptr;
 	CameraForGPU* cameraData_ = nullptr;
+	PointLight* pointLightData_ = nullptr;
 
 private: /*========[ メンバ変数 ]========*/
 	//カメラ

@@ -57,6 +57,8 @@ void Object3d::Draw()
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 	//カメラCBufferの場所を設定
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
+	//ポイントライトCBufferの場所を設定
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(5, pointLightResource_->GetGPUVirtualAddress());
 	//3Dモデルが割り当てられていれば描画する
 	if(model_)
 	{
@@ -144,6 +146,26 @@ void Object3d::CreateCameraData()
 	cameraData_->worldPos = {};
 }
 
+void Object3d::CreatePointLightData()
+{
+	/*--------------[ ポイントライトリソースを作る ]-----------------*/
+
+	pointLightResource_ = object3dCommon_->GetDXCommon()->CreateBufferResource(sizeof(PointLight));
+
+	/*--------------[ ポイントライトリソースにデータを書き込むためのアドレスを取得してpointLightDataに割り当てる ]-----------------*/
+
+	pointLightResource_->Map(
+		0,
+		nullptr,
+		reinterpret_cast<void**>(&pointLightData_)
+	);
+
+	//デフォルト値は以下のようにしておく
+	pointLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
+	pointLightData_->position = { 0.0f,0.0f,0.0f };
+	pointLightData_->intensity = 1.0f;
+}
+
 void Object3d::InitializeRenderingSettings()
 {
 	//座標変換行列の生成
@@ -154,4 +176,7 @@ void Object3d::InitializeRenderingSettings()
 
 	//カメラデータの生成
 	CreateCameraData();
+
+	//ポイントライトデータの生成
+	CreatePointLightData();
 }

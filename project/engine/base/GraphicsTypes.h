@@ -10,9 +10,9 @@
  */
 struct VertexData
 {
-	Vector4 position;
-	Vector2 texcoord;
-	Vector3 normal;
+	Vector4 position;							// 位置
+	Vector2 texcoord;							// テクスチャ座標
+	Vector3 normal;								// 法線
 };
 
 /**
@@ -20,12 +20,12 @@ struct VertexData
  */
 struct Material
 {
-	Vector4 color;			// 16バイト
-	int32_t enableLighting;	// 4バイト
-	float padding[3];		// 12バイト（アラインメント用）
-	Matrix4x4 uvTransform;	// 64バイト
-	float shininess;		// 4バイト
-	float padding2[3];		// 12バイト（アラインメント用）
+	Vector4 color;								// 色
+	int32_t enableLighting;						// ライティングの有効無効
+	float padding[3];							// 12バイト（アラインメント用）
+	Matrix4x4 uvTransform;						// UV変換行列
+	float shininess;							// 反射強度
+	float padding2[3];							// 12バイト（アラインメント用）
 };
 
 /**
@@ -33,17 +33,17 @@ struct Material
  */
 struct TransformationMatrix
 {
-	Matrix4x4 WVP;
-	Matrix4x4 World;
-	Matrix4x4 WorldInverseTranspose;
+	Matrix4x4 WVP;								// ワールドビュープロジェクション行列
+	Matrix4x4 World;							// ワールド行列
+	Matrix4x4 WorldInverseTranspose;			// ワールド逆転置行列
 };
 
 //トランスフォーム
 struct Transform
 {
-	Vector3 scale;
-	Vector3 rotate;
-	Vector3 translate;
+	Vector3 scale;								// スケール
+	Vector3 rotate;								// 回転
+	Vector3 translate;							// 平行移動
 };
 
 /**
@@ -51,8 +51,8 @@ struct Transform
  */
 struct MaterialData
 {
-	std::string textureFilePath;
-	uint32_t textureIndex = 0;
+	std::string textureFilePath;				// テクスチャファイルパス
+	uint32_t textureIndex = 0;					// テクスチャインデックス
 };
 
 /**
@@ -60,8 +60,8 @@ struct MaterialData
  */
 struct ModelData
 {
-	std::vector<VertexData> vertices;
-	MaterialData material;
+	std::vector<VertexData> vertices;			// 頂点データ
+	MaterialData material;						// マテリアルデータ
 };
 
 /**
@@ -69,9 +69,9 @@ struct ModelData
  */
 struct DirectionalLight
 {
-	Vector4 color;
-	Vector3 direction;
-	float intensity;
+	Vector4 color;								// ライトの色
+	Vector3 direction;							// ライトの向き
+	float intensity;							// ライトの強さ
 };
 
 /**
@@ -79,11 +79,11 @@ struct DirectionalLight
  */
 struct Particle
 {
-	Transform transform;
-	Vector3 velocity;
-	Vector4 color;
-	float lifeTime;
-	float currentTime;
+	Transform transform;						// トランスフォーム
+	Vector3 velocity;							// 速度
+	Vector4 color;								// 色
+	float lifeTime;								// 寿命
+	float currentTime;							// 現在の時間
 };
 struct ParticleForGPU
 {
@@ -95,6 +95,16 @@ struct ParticleForGPU
 //カメラ
 struct CameraForGPU
 {
-	Vector3 worldPos;
-	float padding;
+	Vector3 worldPos;							// ワールド座標
+	float padding;								// 4バイト（アラインメント用）
+};
+
+//点光源
+struct PointLight
+{
+	Vector4 color;								// ライトの色
+	Vector3 position;							// ライトの位置
+	float intensity;							// ライトの強さ
+	float radius;								// ライトの届く最大距離
+	float decay;								// ライトの減衰率
 };
