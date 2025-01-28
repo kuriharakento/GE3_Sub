@@ -52,6 +52,7 @@ void TitleScene::Initialize()
 	spotLight_.direction = Vector3::Normalize({ -1.0f,-1.0f,0.0f });
 	spotLight_.cosAngle = std::cos(std::numbers::pi_v<float> / 3.0f);
 	spotLight_.decay = 2.0f;
+	spotLight_.cosFalloffStart = 1.0f;
 }
 
 void TitleScene::Finalize()
@@ -135,17 +136,17 @@ void TitleScene::Update()
 			ImGui::DragFloat("PointLight Decay", &pointLight_.decay, 0.1f, 0.0f, 5.0f);
 		}
 		#pragma endregion
+#pragma 
 		//スポットライトの設定
 		if (ImGui::CollapsingHeader("SpotLight")) {
 			ImGui::DragFloat3("SpotLight Position", &spotLight_.position.x, 0.1f);
 			ImGui::DragFloat3("SpotLight Direction", &spotLight_.direction.x, 0.01f, -1.0f, 1.0f);
 			ImGui::DragFloat("SpotLight Intensity", &spotLight_.intensity, 0.1f, 0.0f, 10.0f);
 			ImGui::DragFloat("SpotLight Distance", &spotLight_.distance, 0.1f, 0.0f, 10.0f);
-			ImGui::DragFloat("SpotLight CosAngle", &spotLight_.cosAngle, 0.01f, -1.0f, 1.0f);
+			ImGui::DragFloat("SpotLight CosAngle", &spotLight_.cosAngle, 0.01f, -3.14f, 3.14f);
 			ImGui::DragFloat("SpotLight Decay", &spotLight_.decay, 0.1f, 0.0f, 5.0f);
+			ImGui::DragFloat("SpotLight CosFalloffStart", &spotLight_.cosFalloffStart, 0.01f, -3.14f, 3.14f);
 		}
-
-	#pragma endregion
 	}
 #pragma endregion
 	ImGui::End();

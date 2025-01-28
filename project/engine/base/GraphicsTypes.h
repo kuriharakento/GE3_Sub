@@ -119,5 +119,5 @@ struct SpotLight
 	float distance;								// ライトの届く最大距離
 	float decay;								// ライトの減衰率
 	float cosAngle;								// ライトの余弦
-	float padding[2];							// 8バイト（アラインメント用）
+	float cosFalloffStart;						// フォールオフ開始角度の余弦
 };
