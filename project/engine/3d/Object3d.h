@@ -11,6 +11,7 @@
 #include "lighting/SpotLight.h"
 #include "manager/CameraManager.h"
 
+class LightManager;
 //スプライト共通部分のポインタ
 class Object3dCommon;
 
@@ -63,22 +64,6 @@ public: /*========[ ゲッター ]========*/
 	//反射強度
 	float GetShininess() const { return model_->GetShininess(); }
 
-	//ポイントライト
-	Vector4 GetPointLightColor() const { return pointLightData_->color; }
-	Vector3 GetPointLightPosition() const { return pointLightData_->position; }
-	float GetPointLightIntensity() const { return pointLightData_->intensity; }
-	float GetPointLightRadius() const { return pointLightData_->radius; }
-	float GetPointLightDecay() const { return pointLightData_->decay; }
-
-	//スポットライト
-	Vector4 GetSpotLightColor() const { return spotLightData_->color; }
-	Vector3 GetSpotLightPosition() const { return spotLightData_->position; }
-	Vector3 GetSpotLightDirection() const { return spotLightData_->direction; }
-	float GetSpotLightIntensity() const { return spotLightData_->intensity; }
-	float GetSpotLightDistance() const { return spotLightData_->distance; }
-	float GetSpotLightCosAngle() const { return spotLightData_->cosAngle; }
-	float GetSpotLightDecay() const { return spotLightData_->decay; }
-
 public: /*========[ セッター ]========*/
 	//モデルの設定
 	void SetModel(Model* model) { model_ = model; }
@@ -116,23 +101,7 @@ public: /*========[ セッター ]========*/
 	void SetDirectionalLightIntensity(float intensity) { directionalLightData_->intensity = intensity; }
 	void SetDirectionalLight(const DirectionalLight& light) { *directionalLightData_ = light; }
 
-	//ポイントライト
-	void SetPointLightColor(const Vector4& color) { pointLightData_->color = color; }
-	void SetPointLightPosition(const Vector3& position) { pointLightData_->position = position; }
-	void SetPointLightIntensity(float intensity) { pointLightData_->intensity = intensity; }
-	void SetPointLightRadius(float radius) { pointLightData_->radius = radius; }
-	void SetPointLightDecay(float decay) { pointLightData_->decay = decay; }
-	void SetPointLight(const PointLight& light) { *pointLightData_ = light; }
-
-	//スポットライト
-	void SetSpotLightColor(const Vector4& color) { spotLightData_->color = color; }
-	void SetSpotLightPosition(const Vector3& position) { spotLightData_->position = position; }
-	void SetSpotLightDirection(const Vector3& direction) { spotLightData_->direction = direction; }
-	void SetSpotLightIntensity(float intensity) { spotLightData_->intensity = intensity; }
-	void SetSpotLightDistance(float distance) { spotLightData_->distance = distance; }
-	void SetSpotLightCosAngle(float cosAngle) { spotLightData_->cosAngle = cosAngle; }
-	void SetSpotLightDecay(float decay) { spotLightData_->decay = decay; }
-	void SetSpotLight(const SpotLight& light) { *spotLightData_ = light; }
+	void SetLightManager(LightManager* lightManager) { lightManager_ = lightManager; }
 
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
@@ -152,16 +121,6 @@ private: /*========[ プライベートメンバ関数(このクラス内でし�
 	void CreateCameraData();
 
 	/**
-	 * \brief ポイントライトデータの生成
-	 */
-	void CreatePointLightData();
-
-	/**
-	 * \brief スポットライトデータの生成
-	 */
-	void CreateSpotLightData();
-
-	/**
 	 * \brief 描画設定の初期化
 	 */
 	void InitializeRenderingSettings();
@@ -175,15 +134,12 @@ private: /*========[ 描画用変数 ]========*/
 	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> pointLightResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> spotLightResource_;
 
 	//バッファリソース内のデータを指すポインタ
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	DirectionalLight* directionalLightData_ = nullptr;
 	CameraForGPU* cameraData_ = nullptr;
-	PointLight* pointLightData_ = nullptr;
-	SpotLight* spotLightData_ = nullptr;
+
 
 private: /*========[ メンバ変数 ]========*/
 	//カメラ
@@ -191,6 +147,9 @@ private: /*========[ メンバ変数 ]========*/
 
 	//モデル
 	Model* model_ = nullptr;
+
+	//ライトマネージャー
+	LightManager* lightManager_ = nullptr;
 
 	//座標変換行列
 	Transform transform_;

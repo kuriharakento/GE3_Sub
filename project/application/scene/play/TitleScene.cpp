@@ -29,6 +29,7 @@ void TitleScene::Initialize()
 	object3d_->SetModel("highPolygonSphere.obj");
 	object3d_->SetTranslate({ 0.0f,0.0f,1.0f });
 	object3d_->SetDirectionalLightIntensity(0.0f);
+	object3d_->SetLightManager(sceneManager_->GetLightManager());
 
 	//地面の生成
 	terrain_ = std::make_unique<Object3d>();
@@ -36,6 +37,7 @@ void TitleScene::Initialize()
 	terrain_->SetModel("terrain.obj");
 	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
 	terrain_->SetDirectionalLightIntensity(0.0f);
+	terrain_->SetLightManager(sceneManager_->GetLightManager());
 
 	//ポイントライトの設定
 	pointLight_.color = { 1.0f,1.0f,1.0f,1.0f };
@@ -180,23 +182,6 @@ void TitleScene::Update()
 		// フェードアウト
 		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
 	}
-
-	// ポイントライトの設定
-	object3d_->SetPointLightPosition(pointLight_.position);
-	terrain_->SetPointLightPosition(pointLight_.position);
-	object3d_->SetPointLightColor(pointLight_.color);
-	terrain_->SetPointLightColor(pointLight_.color);
-	object3d_->SetPointLightIntensity(pointLight_.intensity);
-	terrain_->SetPointLightIntensity(pointLight_.intensity);
-	object3d_->SetPointLightRadius(pointLight_.radius);
-	terrain_->SetPointLightRadius(pointLight_.radius);
-	object3d_->SetPointLightDecay(pointLight_.decay);
-	terrain_->SetPointLightDecay(pointLight_.decay);
-
-	object3d_->SetPointLight(pointLight_);
-	terrain_->SetPointLight(pointLight_);
-	object3d_->SetSpotLight(spotLight_);
-	terrain_->SetSpotLight(spotLight_);
 
 	// スプライトの更新
 	sprite_->Update();

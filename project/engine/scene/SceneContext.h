@@ -1,5 +1,6 @@
 #pragma once
 
+class LightManager;
 class CameraManager;
 class SpriteCommon;
 class Object3dCommon;
@@ -10,4 +11,5 @@ struct SceneContext
     SpriteCommon* spriteCommon;
     Object3dCommon* object3dCommon;
 	CameraManager* cameraManager;
+	LightManager* lightManager;
 };
