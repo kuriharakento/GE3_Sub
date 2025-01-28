@@ -130,15 +130,18 @@ void TitleScene::Update()
 		//ポイントライトの設定
 		#pragma region PointLight
 		if (ImGui::CollapsingHeader("PointLight")) {
+			ImGui::ColorEdit4("PointLight Color", &pointLight_.color.x);
 			ImGui::DragFloat3("PointLight Position", &pointLight_.position.x, 0.1f);
 			ImGui::DragFloat("PointLight Intensity", &pointLight_.intensity, 0.1f, 0.0f, 1.0f);
 			ImGui::DragFloat("PointLight Radius", &pointLight_.radius, 0.1f, 0.0f, 10.0f);
 			ImGui::DragFloat("PointLight Decay", &pointLight_.decay, 0.1f, 0.0f, 5.0f);
 		}
 		#pragma endregion
-#pragma 
+
 		//スポットライトの設定
+		#pragma region SpotLight
 		if (ImGui::CollapsingHeader("SpotLight")) {
+			ImGui::ColorEdit4("SpotLight Color", &spotLight_.color.x);
 			ImGui::DragFloat3("SpotLight Position", &spotLight_.position.x, 0.1f);
 			ImGui::DragFloat3("SpotLight Direction", &spotLight_.direction.x, 0.01f, -1.0f, 1.0f);
 			ImGui::DragFloat("SpotLight Intensity", &spotLight_.intensity, 0.1f, 0.0f, 10.0f);
@@ -147,6 +150,7 @@ void TitleScene::Update()
 			ImGui::DragFloat("SpotLight Decay", &spotLight_.decay, 0.1f, 0.0f, 5.0f);
 			ImGui::DragFloat("SpotLight CosFalloffStart", &spotLight_.cosFalloffStart, 0.01f, -3.14f, 3.14f);
 		}
+		#pragma endregion
 	}
 #pragma endregion
 	ImGui::End();
@@ -189,6 +193,8 @@ void TitleScene::Update()
 	object3d_->SetPointLightDecay(pointLight_.decay);
 	terrain_->SetPointLightDecay(pointLight_.decay);
 
+	object3d_->SetPointLight(pointLight_);
+	terrain_->SetPointLight(pointLight_);
 	object3d_->SetSpotLight(spotLight_);
 	terrain_->SetSpotLight(spotLight_);
 
