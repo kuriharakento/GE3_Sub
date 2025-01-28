@@ -21,6 +21,30 @@ Object3d::~Object3d()
 		directionalLightResource_->Unmap(0, nullptr);
 		directionalLightResource_.Reset();
 	}
+	//カメラのリソースを解放
+	if (cameraResource_)
+	{
+		cameraResource_->Unmap(0, nullptr);
+		cameraResource_.Reset();
+	}
+	//ディレクショナルライトのリソースを解放
+	if (directionalLightResource_)
+	{
+		directionalLightResource_->Unmap(0, nullptr);
+		directionalLightResource_.Reset();
+	}
+	//ポイントライトのリソースを解放
+	if (pointLightResource_)
+	{
+		pointLightResource_->Unmap(0, nullptr);
+		pointLightResource_.Reset();
+	}
+	//スポットライトのリソースを解放
+	if (spotLightResource_)
+	{
+		spotLightResource_->Unmap(0, nullptr);
+		spotLightResource_.Reset();
+	}
 }
 
 void Object3d::Initialize(Object3dCommon* object3dCommon,Camera* camera)

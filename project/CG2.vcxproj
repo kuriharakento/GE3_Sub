@@ -140,6 +140,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="engine\lighting\DirectionalLight.h" />
+    <ClInclude Include="engine\lighting\PointLight.h" />
+    <ClInclude Include="engine\lighting\SpotLight.h" />
     <ClInclude Include="engine\math\Easing.h" />
     <ClInclude Include="engine\math\MathUtils.h" />
     <ClInclude Include="engine\scene\SceneContext.h" />

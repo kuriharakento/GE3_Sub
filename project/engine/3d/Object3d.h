@@ -6,6 +6,9 @@
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
 #include "3d/ModelManager.h"
+#include "lighting/DirectionalLight.h"
+#include "lighting/PointLight.h"
+#include "lighting/SpotLight.h"
 #include "manager/CameraManager.h"
 
 //スプライト共通部分のポインタ
