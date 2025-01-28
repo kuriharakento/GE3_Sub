@@ -57,6 +57,15 @@ void TitleScene::Update()
 	#pragma region Debug Sprite
 	if (ImGui::CollapsingHeader("Sprite"))
 	{
+		if (ImGui::Button("uvChecker"))
+		{
+			sprite_->SetTexture("./Resources/uvChecker.png");
+		}
+		if(ImGui::Button("monsterBall"))
+		{
+			sprite_->SetTexture("./Resources/monsterBall.png");
+		}
+
 		Vector2 pos = sprite_->GetPosition();
 		ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
 		sprite_->SetPosition(pos);
