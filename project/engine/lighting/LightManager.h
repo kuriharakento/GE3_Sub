@@ -93,7 +93,7 @@ public: //ゲッター
 
 private:
 	//ImGui
-	void ImGui();
+	void ImGuiUpdate();
 
 	//定数バッファの作成
 	void CreateConstantBuffer();
@@ -124,4 +124,10 @@ private:
 	GPUPointLight* pointLightData_ = nullptr;
 	GPUSpotLight* spotLightData_ = nullptr;
 	LightCount* lightCountData_ = nullptr;
+
+	//イージング関数ポインタ
+	float (*pEasingFunc_)(float) = nullptr;
+
+	//持続時間
+	float duration_ = 1.0f;
 };

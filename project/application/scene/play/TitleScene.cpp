@@ -19,10 +19,6 @@ void TitleScene::Initialize()
 	sprite_->SetSize({ 150.0f,150.0f });
 	sprite_->SetPosition({ 0.0f,0.0f });
 
-	// スライドの生成
-	slide_ = std::make_unique<Slide>();
-	slide_->Initialize(sceneManager_->GetSpriteCommon());
-
 	//デバック用オブジェクトの生成
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
@@ -150,9 +146,6 @@ void TitleScene::Update()
 
 	//地面の更新
 	terrain_->Update(sceneManager_->GetCameraManager());
-
-	//スライドの更新
-	slide_->Update();
 }
 
 void TitleScene::Draw3D()
@@ -168,7 +161,4 @@ void TitleScene::Draw2D()
 {
 	// スプライトの描画
 	sprite_->Draw();
-
-	// スライドの描画
-	slide_->Draw();
 }

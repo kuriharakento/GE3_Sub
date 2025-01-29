@@ -26,6 +26,9 @@ void LightManager::Initialize(DirectXCommon* dxCommon)
 	//定数バッファの作成
 	CreateConstantBuffer();
 
+	//イージング関数の設定
+	pEasingFunc_ = EaseInSine<float>;
+
 	//ポイントライトの追加
 	AddPointLight("pointLight" + std::to_string(pointLights_.size()));
 
@@ -33,14 +36,15 @@ void LightManager::Initialize(DirectXCommon* dxCommon)
 	AddSpotLight("spotLight" + std::to_string(spotLights_.size()));
 
 	//グラデーションしてみる
-	StartGradient("pointLight0", VectorColorCodes::White, VectorColorCodes::Purple, 1.0f, EaseInSine<float>);
+	StartGradient("pointLight0", VectorColorCodes::White, VectorColorCodes::Purple, duration_, pEasingFunc_);
+	StartGradient("spotLight0", VectorColorCodes::Black, VectorColorCodes::White, duration_, pEasingFunc_);
 
 }
 
 void LightManager::Update()
 {
 	//ImGuiの表示
-	ImGui();
+	ImGuiUpdate();
 
 	// フレーム間の経過時間を取得（例として固定値を使用）
 	float deltaTime = 1.0f / 60.0f;  // 60FPSの場合
@@ -260,7 +264,7 @@ void LightManager::CreateConstantBuffer()
 	spotLightData_->cosFalloffStart = 0.0f;
 }
 
-void LightManager::ImGui()
+void LightManager::ImGuiUpdate()
 {
 #ifdef _DEBUG
 	ImGui::Begin("LightManager");
@@ -269,6 +273,59 @@ void LightManager::ImGui()
 	{
 		if (ImGui::BeginTabItem("Light Options"))
 		{
+			// イージング関数の選択肢
+			const char* easingOptions[] = {
+				"EaseInSine",
+				"EaseOutSine",
+				"EaseInOutSine",
+				"EaseInQuint",
+				"EaseOutQuint",
+				"EaseInOutQuint",
+				"EaseInCirc",
+				"EaseOutCirc",
+				"EaseInOutCirc",
+				"EaseInElastic",
+				"EaseOutElastic",
+				"EaseInOutElastic",
+				"EaseInExpo",
+				"EaseOutQuad",
+				"EaseInOutQuart",
+				"EaseInBack",
+				"EaseOutBack",
+				"EaseInOutBack",
+				"EaseInBounce",
+				"EaseOutBounce",
+				"EaseInOutBounce"
+			};
+			static int currentEasingIndex = 0;
+			//イージングの時間
+			ImGui::DragFloat("Easing Time", &duration_, 0.1f, 0.0f, 10.0f);
+			// イージング関数の選択
+			if (ImGui::Combo("Easing Function", &currentEasingIndex, easingOptions, IM_ARRAYSIZE(easingOptions))) {
+				switch (currentEasingIndex) {
+				case 0: pEasingFunc_ = EaseInSine<float>; break;
+				case 1: pEasingFunc_ = EaseOutSine<float>; break;
+				case 2: pEasingFunc_ = EaseInOutSine<float>; break;
+				case 3: pEasingFunc_ = EaseInQuint<float>; break;
+				case 4: pEasingFunc_ = EaseOutQuint<float>; break;
+				case 5: pEasingFunc_ = EaseInOutQuint<float>; break;
+				case 6: pEasingFunc_ = EaseInCirc<float>; break;
+				case 7: pEasingFunc_ = EaseOutCirc<float>; break;
+				case 8: pEasingFunc_ = EaseInOutCirc<float>; break;
+				case 9: pEasingFunc_ = EaseInElastic<float>; break;
+				case 10: pEasingFunc_ = EaseOutElastic<float>; break;
+				case 11: pEasingFunc_ = EaseInOutElastic<float>; break;
+				case 12: pEasingFunc_ = EaseInExpo<float>; break;
+				case 13: pEasingFunc_ = EaseOutQuad<float>; break;
+				case 14: pEasingFunc_ = EaseInOutQuart<float>; break;
+				case 15: pEasingFunc_ = EaseInBack<float>; break;
+				case 16: pEasingFunc_ = EaseOutBack<float>; break;
+				case 17: pEasingFunc_ = EaseInOutBack<float>; break;
+				case 18: pEasingFunc_ = EaseInBounce<float>; break;
+				case 19: pEasingFunc_ = EaseOutBounce<float>; break;
+				case 20: pEasingFunc_ = EaseInOutBounce<float>; break;
+				}
+			}
 			ImGui::SeparatorText("List Clear");
 			if (ImGui::Button("clear"))
 			{
@@ -278,6 +335,7 @@ void LightManager::ImGui()
 		}
 		if (ImGui::BeginTabItem("Point Lights"))
 		{
+			ImGui::SeparatorText("List Options");
 			ImGui::Text("PointLight Count : %d", lightCount_.pointLightCount);
 			if (ImGui::Button("Add PointLight"))
 			{
@@ -291,6 +349,13 @@ void LightManager::ImGui()
 				lightCount_.pointLightCount = 0;
 			}
 
+			ImGui::SeparatorText("Gradient");
+			if (ImGui::Button("Start Gradient"))
+			{
+				StartGradient("pointLight0", VectorColorCodes::White, VectorColorCodes::Purple, duration_, pEasingFunc_);
+			}
+
+			ImGui::SeparatorText("List");
 			// ポイントライトの設定
 			for (const auto& name : pointLightNames_)
 			{
@@ -311,6 +376,7 @@ void LightManager::ImGui()
 
 		if (ImGui::BeginTabItem("Spot Lights"))
 		{
+			ImGui::SeparatorText("List Options");
 			ImGui::Text("SpotLight Count : %d", lightCount_.spotLightCount);
 			if (ImGui::Button("Add GPUSpotLight"))
 			{
@@ -324,6 +390,14 @@ void LightManager::ImGui()
 				lightCount_.spotLightCount = 0;
 			}
 
+			ImGui::SeparatorText("Gradient");
+
+			if (ImGui::Button("Start Gradient"))
+			{
+				StartGradient("spotLight0", VectorColorCodes::Red, VectorColorCodes::Black, duration_, pEasingFunc_);
+			}
+
+			ImGui::SeparatorText("List");
 			// スポットライトの設定
 			for (const auto& name : spotLightNames_)
 			{
