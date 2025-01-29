@@ -25,7 +25,7 @@ struct Camera
 };
 
 // ポイントライト
-struct PointLight
+struct GPUPointLight
 {
     float4 color;
     float3 position;
@@ -35,7 +35,7 @@ struct PointLight
 };
 
 // スポットライト
-struct SpotLight
+struct GPUSpotLight
 {
     float4 color;
     float3 position;
@@ -56,8 +56,8 @@ struct LightCounts
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 ConstantBuffer<Camera> gCamera : register(b2);
-StructuredBuffer<PointLight> gPointLights : register(t3);
-StructuredBuffer<SpotLight> gSpotLights : register(t4);
+StructuredBuffer<GPUPointLight> gPointLights : register(t3);
+StructuredBuffer<GPUSpotLight> gSpotLights : register(t4);
 ConstantBuffer<LightCounts> gLightCounts : register(b5);
 
 Texture2D<float4> gTexture : register(t0);

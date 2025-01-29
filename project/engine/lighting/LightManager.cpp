@@ -2,7 +2,9 @@
 
 #include <numbers>
 
+#include "VectorColorCodes.h"
 #include "base/Logger.h"
+#include "math/Easing.h"
 
 LightManager::LightManager()
 {
@@ -30,6 +32,9 @@ void LightManager::Initialize(DirectXCommon* dxCommon)
 	//スポットライトの追加
 	AddSpotLight("spotLight" + std::to_string(spotLights_.size()));
 
+	//グラデーションしてみる
+	StartGradient("pointLight0", VectorColorCodes::White, VectorColorCodes::Purple, 2.0f, EaseInSine<float>);
+
 }
 
 void LightManager::Update()
@@ -37,18 +42,60 @@ void LightManager::Update()
 	//ImGuiの表示
 	ImGui();
 
-	// ポイントライトのデータを更新
-	uint32_t pointLightIndex = 0;
-	for (const auto& [name, light] : pointLights_)
-	{
-		pointLightData_[pointLightIndex++] = light;
+	// フレーム間の経過時間を取得（例として固定値を使用）
+	float deltaTime = 1.0f / 60.0f;  // 60FPSの場合
+
+	// ポイントライトの更新
+	for (auto& [name, light] : pointLights_) {
+		if (light.isGradientActive) {
+			// 経過時間を更新
+			light.elapsedTime += deltaTime;
+			if (light.elapsedTime > light.duration) {
+				light.elapsedTime = 0.0f;
+				light.isReversing = !light.isReversing;  // 補間の方向を反転
+			}
+			// 補間係数の計算
+			float t = light.elapsedTime / light.duration;
+			t = light.easingFunction(t);  // イージング関数を適用
+			// 色の補間
+			if (light.isReversing) {
+				light.gpuData.color = Vector4::Lerp(light.endColor, light.startColor, t);
+			} else {
+				light.gpuData.color = Vector4::Lerp(light.startColor, light.endColor, t);
+			}
+		}
 	}
 
-	// スポットライトのデータを更新
+	// スポットライトの更新
+	for (auto& [name, light] : spotLights_) {
+		if (light.isGradientActive) {
+			// 経過時間を更新
+			light.elapsedTime += deltaTime;
+			if (light.elapsedTime > light.duration) {
+				light.elapsedTime = 0.0f;
+				light.isReversing = !light.isReversing;  // 補間の方向を反転
+			}
+			// 補間係数の計算
+			float t = light.elapsedTime / light.duration;
+			t = light.easingFunction(t);  // イージング関数を適用
+			// 色の補間
+			if (light.isReversing) {
+				light.gpuData.color = Vector4::Lerp(light.endColor, light.startColor, t);
+			} else {
+				light.gpuData.color = Vector4::Lerp(light.startColor, light.endColor, t);
+			}
+		}
+	}
+
+	// GPUに送るデータを更新
+	uint32_t pointLightIndex = 0;
+	for (const auto& [name, light] : pointLights_) {
+		pointLightData_[pointLightIndex++] = light.gpuData;
+	}
+
 	uint32_t spotLightIndex = 0;
-	for (const auto& [name, light] : spotLights_)
-	{
-		spotLightData_[spotLightIndex++] = light;
+	for (const auto& [name, light] : spotLights_) {
+		spotLightData_[spotLightIndex++] = light.gpuData;
 	}
 
 	lightCount_.pointLightCount = pointLightIndex;
@@ -57,6 +104,7 @@ void LightManager::Update()
 	// 定数バッファにライトの数を更新
 	lightCountData_->pointLightCount = lightCount_.pointLightCount;
 	lightCountData_->spotLightCount = lightCount_.spotLightCount;
+
 }
 
 void LightManager::Draw()
@@ -79,7 +127,7 @@ void LightManager::AddPointLight(const std::string& name)
 	}
 
 	//ポイントライトを作成と初期化
-	PointLight pointLight;
+	GPUPointLight pointLight;
 	pointLight.color = { 1.0f,1.0f,1.0f,1.0f };
 	pointLight.position = { 0.0f,2.0f,0.0f };
 	pointLight.intensity = 1.0f;
@@ -102,7 +150,7 @@ void LightManager::AddSpotLight(const std::string& name)
 	}
 
 	//スポットライトを作成と初期化
-	SpotLight spotLight;
+	GPUSpotLight spotLight;
 	spotLight.color = { 1.0f,1.0f,1.0f,1.0f };
 	spotLight.position = { 0.0f,1.0f,0.0f };
 	spotLight.distance = 7.0f;
@@ -121,6 +169,31 @@ void LightManager::AddSpotLight(const std::string& name)
 void LightManager::Clear()
 {
 	pointLights_.clear();
+}
+
+void LightManager::StartGradient(const std::string& name, const Vector4& startColor, const Vector4& endColor, float duration, std::function<float(float)> easingFunction)
+{
+	if (pointLights_.find(name) != pointLights_.end()) {
+		auto& light = pointLights_.at(name);
+		light.startColor = startColor;
+		light.endColor = endColor;
+		light.duration = duration;
+		light.elapsedTime = 0.0f;
+		light.isReversing = false;
+		light.isGradientActive = true;
+		light.easingFunction = easingFunction;
+	} else if (spotLights_.find(name) != spotLights_.end()) {
+		auto& light = spotLights_.at(name);
+		light.startColor = startColor;
+		light.endColor = endColor;
+		light.duration = duration;
+		light.elapsedTime = 0.0f;
+		light.isReversing = false;
+		light.isGradientActive = true;
+		light.easingFunction = easingFunction;
+	} else {
+		Logger::Log("ライトが見つかりません: " + name);
+	}
 }
 
 void LightManager::CreateConstantBuffer()
@@ -143,7 +216,7 @@ void LightManager::CreateConstantBuffer()
 
 	/*--------------[ ポイントライトリソースを作る ]-----------------*/
 
-	pointLightResource_ = dxCommon_->CreateBufferResource(sizeof(PointLight) * LightMaxCount::kMaxPointLightCount);
+	pointLightResource_ = dxCommon_->CreateBufferResource(sizeof(GPUPointLight) * LightMaxCount::kMaxPointLightCount);
 
 	/*--------------[ ポイントライトリソースにデータを書き込むためのアドレスを取得してpointLightDataに割り当てる ]-----------------*/
 
@@ -161,7 +234,7 @@ void LightManager::CreateConstantBuffer()
 
 	/*--------------[ スポットライトリソースを作る ]-----------------*/
 
-	spotLightResource_ = dxCommon_->CreateBufferResource(sizeof(SpotLight) * LightMaxCount::kMaxSpotLightCount);
+	spotLightResource_ = dxCommon_->CreateBufferResource(sizeof(GPUSpotLight) * LightMaxCount::kMaxSpotLightCount);
 
 	/*--------------[ スポットライトリソースにデータを書き込むためのアドレスを取得してspotLightDataに割り当てる ]-----------------*/
 
@@ -218,11 +291,11 @@ void LightManager::ImGui()
 				ImGui::PushID(name.c_str());
 				if (ImGui::CollapsingHeader(name.c_str()))
 				{
-					ImGui::ColorEdit4("PointLight Color", &pointLights_.at(name).color.x);
-					ImGui::DragFloat3("PointLight Position", &pointLights_.at(name).position.x, 0.1f);
-					ImGui::DragFloat("PointLight Intensity", &pointLights_.at(name).intensity, 0.1f, 0.0f, 10.0f);
-					ImGui::DragFloat("PointLight Radius", &pointLights_.at(name).radius, 0.1f, 0.0f, 10.0f);
-					ImGui::DragFloat("PointLight Decay", &pointLights_.at(name).decay, 0.1f, 0.0f, 5.0f);
+					ImGui::ColorEdit4("PointLight Color", &pointLights_.at(name).gpuData.color.x);
+					ImGui::DragFloat3("PointLight Position", &pointLights_.at(name).gpuData.position.x, 0.1f);
+					ImGui::DragFloat("PointLight Intensity", &pointLights_.at(name).gpuData.intensity, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("PointLight Radius", &pointLights_.at(name).gpuData.radius, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("PointLight Decay", &pointLights_.at(name).gpuData.decay, 0.1f, 0.0f, 5.0f);
 				}
 				ImGui::PopID();
 			}
@@ -233,7 +306,7 @@ void LightManager::ImGui()
 		if (ImGui::BeginTabItem("Spot Lights"))
 		{
 			ImGui::Text("SpotLight Count : %d", lightCount_.spotLightCount);
-			if (ImGui::Button("Add SpotLight"))
+			if (ImGui::Button("Add GPUSpotLight"))
 			{
 				AddSpotLight("SpotLight" + std::to_string(spotLights_.size()));
 			}
@@ -250,14 +323,14 @@ void LightManager::ImGui()
 				ImGui::PushID(name.c_str());
 				if (ImGui::CollapsingHeader(name.c_str()))
 				{
-					ImGui::ColorEdit4("SpotLight Color", &spotLights_.at(name).color.x);
-					ImGui::DragFloat3("SpotLight Position", &spotLights_.at(name).position.x, 0.1f);
-					ImGui::DragFloat3("SpotLight Direction", &spotLights_.at(name).direction.x, 0.01f, -1.0f, 1.0f);
-					ImGui::DragFloat("SpotLight Intensity", &spotLights_.at(name).intensity, 0.1f, 0.0f, 10.0f);
-					ImGui::DragFloat("SpotLight Distance", &spotLights_.at(name).distance, 0.1f, 0.0f, 10.0f);
-					ImGui::DragFloat("SpotLight CosAngle", &spotLights_.at(name).cosAngle, 0.01f, -3.14f, 3.14f);
-					ImGui::DragFloat("SpotLight Decay", &spotLights_.at(name).decay, 0.1f, 0.0f, 5.0f);
-					ImGui::DragFloat("SpotLight CosFalloffStart", &spotLights_.at(name).cosFalloffStart, 0.01f, -3.14f, 3.14f);
+					ImGui::ColorEdit4("SpotLight Color", &spotLights_.at(name).gpuData.color.x);
+					ImGui::DragFloat3("SpotLight Position", &spotLights_.at(name).gpuData.position.x, 0.1f);
+					ImGui::DragFloat3("SpotLight Direction", &spotLights_.at(name).gpuData.direction.x, 0.01f, -1.0f, 1.0f);
+					ImGui::DragFloat("SpotLight Intensity", &spotLights_.at(name).gpuData.intensity, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("SpotLight Distance", &spotLights_.at(name).gpuData.distance, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("SpotLight CosAngle", &spotLights_.at(name).gpuData.cosAngle, 0.01f, -3.14f, 3.14f);
+					ImGui::DragFloat("SpotLight Decay", &spotLights_.at(name).gpuData.decay, 0.1f, 0.0f, 5.0f);
+					ImGui::DragFloat("SpotLight CosFalloffStart", &spotLights_.at(name).gpuData.cosFalloffStart, 0.01f, -3.14f, 3.14f);
 				}
 				ImGui::PopID();
 			}
@@ -270,157 +343,158 @@ void LightManager::ImGui()
 
 	ImGui::End();
 #endif
+
 }
 
-#pragma region Accessor
-void LightManager::SetPointLightColor(const std::string& name, const Vector4& color)
-{
-	pointLights_.at(name).color = color;
-}
-
-void LightManager::SetPointLightPosition(const std::string& name, const Vector3& position)
-{
-	pointLights_.at(name).position = position;
-}
-
-void LightManager::SetPointLightIntensity(const std::string& name, float intensity)
-{
-	pointLights_.at(name).intensity = intensity;
-}
-
-void LightManager::SetPointLightRadius(const std::string& name, float radius)
-{
-	pointLights_.at(name).radius = radius;
-}
-
-void LightManager::SetPointLightDecay(const std::string& name, float decay)
-{
-	pointLights_.at(name).decay = decay;
-}
-
-void LightManager::SetSpotLightColor(const std::string& name, const Vector4& color)
-{
-	spotLights_.at(name).color = color;
-}
-
-void LightManager::SetSpotLightPosition(const std::string& name, const Vector3& position)
-{
-	spotLights_.at(name).position = position;
-}
-
-void LightManager::SetSpotLightIntensity(const std::string& name, float intensity)
-{
-	spotLights_.at(name).intensity = intensity;
-}
-
-void LightManager::SetSpotLightDirection(const std::string& name, const Vector3& direction)
-{
-	spotLights_.at(name).direction = Vector3::Normalize(direction);
-}
-
-void LightManager::SetSpotLightDistance(const std::string& name, float distance)
-{
-	spotLights_.at(name).distance = distance;
-}
-
-void LightManager::SetSpotLightDecay(const std::string& name, float decay)
-{
-	spotLights_.at(name).decay = decay;
-}
-
-void LightManager::SetSpotLightCosAngle(const std::string& name, float cosAngle)
-{
-	spotLights_.at(name).cosAngle = cosAngle;
-}
-
-void LightManager::SetSpotLightCosFalloffStart(const std::string& name, float cosFalloffStart)
-{
-	spotLights_.at(name).cosFalloffStart = cosFalloffStart;
-}
-
-const PointLight& LightManager::GetPointLight(const std::string& name) const
-{
-	return pointLights_.at(name);
-}
-
-const SpotLight& LightManager::GetSpotLight(const std::string& name) const
-{
-	return spotLights_.at(name);
-}
-
-const Vector4& LightManager::GetPointLightColor(const std::string& name) const
-{
-	return pointLights_.at(name).color;
-}
-
-const Vector3& LightManager::GetPointLightPosition(const std::string& name) const
-{
-	return pointLights_.at(name).position;
-}
-
-float LightManager::GetPointLightIntensity(const std::string& name) const
-{
-	return pointLights_.at(name).intensity;
-}
-
-float LightManager::GetPointLightRadius(const std::string& name) const
-{
-	return pointLights_.at(name).radius;
-}
-
-float LightManager::GetPointLightDecay(const std::string& name) const
-{
-	return pointLights_.at(name).decay;
-}
-
-const Vector4& LightManager::GetSpotLightColor(const std::string& name) const
-{
-	return spotLights_.at(name).color;
-}
-
-const Vector3& LightManager::GetSpotLightPosition(const std::string& name) const
-{
-	return spotLights_.at(name).position;
-}
-
-float LightManager::GetSpotLightIntensity(const std::string& name) const
-{
-	return spotLights_.at(name).intensity;
-}
-
-const Vector3& LightManager::GetSpotLightDirection(const std::string& name) const
-{
-	return spotLights_.at(name).direction;
-}
-
-float LightManager::GetSpotLightDistance(const std::string& name) const
-{
-	return spotLights_.at(name).distance;
-}
-
-float LightManager::GetSpotLightDecay(const std::string& name) const
-{
-	return spotLights_.at(name).decay;
-}
-
-float LightManager::GetSpotLightCosAngle(const std::string& name) const
-{
-	return spotLights_.at(name).cosAngle;
-}
-
-float LightManager::GetSpotLightCosFalloffStart(const std::string& name) const
-{
-	return spotLights_.at(name).cosFalloffStart;
-}
-
-const uint32_t& LightManager::GetPointLightCount() const
-{
-	return lightCount_.pointLightCount;
-}
-
-const uint32_t& LightManager::GetSpotLightCount() const
-{
-	return lightCount_.spotLightCount;
-}
-
-#pragma endregion
+//#pragma region Accessor
+//void LightManager::SetPointLightColor(const std::string& name, const Vector4& color)
+//{
+//	pointLights_.at(name).color = color;
+//}
+//
+//void LightManager::SetPointLightPosition(const std::string& name, const Vector3& position)
+//{
+//	pointLights_.at(name).position = position;
+//}
+//
+//void LightManager::SetPointLightIntensity(const std::string& name, float intensity)
+//{
+//	pointLights_.at(name).intensity = intensity;
+//}
+//
+//void LightManager::SetPointLightRadius(const std::string& name, float radius)
+//{
+//	pointLights_.at(name).radius = radius;
+//}
+//
+//void LightManager::SetPointLightDecay(const std::string& name, float decay)
+//{
+//	pointLights_.at(name).decay = decay;
+//}
+//
+//void LightManager::SetSpotLightColor(const std::string& name, const Vector4& color)
+//{
+//	spotLights_.at(name).color = color;
+//}
+//
+//void LightManager::SetSpotLightPosition(const std::string& name, const Vector3& position)
+//{
+//	spotLights_.at(name).position = position;
+//}
+//
+//void LightManager::SetSpotLightIntensity(const std::string& name, float intensity)
+//{
+//	spotLights_.at(name).intensity = intensity;
+//}
+//
+//void LightManager::SetSpotLightDirection(const std::string& name, const Vector3& direction)
+//{
+//	spotLights_.at(name).direction = Vector3::Normalize(direction);
+//}
+//
+//void LightManager::SetSpotLightDistance(const std::string& name, float distance)
+//{
+//	spotLights_.at(name).distance = distance;
+//}
+//
+//void LightManager::SetSpotLightDecay(const std::string& name, float decay)
+//{
+//	spotLights_.at(name).decay = decay;
+//}
+//
+//void LightManager::SetSpotLightCosAngle(const std::string& name, float cosAngle)
+//{
+//	spotLights_.at(name).cosAngle = cosAngle;
+//}
+//
+//void LightManager::SetSpotLightCosFalloffStart(const std::string& name, float cosFalloffStart)
+//{
+//	spotLights_.at(name).cosFalloffStart = cosFalloffStart;
+//}
+//
+//const GPUPointLight& LightManager::GetPointLight(const std::string& name) const
+//{
+//	return pointLights_.at(name);
+//}
+//
+//const GPUSpotLight& LightManager::GetSpotLight(const std::string& name) const
+//{
+//	return spotLights_.at(name);
+//}
+//
+//const Vector4& LightManager::GetPointLightColor(const std::string& name) const
+//{
+//	return pointLights_.at(name).color;
+//}
+//
+//const Vector3& LightManager::GetPointLightPosition(const std::string& name) const
+//{
+//	return pointLights_.at(name).position;
+//}
+//
+//float LightManager::GetPointLightIntensity(const std::string& name) const
+//{
+//	return pointLights_.at(name).intensity;
+//}
+//
+//float LightManager::GetPointLightRadius(const std::string& name) const
+//{
+//	return pointLights_.at(name).radius;
+//}
+//
+//float LightManager::GetPointLightDecay(const std::string& name) const
+//{
+//	return pointLights_.at(name).decay;
+//}
+//
+//const Vector4& LightManager::GetSpotLightColor(const std::string& name) const
+//{
+//	return spotLights_.at(name).color;
+//}
+//
+//const Vector3& LightManager::GetSpotLightPosition(const std::string& name) const
+//{
+//	return spotLights_.at(name).position;
+//}
+//
+//float LightManager::GetSpotLightIntensity(const std::string& name) const
+//{
+//	return spotLights_.at(name).intensity;
+//}
+//
+//const Vector3& LightManager::GetSpotLightDirection(const std::string& name) const
+//{
+//	return spotLights_.at(name).direction;
+//}
+//
+//float LightManager::GetSpotLightDistance(const std::string& name) const
+//{
+//	return spotLights_.at(name).distance;
+//}
+//
+//float LightManager::GetSpotLightDecay(const std::string& name) const
+//{
+//	return spotLights_.at(name).decay;
+//}
+//
+//float LightManager::GetSpotLightCosAngle(const std::string& name) const
+//{
+//	return spotLights_.at(name).cosAngle;
+//}
+//
+//float LightManager::GetSpotLightCosFalloffStart(const std::string& name) const
+//{
+//	return spotLights_.at(name).cosFalloffStart;
+//}
+//
+//const uint32_t& LightManager::GetPointLightCount() const
+//{
+//	return lightCount_.pointLightCount;
+//}
+//
+//const uint32_t& LightManager::GetSpotLightCount() const
+//{
+//	return lightCount_.spotLightCount;
+//}
+//
+//#pragma endregion

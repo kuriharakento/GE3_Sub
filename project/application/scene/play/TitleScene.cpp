@@ -38,23 +38,6 @@ void TitleScene::Initialize()
 	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
 	terrain_->SetDirectionalLightIntensity(0.0f);
 	terrain_->SetLightManager(sceneManager_->GetLightManager());
-
-	//ポイントライトの設定
-	pointLight_.color = { 1.0f,1.0f,1.0f,1.0f };
-	pointLight_.position = { 0.0f,2.0f,0.0f };
-	pointLight_.intensity = 1.0f;
-	pointLight_.radius = 3.0f;
-	pointLight_.decay = 1.0f;
-
-	//スポットライトの設定
-	spotLight_.color = { 1.0f,1.0f,1.0f,1.0f };
-	spotLight_.position = { 2.0f,1.25f,0.0f };
-	spotLight_.distance = 7.0f;
-	spotLight_.intensity = 4.0f;
-	spotLight_.direction = Vector3::Normalize({ -1.0f,-1.0f,0.0f });
-	spotLight_.cosAngle = std::cos(std::numbers::pi_v<float> / 3.0f);
-	spotLight_.decay = 2.0f;
-	spotLight_.cosFalloffStart = 1.0f;
 }
 
 void TitleScene::Finalize()
@@ -127,30 +110,6 @@ void TitleScene::Update()
 			float shininess = object3d_->GetShininess();
 			ImGui::DragFloat("Shininess", &shininess, 0.1f);
 			object3d_->SetShininess(shininess);
-		}
-		#pragma endregion
-		//ポイントライトの設定
-		#pragma region PointLight
-		if (ImGui::CollapsingHeader("PointLight")) {
-			ImGui::ColorEdit4("PointLight Color", &pointLight_.color.x);
-			ImGui::DragFloat3("PointLight Position", &pointLight_.position.x, 0.1f);
-			ImGui::DragFloat("PointLight Intensity", &pointLight_.intensity, 0.1f, 0.0f, 1.0f);
-			ImGui::DragFloat("PointLight Radius", &pointLight_.radius, 0.1f, 0.0f, 10.0f);
-			ImGui::DragFloat("PointLight Decay", &pointLight_.decay, 0.1f, 0.0f, 5.0f);
-		}
-		#pragma endregion
-
-		//スポットライトの設定
-		#pragma region SpotLight
-		if (ImGui::CollapsingHeader("SpotLight")) {
-			ImGui::ColorEdit4("SpotLight Color", &spotLight_.color.x);
-			ImGui::DragFloat3("SpotLight Position", &spotLight_.position.x, 0.1f);
-			ImGui::DragFloat3("SpotLight Direction", &spotLight_.direction.x, 0.01f, -1.0f, 1.0f);
-			ImGui::DragFloat("SpotLight Intensity", &spotLight_.intensity, 0.1f, 0.0f, 10.0f);
-			ImGui::DragFloat("SpotLight Distance", &spotLight_.distance, 0.1f, 0.0f, 10.0f);
-			ImGui::DragFloat("SpotLight CosAngle", &spotLight_.cosAngle, 0.01f, -3.14f, 3.14f);
-			ImGui::DragFloat("SpotLight Decay", &spotLight_.decay, 0.1f, 0.0f, 5.0f);
-			ImGui::DragFloat("SpotLight CosFalloffStart", &spotLight_.cosFalloffStart, 0.01f, -3.14f, 3.14f);
 		}
 		#pragma endregion
 	}

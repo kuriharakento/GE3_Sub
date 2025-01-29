@@ -34,6 +34,10 @@ public:
 	//ライトの削除
 	void Clear();
 
+	// グラデーション開始
+	void StartGradient(const std::string& name, const Vector4& startColor, const Vector4& endColor, float duration, std::function<float(float)> easingFunction);
+
+
 public: //セッター
 	// ポイントライトのプロパティ設定
 	void SetPointLightColor(const std::string& name, const Vector4& color);
@@ -59,9 +63,9 @@ public: //ゲッター
 	const uint32_t& GetSpotLightCount() const;
 
 	//ポイントライトの取得
-	const PointLight& GetPointLight(const std::string& name) const;
+	const GPUPointLight& GetPointLight(const std::string& name) const;
 	//スポットライトの取得
-	const SpotLight& GetSpotLight(const std::string& name) const;
+	const GPUSpotLight& GetSpotLight(const std::string& name) const;
 
 	// ポイントライトのプロパティ取得
 	const Vector4& GetPointLightColor(const std::string& name) const;
@@ -89,12 +93,12 @@ private:
 
 private:
 	//ポイントライト
-	std::unordered_map<std::string, PointLight> pointLights_;
+	std::unordered_map<std::string, CPUPointLight> pointLights_;
 	//ポイントライトの名前
 	std::vector<std::string> pointLightNames_;
 
 	//スポットライト
-	std::unordered_map<std::string, SpotLight> spotLights_;
+	std::unordered_map<std::string, CPUSpotLight> spotLights_;
 	//スポットライトの名前
 	std::vector<std::string> spotLightNames_;
 
@@ -110,7 +114,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> lightCountResource_;
 
 	//書き込むデータ
-	PointLight* pointLightData_ = nullptr;
-	SpotLight* spotLightData_ = nullptr;
+	GPUPointLight* pointLightData_ = nullptr;
+	GPUSpotLight* spotLightData_ = nullptr;
 	LightCount* lightCountData_ = nullptr;
 };

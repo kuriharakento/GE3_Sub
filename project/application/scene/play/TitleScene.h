@@ -28,9 +28,5 @@ private: //メンバ変数
 	std::unique_ptr<Object3d> terrain_;
 	//スライド
 	std::unique_ptr<Slide> slide_;
-	//ポイントライト
-	PointLight pointLight_;
-	//スポットライト
-	SpotLight spotLight_;
 };
 
