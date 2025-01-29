@@ -192,6 +192,15 @@ struct Vector4 {
         return (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
     }
 
+    static Vector4 Lerp(const Vector4& start, const Vector4& end, float t) {
+        return {
+            start.x + (end.x - start.x) * t,
+            start.y + (end.y - start.y) * t,
+            start.z + (end.z - start.z) * t,
+            start.w + (end.w - start.w) * t
+        };
+    }
+
     // オペレータ
     Vector4 operator+(const Vector4& other) const {
         return Vector4{ x + other.x, y + other.y, z + other.z, w + other.w };

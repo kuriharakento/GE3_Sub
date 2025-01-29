@@ -63,6 +63,10 @@ void Framework::Initialize()
 
 	//シーンマネージャーの初期化
 	sceneManager_ = std::make_unique<SceneManager>(sceneFactory_.get());
+
+	//ライトマネージャーの初期化
+	lightManager_ = std::make_unique<LightManager>();
+	lightManager_->Initialize(dxCommon_);
 }
 
 void Framework::Finalize()
@@ -102,6 +106,9 @@ void Framework::Update()
 
 	//オーディオの更新
 	Audio::GetInstance()->Update();
+
+	//ライトマネージャーの更新
+	lightManager_->Update();
 }
 
 void Framework::PostUpdate()
