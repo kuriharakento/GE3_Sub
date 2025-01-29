@@ -34,7 +34,14 @@ public:
 	//ライトの削除
 	void Clear();
 
-	// グラデーション開始
+	/**
+	 * \brief グラデーション
+	 * \param name ライトの名前
+	 * \param startColor 開始したい色
+	 * \param endColor 終了したい色
+	 * \param duration グラデーションにかける時間
+	 * \param easingFunction イージング関数
+	 */
 	void StartGradient(const std::string& name, const Vector4& startColor, const Vector4& endColor, float duration, std::function<float(float)> easingFunction);
 
 
