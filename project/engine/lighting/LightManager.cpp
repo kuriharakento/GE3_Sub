@@ -2,7 +2,6 @@
 
 #include <numbers>
 
-#include "VectorColorCodes.h"
 #include "base/Logger.h"
 #include "math/Easing.h"
 
@@ -36,8 +35,8 @@ void LightManager::Initialize(DirectXCommon* dxCommon)
 	AddSpotLight("spotLight" + std::to_string(spotLights_.size()));
 
 	//グラデーションしてみる
-	StartGradient("pointLight0", VectorColorCodes::White, VectorColorCodes::Purple, duration_, pEasingFunc_);
-	StartGradient("spotLight0", VectorColorCodes::Black, VectorColorCodes::White, duration_, pEasingFunc_);
+	StartGradient("pointLight0", startPointLightColor_, endPointLightColor_, duration_, pEasingFunc_);
+	StartGradient("spotLight0", startSpotLightColor_, endSpotLightColor_, duration_, pEasingFunc_);
 
 }
 
@@ -352,8 +351,16 @@ void LightManager::ImGuiUpdate()
 			ImGui::SeparatorText("Gradient");
 			if (ImGui::Button("Start Gradient"))
 			{
-				StartGradient("pointLight0", VectorColorCodes::White, VectorColorCodes::Purple, duration_, pEasingFunc_);
+				//すべてのポイントライトにグラデーションを適用
+				for (const auto& name : pointLightNames_)
+				{
+					StartGradient(name, startPointLightColor_, endPointLightColor_, duration_, pEasingFunc_);
+				}
 			}
+			//開始色
+			ImGui::ColorEdit4("Start Color", &startPointLightColor_.x);
+			//終了色
+			ImGui::ColorEdit4("End Color", &endPointLightColor_.x);
 
 			ImGui::SeparatorText("List");
 			// ポイントライトの設定
@@ -394,8 +401,16 @@ void LightManager::ImGuiUpdate()
 
 			if (ImGui::Button("Start Gradient"))
 			{
-				StartGradient("spotLight0", VectorColorCodes::Red, VectorColorCodes::Black, duration_, pEasingFunc_);
+				//すべてのスポットライトにグラデーションを適用
+				for (const auto& name : spotLightNames_)
+				{
+					StartGradient(name, startSpotLightColor_, endSpotLightColor_, duration_, pEasingFunc_);
+				}
 			}
+			//開始色
+			ImGui::ColorEdit4("Start Color", &startSpotLightColor_.x);
+			//終了色
+			ImGui::ColorEdit4("End Color", &endSpotLightColor_.x);
 
 			ImGui::SeparatorText("List");
 			// スポットライトの設定

@@ -5,6 +5,7 @@
 #include "LightConstants.h"
 #include "PointLight.h"
 #include "SpotLight.h"
+#include "VectorColorCodes.h"
 #include "base/DirectXCommon.h"
 #include "externals/imgui/imgui.h"
 
@@ -130,4 +131,14 @@ private:
 
 	//持続時間
 	float duration_ = 1.0f;
+
+	//ポイントライトの開始色
+	Vector4 startPointLightColor_ = VectorColorCodes::White;
+	//ポイントライトの終了色
+	Vector4 endPointLightColor_ = VectorColorCodes::Purple;
+
+	//スポットライトの開始色
+	Vector4 startSpotLightColor_ = VectorColorCodes::White;
+	//スポットライトの終了色
+	Vector4 endSpotLightColor_ = VectorColorCodes::Red;
 };
