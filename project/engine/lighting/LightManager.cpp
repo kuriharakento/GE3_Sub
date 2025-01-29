@@ -77,7 +77,7 @@ void LightManager::AddPointLight(const std::string& name)
 		Logger::Log("ポイントライトの最大数に達しているため追加できません\n");
 		return;
 	}
-	
+
 	//ポイントライトを作成と初期化
 	PointLight pointLight;
 	pointLight.color = { 1.0f,1.0f,1.0f,1.0f };
@@ -121,26 +121,6 @@ void LightManager::AddSpotLight(const std::string& name)
 void LightManager::Clear()
 {
 	pointLights_.clear();
-}
-
-const PointLight& LightManager::GetPointLight(const std::string& name) const
-{
-	return pointLights_.at(name);
-}
-
-const SpotLight& LightManager::GetSpotLight(const std::string& name) const
-{
-	return spotLights_.at(name);
-}
-
-const uint32_t& LightManager::GetPointLightCount() const
-{
-	return lightCount_.pointLightCount;
-}
-
-const uint32_t& LightManager::GetSpotLightCount() const
-{
-	return lightCount_.spotLightCount;
 }
 
 void LightManager::CreateConstantBuffer()
@@ -206,54 +186,241 @@ void LightManager::ImGui()
 {
 #ifdef _DEBUG
 	ImGui::Begin("LightManager");
-	ImGui::Text("PointLight Count :%d", lightCount_.pointLightCount);
-	ImGui::Text("SpotLight Count :%d", lightCount_.spotLightCount);
-	if (ImGui::Button("clear"))
+
+	if (ImGui::BeginTabBar("LightTabs"))
 	{
-		Clear();
-	}
-	//ライトの追加
-	if (ImGui::Button("Add PointLight"))
-	{
-		AddPointLight("PointLight" + std::to_string(pointLights_.size()));
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Add SpotLight"))
-	{
-		AddSpotLight("SpotLight" + std::to_string(spotLights_.size()));
-	}
-	//ポイントライトの設定
-	for (const auto& name : pointLightNames_)
-	{
-		ImGui::PushID(name.c_str());
-		if (ImGui::CollapsingHeader(name.c_str()))
+		if (ImGui::BeginTabItem("Light Options"))
 		{
-			ImGui::ColorEdit4("PointLight Color", &pointLights_.at(name).color.x);
-			ImGui::DragFloat3("PointLight Position", &pointLights_.at(name).position.x, 0.1f);
-			ImGui::DragFloat("PointLight Intensity", &pointLights_.at(name).intensity, 0.1f, 0.0f, 1.0f);
-			ImGui::DragFloat("PointLight Radius", &pointLights_.at(name).radius, 0.1f, 0.0f, 10.0f);
-			ImGui::DragFloat("PointLight Decay", &pointLights_.at(name).decay, 0.1f, 0.0f, 5.0f);
+			ImGui::SeparatorText("List Clear");
+			if (ImGui::Button("clear"))
+			{
+				Clear();
+			}
+			ImGui::EndTabItem();
 		}
-		ImGui::PopID();
-	}
-	//スポットライトの設定
-	for (const auto& name : spotLightNames_)
-	{
-		ImGui::PushID(name.c_str());
-		if (ImGui::CollapsingHeader(name.c_str()))
+		if (ImGui::BeginTabItem("Point Lights"))
 		{
-			ImGui::ColorEdit4("SpotLight Color", &spotLights_.at(name).color.x);
-			ImGui::DragFloat3("SpotLight Position", &spotLights_.at(name).position.x, 0.1f);
-			ImGui::DragFloat3("SpotLight Direction", &spotLights_.at(name).direction.x, 0.01f, -1.0f, 1.0f);
-			ImGui::DragFloat("SpotLight Intensity", &spotLights_.at(name).intensity, 0.1f, 0.0f, 10.0f);
-			ImGui::DragFloat("SpotLight Distance", &spotLights_.at(name).distance, 0.1f, 0.0f, 10.0f);
-			ImGui::DragFloat("SpotLight CosAngle", &spotLights_.at(name).cosAngle, 0.01f, -3.14f, 3.14f);
-			ImGui::DragFloat("SpotLight Decay", &spotLights_.at(name).decay, 0.1f, 0.0f, 5.0f);
-			ImGui::DragFloat("SpotLight CosFalloffStart", &spotLights_.at(name).cosFalloffStart, 0.01f, -3.14f, 3.14f);
+			ImGui::Text("PointLight Count : %d", lightCount_.pointLightCount);
+			if (ImGui::Button("Add PointLight"))
+			{
+				AddPointLight("PointLight" + std::to_string(pointLights_.size()));
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear PointLights"))
+			{
+				pointLights_.clear();
+				lightCount_.pointLightCount = 0;
+			}
+
+			// ポイントライトの設定
+			for (const auto& name : pointLightNames_)
+			{
+				ImGui::PushID(name.c_str());
+				if (ImGui::CollapsingHeader(name.c_str()))
+				{
+					ImGui::ColorEdit4("PointLight Color", &pointLights_.at(name).color.x);
+					ImGui::DragFloat3("PointLight Position", &pointLights_.at(name).position.x, 0.1f);
+					ImGui::DragFloat("PointLight Intensity", &pointLights_.at(name).intensity, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("PointLight Radius", &pointLights_.at(name).radius, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("PointLight Decay", &pointLights_.at(name).decay, 0.1f, 0.0f, 5.0f);
+				}
+				ImGui::PopID();
+			}
+
+			ImGui::EndTabItem();
 		}
-		ImGui::PopID();
+
+		if (ImGui::BeginTabItem("Spot Lights"))
+		{
+			ImGui::Text("SpotLight Count : %d", lightCount_.spotLightCount);
+			if (ImGui::Button("Add SpotLight"))
+			{
+				AddSpotLight("SpotLight" + std::to_string(spotLights_.size()));
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear SpotLights"))
+			{
+				spotLights_.clear();
+				lightCount_.spotLightCount = 0;
+			}
+
+			// スポットライトの設定
+			for (const auto& name : spotLightNames_)
+			{
+				ImGui::PushID(name.c_str());
+				if (ImGui::CollapsingHeader(name.c_str()))
+				{
+					ImGui::ColorEdit4("SpotLight Color", &spotLights_.at(name).color.x);
+					ImGui::DragFloat3("SpotLight Position", &spotLights_.at(name).position.x, 0.1f);
+					ImGui::DragFloat3("SpotLight Direction", &spotLights_.at(name).direction.x, 0.01f, -1.0f, 1.0f);
+					ImGui::DragFloat("SpotLight Intensity", &spotLights_.at(name).intensity, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("SpotLight Distance", &spotLights_.at(name).distance, 0.1f, 0.0f, 10.0f);
+					ImGui::DragFloat("SpotLight CosAngle", &spotLights_.at(name).cosAngle, 0.01f, -3.14f, 3.14f);
+					ImGui::DragFloat("SpotLight Decay", &spotLights_.at(name).decay, 0.1f, 0.0f, 5.0f);
+					ImGui::DragFloat("SpotLight CosFalloffStart", &spotLights_.at(name).cosFalloffStart, 0.01f, -3.14f, 3.14f);
+				}
+				ImGui::PopID();
+			}
+
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
 	}
+
 	ImGui::End();
 #endif
 }
 
+#pragma region Accessor
+void LightManager::SetPointLightColor(const std::string& name, const Vector4& color)
+{
+	pointLights_.at(name).color = color;
+}
+
+void LightManager::SetPointLightPosition(const std::string& name, const Vector3& position)
+{
+	pointLights_.at(name).position = position;
+}
+
+void LightManager::SetPointLightIntensity(const std::string& name, float intensity)
+{
+	pointLights_.at(name).intensity = intensity;
+}
+
+void LightManager::SetPointLightRadius(const std::string& name, float radius)
+{
+	pointLights_.at(name).radius = radius;
+}
+
+void LightManager::SetPointLightDecay(const std::string& name, float decay)
+{
+	pointLights_.at(name).decay = decay;
+}
+
+void LightManager::SetSpotLightColor(const std::string& name, const Vector4& color)
+{
+	spotLights_.at(name).color = color;
+}
+
+void LightManager::SetSpotLightPosition(const std::string& name, const Vector3& position)
+{
+	spotLights_.at(name).position = position;
+}
+
+void LightManager::SetSpotLightIntensity(const std::string& name, float intensity)
+{
+	spotLights_.at(name).intensity = intensity;
+}
+
+void LightManager::SetSpotLightDirection(const std::string& name, const Vector3& direction)
+{
+	spotLights_.at(name).direction = Vector3::Normalize(direction);
+}
+
+void LightManager::SetSpotLightDistance(const std::string& name, float distance)
+{
+	spotLights_.at(name).distance = distance;
+}
+
+void LightManager::SetSpotLightDecay(const std::string& name, float decay)
+{
+	spotLights_.at(name).decay = decay;
+}
+
+void LightManager::SetSpotLightCosAngle(const std::string& name, float cosAngle)
+{
+	spotLights_.at(name).cosAngle = cosAngle;
+}
+
+void LightManager::SetSpotLightCosFalloffStart(const std::string& name, float cosFalloffStart)
+{
+	spotLights_.at(name).cosFalloffStart = cosFalloffStart;
+}
+
+const PointLight& LightManager::GetPointLight(const std::string& name) const
+{
+	return pointLights_.at(name);
+}
+
+const SpotLight& LightManager::GetSpotLight(const std::string& name) const
+{
+	return spotLights_.at(name);
+}
+
+const Vector4& LightManager::GetPointLightColor(const std::string& name) const
+{
+	return pointLights_.at(name).color;
+}
+
+const Vector3& LightManager::GetPointLightPosition(const std::string& name) const
+{
+	return pointLights_.at(name).position;
+}
+
+float LightManager::GetPointLightIntensity(const std::string& name) const
+{
+	return pointLights_.at(name).intensity;
+}
+
+float LightManager::GetPointLightRadius(const std::string& name) const
+{
+	return pointLights_.at(name).radius;
+}
+
+float LightManager::GetPointLightDecay(const std::string& name) const
+{
+	return pointLights_.at(name).decay;
+}
+
+const Vector4& LightManager::GetSpotLightColor(const std::string& name) const
+{
+	return spotLights_.at(name).color;
+}
+
+const Vector3& LightManager::GetSpotLightPosition(const std::string& name) const
+{
+	return spotLights_.at(name).position;
+}
+
+float LightManager::GetSpotLightIntensity(const std::string& name) const
+{
+	return spotLights_.at(name).intensity;
+}
+
+const Vector3& LightManager::GetSpotLightDirection(const std::string& name) const
+{
+	return spotLights_.at(name).direction;
+}
+
+float LightManager::GetSpotLightDistance(const std::string& name) const
+{
+	return spotLights_.at(name).distance;
+}
+
+float LightManager::GetSpotLightDecay(const std::string& name) const
+{
+	return spotLights_.at(name).decay;
+}
+
+float LightManager::GetSpotLightCosAngle(const std::string& name) const
+{
+	return spotLights_.at(name).cosAngle;
+}
+
+float LightManager::GetSpotLightCosFalloffStart(const std::string& name) const
+{
+	return spotLights_.at(name).cosFalloffStart;
+}
+
+const uint32_t& LightManager::GetPointLightCount() const
+{
+	return lightCount_.pointLightCount;
+}
+
+const uint32_t& LightManager::GetSpotLightCount() const
+{
+	return lightCount_.spotLightCount;
+}
+
+#pragma endregion

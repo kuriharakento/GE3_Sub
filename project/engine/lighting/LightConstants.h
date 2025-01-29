@@ -4,9 +4,9 @@
 namespace LightMaxCount
 {
 	//ポイントライトの最大数
-	constexpr uint32_t kMaxPointLightCount = 10;
+	constexpr uint32_t kMaxPointLightCount = 100;
 	//スポットライトの最大数
-	constexpr uint32_t kMaxSpotLightCount = 10;
+	constexpr uint32_t kMaxSpotLightCount = 100;
 }
 
 struct LightCount

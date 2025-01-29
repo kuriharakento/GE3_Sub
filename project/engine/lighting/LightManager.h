@@ -34,16 +34,51 @@ public:
 	//ライトの削除
 	void Clear();
 
-public: //アクセッサ
+public: //セッター
+	// ポイントライトのプロパティ設定
+	void SetPointLightColor(const std::string& name, const Vector4& color);
+	void SetPointLightPosition(const std::string& name, const Vector3& position);
+	void SetPointLightIntensity(const std::string& name, float intensity);
+	void SetPointLightRadius(const std::string& name, float radius);
+	void SetPointLightDecay(const std::string& name, float decay);
+
+	// スポットライトのプロパティ設定
+	void SetSpotLightColor(const std::string& name, const Vector4& color);
+	void SetSpotLightPosition(const std::string& name, const Vector3& position);
+	void SetSpotLightIntensity(const std::string& name, float intensity);
+	void SetSpotLightDirection(const std::string& name, const Vector3& direction);
+	void SetSpotLightDistance(const std::string& name, float distance);
+	void SetSpotLightDecay(const std::string& name, float decay);
+	void SetSpotLightCosAngle(const std::string& name, float cosAngle);
+	void SetSpotLightCosFalloffStart(const std::string& name, float cosFalloffStart);
+
+public: //ゲッター
+	//ポイントライトの数の取得
+	const uint32_t& GetPointLightCount() const;
+	//スポットライトの数の取得
+	const uint32_t& GetSpotLightCount() const;
+
 	//ポイントライトの取得
 	const PointLight& GetPointLight(const std::string& name) const;
 	//スポットライトの取得
 	const SpotLight& GetSpotLight(const std::string& name) const;
 
-	//ポイントライトの数の取得
-	const uint32_t& GetPointLightCount() const;
-	//スポットライトの数の取得
-	const uint32_t& GetSpotLightCount() const;
+	// ポイントライトのプロパティ取得
+	const Vector4& GetPointLightColor(const std::string& name) const;
+	const Vector3& GetPointLightPosition(const std::string& name) const;
+	float GetPointLightIntensity(const std::string& name) const;
+	float GetPointLightRadius(const std::string& name) const;
+	float GetPointLightDecay(const std::string& name) const;
+
+	// スポットライトのプロパティ取得
+	const Vector4& GetSpotLightColor(const std::string& name) const;
+	const Vector3& GetSpotLightPosition(const std::string& name) const;
+	float GetSpotLightIntensity(const std::string& name) const;
+	const Vector3& GetSpotLightDirection(const std::string& name) const;
+	float GetSpotLightDistance(const std::string& name) const;
+	float GetSpotLightDecay(const std::string& name) const;
+	float GetSpotLightCosAngle(const std::string& name) const;
+	float GetSpotLightCosFalloffStart(const std::string& name) const;
 
 private:
 	//ImGui
