@@ -34,6 +34,8 @@ public: //アクセッサ
 	SpriteCommon* GetSpriteCommon() const { return context_.spriteCommon; }
 	//3Dオブジェクト共通部の取得
 	Object3dCommon* GetObject3dCommon() const { return context_.object3dCommon; }
+	//ライトマネージャーの取得
+	LightManager* GetLightManager() const { return context_.lightManager; }
 
 private: //メンバ関数
 	//次のシーンが予約されているか

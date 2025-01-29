@@ -129,6 +129,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\manager\ImGuiManager.cpp" />
     <ClCompile Include="engine\framework\Framework.cpp" />
     <ClCompile Include="application\scene\play\GamePlayScene.cpp" />
+    <ClCompile Include="engine\lighting\LightManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
@@ -140,6 +141,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="engine\lighting\DirectionalLight.h" />
+    <ClInclude Include="engine\lighting\LightConstants.h" />
+    <ClInclude Include="engine\lighting\PointLight.h" />
+    <ClInclude Include="engine\lighting\SpotLight.h" />
+    <ClInclude Include="engine\lighting\VectorColorCodes.h" />
     <ClInclude Include="engine\math\Easing.h" />
     <ClInclude Include="engine\math\MathUtils.h" />
     <ClInclude Include="engine\scene\SceneContext.h" />
@@ -183,6 +189,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\scene\play\TitleScene.h" />
     <ClInclude Include="engine\scene\manager\SceneManager.h" />
     <ClInclude Include="engine\scene\factory\SceneFactory.h" />
+    <ClInclude Include="engine\lighting\LightManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

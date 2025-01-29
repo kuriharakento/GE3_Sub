@@ -16,7 +16,8 @@ void MyGame::Initialize()
 	context = {
 		spriteCommon_,
 		objectCommon_,
-		cameraManager_.get()
+		cameraManager_.get(),
+		lightManager_.get(),
 	};
 
 	// 処理開始時間を記録
@@ -108,4 +109,5 @@ void MyGame::LoadModels()
 {
 	ModelManager::GetInstance()->LoadModel("cube.obj");
 	ModelManager::GetInstance()->LoadModel("highPolygonSphere.obj");
+	ModelManager::GetInstance()->LoadModel("terrain.obj");
 }

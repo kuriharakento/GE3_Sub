@@ -6,8 +6,10 @@
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
 #include "3d/ModelManager.h"
+#include "lighting/DirectionalLight.h"
 #include "manager/CameraManager.h"
 
+class LightManager;
 //スプライト共通部分のポインタ
 class Object3dCommon;
 
@@ -95,6 +97,9 @@ public: /*========[ セッター ]========*/
 	void SetDirectionalLightColor(const Vector4& color) { directionalLightData_->color = color; }
 	void SetDirectionalLightDirection(const Vector3& direction) { directionalLightData_->direction = direction; }
 	void SetDirectionalLightIntensity(float intensity) { directionalLightData_->intensity = intensity; }
+	void SetDirectionalLight(const DirectionalLight& light) { *directionalLightData_ = light; }
+
+	void SetLightManager(LightManager* lightManager) { lightManager_ = lightManager; }
 
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
@@ -133,12 +138,16 @@ private: /*========[ 描画用変数 ]========*/
 	DirectionalLight* directionalLightData_ = nullptr;
 	CameraForGPU* cameraData_ = nullptr;
 
+
 private: /*========[ メンバ変数 ]========*/
 	//カメラ
 	Camera* camera_ = nullptr;
 
 	//モデル
 	Model* model_ = nullptr;
+
+	//ライトマネージャー
+	LightManager* lightManager_ = nullptr;
 
 	//座標変換行列
 	Transform transform_;

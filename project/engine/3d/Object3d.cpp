@@ -2,6 +2,7 @@
 
 #include "3d/Object3dCommon.h"
 #include "math/MathUtils.h"
+#include "lighting/LightManager.h"
 
 ///////////////////////////////////////////////////////////////////////
 ///						>>>基本的な処理<<<							///
@@ -21,6 +22,19 @@ Object3d::~Object3d()
 		directionalLightResource_->Unmap(0, nullptr);
 		directionalLightResource_.Reset();
 	}
+	//カメラのリソースを解放
+	if (cameraResource_)
+	{
+		cameraResource_->Unmap(0, nullptr);
+		cameraResource_.Reset();
+	}
+	//ディレクショナルライトのリソースを解放
+	if (directionalLightResource_)
+	{
+		directionalLightResource_->Unmap(0, nullptr);
+		directionalLightResource_.Reset();
+	}
+	
 }
 
 void Object3d::Initialize(Object3dCommon* object3dCommon,Camera* camera)
@@ -57,6 +71,13 @@ void Object3d::Draw()
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 	//カメラCBufferの場所を設定
 	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource_->GetGPUVirtualAddress());
+
+	//ライトマネージャーがあればライトの描画を行う
+	if (lightManager_)
+	{
+		lightManager_->Draw();
+	}
+
 	//3Dモデルが割り当てられていれば描画する
 	if(model_)
 	{
@@ -143,6 +164,7 @@ void Object3d::CreateCameraData()
 	//デフォルト値は以下のようにしておく
 	cameraData_->worldPos = {};
 }
+
 
 void Object3d::InitializeRenderingSettings()
 {
