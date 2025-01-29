@@ -34,7 +34,7 @@ struct PointLight
     float decay;
 };
 
-//スポットライト
+// スポットライト
 struct SpotLight
 {
     float4 color;
@@ -47,27 +47,18 @@ struct SpotLight
     float cosFalloffStart;
 };
 
-//ライトの最大個数
-#define MAX_POINT_LIGHT 10
-#define MAX_SPOT_LIGHT 10
-
-ConstantBuffer<Material> gMaterial : register(b0);
-ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
-ConstantBuffer<Camera> gCamera : register(b2);
-cbuffer PointLights : register(b3)
-{
-    PointLight gPointLight[MAX_POINT_LIGHT];
-};
-cbuffer SpotLights : register(b4)
-{
-    SpotLight gSpotLight[MAX_SPOT_LIGHT];
-};
-
-cbuffer LightCounts : register(b5)
+struct LightCounts
 {
     uint gPointLightCount;
     uint gSpotLightCount;
 };
+
+ConstantBuffer<Material> gMaterial : register(b0);
+ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
+ConstantBuffer<Camera> gCamera : register(b2);
+StructuredBuffer<PointLight> gPointLights : register(t3);
+StructuredBuffer<SpotLight> gSpotLights : register(t4);
+ConstantBuffer<LightCounts> gLightCounts : register(b5);
 
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
@@ -95,7 +86,7 @@ PixelShaderOutput main(VertexShaderOutput input)
         // 法線
         float3 normal = normalize(input.normal);
 
-        //ポイントライトの合計
+        // ポイントライトの合計
         float3 totalDiffuse = float3(0.0f, 0.0f, 0.0f);
         float3 totalSpecular = float3(0.0f, 0.0f, 0.0f);
 
@@ -105,7 +96,7 @@ PixelShaderOutput main(VertexShaderOutput input)
 
         /*-----[ ディレクショナルライト ]-----*/
 
-        //ライトの方向
+        // ライトの方向
         float3 lightDir = normalize(-gDirectionalLight.direction);
 
         // 内積の計算と調整
@@ -126,54 +117,54 @@ PixelShaderOutput main(VertexShaderOutput input)
 
         /*-----[ ポイントライト ]-----*/
 
-        for (uint i = 0; i < gPointLightCount; i++)
+        for (uint j = 0; j < gLightCounts.gPointLightCount; j++)
         {
-            //入射光を計算
-            float3 pointLightDir = normalize(input.worldPos - gPointLight[i].position);
-            //逆二乗の法則による減衰
-            float distance = length(input.worldPos - gPointLight[i].position); //ポイントライトとの距離
-            float factor = pow(saturate(-distance / gPointLight[i].radius + 1.0f), gPointLight[i].decay);
-            //内積の計算と調整
+            // 入射光を計算
+            float3 pointLightDir = normalize(input.worldPos - gPointLights[j].position);
+            // 逆二乗の法則による減衰
+            float distance = length(input.worldPos - gPointLights[j].position); // ポイントライトとの距離
+            float factor = pow(saturate(-distance / gPointLights[j].radius + 1.0f), gPointLights[j].decay);
+            // 内積の計算と調整
             float pointNdotL = dot(normal, -pointLightDir);
             pointNdotL = pointNdotL * 0.5f + 0.5f;
             pointNdotL = pow(pointNdotL, 2.0f);
-            //拡散反射の計算
-            float3 pointDiffuse = gMaterial.color.rgb * textureColor.rgb * gPointLight[i].color.rgb * pointNdotL * gPointLight[i].intensity * factor;
-            //鏡面反射の計算
+            // 拡散反射の計算
+            float3 pointDiffuse = gMaterial.color.rgb * textureColor.rgb * gPointLights[j].color.rgb * pointNdotL * gPointLights[j].intensity * factor;
+            // 鏡面反射の計算
             float3 pointHalfVector = normalize(-pointLightDir + toEye);
             float pointNdotH = dot(normal, pointHalfVector);
             pointNdotH = max(pointNdotH, 0.0f);
             float pointSpecularPow = pow(pointNdotH, gMaterial.shininess);
-            float3 pointSpecular = gPointLight[i].color.rgb * gPointLight[i].intensity * pointSpecularPow * factor;
+            float3 pointSpecular = gPointLights[j].color.rgb * gPointLights[j].intensity * pointSpecularPow * factor;
             totalDiffuse += pointDiffuse;
             totalSpecular += pointSpecular;
         }
 
         /*-----[ スポットライト ]-----*/
 
-        for (uint i = 0; i < gSpotLightCount; i++)
+        for (uint k = 0; k < gLightCounts.gSpotLightCount; k++)
         {
-            //入射光を計算
-            float3 spotLightDirOnSurface = normalize(input.worldPos - gSpotLight[i].position);
-            //逆二乗の法則による減衰
-            float spotDistance = length(gSpotLight[i].position - input.worldPos); //スポットライトとの距離
-            float spotFactor = pow(saturate(-spotDistance / gSpotLight[i].distance + 1.0f), gSpotLight[i].decay);
-            //フォールオフ
-            float cosAngle = dot(spotLightDirOnSurface, gSpotLight[i].direction);
-            float falloffFactor = saturate((cosAngle - gSpotLight[i].cosAngle) / (gSpotLight[i].cosFalloffStart - gSpotLight[i].cosAngle));
-            //内積の計算と調整
+            // 入射光を計算
+            float3 spotLightDirOnSurface = normalize(input.worldPos - gSpotLights[k].position);
+            // 逆二乗の法則による減衰
+            float spotDistance = length(gSpotLights[k].position - input.worldPos); // スポットライトとの距離
+            float spotFactor = pow(saturate(-spotDistance / gSpotLights[k].distance + 1.0f), gSpotLights[k].decay);
+            // フォールオフ
+            float cosAngle = dot(spotLightDirOnSurface, gSpotLights[k].direction);
+            float falloffFactor = saturate((cosAngle - gSpotLights[k].cosAngle) / (gSpotLights[k].cosFalloffStart - gSpotLights[k].cosAngle));
+            // 内積の計算と調整
             float spotNdotL = dot(normal, -spotLightDirOnSurface);
             spotNdotL = spotNdotL * 0.5f + 0.5f;
             spotNdotL = pow(spotNdotL, 2.0f);
-            //拡散反射の計算
-            float3 spotDiffuse = gMaterial.color.rgb * textureColor.rgb * gSpotLight[i].color.rgb * spotNdotL * gSpotLight[i].intensity * spotFactor * falloffFactor;
-            //鏡面反射の計算
+            // 拡散反射の計算
+            float3 spotDiffuse = gMaterial.color.rgb * textureColor.rgb * gSpotLights[k].color.rgb * spotNdotL * gSpotLights[k].intensity * spotFactor * falloffFactor;
+            // 鏡面反射の計算
             float3 spotHalfVector = normalize(-spotLightDirOnSurface + toEye);
             float spotNdotH = dot(normal, spotHalfVector);
             spotNdotH = max(spotNdotH, 0.0f);
             float spotSpecularPow = pow(spotNdotH, gMaterial.shininess);
-            float3 spotSpecular = gSpotLight[i].color.rgb * gSpotLight[i].intensity * spotSpecularPow * spotFactor * falloffFactor;
-           spotTotalDiffuse += spotDiffuse;
+            float3 spotSpecular = gSpotLights[k].color.rgb * gSpotLights[k].intensity * spotSpecularPow * spotFactor * falloffFactor;
+            spotTotalDiffuse += spotDiffuse;
             spotTotalSpecular += spotSpecular;
         }
 
@@ -194,4 +185,3 @@ PixelShaderOutput main(VertexShaderOutput input)
 
     return output;
 }
-

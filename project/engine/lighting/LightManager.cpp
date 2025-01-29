@@ -29,6 +29,7 @@ void LightManager::Initialize(DirectXCommon* dxCommon)
 
 	//スポットライトの追加
 	AddSpotLight("spotLight" + std::to_string(spotLights_.size()));
+
 }
 
 void LightManager::Update()
@@ -61,9 +62,9 @@ void LightManager::Update()
 void LightManager::Draw()
 {
 	//ポイントライトのCBVを設定
-	dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(5, pointLightResource_->GetGPUVirtualAddress());
+	dxCommon_->GetCommandList()->SetGraphicsRootShaderResourceView(5, pointLightResource_->GetGPUVirtualAddress());
 	//スポットライトのCBVを設定
-	dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(6, spotLightResource_->GetGPUVirtualAddress());
+	dxCommon_->GetCommandList()->SetGraphicsRootShaderResourceView(6, spotLightResource_->GetGPUVirtualAddress());
 	//ライトの数のCBVを設定
 	dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(7, lightCountResource_->GetGPUVirtualAddress());
 }
