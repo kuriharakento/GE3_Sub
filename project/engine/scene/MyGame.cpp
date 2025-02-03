@@ -66,6 +66,9 @@ void MyGame::Update()
 	//フレームワークの更新処理
 	Framework::Update();
 
+	//パフォーマンス情報の表示
+	Framework::ShowPerformanceInfo();
+
 	//ゲームの更新処理
 	sceneManager_->Update();
 
