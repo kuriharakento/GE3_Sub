@@ -6,6 +6,7 @@
 #include "input/Input.h"
 #include "manager/ParticleManager.h"
 #include "manager/TextureManager.h"
+#include <Psapi.h>
 
 void Framework::Initialize()
 {
@@ -169,4 +170,19 @@ void Framework::Run()
 
 	//終了処理
 	Finalize();
+}
+
+void Framework::ShowPerformanceInfo()
+{
+	// ウィンドウの位置を左上に固定
+	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+	// ウィンドウのサイズを固定
+	ImGui::SetNextWindowSize(ImVec2(200, 65), ImGuiCond_Always);
+	ImGui::Begin("Performance",nullptr,ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::Text("FPS : %.2f", ImGui::GetIO().Framerate);
+	// メモリ使用量
+	PROCESS_MEMORY_COUNTERS memInfo;
+	GetProcessMemoryInfo(GetCurrentProcess(), &memInfo, sizeof(memInfo));
+	ImGui::Text("Memory Usage : %.2f MB", memInfo.WorkingSetSize / (1024.0f * 1024.0f));
+	ImGui::End();
 }

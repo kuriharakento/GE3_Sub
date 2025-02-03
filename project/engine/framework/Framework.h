@@ -29,21 +29,20 @@ public: //メンバ関数
 	void Draw3DSetting();
 	//2D描画用の設定
 	void Draw2DSetting();
-
 	//描画前処理
 	void PreDraw();
 	//描画後処理
 	void PostDraw();
+	//パフォーマンス情報の表示
+	void ShowPerformanceInfo();
 	//終了リクエストがあるか
 	virtual bool IsEndRequest() { return endRequest_; }
-
 	//実行
 	void Run();
 
 protected: //メンバ変数
 	//終了リクエスト
 	bool endRequest_ = false;
-
 	//ウィンドウアプリケーション
 	std::unique_ptr<WinApp> winApp_;
 	//DirectXCommon
