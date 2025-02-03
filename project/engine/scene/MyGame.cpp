@@ -14,8 +14,8 @@ void MyGame::Initialize()
 	//シーンコンテキストの作成
 	SceneContext context;
 	context = {
-		spriteCommon_,
-		objectCommon_,
+		spriteCommon_.get(),
+		objectCommon_.get(),
 		cameraManager_.get(),
 		lightManager_.get(),
 	};

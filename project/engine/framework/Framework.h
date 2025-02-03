@@ -45,17 +45,17 @@ protected: //メンバ変数
 	bool endRequest_ = false;
 
 	//ウィンドウアプリケーション
-	WinApp* winApp_;
+	std::unique_ptr<WinApp> winApp_;
 	//DirectXCommon
-	DirectXCommon* dxCommon_;
+	std::unique_ptr<DirectXCommon> dxCommon_;
 	//SRVマネージャー
 	std::unique_ptr<SrvManager> srvManager_;
 	//ImGuiManager
-	ImGuiManager* imguiManager_;
+	std::unique_ptr<ImGuiManager> imguiManager_;
 	//スプライト共通部
-	SpriteCommon* spriteCommon_;
+	std::unique_ptr<SpriteCommon> spriteCommon_;
 	//3Dオブジェクト共通部
-	Object3dCommon* objectCommon_;
+	std::unique_ptr<Object3dCommon> objectCommon_;
 	//カメラマネージャー
 	std::unique_ptr<CameraManager> cameraManager_;
 	//シーンマネージャー
