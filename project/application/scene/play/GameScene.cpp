@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "2d/SpriteCommon.h"
+#include "audio/Audio.h"
 
 void GameScene::Initialize()
 {
@@ -39,6 +40,16 @@ void GameScene::Initialize()
 	ground_ = std::make_unique<Object3d>();
 	ground_->Initialize(sceneManager_->GetObject3dCommon());
 	ground_->SetModel("ground.obj");
+
+	// ゲームクリア条件の初期化
+	gameClear_ = std::make_unique<Sprite>();
+	gameClear_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/clearCondition.png");
+
+
+	//音楽を再生
+	Audio::GetInstance()->LoadWave("gamebgm", "game/bgm.wav", SoundGroup::BGM);
+	Audio::GetInstance()->PlayWave("gamebgm", true);
+	Audio::GetInstance()->SetVolume("gamebgm", 0.4f);
 }
 
 void GameScene::Finalize()
@@ -47,6 +58,7 @@ void GameScene::Finalize()
 	enemyManager_.reset();
 	buildingManager_.reset();
 	collisionManager_.reset();
+	Audio::GetInstance()->StopWave("gamebgm");
 }
 
 void GameScene::Update()
@@ -101,6 +113,7 @@ void GameScene::Update()
 
 	ground_->Update(sceneManager_->GetCameraManager());
 	skyDome_->Update(sceneManager_->GetCameraManager());
+	gameClear_->Update();
 }
 
 void GameScene::Draw3D()
@@ -125,6 +138,8 @@ void GameScene::Draw2D()
 {
 	//プレイヤーのUIの描画
 	player_->DrawUI();
+	//ゲームクリア条件の描画
+	gameClear_->Draw();
 	//スライドの描画
 	slide_->Draw();
 }

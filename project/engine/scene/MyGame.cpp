@@ -123,5 +123,6 @@ void MyGame::LoadTextures()
 	TextureManager::GetInstance()->LoadTexture("./Resources/gameOver.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/HP.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/testSprite.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/clearCondition.png");
 	Logger::Log("LoadTextures Complete!\n");
 }

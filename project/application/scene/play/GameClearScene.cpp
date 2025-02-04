@@ -3,6 +3,7 @@
 #include "input/Input.h"
 #include "scene/manager/SceneManager.h"
 #include "2d/SpriteCommon.h"
+#include "audio/Audio.h"
 
 void GameClearScene::Initialize()
 {
@@ -16,11 +17,16 @@ void GameClearScene::Initialize()
 	//ゲームクリア
 	gameClear_ = std::make_unique<Sprite>();
 	gameClear_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/gameClear.png");
+
+	//音楽を再生
+	Audio::GetInstance()->LoadWave("gameclearbgm", "clear/bgm.wav", SoundGroup::BGM);
+	Audio::GetInstance()->PlayWave("gameclearbgm", true);
+	Audio::GetInstance()->SetVolume("gameclearbgm", 0.4f);
 }
 
 void GameClearScene::Finalize()
 {
-
+	Audio::GetInstance()->StopWave("gameclearbgm");
 }
 
 void GameClearScene::Update()

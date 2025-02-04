@@ -51,7 +51,7 @@ void TitleScene::Initialize()
 	//音声
 	Audio::GetInstance()->LoadWave("titlebgm", "title/bgm.wav", SoundGroup::BGM);
 	Audio::GetInstance()->PlayWave("titlebgm", true);
-	Audio::GetInstance()->SetVolume("titlebgm", 0.2f);
+	Audio::GetInstance()->SetVolume("titlebgm", 0.5f);
 }
 
 void TitleScene::Finalize()

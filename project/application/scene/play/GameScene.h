@@ -41,6 +41,8 @@ private: // メンバ変数
 	std::unique_ptr<Object3d> skyDome_;
 	/*===[ 地面 ]===*/
 	std::unique_ptr<Object3d> ground_;
+	/*===[ ゲームクリア条件 ]===*/
+	std::unique_ptr<Sprite> gameClear_;
 
 	//クリア条件
 	bool isClear_ = false;

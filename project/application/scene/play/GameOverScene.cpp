@@ -1,5 +1,6 @@
 #include "GameOverScene.h"
 
+#include "audio/Audio.h"
 #include "input/Input.h"
 #include "scene/manager/SceneManager.h"
 
@@ -16,11 +17,16 @@ void GameOverScene::Initialize()
 	//ゲームオーバースプライト
 	gameOver_ = std::make_unique<Sprite>();
 	gameOver_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/gameOver.png");
+
+	//音楽を再生
+	Audio::GetInstance()->LoadWave("gameoverbgm", "gameover/bgm.wav", SoundGroup::BGM);
+	Audio::GetInstance()->PlayWave("gameoverbgm", true);
+	Audio::GetInstance()->SetVolume("gameoverbgm", 0.5f);
 }
 
 void GameOverScene::Finalize()
 {
-
+	Audio::GetInstance()->StopWave("gameoverbgm");
 }
 
 void GameOverScene::Update()
