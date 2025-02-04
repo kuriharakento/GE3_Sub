@@ -1,6 +1,7 @@
 #include "Building.h"
 
 #include "Player.h"
+#include "audio/Audio.h"
 
 Building::Building()
 {
@@ -44,6 +45,7 @@ void Building::Update(CameraManager* camera)
 	if(status_.health <= 0.0f)
 	{
 		status_.isAlive = false;
+		Audio::GetInstance()->PlayWave("explosion", false);
 	}
 	//行列の更新
 	UpdateOBJTransform(camera);

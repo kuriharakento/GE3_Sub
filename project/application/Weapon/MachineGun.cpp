@@ -3,6 +3,7 @@
 #include "input/Input.h"
 #include "application/Entities/Player.h"
 #include "3d/Object3dCommon.h"
+#include "audio/Audio.h"
 #include "externals/imgui/imgui.h"
 
 void MachineGun::Initialize(Object3dCommon* object3dCommon, Player* player)
@@ -67,6 +68,7 @@ void MachineGun::Update(CameraManager* camera)
         if(Input::GetInstance()->PushKey(DIK_SPACE))
         {
         	Shoot();
+			Audio::GetInstance()->PlayWave("shot", false);
         }
     }
 

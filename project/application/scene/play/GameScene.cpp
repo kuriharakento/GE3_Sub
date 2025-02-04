@@ -46,10 +46,17 @@ void GameScene::Initialize()
 	gameClear_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/clearCondition.png");
 
 
-	//音楽を再生
+	//BGMを再生
 	Audio::GetInstance()->LoadWave("gamebgm", "game/bgm.wav", SoundGroup::BGM);
 	Audio::GetInstance()->PlayWave("gamebgm", true);
 	Audio::GetInstance()->SetVolume("gamebgm", 0.4f);
+
+	//射撃音
+	Audio::GetInstance()->LoadWave("shot", "effect/shot.wav", SoundGroup::SE);
+	//爆発音
+	Audio::GetInstance()->LoadWave("explosion", "effect/builBreak.wav", SoundGroup::SE);
+	//敵の死亡音
+	Audio::GetInstance()->LoadWave("enemyDeath", "effect/enemyDead.wav", SoundGroup::SE);
 }
 
 void GameScene::Finalize()

@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "audio/Audio.h"
+
 #ifdef _DEBUG
 #include "externals/imgui/imgui.h"
 #endif
@@ -96,6 +98,7 @@ void Enemy::OnCollision(ICollidable* other)
 	if (other->GetType() == ObjectType::Bullet)
 	{
 		status_.isAlive = false;
+		Audio::GetInstance()->PlayWave("enemyDeath", false);
 	}
 }
 
