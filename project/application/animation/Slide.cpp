@@ -14,7 +14,7 @@ void Slide::Initialize(SpriteCommon* spriteCommon) {
 		sprites_[i].sprite->Initialize(spriteCommon, filePath_);
 		sprites_[i].sprite->SetSize(Vector2(1280.0f, 720.0f));
 		sprites_[i].sprite->SetPosition(Vector2(1280.0f, 720.0f));
-		sprites_[i].sprite->SetColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+		sprites_[i].sprite->SetColor(Vector4(0.0f,0.0f,0.0f, 1.0f));
 	}
 }
 
