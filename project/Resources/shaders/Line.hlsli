@@ -1,17 +1,19 @@
-struct VSInput
+// 定数バッファ（ワールドビュー・プロジェクション行列）
+cbuffer WVPBuffer : register(b0)
 {
-    float3 position : POSITION;
-    float4 color : COLOR;
+    matrix WVP; // ワールド・ビュー・プロジェクション行列
 };
 
-struct PSInput
+// 頂点データ構造体
+struct VertexInput
 {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
+    float3 position;
+    float4 color;
 };
 
-struct LineVertex
+// ピクセルシェーダーへ渡す構造体
+struct PixelInput
 {
-    float3 position : POSITION;
-    float4 color : COLOR;
+    float4 position;
+    float4 color;
 };

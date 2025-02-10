@@ -7,6 +7,20 @@
 
 class Camera;
 
+struct LineCube {
+    Vector3 center;
+	Vector4 color;
+	std::vector<Vector3> vertices;
+};
+
+struct LineSphere
+{
+	Vector3 center;
+	float radius;
+	Vector4 color;
+	std::vector<Vector3> vertices;
+};
+
 class Line {
 public:
     Line() = default;
@@ -19,7 +33,11 @@ public:
 private:
     void CreateVertexData();
 	void CreateWVPResource();
+	void UpdateVertexData();
+	void UpdateMatrix(Camera* camera);
 
+private:
+	const uint32_t kMaxVertexCount = 20000;
     LineCommon* lineCommon_ = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
     std::vector<LineVertex> vertices_;
@@ -27,7 +45,8 @@ private:
     LineVertex* vertexData_ = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
-
 	Matrix4x4 worldMatrix_ = MakeIdentity4x4();
+
+	//キューブの頂点データ
 
 };

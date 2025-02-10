@@ -1,14 +1,24 @@
-#include "Line.hlsli"
-
-cbuffer Transform : register(b0)
+struct VSInput
 {
-    float4x4 viewProjectionMatrix;
-}
+    float3 position : POSITION;
+    float4 color : COLOR;
+};
 
-PSInput main(VSInput input)
+struct VSOutput
 {
-    PSInput output;
-    output.position = mul(viewProjectionMatrix, float4(input.position, 1.0));
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
+
+cbuffer WVPBuffer : register(b0)
+{
+    matrix wvp;
+};
+
+VSOutput main(VSInput input)
+{
+    VSOutput output;
+    output.position = mul(float4(input.position, 1.0f), wvp);
     output.color = input.color;
     return output;
 }

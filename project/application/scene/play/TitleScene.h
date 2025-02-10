@@ -27,6 +27,10 @@ private: //メンバ変数
 	//デバック用オブジェクト地面
 	std::unique_ptr<Object3d> terrain_;
 	//キューブの座標
-	Vector3 cubePos_ = { 0.0f,0.0f,0.0f };
+	Vector3 cubePos1_ = { 0.0f,0.0f,0.0f };
+	Vector3 cubePos2_ = { 3.0f,0.0f,0.0f };
+	//球
+	Vector3 spherePos1_ = { 0.0f,0.0f,0.0f };
+	Vector3 spherePos2_ = { 3.0f,0.0f,0.0f };
 };
 

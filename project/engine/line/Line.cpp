@@ -4,33 +4,19 @@
 
 void Line::Initialize(LineCommon* lineCommon) {
     lineCommon_ = lineCommon;
+	CreateVertexData();
     CreateWVPResource();
 }
 
 void Line::AddLine(const Vector3& start, const Vector3& end, const Vector4& color) {
     vertices_.push_back({ start, color });
     vertices_.push_back({ end, color });
-    CreateVertexData();
 }
 
 void Line::Update(Camera* camera)
 {
-    if (!camera) { return; }
-
-    // カメラのビュー・プロジェクション行列を取得
-    Matrix4x4 viewProjectionMatrix = camera->GetViewProjectionMatrix();
-
-	// ワールド行列とビュー・プロジェクション行列を掛け合わせる
-    Matrix4x4 wvpMatrix = worldMatrix_ * viewProjectionMatrix;
-
-    // 定数バッファに書き込む
-    void* mappedData = nullptr;
-    HRESULT hr = wvpResource_->Map(0, nullptr, &mappedData);
-    if (FAILED(hr) || mappedData == nullptr) {
-        return; // メモリ確保失敗時はスキップ
-    }
-    std::memcpy(mappedData, &wvpMatrix,sizeof(Matrix4x4));
-    wvpResource_->Unmap(0, nullptr);
+    UpdateVertexData();
+	UpdateMatrix(camera);
 }
 
 void Line::CreateVertexData() {
@@ -38,7 +24,7 @@ void Line::CreateVertexData() {
 
     // バッファリソースの作成
     vertexResource_ = lineCommon_->GetDirectXCommon()->CreateBufferResource(
-        sizeof(LineVertex) * vertices_.size()
+        sizeof(LineVertex) * kMaxVertexCount
     );
 
     // バッファにデータを書き込む
@@ -66,6 +52,35 @@ void Line::CreateWVPResource()
     wvpResource_->Unmap(0, nullptr);
 }
 
+void Line::UpdateVertexData()
+{
+	// バッファにデータを書き込む
+	void* mappedData = nullptr;
+	vertexResource_->Map(0, nullptr, &mappedData);
+	std::memcpy(mappedData, vertices_.data(), sizeof(LineVertex) * vertices_.size());
+	vertexResource_->Unmap(0, nullptr);
+}
+
+void Line::UpdateMatrix(Camera* camera)
+{
+    if (!camera) { return; }
+
+    // カメラのビュー・プロジェクション行列を取得
+    Matrix4x4 viewProjectionMatrix = camera->GetViewProjectionMatrix();
+
+    // ワールド行列とビュー・プロジェクション行列を掛け合わせる
+    Matrix4x4 wvpMatrix = worldMatrix_ * viewProjectionMatrix;
+
+    // 定数バッファに書き込む
+    void* mappedData = nullptr;
+    HRESULT hr = wvpResource_->Map(0, nullptr, &mappedData);
+    if (FAILED(hr) || mappedData == nullptr) {
+        return; // メモリ確保失敗時はスキップ
+    }
+    std::memcpy(mappedData, &wvpMatrix, sizeof(Matrix4x4));
+    wvpResource_->Unmap(0, nullptr);
+}
+
 void Line::Draw() {
     if (vertices_.empty() || !vertexResource_ || !wvpResource_) return;
 
@@ -88,10 +103,5 @@ void Line::Draw() {
 
 void Line::Clear() {
     vertices_.clear();
-
-    // 頂点バッファをリセット
-    vertexResource_.Reset();
-    vertexBufferView_ = {};
-
-    CreateVertexData();
+	CreateVertexData();
 }

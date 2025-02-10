@@ -22,6 +22,7 @@ struct LineVertex
 {
     Vector3 position;                            // 位置
     Vector4 color;                               // 色
+	Vector3 worldPos;                            // ワールド座標
 };
 
 /**
