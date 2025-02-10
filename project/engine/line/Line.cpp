@@ -15,27 +15,26 @@ void Line::AddLine(const Vector3& start, const Vector3& end, const Vector4& colo
 
 void Line::Update(Camera* camera)
 {
-    UpdateVertexData();
+	UpdateVertexData();
 	UpdateMatrix(camera);
 }
 
 void Line::CreateVertexData() {
-    if (vertices_.empty()) return;
-
     // バッファリソースの作成
     vertexResource_ = lineCommon_->GetDirectXCommon()->CreateBufferResource(
         sizeof(LineVertex) * kMaxVertexCount
     );
 
     // バッファにデータを書き込む
-    void* mappedData = nullptr;
-    vertexResource_->Map(0, nullptr, &mappedData);
-    std::memcpy(mappedData, vertices_.data(), sizeof(LineVertex) * vertices_.size());
-    vertexResource_->Unmap(0, nullptr);  // ← Unmap を追加！
+    vertexResource_->Map(
+        0, 
+        nullptr,
+		reinterpret_cast<void**>(&vertexData_)
+        );
 
     // バッファビューの設定
     vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-    vertexBufferView_.SizeInBytes = sizeof(LineVertex) * static_cast<UINT>(vertices_.size());
+    vertexBufferView_.SizeInBytes = sizeof(LineVertex) * kMaxVertexCount;
     vertexBufferView_.StrideInBytes = sizeof(LineVertex);
 }
 
@@ -44,21 +43,14 @@ void Line::CreateWVPResource()
     // 定数バッファの作成
     wvpResource_ = lineCommon_->GetDirectXCommon()->CreateBufferResource(sizeof(Matrix4x4));
 
-    // 初期データ（単位行列）を設定
-    Matrix4x4 identityMatrix = MakeIdentity4x4();
-    void* mappedData = nullptr;
-    wvpResource_->Map(0, nullptr, &mappedData);
-    std::memcpy(mappedData, &identityMatrix, sizeof(Matrix4x4));
-    wvpResource_->Unmap(0, nullptr);
-}
-
-void Line::UpdateVertexData()
-{
 	// バッファにデータを書き込む
-	void* mappedData = nullptr;
-	vertexResource_->Map(0, nullptr, &mappedData);
-	std::memcpy(mappedData, vertices_.data(), sizeof(LineVertex) * vertices_.size());
-	vertexResource_->Unmap(0, nullptr);
+    wvpResource_->Map(0, 
+        nullptr,
+		reinterpret_cast<void**>(&wvpData_)
+    );
+
+    wvpData_->WVP = MakeIdentity4x4();
+    wvpData_->World = MakeIdentity4x4();
 }
 
 void Line::UpdateMatrix(Camera* camera)
@@ -69,16 +61,13 @@ void Line::UpdateMatrix(Camera* camera)
     Matrix4x4 viewProjectionMatrix = camera->GetViewProjectionMatrix();
 
     // ワールド行列とビュー・プロジェクション行列を掛け合わせる
-    Matrix4x4 wvpMatrix = worldMatrix_ * viewProjectionMatrix;
+    wvpData_->WVP = wvpData_->World * viewProjectionMatrix;
+}
 
-    // 定数バッファに書き込む
-    void* mappedData = nullptr;
-    HRESULT hr = wvpResource_->Map(0, nullptr, &mappedData);
-    if (FAILED(hr) || mappedData == nullptr) {
-        return; // メモリ確保失敗時はスキップ
-    }
-    std::memcpy(mappedData, &wvpMatrix, sizeof(Matrix4x4));
-    wvpResource_->Unmap(0, nullptr);
+void Line::UpdateVertexData()
+{
+    // バッファにデータを書き込む
+    std::memcpy(vertexData_, vertices_.data(), sizeof(LineVertex) * vertices_.size());
 }
 
 void Line::Draw() {

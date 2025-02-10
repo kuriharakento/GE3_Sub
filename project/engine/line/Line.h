@@ -33,8 +33,8 @@ public:
 private:
     void CreateVertexData();
 	void CreateWVPResource();
-	void UpdateVertexData();
 	void UpdateMatrix(Camera* camera);
+	void UpdateVertexData();
 
 private:
 	const uint32_t kMaxVertexCount = 20000;
@@ -43,10 +43,6 @@ private:
     std::vector<LineVertex> vertices_;
     D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
     LineVertex* vertexData_ = nullptr;
-
     Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
-	Matrix4x4 worldMatrix_ = MakeIdentity4x4();
-
-	//キューブの頂点データ
-
+	LineTransformationMatrix* wvpData_ = nullptr;
 };

@@ -48,6 +48,12 @@ struct TransformationMatrix
     Matrix4x4 WorldInverseTranspose;             // ワールド逆転置行列
 };
 
+struct LineTransformationMatrix
+{
+	Matrix4x4 WVP;
+	Matrix4x4 World;
+};
+
 //トランスフォーム
 struct Transform
 {
