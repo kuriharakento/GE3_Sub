@@ -101,6 +101,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
+    <ClCompile Include="engine\line\LineManager.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
     <ClCompile Include="engine\2d\Sprite.cpp" />
@@ -130,6 +131,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\framework\Framework.cpp" />
     <ClCompile Include="application\scene\play\GamePlayScene.cpp" />
     <ClCompile Include="engine\lighting\LightManager.cpp" />
+    <ClCompile Include="engine\line\Line.cpp" />
+    <ClCompile Include="engine\line\LineCommon.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
@@ -141,6 +144,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="engine\line\LineManager.h" />
     <ClInclude Include="engine\lighting\DirectionalLight.h" />
     <ClInclude Include="engine\lighting\LightConstants.h" />
     <ClInclude Include="engine\lighting\PointLight.h" />
@@ -190,6 +194,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\scene\manager\SceneManager.h" />
     <ClInclude Include="engine\scene\factory\SceneFactory.h" />
     <ClInclude Include="engine\lighting\LightManager.h" />
+    <ClInclude Include="engine\line\Line.h" />
+    <ClInclude Include="engine\line\LineCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
@@ -203,6 +209,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\shaders\Line.hlsli" />
     <None Include="Resources\shaders\Object3d.hlsli" />
     <None Include="Resources\shaders\Particle.hlsli" />
     <None Include="Resources\shaders\Sprite.hlsli" />

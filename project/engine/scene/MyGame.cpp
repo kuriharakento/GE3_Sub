@@ -18,6 +18,7 @@ void MyGame::Initialize()
 		objectCommon_,
 		cameraManager_.get(),
 		lightManager_.get(),
+		lineManager_.get(),
 	};
 
 	// 処理開始時間を記録
@@ -84,12 +85,17 @@ void MyGame::Draw()
 	//3D描画用設定
 	Framework::Draw3DSetting();
 
+	//3Dオブジェクトの描画
 	sceneManager_->Draw3D();
+
+	//ラインの描画
+	lineManager_->Draw();
 	
 	/*----[ スプライトの描画 ]----*/
 	//2D描画用設定
 	Framework::Draw2DSetting();
 
+	//スプライトの描画
 	sceneManager_->Draw2D();
 
 	/////////////////< 描画ここまで >////////////////////

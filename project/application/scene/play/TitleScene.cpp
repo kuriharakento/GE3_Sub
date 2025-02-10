@@ -4,6 +4,8 @@
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
+#include "lighting/VectorColorCodes.h"
+#include "line/LineManager.h"
 #include "manager/TextureManager.h"
 
 void TitleScene::Initialize()
@@ -45,6 +47,10 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+	if(ImGui::CollapsingHeader("line"))
+	{
+		ImGui::DragFloat3("CubePos", &cubePos_.x, 0.1f);
+	}
 	#pragma region Debug Sprite
 	if (ImGui::CollapsingHeader("Sprite"))
 	{
@@ -155,6 +161,9 @@ void TitleScene::Draw3D()
 
 	//地面の描画
 	terrain_->Draw();
+
+	// ラインの描画
+	sceneManager_->GetLineManager()->DrawCube(cubePos_, 1.0f, VectorColorCodes::Red);
 }
 
 void TitleScene::Draw2D()
