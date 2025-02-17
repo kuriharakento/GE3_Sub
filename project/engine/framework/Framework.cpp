@@ -71,7 +71,7 @@ void Framework::Initialize()
 
 	//線マネージャーの初期化
 	lineManager_ = std::make_unique<LineManager>();
-	lineManager_->Initialize(dxCommon_,cameraManager_.get());
+	lineManager_->Initialize(dxCommon_.get(),cameraManager_.get());
 
 }
 
