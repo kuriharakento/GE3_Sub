@@ -10,9 +10,19 @@
  */
 struct VertexData
 {
-	Vector4 position;							// 位置
-	Vector2 texcoord;							// テクスチャ座標
-	Vector3 normal;								// 法線
+    Vector4 position;                            // 位置
+    Vector2 texcoord;                            // テクスチャ座標
+    Vector3 normal;                              // 法線
+};
+
+/**
+ * \brief 線の頂点データ
+ */
+struct LineVertex
+{
+    Vector3 position;                            // 位置
+    Vector4 color;                               // 色
+	Vector3 worldPos;                            // ワールド座標
 };
 
 /**
@@ -20,12 +30,12 @@ struct VertexData
  */
 struct Material
 {
-	Vector4 color;								// 色
-	int32_t enableLighting;						// ライティングの有効無効
-	float padding[3];							// 12バイト（アラインメント用）
-	Matrix4x4 uvTransform;						// UV変換行列
-	float shininess;							// 反射強度
-	float padding2[3];							// 12バイト（アラインメント用）
+    Vector4 color;                               // 色
+    int32_t enableLighting;                      // ライティングの有効無効
+    float padding[3];                            // 12バイト（アラインメント用）
+    Matrix4x4 uvTransform;                       // UV変換行列
+    float shininess;                             // 反射強度
+    float padding2[3];                           // 12バイト（アラインメント用）
 };
 
 /**
@@ -33,17 +43,23 @@ struct Material
  */
 struct TransformationMatrix
 {
-	Matrix4x4 WVP;								// ワールドビュープロジェクション行列
-	Matrix4x4 World;							// ワールド行列
-	Matrix4x4 WorldInverseTranspose;			// ワールド逆転置行列
+    Matrix4x4 WVP;                               // ワールドビュープロジェクション行列
+    Matrix4x4 World;                             // ワールド行列
+    Matrix4x4 WorldInverseTranspose;             // ワールド逆転置行列
+};
+
+struct LineTransformationMatrix
+{
+	Matrix4x4 WVP;
+	Matrix4x4 World;
 };
 
 //トランスフォーム
 struct Transform
 {
-	Vector3 scale;								// スケール
-	Vector3 rotate;								// 回転
-	Vector3 translate;							// 平行移動
+    Vector3 scale;                               // スケール
+    Vector3 rotate;                              // 回転
+    Vector3 translate;                           // 平行移動
 };
 
 /**
@@ -51,8 +67,8 @@ struct Transform
  */
 struct MaterialData
 {
-	std::string textureFilePath;				// テクスチャファイルパス
-	uint32_t textureIndex = 0;					// テクスチャインデックス
+    std::string textureFilePath;                 // テクスチャファイルパス
+    uint32_t textureIndex = 0;                   // テクスチャインデックス
 };
 
 /**
@@ -60,8 +76,8 @@ struct MaterialData
  */
 struct ModelData
 {
-	std::vector<VertexData> vertices;			// 頂点データ
-	MaterialData material;						// マテリアルデータ
+    std::vector<VertexData> vertices;            // 頂点データ
+    MaterialData material;                       // マテリアルデータ
 };
 
 /**
@@ -69,22 +85,22 @@ struct ModelData
  */
 struct Particle
 {
-	Transform transform;						// トランスフォーム
-	Vector3 velocity;							// 速度
-	Vector4 color;								// 色
-	float lifeTime;								// 寿命
-	float currentTime;							// 現在の時間
+    Transform transform;                         // トランスフォーム
+    Vector3 velocity;                            // 速度
+    Vector4 color;                               // 色
+    float lifeTime;                              // 寿命
+    float currentTime;                           // 現在の時間
 };
 struct ParticleForGPU
 {
-	Matrix4x4 WVP;
-	Matrix4x4 World;
-	Vector4 color;
+    Matrix4x4 WVP;
+    Matrix4x4 World;
+    Vector4 color;
 };
 
 //カメラ
 struct CameraForGPU
 {
-	Vector3 worldPos;							// ワールド座標
-	float padding;								// 4バイト（アラインメント用）
+    Vector3 worldPos;                            // ワールド座標
+    float padding;                               // 4バイト（アラインメント用）
 };
