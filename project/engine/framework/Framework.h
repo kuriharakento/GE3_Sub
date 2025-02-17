@@ -6,6 +6,7 @@
 #include "base/DirectXCommon.h"
 #include "base/WinApp.h"
 #include "lighting/LightManager.h"
+#include "line/LineManager.h"
 #include "manager/CameraManager.h"
 #include "manager/ImGuiManager.h"
 #include "manager/SrvManager.h"
@@ -63,5 +64,7 @@ protected: //メンバ変数
 	std::unique_ptr<SceneFactory> sceneFactory_;
 	//ライトマネージャー
 	std::unique_ptr<LightManager> lightManager_;
+	//線マネージャー
+	std::unique_ptr<LineManager> lineManager_;
 };
 

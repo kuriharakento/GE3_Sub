@@ -4,6 +4,8 @@
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
+#include "lighting/VectorColorCodes.h"
+#include "line/LineManager.h"
 #include "manager/TextureManager.h"
 
 void TitleScene::Initialize()
@@ -44,6 +46,13 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+	if(ImGui::CollapsingHeader("line"))
+	{
+		ImGui::DragFloat3("CubePos1", &cubePos1_.x, 0.1f);
+		ImGui::DragFloat3("CubePos2", &cubePos2_.x, 0.1f);
+		ImGui::DragFloat3("SpherePos1", &spherePos1_.x, 0.1f);
+		ImGui::DragFloat3("SpherePos2", &spherePos2_.x, 0.1f);
+	}
 	#pragma region Debug Sprite
 	if (ImGui::CollapsingHeader("Sprite"))
 	{
@@ -154,6 +163,12 @@ void TitleScene::Draw3D()
 
 	//地面の描画
 	terrain_->Draw();
+
+	// ラインの描画
+	sceneManager_->GetLineManager()->DrawCube(cubePos1_, 1.0f, VectorColorCodes::Red);
+	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
+	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
+	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
 }
 
 void TitleScene::Draw2D()

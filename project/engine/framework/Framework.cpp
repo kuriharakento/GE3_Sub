@@ -68,6 +68,11 @@ void Framework::Initialize()
 	//ライトマネージャーの初期化
 	lightManager_ = std::make_unique<LightManager>();
 	lightManager_->Initialize(dxCommon_.get());
+
+	//線マネージャーの初期化
+	lineManager_ = std::make_unique<LineManager>();
+	lineManager_->Initialize(dxCommon_,cameraManager_.get());
+
 }
 
 void Framework::Finalize()
@@ -86,6 +91,8 @@ void Framework::Finalize()
 	ParticleManager::GetInstance()->Finalize();		//パーティクルマネージャーの終了処理
 	Input::GetInstance()->Finalize();				//入力の解放
 	Audio::GetInstance()->Finalize();				//オーディオの解放
+	lightManager_.reset();							//ライトマネージャーの解放
+	lineManager_.reset();							//線マネージャーの解放
 }
 
 void Framework::Update()
