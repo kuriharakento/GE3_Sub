@@ -92,5 +92,4 @@ void Line::Draw() {
 
 void Line::Clear() {
     vertices_.clear();
-	CreateVertexData();
 }

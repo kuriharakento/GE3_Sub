@@ -18,13 +18,13 @@ void LineManager::Clear() {
     line_->Clear();
 }
 
-void LineManager::Update() {
-	Clear();
-	line_->Update(cameraManager_->GetActiveCamera());
-}
-
 void LineManager::Draw() {
+	//頂点データ、行列データの更新
+    line_->Update(cameraManager_->GetActiveCamera());
+	//描画
     line_->Draw();
+	// 描画後にクリア
+	Clear();
 }
 
 void LineManager::DrawCube(const Vector3& center, float size, const Vector4& color) {
@@ -61,8 +61,8 @@ void LineManager::DrawCube(const Vector3& center, float size, const Vector4& col
 
 void LineManager::DrawSphere(const Vector3& center, float radius, const Vector4& color)
 {
-    const int segments = 16;
-    const int rings = 16;
+    const int segments = 12;
+    const int rings = 12;
 
     for (int i = 0; i <= rings; ++i) {
         float theta1 = i * std::numbers::pi_v<float> / rings;

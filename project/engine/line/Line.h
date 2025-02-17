@@ -29,13 +29,15 @@ public:
 	void Update(Camera* camera);
 	void Draw();
     void Clear();
-
 private:
+	// 頂点データの作成
     void CreateVertexData();
+	// 行列データの作成
 	void CreateWVPResource();
+	// 行列の更新
 	void UpdateMatrix(Camera* camera);
+	// 頂点データの更新
 	void UpdateVertexData();
-
 private:
 	const uint32_t kMaxVertexCount = 20000;
     LineCommon* lineCommon_ = nullptr;

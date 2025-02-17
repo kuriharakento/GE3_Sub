@@ -115,9 +115,6 @@ void Framework::Update()
 
 	//ライトマネージャーの更新
 	lightManager_->Update();
-
-	//線マネージャーの更新
-	lineManager_->Update();
 }
 
 void Framework::PostUpdate()

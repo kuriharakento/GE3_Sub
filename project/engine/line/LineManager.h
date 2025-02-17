@@ -9,7 +9,6 @@ class CameraManager;
 class LineManager {
 public:
     void Initialize(DirectXCommon* dxCommon,CameraManager* cameraManager);
-    void Update();
     void Draw();
     void Clear();
 	//ラインの描画
@@ -18,7 +17,6 @@ public:
     void DrawCube(const Vector3& center, float size, const Vector4& color);
 	//球の描画
 	void DrawSphere(const Vector3& center, float radius, const Vector4& color);
-
 private:
     std::unique_ptr<LineCommon> lineCommon_; ///< LineCommon クラスのインスタンス
     std::unique_ptr<Line> line_;             ///< Line クラスのインスタンス

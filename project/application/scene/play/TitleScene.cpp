@@ -168,8 +168,8 @@ void TitleScene::Draw3D()
 	// ラインの描画
 	sceneManager_->GetLineManager()->DrawCube(cubePos1_, 1.0f, VectorColorCodes::Red);
 	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
-	//sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
-	//sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
+	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
+	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
 }
 
 void TitleScene::Draw2D()
