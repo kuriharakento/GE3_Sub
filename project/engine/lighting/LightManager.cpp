@@ -3,6 +3,7 @@
 #include <numbers>
 
 #include "base/Logger.h"
+#include "DirectXTex/d3dx12.h"
 #include "math/Easing.h"
 
 LightManager::LightManager()
