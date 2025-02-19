@@ -56,12 +56,23 @@ struct MaterialData
 };
 
 /**
+ * \brief ノード
+ */
+struct Node
+{
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<Node> children;
+};
+
+/**
  * \brief モデルデータ
  */
 struct ModelData
 {
 	std::vector<VertexData> vertices;			// 頂点データ
 	MaterialData material;						// マテリアルデータ
+	Node rootNode;								// ノード
 };
 
 /**

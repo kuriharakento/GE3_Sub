@@ -26,5 +26,7 @@ private: //メンバ変数
 	std::unique_ptr<Object3d> object3d_;
 	//デバック用オブジェクト地面
 	std::unique_ptr<Object3d> terrain_;
+	//デバック用オブジェクト
+	std::unique_ptr<Object3d> plane_;
 };
 

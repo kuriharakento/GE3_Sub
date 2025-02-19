@@ -104,8 +104,8 @@ void Object3d::UpdateMatrix(Camera* camera)
 		worldViewProjectionMatrix = worldMatrix;
 	}
 
-	transformationMatrixData_->WVP = worldViewProjectionMatrix;
-	transformationMatrixData_->World = worldMatrix;
+	transformationMatrixData_->WVP = model_->GetModelData().rootNode.localMatrix * worldViewProjectionMatrix;
+	transformationMatrixData_->World = model_->GetModelData().rootNode.localMatrix * worldMatrix;
 	transformationMatrixData_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 

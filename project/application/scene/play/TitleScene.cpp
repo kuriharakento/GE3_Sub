@@ -12,10 +12,9 @@ void TitleScene::Initialize()
 	// 音声の再生
 	Audio::GetInstance()->PlayWave("fanfare", true);
 
-	TextureManager::GetInstance()->LoadTexture("./Resources/uvChecker.png");
 	// スプライトの生成
 	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize(sceneManager_->GetSpriteCommon(), "./Resources/uvChecker.png");
+	sprite_->Initialize(sceneManager_->GetSpriteCommon(), "Resources/uvChecker.png");
 	sprite_->SetSize({ 150.0f,150.0f });
 	sprite_->SetPosition({ 0.0f,0.0f });
 
@@ -34,6 +33,12 @@ void TitleScene::Initialize()
 	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
 	terrain_->SetDirectionalLightIntensity(0.0f);
 	terrain_->SetLightManager(sceneManager_->GetLightManager());
+
+	//平面オブジェクトの生成
+	plane_ = std::make_unique<Object3d>();
+	plane_->Initialize(sceneManager_->GetObject3dCommon());
+	plane_->SetModel("plane.gltf");
+	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
 }
 
 void TitleScene::Finalize()
@@ -88,6 +93,16 @@ void TitleScene::Update()
 		Vector4 color3d = object3d_->GetColor();
 		ImGui::ColorEdit4("Color", &color3d.x);
 		object3d_->SetColor(color3d);
+		//plane
+		Vector3 pos3dPlane = plane_->GetTranslate();
+		ImGui::DragFloat3("PositionPlane", &pos3dPlane.x, 0.1f);
+		plane_->SetTranslate(pos3dPlane);
+		Vector3 scalePlane = plane_->GetScale();
+		ImGui::DragFloat3("ScalePlane", &scalePlane.x, 0.1f);
+		plane_->SetScale(scalePlane);
+		Vector3 rotatePlane = plane_->GetRotate();
+		ImGui::DragFloat3("RotatePlane", &rotatePlane.x, 0.01f);
+		plane_->SetRotate(rotatePlane);
 	#pragma endregion
 
 	#pragma region Lighting
@@ -146,6 +161,9 @@ void TitleScene::Update()
 
 	//地面の更新
 	terrain_->Update(sceneManager_->GetCameraManager());
+
+	//平面オブジェクトの更新
+	plane_->Update(sceneManager_->GetCameraManager());
 }
 
 void TitleScene::Draw3D()
@@ -155,6 +173,9 @@ void TitleScene::Draw3D()
 
 	//地面の描画
 	terrain_->Draw();
+
+	//平面オブジェクトの描画
+	plane_->Draw();
 }
 
 void TitleScene::Draw2D()
