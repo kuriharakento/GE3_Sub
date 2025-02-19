@@ -2,6 +2,7 @@
 #include <d3d12.h>
 #include <string>
 #include <wrl.h>
+#include <assimp/scene.h>
 
 #include "ModelCommon.h"
 #include "base/GraphicsTypes.h"
@@ -29,22 +30,20 @@ public:
 	 */
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
 
-	//static MaterialData LoadMaterialTemplateFile(const std::string& filePath);
-
 	/**
 	 * \brief .objファイルの読み取り
 	 * \param
 	 * \param
 	 * \return
 	 */
-	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
+	static ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
 
 	/**
-	 * \brief .objファイルの読み取り
-	 * \param filePath 
-	 * \return 
+	 * \brief ノードの読み取り
+	 * \param node
+	 * \return
 	 */
-	//static ModelData LoadObjFile(const std::string& filePath);
+	static Node ReadNode(aiNode* node);
 
 public: //アクセッサ
 	Vector4 GetColor() const { return materialData_->color; }
@@ -57,6 +56,9 @@ public: //アクセッサ
 	//反射強度
 	void SetShininess(float shininess) { materialData_->shininess = shininess; }
 	float GetShininess() const { return materialData_->shininess; }
+
+	//モデルデータ
+	ModelData& GetModelData() { return modelData_; }
 
 private: //メンバ関数
 	/**
@@ -73,6 +75,8 @@ private: //メンバ関数
 	 * \brief 描画設定の初期化
 	 */
 	void InitializeRenderingSettings();
+
+	
 
 private:
 	//モデルコマンド
