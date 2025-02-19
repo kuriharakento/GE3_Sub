@@ -6,44 +6,45 @@
 #include "input/Input.h"
 #include "manager/ParticleManager.h"
 #include "manager/TextureManager.h"
+#include <Psapi.h>
 
 void Framework::Initialize()
 {
 	//ウィンドウアプリケーションの初期化
-	winApp_ = new WinApp();
+	winApp_ = std::make_unique<WinApp>();
 	winApp_->Initialize();
 
 	//DirectXCoomonの初期化
-	dxCommon_ = new DirectXCommon();
-	dxCommon_->Initialize(winApp_);
+	dxCommon_ = std::make_unique<DirectXCommon>();
+	dxCommon_->Initialize(winApp_.get());
 
 	//SRVマネージャーの初期化
 	srvManager_ = std::make_unique<SrvManager>();
-	srvManager_->Initialize(dxCommon_);
+	srvManager_->Initialize(dxCommon_.get());
 
 	//ImGuiの初期化
-	imguiManager_ = new ImGuiManager();
-	imguiManager_->Initialize(winApp_, dxCommon_, srvManager_.get());
+	imguiManager_ = std::make_unique<ImGuiManager>();
+	imguiManager_->Initialize(winApp_.get(), dxCommon_.get(), srvManager_.get());
 
 	//テクスチャマネージャーの初期化
-	TextureManager::GetInstance()->Initialize(dxCommon_, srvManager_.get());
+	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 
 	//スプライト共通部の初期化
-	spriteCommon_ = new SpriteCommon();
-	spriteCommon_->Initialize(dxCommon_);
+	spriteCommon_ = std::make_unique<SpriteCommon>();
+	spriteCommon_->Initialize(dxCommon_.get());
 
 	//3Dオブジェクト共通部の初期化
-	objectCommon_ = new Object3dCommon();
-	objectCommon_->Initialize(dxCommon_);
+	objectCommon_ = std::make_unique<Object3dCommon>();
+	objectCommon_->Initialize(dxCommon_.get());
 
 	//3Dモデルマネージャーの初期化
-	ModelManager::GetInstance()->Initialize(dxCommon_);
+	ModelManager::GetInstance()->Initialize(dxCommon_.get());
 
 	//パーティクルマネージャーの初期化
-	ParticleManager::GetInstance()->Initialize(dxCommon_, srvManager_.get());
+	ParticleManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 
 	//入力の初期化
-	Input::GetInstance()->Initialize(winApp_);
+	Input::GetInstance()->Initialize(winApp_.get());
 
 	//オーディオの初期化
 	Audio::GetInstance()->Initialize();
@@ -66,7 +67,12 @@ void Framework::Initialize()
 
 	//ライトマネージャーの初期化
 	lightManager_ = std::make_unique<LightManager>();
-	lightManager_->Initialize(dxCommon_);
+	lightManager_->Initialize(dxCommon_.get());
+
+	//線マネージャーの初期化
+	lineManager_ = std::make_unique<LineManager>();
+	lineManager_->Initialize(dxCommon_.get(),cameraManager_.get());
+
 }
 
 void Framework::Finalize()
@@ -74,17 +80,19 @@ void Framework::Finalize()
 	//NOTE:ここは基本的に触らない
 	sceneManager_.reset();							//シーンマネージャーの解放
 	winApp_->Finalize();							//ウィンドウアプリケーションの終了処理
-	delete winApp_;									//ウィンドウアプリケーションの解放
+	winApp_.reset();									//ウィンドウアプリケーションの解放
 	imguiManager_->Finalize();						//ImGuiManagerの終了処理
-	delete imguiManager_;							//ImGuiManagerの解放
+	imguiManager_.reset();							//ImGuiManagerの解放
 	TextureManager::GetInstance()->Finalize();		//テクスチャマネージャーの終了処理
-	delete dxCommon_;								//DirectXCommonの解放
-	delete spriteCommon_;							//スプライト共通部の解放
-	delete objectCommon_;							//3Dオブジェクト共通部の解放
+	dxCommon_.reset();								//DirectXCommonの解放
+	spriteCommon_.reset();							//スプライト共通部の解放
+	objectCommon_.reset();							//3Dオブジェクト共通部の解放
 	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
 	ParticleManager::GetInstance()->Finalize();		//パーティクルマネージャーの終了処理
 	Input::GetInstance()->Finalize();				//入力の解放
 	Audio::GetInstance()->Finalize();				//オーディオの解放
+	lightManager_.reset();							//ライトマネージャーの解放
+	lineManager_.reset();							//線マネージャーの解放
 }
 
 void Framework::Update()
@@ -169,4 +177,19 @@ void Framework::Run()
 
 	//終了処理
 	Finalize();
+}
+
+void Framework::ShowPerformanceInfo()
+{
+	// ウィンドウの位置を左上に固定
+	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+	// ウィンドウのサイズを固定
+	ImGui::SetNextWindowSize(ImVec2(200, 65), ImGuiCond_Always);
+	ImGui::Begin("Performance",nullptr,ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::Text("FPS : %.2f", ImGui::GetIO().Framerate);
+	// メモリ使用量
+	PROCESS_MEMORY_COUNTERS memInfo;
+	GetProcessMemoryInfo(GetCurrentProcess(), &memInfo, sizeof(memInfo));
+	ImGui::Text("Memory Usage : %.2f MB", memInfo.WorkingSetSize / (1024.0f * 1024.0f));
+	ImGui::End();
 }

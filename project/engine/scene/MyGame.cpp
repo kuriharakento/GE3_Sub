@@ -14,10 +14,11 @@ void MyGame::Initialize()
 	//シーンコンテキストの作成
 	SceneContext context;
 	context = {
-		spriteCommon_,
-		objectCommon_,
+		spriteCommon_.get(),
+		objectCommon_.get(),
 		cameraManager_.get(),
 		lightManager_.get(),
+		lineManager_.get(),
 	};
 
 	// 処理開始時間を記録
@@ -66,6 +67,9 @@ void MyGame::Update()
 	//フレームワークの更新処理
 	Framework::Update();
 
+	//パフォーマンス情報の表示
+	Framework::ShowPerformanceInfo();
+
 	//ゲームの更新処理
 	sceneManager_->Update();
 
@@ -84,12 +88,17 @@ void MyGame::Draw()
 	//3D描画用設定
 	Framework::Draw3DSetting();
 
+	//3Dオブジェクトの描画
 	sceneManager_->Draw3D();
+
+	//ラインの描画
+	lineManager_->Draw();
 	
 	/*----[ スプライトの描画 ]----*/
 	//2D描画用設定
 	Framework::Draw2DSetting();
 
+	//スプライトの描画
 	sceneManager_->Draw2D();
 
 	/////////////////< 描画ここまで >////////////////////
