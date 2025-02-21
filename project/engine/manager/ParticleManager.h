@@ -53,31 +53,29 @@ public:
 
 	void Emit(const std::string& groupName, const Vector3& position, uint32_t count);
 
-private: /*========[ メンバ関数 ]========*/
+	void SetTexture(const std::string& groupName, const std::string& textureFilePath);
 
+private: /*========[ メンバ関数 ]========*/
 	/**
 	 * \brief 頂点データの初期化
 	 */
 	void CreateVertexData();
-
 	/**
 	 * \brief マテリアルの初期化
 	 */
 	void CreateMaterialData();
-
+	/**
+	 * \brief モデルデータの初期化
+	 */
 	void InitializeModelData();
-
 	/**
 	 * \brief パイプラインの生成
 	 */
 	void CreateGraphicsPipelineState();
-
 	/**
 	 * \brief ルートシグネチャの生成
 	 */
 	void CreateRootSignature();
-
-	
 
 private: /*========[ メンバ変数 ]========*/
 

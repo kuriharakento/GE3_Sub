@@ -4,6 +4,7 @@
 #include <chrono>
 #include "3d/ModelManager.h"
 #include "base/Logger.h"
+#include "manager/ParticleManager.h"
 #include "manager/TextureManager.h"
 
 void MyGame::Initialize()
@@ -85,6 +86,10 @@ void MyGame::Draw()
 	/////////////////< 描画ここから >////////////////////
 
 	/*----[ 3Dオブジェクトの描画 ]----*/
+
+	//パーティクルの描画
+	ParticleManager::GetInstance()->Draw();
+
 	//3D描画用設定
 	Framework::Draw3DSetting();
 
