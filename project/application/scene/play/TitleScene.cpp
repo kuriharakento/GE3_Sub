@@ -6,6 +6,7 @@
 #include "input/Input.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
+#include "manager/ParticleManager.h"
 #include "manager/TextureManager.h"
 
 void TitleScene::Initialize()
@@ -41,6 +42,9 @@ void TitleScene::Initialize()
 	plane_->Initialize(sceneManager_->GetObject3dCommon());
 	plane_->SetModel("plane.gltf");
 	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
+
+	//パーティクルグループの作成
+	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/uvChecker.png");
 }
 
 void TitleScene::Finalize()
@@ -131,6 +135,25 @@ void TitleScene::Update()
 			object3d_->SetShininess(shininess);
 		}
 		#pragma endregion
+	}
+#pragma endregion
+
+#pragma region Particle
+	if (ImGui::CollapsingHeader("Particle"))
+	{
+		if (ImGui::Button("Emit"))
+		{
+			ParticleManager::GetInstance()->Emit("test", { 0.0f,0.0f,0.0f },5);
+		}
+		//テクスチャの変更
+		if (ImGui::Button("Change Texture: uvChecker"))
+		{
+			ParticleManager::GetInstance()->SetTexture("test", "./Resources/uvChecker.png");
+		}
+		if (ImGui::Button("Change Texture: black"))
+		{
+			ParticleManager::GetInstance()->SetTexture("test", "./Resources/black.png");
+		}
 	}
 #pragma endregion
 	ImGui::End();

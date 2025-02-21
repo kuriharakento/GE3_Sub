@@ -1,6 +1,7 @@
 #include "ParticleManager.h"
 
 #include <dxcapi.h>
+#include <numbers>
 
 #include "TextureManager.h"
 #include "3d/ModelManager.h"
@@ -30,7 +31,6 @@ void ParticleManager::Finalize()
 		//パーティクルグループの解放
 		delete instance_;
 		instance_ = nullptr;
-
 	}
 }
 
@@ -58,8 +58,6 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
 
 	//パイプラインの生成
 	CreateGraphicsPipelineState();
-
-
 }
 
 void ParticleManager::Update(CameraManager* camera)
@@ -83,18 +81,19 @@ void ParticleManager::Update(CameraManager* camera)
 	ImGui::End();
 #endif
 
-
 	const float kDeltaTime = 1.0f / 60.0f;
 	// ビルボード用の行列計算
-	Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(0.0f);
+	Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>); // Z軸正方向を基準にする
 	Matrix4x4 billboardMatrix = MakeIdentity4x4();
 
-	// カメラの回転を適用
-	billboardMatrix = Multiply(backToFrontMatrix, camera->GetActiveCamera()->GetWorldMatrix());
+	// カメラの回転を取得
+	Matrix4x4 cameraRotationMatrix = camera->GetActiveCamera()->GetWorldMatrix();
+	cameraRotationMatrix.m[3][0] = 0.0f;
+	cameraRotationMatrix.m[3][1] = 0.0f;
+	cameraRotationMatrix.m[3][2] = 0.0f;
 
-	billboardMatrix.m[3][0] = 0.0f;
-	billboardMatrix.m[3][1] = 0.0f;
-	billboardMatrix.m[3][2] = 0.0f;
+	// カメラの回転をビルボード行列に適用
+	billboardMatrix = backToFrontMatrix * cameraRotationMatrix;
 
 	// particleGroups での処理
 	for (auto& groupPair : particleGroups_) {
@@ -170,11 +169,9 @@ void ParticleManager::Draw()
 		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(group.instancingSrvIndex));
 		// SRVのDescriptorTableの先頭を設定
 		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(group.materialData.textureIndex));
-
 		// 描画
 		dxCommon_->GetCommandList()->DrawInstanced(6, group.instanceCount, 0, 0);
 	}
-
 }
 
 void ParticleManager::CreateVertexData()
@@ -303,6 +300,24 @@ void ParticleManager::Emit(const std::string& groupName, const Vector3& position
 				0.0f
 			));
 	}
+}
+
+void ParticleManager::SetTexture(const std::string& groupName, const std::string& textureFilePath)
+{
+	//NOTE:エラーが出るときはファイルパスが間違っててテクスチャが読み込めていない可能性がある
+	//パーティクルグループが存在するか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	//テクスチャを読み込む
+	particleGroups_[groupName].materialData.textureFilePath = textureFilePath;
+	TextureManager::GetInstance()->LoadTexture(particleGroups_[groupName].materialData.textureFilePath);
+	//マテリアルデータにテクスチャのSRVインデックスを設定
+	
+	particleGroups_[groupName].materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 }
 
 void ParticleManager::CreateRootSignature()
@@ -453,7 +468,6 @@ void ParticleManager::CreateGraphicsPipelineState()
 	//三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
-
 	///===================================================================
 	///ShaderをCompileする
 	///===================================================================
@@ -478,7 +492,6 @@ void ParticleManager::CreateGraphicsPipelineState()
 	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	//比較関数はLessEqual。つまり、近ければ描画される
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
 
 	///===================================================================
 	///PSOを生成する
