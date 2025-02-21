@@ -5,7 +5,6 @@
 #include <wrl.h>
 
 #include "base/GraphicsTypes.h"
-#include "math/VectorFunc.h"
 
 //ポインタが必要なので前方宣言
 class SpriteCommon;

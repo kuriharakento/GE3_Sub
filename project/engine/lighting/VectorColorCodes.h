@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math/VectorFunc.h"
+#include "math/Vector4.h"
 
 namespace VectorColorCodes {
     const Vector4 Red = { 1.0f, 0.0f, 0.0f, 1.0f };       // 赤
@@ -16,6 +16,4 @@ namespace VectorColorCodes {
     const Vector4 Gray = { 0.5f, 0.5f, 0.5f, 1.0f };      // 灰色
     const Vector4 LightGray = { 0.75f, 0.75f, 0.75f, 1.0f }; // 明るい灰色
     const Vector4 DarkGray = { 0.25f, 0.25f, 0.25f, 1.0f };  // 暗い灰色
-
-    
 }

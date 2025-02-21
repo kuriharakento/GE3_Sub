@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VectorFunc.h"
 #include "MatrixFunc.h"
+#include "Vector3.h"
 
 namespace MathUtils
 {
