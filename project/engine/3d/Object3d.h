@@ -44,6 +44,9 @@ public: /*========[ ゲッター ]========*/
 	const Vector3& GetRotate() const { return transform_.rotate; }
 	const Vector3& GetTranslate() const { return transform_.translate; }
 
+	//モデルデータ
+	ModelData GetModelData() const { return model_->GetModelData(); }
+
 	//色
 	Vector4 GetColor() const { return model_->GetColor(); }
 

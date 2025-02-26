@@ -60,6 +60,9 @@ public: //アクセッサ
 	//モデルデータ
 	ModelData& GetModelData() { return modelData_; }
 
+	//マテリアルデータ
+	Material& GetMaterialData() { return *materialData_; }
+
 private: //メンバ関数
 	/**
 	 * \brief 頂点データの生成
@@ -75,8 +78,6 @@ private: //メンバ関数
 	 * \brief 描画設定の初期化
 	 */
 	void InitializeRenderingSettings();
-
-	
 
 private:
 	//モデルコマンド

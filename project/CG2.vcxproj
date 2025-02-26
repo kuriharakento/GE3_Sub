@@ -106,6 +106,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
     <ClCompile Include="application\enemy\BaseEnemy.cpp" />
+    <ClCompile Include="application\enemy\EnemyManager.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
@@ -151,6 +152,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
     <ClInclude Include="application\enemy\BaseEnemy.h" />
+    <ClInclude Include="application\enemy\EnemyManager.h" />
     <ClInclude Include="engine\line\LineManager.h" />
     <ClInclude Include="engine\lighting\DirectionalLight.h" />
     <ClInclude Include="engine\lighting\LightConstants.h" />

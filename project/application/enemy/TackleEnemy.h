@@ -11,6 +11,8 @@ public:
 	void UpdateTackle();
 	Vector3 GetTargetPosition() const { return target_; }
 	void SetTargetPosition(const Vector3& target) { target_ = target; }
+	ModelData GetModelData() const { return object3d_->GetModelData(); }
+	Vector3 GetPosition() const { return transform_.translate; }
 private:
 	bool isTackling_;
 	float tackleSpeed_;

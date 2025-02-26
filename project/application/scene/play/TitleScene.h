@@ -4,6 +4,7 @@
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
+#include "application/enemy/EnemyManager.h"
 #include "application/enemy/TackleEnemy.h"
 #include "engine/scene/interface/BaseScene.h"
 
@@ -21,7 +22,7 @@ public:
 	void Draw2D() override;
 
 private: //メンバ変数
-	//タックルエネミー
-	std::unique_ptr<TackleEnemy> tackleEnemy_ = nullptr;
+	//エネミーマネージャー
+	std::unique_ptr<EnemyManager> enemyManager_;
 };
 

@@ -29,6 +29,7 @@ public:
 	void Update(Camera* camera);
 	void Draw();
     void Clear();
+	size_t GetLineCount() const { return lineCount_; }
 private:
 	// 頂点データの作成
     void CreateVertexData();
@@ -39,7 +40,7 @@ private:
 	// 頂点データの更新
 	void UpdateVertexData();
 private:
-	const uint32_t kMaxVertexCount = 20000;
+	const uint32_t kMaxVertexCount = 100000;
     LineCommon* lineCommon_ = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
     std::vector<LineVertex> vertices_;
@@ -47,4 +48,5 @@ private:
     LineVertex* vertexData_ = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
 	LineTransformationMatrix* wvpData_ = nullptr;
+	size_t lineCount_ = 0;
 };
