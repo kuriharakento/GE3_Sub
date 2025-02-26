@@ -111,7 +111,16 @@ void LineManager::DrawSphere(const Vector3& center, float radius, const Vector4&
     }
 }
 
-void LineManager::Drawline(const Vector3& start, const Vector3& end, const Vector4& color)
+void LineManager::DrawGrid(float size, float step, const Vector4& color) {
+    for (float x = -size; x <= size; x += step) {
+        DrawLine({ x, 0.0f, -size }, { x, 0.0f, size }, color);
+    }
+    for (float z = -size; z <= size; z += step) {
+        DrawLine({ -size, 0.0f, z }, { size, 0.0f, z }, color);
+    }
+}
+
+void LineManager::DrawLine(const Vector3& start, const Vector3& end, const Vector4& color)
 {
 	line_->AddLine(start, end, color);
 }

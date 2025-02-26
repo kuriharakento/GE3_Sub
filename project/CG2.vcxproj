@@ -105,6 +105,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
+    <ClCompile Include="application\enemy\BaseEnemy.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
@@ -145,9 +146,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\scene\play\TitleScene.cpp" />
     <ClCompile Include="engine\scene\manager\SceneManager.cpp" />
     <ClCompile Include="engine\scene\factory\SceneFactory.cpp" />
+    <ClCompile Include="application\enemy\TackleEnemy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="application\enemy\BaseEnemy.h" />
     <ClInclude Include="engine\line\LineManager.h" />
     <ClInclude Include="engine\lighting\DirectionalLight.h" />
     <ClInclude Include="engine\lighting\LightConstants.h" />
@@ -200,6 +203,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\lighting\LightManager.h" />
     <ClInclude Include="engine\line\Line.h" />
     <ClInclude Include="engine\line\LineCommon.h" />
+    <ClInclude Include="application\enemy\TackleEnemy.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
