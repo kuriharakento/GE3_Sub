@@ -15,12 +15,11 @@ public:
 	Vector3 GetPosition() const { return transform_.translate; }
 	void SetPosition(const Vector3& position) { transform_.translate = position; }
 private:
-	bool isTackling_;
-	float tackleSpeed_;
-	float tackleAcceleration_;
-	float tackleDuration_;
-	float tackleTimer_;
-	Vector3 tackleDirection_;
-	Vector3 target_;
+	bool isTackling_ = false;
+	float tackleSpeed_ = 20.0f;           // 初期速度
+	float tackleFriction_ = 4.0f;         // 摩擦係数（減速率）
+	Vector3 tackleVelocity_ = { 0.0f, 0.0f, 0.0f };  // 速度ベクトル
+	Vector3 tackleDirection_ = { 0.0f, 0.0f, 0.0f }; // タックルの方向
+	Vector3 target_ = { 0.0f, 0.0f, 3.0f };
 };
 
