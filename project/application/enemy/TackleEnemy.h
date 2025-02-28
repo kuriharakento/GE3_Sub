@@ -13,6 +13,7 @@ public:
 	void SetTargetPosition(const Vector3& target) { target_ = target; }
 	ModelData GetModelData() const { return object3d_->GetModelData(); }
 	Vector3 GetPosition() const { return transform_.translate; }
+	void SetPosition(const Vector3& position) { transform_.translate = position; }
 private:
 	bool isTackling_;
 	float tackleSpeed_;
