@@ -20,9 +20,10 @@ void EnemyManager::Update()
 	ImGui::DragFloat3("TargetPosition", &targetPosition_.x, 0.1f);
 	ImGui::DragFloat3("SpawnMinPosition", &spawnMinPosition_.x, 0.1f);
 	ImGui::DragFloat3("SpawnMaxPosition", &spawnMaxPosition_.x, 0.1f);
+	ImGui::DragInt("SpawnCount", &spawnCount_, 1.0f, 1, 100);
 	if (ImGui::Button("SpawnTackleEnemy"))
 	{
-		SpawnTackleEnemy(1);
+		SpawnTackleEnemy(spawnCount_);
 	}
 	if (ImGui::Button("Tackle"))
 	{
