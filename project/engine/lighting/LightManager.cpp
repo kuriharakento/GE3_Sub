@@ -153,16 +153,21 @@ void LightManager::AddSpotLight(const std::string& name)
 		return;
 	}
 
-	//スポットライトを作成と初期化
-	GPUSpotLight spotLight;
-	spotLight.color = { 1.0f,1.0f,1.0f,1.0f };
-	spotLight.position = { 0.0f,1.0f,0.0f };
-	spotLight.distance = 7.0f;
-	spotLight.intensity = 4.0f;
-	spotLight.direction = Vector3::Normalize({ 0.0f,-1.0f,1.0f });
-	spotLight.cosAngle = std::cos(std::numbers::pi_v<float> / 3.0f);
-	spotLight.decay = 2.0f;
-	spotLight.cosFalloffStart = 1.0f;
+	// スポットライトを作成と初期化
+    CPUSpotLight spotLight;
+    spotLight.gpuData.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    spotLight.gpuData.position = { 0.0f, 1.0f, 0.0f };
+    spotLight.gpuData.distance = 7.0f;
+    spotLight.gpuData.intensity = 4.0f;
+    spotLight.gpuData.direction = Vector3::Normalize({ 0.0f, -1.0f, 1.0f });
+    spotLight.gpuData.cosAngle = std::cos(std::numbers::pi_v<float> / 3.0f);
+    spotLight.gpuData.decay = 2.0f;
+    spotLight.gpuData.cosFalloffStart = 1.0f;
+	spotLight.isGradientActive = false;
+
+    // シャドウマップ用のリソースを初期化
+    spotLight.InitializeShadowMap(dxCommon_->GetDevice());
+	//リストに追加
 	spotLights_.emplace(name, spotLight);
 	//名前を保存
 	spotLightNames_.push_back(name);
