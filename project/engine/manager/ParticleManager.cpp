@@ -71,6 +71,8 @@ void ParticleManager::Update(CameraManager* camera)
 		{
 			ImGui::Text("Particle");
 			ImGui::Text("Position: %f %f %f", particle.transform.translate.x, particle.transform.translate.y, particle.transform.translate.z);
+			ImGui::Text("Scale: %f %f %f", particle.transform.scale.x, particle.transform.scale.y, particle.transform.scale.z);
+			ImGui::Text("Rotation: %f %f %f", particle.transform.rotate.x, particle.transform.rotate.y, particle.transform.rotate.z);
 			ImGui::Text("Velocity: %f %f %f", particle.velocity.x, particle.velocity.y, particle.velocity.z);
 			ImGui::Text("LifeTime: %f", particle.lifeTime);
 			ImGui::Text("CurrentTime: %f", particle.currentTime);
@@ -121,12 +123,13 @@ void ParticleManager::Update(CameraManager* camera)
 			// インスタンス数の制限を守る
 			if (group.instanceCount < kMaxParticleCount)
 			{
-				// スケール行列と移動行列の生成
+				// 
 				Matrix4x4 scaleMatrix = MakeScaleMatrix(particleItr->transform.scale);
 				Matrix4x4 translateMatrix = MakeTranslateMatrix(particleItr->transform.translate);
+				Matrix4x4 rotateMatrix = MakeRotateMatrix(particleItr->transform.rotate);
 
 				// 世界行列とWVP行列の計算
-				Matrix4x4 worldMatrixInstancing = scaleMatrix * billboardMatrix * translateMatrix;
+				Matrix4x4 worldMatrixInstancing = scaleMatrix * rotateMatrix * billboardMatrix * translateMatrix;
 				Matrix4x4 worldViewProjectionMatrixInstancing = Multiply(worldMatrixInstancing, Multiply(camera->GetActiveCamera()->GetViewMatrix(), camera->GetActiveCamera()->GetProjectionMatrix()));
 
 				// インスタンシングデータの設定
@@ -257,18 +260,6 @@ void ParticleManager::CreateParticleGroup(const std::string& groupName, const st
 		sizeof(ParticleForGPU) // structureByteStride: 各パーティクルのサイズ
 	);
 
-	//for (uint32_t i = 0; i < newGroup.instanceCount; ++i)
-	//{
-	//	newGroup.particles.push_back(
-	//		Particle(
-	//			{},
-	//			{},
-	//			{1.0f,1.0f,1.0f,1.0f},
-	//			5.0f,
-	//			0.0f
-	//	));
-	//}
-
 	// 新しいパーティクルグループを追加
 	particleGroups_.emplace(groupName, newGroup);
 }
@@ -288,18 +279,34 @@ void ParticleManager::Emit(const std::string& groupName, const Vector3& position
 	//パーティクルを生成
 	for (uint32_t i = 0; i < count; ++i)
 	{
-		Vector3 randomTranslate = { distribution(mt_),distribution(mt_),distribution(mt_) };
-		Vector3 randomVelocity = { distribution(mt_),distribution(mt_),distribution(mt_) };
+		Particle newParticle = MakeNewParticle(position);
+		newParticle.transform.translate += Vector3(distribution(mt_), distribution(mt_), distribution(mt_));
+		newParticle.velocity = Vector3(distribution(mt_), distribution(mt_), distribution(mt_));
 
-		particleGroups_[groupName].particles.push_back(
-			Particle(
-				{ { 1.0f,1.0f,1.0f}, { 0.0f,0.0f,0.0f }, position + randomTranslate },
-				Vector3(0.0f, 0.0f, 0.0f) + randomVelocity,
-				{ 1.0f,1.0f,1.0f,1.0f },
-				5.0f,
-				0.0f
-			));
+		particleGroups_[groupName].particles.push_back(newParticle);
 	}
+}
+
+void ParticleManager::EmitPlane(const std::string& groupName, const Vector3& position, uint32_t count)
+{
+	//登録済みのパーティクルグループか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+	//パーティクルを生成
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		Particle newParticle = MakeNewPlaneParticle(position);
+		//newParticle.transform.translate += Vector3(distribution(mt_), distribution(mt_), distribution(mt_));
+		//newParticle.velocity = Vector3(distribution(mt_), distribution(mt_), distribution(mt_));
+		particleGroups_[groupName].particles.push_back(newParticle);
+	}
+	//アンカーポイントを中心に設定
+	
 }
 
 void ParticleManager::SetTexture(const std::string& groupName, const std::string& textureFilePath)
@@ -406,6 +413,104 @@ void ParticleManager::CreateRootSignature()
 	assert(SUCCEEDED(hr));
 }
 
+Particle ParticleManager::MakeNewParticle(const Vector3& position)
+{
+	Particle newParticle;
+	newParticle.transform.translate = position;
+	newParticle.transform.scale = { 1.0f, 1.0f, 1.0f };
+	newParticle.transform.rotate = { 0.0f, 0.0f, 0.0f };
+	newParticle.velocity = { 0.0f, 0.0f, 0.0f };
+	newParticle.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	newParticle.lifeTime = 1.0f;
+	newParticle.currentTime = 0.0f;
+	return newParticle;
+}
+
+Particle ParticleManager::MakeNewPlaneParticle(const Vector3& position)
+{
+	Particle newParticle;
+	newParticle.transform.translate = position;
+	newParticle.transform.scale = { 0.05f, 1.0f, 1.0f };
+	newParticle.transform.rotate = { 0.0f, 0.0f, 0.0f };
+	newParticle.velocity = { 0.0f, 0.0f, 0.0f };
+	newParticle.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	newParticle.lifeTime = 1.0f;
+	newParticle.currentTime = 0.0f;
+	return newParticle;
+}
+
+void ParticleManager::SetRotate(const std::string& groupName, const Vector3& rotation)
+{//パーティクルグループが存在するか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	for (auto& particle : particleGroups_[groupName].particles)
+	{
+		particle.transform.rotate = rotation;
+	}
+}
+
+void ParticleManager::SetRandomRotate(const std::string& groupName)
+{
+	//パーティクルグループが存在するか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	for (auto& particle : particleGroups_[groupName].particles)
+	{
+		std::uniform_real_distribution<float> distribution(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
+		particle.transform.rotate = { 0.0f, 0.0f, distribution(mt_)};
+	}
+}
+
+void ParticleManager::SetScale(const std::string& groupName, const Vector3& scale)
+{//パーティクルグループが存在するか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	for (auto& particle : particleGroups_[groupName].particles)
+	{
+		particle.transform.scale = scale;
+	}
+}
+
+void ParticleManager::SetRandomScale(const std::string& groupName)
+{//パーティクルグループが存在するか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	for (auto& particle : particleGroups_[groupName].particles)
+	{
+		std::uniform_real_distribution<float> distribution(0.4f, 1.5f);
+		particle.transform.scale = {0.05f, distribution(mt_), 1.0f };
+	}
+}
+
+void ParticleManager::SetVelocity(const std::string& groupName, const Vector3& velocity)
+{//パーティクルグループが存在するか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	for (auto& particle : particleGroups_[groupName].particles)
+	{
+		particle.velocity = velocity;
+	}
+}
 
 
 void ParticleManager::CreateGraphicsPipelineState()

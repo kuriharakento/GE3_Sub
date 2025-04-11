@@ -29,33 +29,73 @@ struct ParticleGroup
 class ParticleManager
 {
 public:
-
 	//シングルトンのインスタンスを取得
 	static ParticleManager* GetInstance();
-
-	/**
-	 * \brief 終了
-	 */
+	//シングルトンの解放
 	static void Finalize();
-
-	/**
-	 * \brief 初期化
-	 * \param dxCommon 
-	 * \param srvManager 
-	 */
+	///初期化
 	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager);
-
+	///更新
 	void Update(CameraManager* camera);
-
+	///描画
 	void Draw();
-
+	/**
+	 * \brief パーティクルグループの作成
+	 * \param groupName グループ名
+	 * \param textureFilePath テクスチャファイルパス
+	 */
 	void CreateParticleGroup(const std::string& groupName, const std::string& textureFilePath);
-
+	/**
+	 * \brief パーティクルの生成
+	 * \param groupName グループ名
+	 * \param position 位置
+	 * \param count 生成するパーティクルの数
+	 */
 	void Emit(const std::string& groupName, const Vector3& position, uint32_t count);
-
+	/**
+	 * \brief 平面用のパーティクルの生成
+	 * \param groupName グループ名
+	 * \param position 位置
+	 * \param count 生成するパーティクルの数
+	 */
+	void EmitPlane(const std::string& groupName, const Vector3& position, uint32_t count);
+	/**
+	 * \brief パーティクルのテクスチャの設定
+	 * \param groupName グループ名
+	 * \param textureFilePath テクスチャファイルパス
+	 */
 	void SetTexture(const std::string& groupName, const std::string& textureFilePath);
+	/**
+	* \brief パーティクルの回転の設定
+	* \param groupName グループ名
+	* \param rotation 回転ベクトル
+	*/
+	void SetRotate(const std::string& groupName, const Vector3& rotation);
+	/**
+	 * \brief ランダムな回転の設定
+	 * \param groupName グループ名
+	 * \param rotation 回転ベクトル
+	 */
+	void SetRandomRotate(const std::string& groupName);
+	/**
+	 * \brief スケールの設定
+	 * \param groupName グループ名
+	 * \param scale スケールベクトル
+	 */
+	void SetScale(const std::string& groupName, const Vector3& scale);
+	/**
+	 * \brief ランダムなスケールの設定
+	 * \param groupName グループ名
+	 */
+	void SetRandomScale(const std::string& groupName);
+	/**
+	 * \brief 速度ベクトルの設定
+	 * \param groupName グループ名
+	 * \param velocity 速度ベクトル
+	 */
+	void SetVelocity(const std::string& groupName, const Vector3& velocity);
 
-private: /*========[ メンバ関数 ]========*/
+private: //メンバ関数
 	/**
 	 * \brief 頂点データの初期化
 	 */
@@ -76,20 +116,29 @@ private: /*========[ メンバ関数 ]========*/
 	 * \brief ルートシグネチャの生成
 	 */
 	void CreateRootSignature();
+	/**
+	* \brief パーティクルの生成
+	* \param position 位置
+	* \return 生成したパーティクル
+	*/
+	Particle MakeNewParticle(const Vector3& position);
+	/**
+	 * \brief 平面用のパーティクルの生成
+	 * \param position 位置
+	 * \return 生成したパーティクル
+	 */
+	Particle MakeNewPlaneParticle(const Vector3& position);
 
-private: /*========[ メンバ変数 ]========*/
-
+private: //メンバ変数
 	/*--------------[ ポインタ ]-----------------*/
 
 	DirectXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 	Model* model_ = nullptr;
-
 	//ルートシグネチャ
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	//パイプライン
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
-
 	//ランダムエンジン
 	std::mt19937 mt_;
 
@@ -108,7 +157,6 @@ private: /*========[ メンバ変数 ]========*/
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
 	//データ
 	Material* materialData_ = nullptr;
-
 	//モデルデータ
 	ModelData modelData_;
 
@@ -116,7 +164,6 @@ private: /*========[ メンバ変数 ]========*/
 
 	//グループ名をキーとしてパーティクルグループを管理
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
-
 
 private:
 	/*========[ シングルトン ]========*/

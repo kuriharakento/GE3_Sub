@@ -143,7 +143,9 @@ void TitleScene::Update()
 	{
 		if (ImGui::Button("Emit"))
 		{
-			ParticleManager::GetInstance()->Emit("test", { 0.0f,0.0f,0.0f },5);
+			ParticleManager::GetInstance()->EmitPlane("test", { 0.0f,1.0f,0.0f },3);
+			ParticleManager::GetInstance()->SetRandomRotate("test");
+			ParticleManager::GetInstance()->SetRandomScale("test");
 		}
 		//テクスチャの変更
 		if (ImGui::Button("Change Texture: uvChecker"))

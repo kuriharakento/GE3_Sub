@@ -103,6 +103,18 @@ inline Matrix4x4 MakeRotateZMatrix(float radian)
 	return m;
 }
 
+inline Matrix4x4 MakeRotateMatrix(Vector3 rotate)
+{
+
+	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
+	Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
+	Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
+
+	// 回転行列の合成
+	Matrix4x4 rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+
+	return rotateMatrix;
+}
 
 //4x4行列の和
 inline Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2)
