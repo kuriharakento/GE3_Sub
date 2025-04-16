@@ -156,6 +156,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\lighting\VectorColorCodes.h" />
     <ClInclude Include="engine\math\Easing.h" />
     <ClInclude Include="engine\math\MathUtils.h" />
+    <ClInclude Include="engine\math\Vector2.h" />
+    <ClInclude Include="engine\math\Vector3.h" />
+    <ClInclude Include="engine\math\Vector4.h" />
     <ClInclude Include="engine\scene\SceneContext.h" />
     <ClInclude Include="engine\scene\interface\AbstractSceneFactory.h" />
     <ClInclude Include="engine\audio\Audio.h" />
@@ -177,7 +180,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\input\Input.h" />
     <ClInclude Include="engine\3d\Object3dCommon.h" />
     <ClInclude Include="engine\math\MatrixFunc.h" />
-    <ClInclude Include="engine\math\VectorFunc.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />

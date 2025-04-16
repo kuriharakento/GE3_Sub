@@ -3,7 +3,8 @@
 #include <vector>
 
 #include "math/MatrixFunc.h"
-#include "math/VectorFunc.h"
+#include "math/Vector2.h"
+#include "math/Vector4.h"
 
 /**
  * \brief 頂点データ

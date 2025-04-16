@@ -1,7 +1,7 @@
 #pragma once
 #include <cmath>
 #include <numbers>
-#include "math/VectorFunc.h"
+#include "math/Vector2.h"
 
 // 参照したサイト
 // https://easings.net/ja

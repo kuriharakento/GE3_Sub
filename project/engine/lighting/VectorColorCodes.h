@@ -1,6 +1,5 @@
 #pragma once
-
-#include "math/VectorFunc.h"
+#include "math/Vector4.h"
 
 namespace VectorColorCodes {
     const Vector4 Red = { 1.0f, 0.0f, 0.0f, 1.0f };       // 赤

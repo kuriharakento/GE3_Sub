@@ -1,5 +1,6 @@
 #pragma once
-#include "math/VectorFunc.h"
+#include "math/Vector3.h"
+#include "math/Vector4.h"
 
 /**
  * \brief ディレクショナルライト
