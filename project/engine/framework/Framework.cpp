@@ -132,6 +132,7 @@ void Framework::Draw3DSetting()
 {
 	//NOTE:3Dオブジェクトの描画準備。共通の設定を行う
 	objectCommon_->CommonRenderingSetting();
+
 }
 
 void Framework::Draw2DSetting()

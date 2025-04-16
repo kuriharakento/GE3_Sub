@@ -21,6 +21,12 @@ public: //メンバ関数
 	//描画前処理
 	void PreDraw();
 
+	//SwapChainに対しての描画
+	void SwapChainDraw();
+
+	//RenderTextureに対しての描画
+	void RenderTextureDraw();
+
 	//描画後処理
 	void PostDraw();
 
@@ -55,7 +61,14 @@ public: //メンバ関数
 	 */
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
 
-	//
+	/**
+	 * \brief レンダーテクスチャリソースの生成
+	 * \param width 
+	 * \param height 
+	 * \param format 
+	 * \param clearColor 
+	 * \return 
+	 */
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor);
 
 public://アクセッサ
@@ -86,8 +99,6 @@ public://アクセッサ
 	//バックバッファの取得
 	size_t GetBackBufferCount() { return swapChainResources_.size(); }
 
-
-
 private: //メンバ関数
 	/// \brief デバイスの初期化
 	void InitializeDevice();
@@ -117,8 +128,8 @@ private: //メンバ関数
 	void InitializeFixFPS();
 	/// \brief FPS固定更新
 	void UpdateFixFPS();
-
-
+	/// \brief オフスクリーン用のレンダーテクスチャの生成
+	void CreateOffScreenRenderTarget();
 	
 
 	/// \brief CPUのDescriptorHandleを取得
@@ -144,56 +155,48 @@ private: //メンバ変数
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 	//DXGIファクトリー
 	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_;
-
 	//コマンドアロケータ
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_ = nullptr;
 	//コマンドリスト
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_ = nullptr;
 	//コマンドキュー
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_ = nullptr;
-
 	//スワップチェイン
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
+	//レンダーテクスチャ
+	Microsoft::WRL::ComPtr<ID3D12Resource> renderTexture_ = nullptr;
 	//スワップチェインリソース
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> swapChainResources_;
-
 	//深度バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_ = nullptr;
-
 	//ディスクリプタヒープ
 	//RTV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
 	//DSV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
-
 	//RTVを2つ作るのでディスクリプタを２つ用意
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
-
 	//ディスクリプタサイズ
 	uint32_t descriptorSizeRTV_;
 	uint32_t descriptorSizeDSV_;
-
 	//フェンス
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
 	uint64_t fenceValue_ = 0;
 	//HANDLE fenceEvent_;
-
 	//ビューポート
 	D3D12_VIEWPORT viewport_{};
-
 	//シザー矩形
 	D3D12_RECT scissorRect_{};
-	
 	//DXCユーティリティ
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;
 	//DXCコンパイラ
 	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_ = nullptr;
 	//インクルードハンドラ
 	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_ = nullptr;
-
 	//リソースバリア
 	D3D12_RESOURCE_BARRIER barrier_{};
-
 	std::chrono::steady_clock::time_point reference_;
+	//レンダーテクスチャのクリア値
+	D3D12_CLEAR_VALUE clearValue_;
 };
 
