@@ -9,6 +9,8 @@
 
 #include "base/WinApp.h"
 #include "externals/DirectXTex/DirectXTex.h"
+#include "math/Vector4.h"
+
 
 class DirectXCommon
 {
@@ -52,6 +54,9 @@ public: //メンバ関数
 	 * \return 
 	 */
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
+
+	//
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor);
 
 public://アクセッサ
 	/// \brief デバイスの取得

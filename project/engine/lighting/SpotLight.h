@@ -1,10 +1,10 @@
 #pragma once
+#include <cassert>
 #include <d3d12.h>
 #include <wrl.h>
 
 #include "DirectXTex/d3dx12.h"
 #include "math/MatrixFunc.h"
-#include "math/VectorFunc.h"
 
 /**
  * スポットライト

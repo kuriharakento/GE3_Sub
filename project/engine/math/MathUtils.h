@@ -1,6 +1,4 @@
 #pragma once
-
-#include "VectorFunc.h"
 #include "MatrixFunc.h"
 
 namespace MathUtils

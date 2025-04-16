@@ -1,6 +1,8 @@
 #pragma once
-#include "math/VectorFunc.h"
+
 #include <cmath>
+
+#include "Vector3.h"
 
 /// \brief コタンジェント
 /// \param a 
