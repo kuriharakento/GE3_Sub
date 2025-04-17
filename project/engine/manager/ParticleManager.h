@@ -24,6 +24,10 @@ struct ParticleGroup
 	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
 	uint32_t instanceCount = 0;
 	ParticleForGPU* instancingData = nullptr;
+	//モデルの頂点データ
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
+	VertexData* vertexData = nullptr;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 };
 
 class ParticleManager
@@ -59,6 +63,8 @@ public:
 	 * \param count 生成するパーティクルの数
 	 */
 	void EmitPlane(const std::string& groupName, const Vector3& position, uint32_t count);
+
+	void EmitRing(const std::string& groupName, const Vector3& position, uint32_t count);
 	/**
 	 * \brief パーティクルのテクスチャの設定
 	 * \param groupName グループ名
@@ -96,10 +102,6 @@ public:
 	void SetVelocity(const std::string& groupName, const Vector3& velocity);
 
 private: //メンバ関数
-	/**
-	 * \brief 頂点データの初期化
-	 */
-	void CreateVertexData();
 	/**
 	 * \brief マテリアルの初期化
 	 */
@@ -141,15 +143,6 @@ private: //メンバ変数
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
 	//ランダムエンジン
 	std::mt19937 mt_;
-
-	/*--------------[ 頂点データ ]-----------------*/
-
-	//バッファのリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	//データ
-	VertexData* vertexData = nullptr;
-	//頂点バッファビュー
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 
 	/*--------------[ マテリアルデータ ]-----------------*/
 
