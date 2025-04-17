@@ -44,7 +44,7 @@ void TitleScene::Initialize()
 	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
 
 	//パーティクルグループの作成
-	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/uvChecker.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/circle2.png");
 }
 
 void TitleScene::Finalize()
