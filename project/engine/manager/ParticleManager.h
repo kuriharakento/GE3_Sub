@@ -16,6 +16,12 @@ class SrvManager;
 //パーティクルの最大数
 constexpr uint32_t kMaxParticleCount = 100;
 
+enum class VertexShape
+{
+	Plane,
+	Ring
+};
+
 struct ParticleGroup
 {
 	MaterialData materialData;
@@ -28,6 +34,7 @@ struct ParticleGroup
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
 	VertexData* vertexData = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	bool isBillboard = true; // ビルボードフラグ
 };
 
 class ParticleManager
@@ -100,6 +107,10 @@ public:
 	 * \param velocity 速度ベクトル
 	 */
 	void SetVelocity(const std::string& groupName, const Vector3& velocity);
+
+	void SetVertexData(const std::string& groupName, VertexShape shape);
+
+	void SetBillboard(const std::string& groupName, bool isBillboard) { particleGroups_[groupName].isBillboard = isBillboard; }
 
 private: //メンバ関数
 	/**

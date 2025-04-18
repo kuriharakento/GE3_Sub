@@ -99,12 +99,9 @@ void ParticleManager::Update(CameraManager* camera)
 		ParticleGroup& group = groupPair.second;
 		group.instanceCount = 0; // インスタンスカウントをリセット
 
-
 		// 各グループ内のパーティクルを処理
-		for (std::list<Particle>::iterator particleItr = group.particles.begin(); particleItr != group.particles.end();)
-		{
-			if (particleItr->lifeTime <= particleItr->currentTime)
-			{
+		for (std::list<Particle>::iterator particleItr = group.particles.begin(); particleItr != group.particles.end();) {
+			if (particleItr->lifeTime <= particleItr->currentTime) {
 				particleItr = group.particles.erase(particleItr);
 				continue;
 			}
@@ -115,18 +112,23 @@ void ParticleManager::Update(CameraManager* camera)
 
 			// パーティクルの透明度計算
 			float alpha = 1.0f - (particleItr->currentTime / particleItr->lifeTime);
-			materialData_->color = { 1.0f,1.0f,1.0f,alpha };
+			materialData_->color = { 1.0f, 1.0f, 1.0f, alpha };
 
 			// インスタンス数の制限を守る
-			if (group.instanceCount < kMaxParticleCount)
-			{
-				// 
+			if (group.instanceCount < kMaxParticleCount) {
+				// スケール、回転、平行移動の行列を計算
 				Matrix4x4 scaleMatrix = MakeScaleMatrix(particleItr->transform.scale);
 				Matrix4x4 translateMatrix = MakeTranslateMatrix(particleItr->transform.translate);
 				Matrix4x4 rotateMatrix = MakeRotateMatrix(particleItr->transform.rotate);
 
+				// ビルボードが有効ならビルボード行列を適用
+				Matrix4x4 worldMatrixInstancing = scaleMatrix * rotateMatrix;
+				if (group.isBillboard) {
+					worldMatrixInstancing = worldMatrixInstancing * billboardMatrix;
+				}
+				worldMatrixInstancing = worldMatrixInstancing * translateMatrix;
+
 				// 世界行列とWVP行列の計算
-				Matrix4x4 worldMatrixInstancing = scaleMatrix * rotateMatrix * billboardMatrix * translateMatrix;
 				Matrix4x4 worldViewProjectionMatrixInstancing = Multiply(worldMatrixInstancing, Multiply(camera->GetActiveCamera()->GetViewMatrix(), camera->GetActiveCamera()->GetProjectionMatrix()));
 
 				// インスタンシングデータの設定
@@ -134,6 +136,7 @@ void ParticleManager::Update(CameraManager* camera)
 				group.instancingData[group.instanceCount].World = worldMatrixInstancing;
 				group.instancingData[group.instanceCount].color = particleItr->color;
 				group.instancingData[group.instanceCount].color.w = alpha;
+
 				// インスタンスの数をインクリメント
 				++group.instanceCount;
 			}
@@ -218,6 +221,7 @@ void ParticleManager::CreateParticleGroup(const std::string& groupName, const st
 	//テクスチャを読み込む
 	TextureManager::GetInstance()->LoadTexture(newGroup.materialData.textureFilePath);
 	newGroup.materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(newGroup.materialData.textureFilePath);
+	
 
 	// 頂点データを矩形で初期化
 	std::vector<VertexData> rectangleVertices = {
@@ -233,12 +237,12 @@ void ParticleManager::CreateParticleGroup(const std::string& groupName, const st
 	newGroup.vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * rectangleVertices.size());
 	newGroup.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&newGroup.vertexData));
 	std::memcpy(newGroup.vertexData, rectangleVertices.data(), sizeof(VertexData) * rectangleVertices.size());
+	newGroup.vertexResource->Unmap(0, nullptr);
 
 	// 頂点バッファビューを設定
 	newGroup.vertexBufferView.BufferLocation = newGroup.vertexResource->GetGPUVirtualAddress();
 	newGroup.vertexBufferView.StrideInBytes = sizeof(VertexData);
 	newGroup.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * rectangleVertices.size());
-
 
 	//インスタンシング用のリソースを作成
 	newGroup.instancingResource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kMaxParticleCount);
@@ -300,7 +304,7 @@ void ParticleManager::EmitPlane(const std::string& groupName, const Vector3& pos
 		particleGroups_[groupName].particles.push_back(newParticle);
 	}
 	//アンカーポイントを中心に設定
-	
+
 }
 
 void ParticleManager::EmitRing(const std::string& groupName, const Vector3& position, uint32_t count)
@@ -319,17 +323,48 @@ void ParticleManager::EmitRing(const std::string& groupName, const Vector3& posi
 		Particle newParticle = MakeNewParticle(position);
 		particleGroups_[groupName].particles.push_back(newParticle);
 	}
-	//マテリアルデータをリングの形状に設定
+	// 頂点データをリングで初期化（triangle list）
 	const uint32_t kRingDivide = 32;
-	const float kOuterRadius = 1.0f;
-	const float kInnerRadius = 0.2f;
-	const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
+	const float    kOuterRadius = 1.0f;
+	const float    kInnerRadius = 0.2f;
+	const float    radianPerDiv = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
+
+	std::vector<VertexData> ringVertices;
+	ringVertices.reserve(kRingDivide * 6);  // 1セグメントあたり6頂点
 
 	for (uint32_t i = 0; i < kRingDivide; ++i)
 	{
-		
-	}
+		// 0→1 の角度
+		float theta0 = radianPerDiv * float(i);
+		float theta1 = radianPerDiv * float(i + 1);
 
+		// sin/cos をそれぞれ計算
+		float c0 = std::cos(theta0), s0 = std::sin(theta0);
+		float c1 = std::cos(theta1), s1 = std::sin(theta1);
+
+		// テクスチャ座標 U
+		float u0 = float(i) / float(kRingDivide);
+		float u1 = float(i + 1) / float(kRingDivide);
+
+		// ▽ 三角形 1： outer0 → outer1 → inner0
+		ringVertices.push_back({ { c0 * kOuterRadius, s0 * kOuterRadius, 0, 1 }, { u0, 0 }, { 0,0,1 } });
+		ringVertices.push_back({ { c1 * kOuterRadius, s1 * kOuterRadius, 0, 1 }, { u1, 0 }, { 0,0,1 } });
+		ringVertices.push_back({ { c0 * kInnerRadius, s0 * kInnerRadius, 0, 1 }, { u0, 1 }, { 0,0,1 } });
+
+		// ▽ 三角形 2： outer1 → inner1 → inner0
+		ringVertices.push_back({ { c1 * kOuterRadius, s1 * kOuterRadius, 0, 1 }, { u1, 0 }, { 0,0,1 } });
+		ringVertices.push_back({ { c1 * kInnerRadius, s1 * kInnerRadius, 0, 1 }, { u1, 1 }, { 0,0,1 } });
+		ringVertices.push_back({ { c0 * kInnerRadius, s0 * kInnerRadius, 0, 1 }, { u0, 1 }, { 0,0,1 } });
+	}
+	// 頂点データを設定
+	particleGroups_[groupName].vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * ringVertices.size());
+	particleGroups_[groupName].vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroups_[groupName].vertexData));
+	std::memcpy(particleGroups_[groupName].vertexData, ringVertices.data(), sizeof(VertexData) * ringVertices.size());
+	particleGroups_[groupName].vertexResource->Unmap(0, nullptr);
+	// 頂点バッファビューを設定
+	particleGroups_[groupName].vertexBufferView.BufferLocation = particleGroups_[groupName].vertexResource->GetGPUVirtualAddress();
+	particleGroups_[groupName].vertexBufferView.StrideInBytes = sizeof(VertexData);
+	particleGroups_[groupName].vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * ringVertices.size());
 }
 
 void ParticleManager::SetTexture(const std::string& groupName, const std::string& textureFilePath)
@@ -346,7 +381,7 @@ void ParticleManager::SetTexture(const std::string& groupName, const std::string
 	particleGroups_[groupName].materialData.textureFilePath = textureFilePath;
 	TextureManager::GetInstance()->LoadTexture(particleGroups_[groupName].materialData.textureFilePath);
 	//マテリアルデータにテクスチャのSRVインデックスを設定
-	
+
 	particleGroups_[groupName].materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 }
 
@@ -488,7 +523,7 @@ void ParticleManager::SetRandomRotate(const std::string& groupName)
 	for (auto& particle : particleGroups_[groupName].particles)
 	{
 		std::uniform_real_distribution<float> distribution(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
-		particle.transform.rotate = { 0.0f, 0.0f, distribution(mt_)};
+		particle.transform.rotate = { 0.0f, 0.0f, distribution(mt_) };
 	}
 }
 
@@ -517,7 +552,7 @@ void ParticleManager::SetRandomScale(const std::string& groupName)
 	for (auto& particle : particleGroups_[groupName].particles)
 	{
 		std::uniform_real_distribution<float> distribution(0.4f, 1.5f);
-		particle.transform.scale = {0.05f, distribution(mt_), 1.0f };
+		particle.transform.scale = { 0.05f, distribution(mt_), 1.0f };
 	}
 }
 
@@ -533,6 +568,73 @@ void ParticleManager::SetVelocity(const std::string& groupName, const Vector3& v
 	{
 		particle.velocity = velocity;
 	}
+}
+
+void ParticleManager::SetVertexData(const std::string& groupName, VertexShape shape)
+{
+	// グループが存在するか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end()) {
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+
+	std::vector<VertexData> vertices;
+
+	switch (shape) {
+	case VertexShape::Plane:
+		// 平面の頂点データを生成（例として矩形と同じ）
+		vertices = {
+			{ {  1.0f,  1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+			{ { -1.0f,  1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+			{ {  1.0f, -1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } },
+			{ {  1.0f, -1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } },
+			{ { -1.0f,  1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+			{ { -1.0f, -1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
+		};
+		break;
+
+	case VertexShape::Ring:
+		const uint32_t kRingDivide = 32;
+		const float kOuterRadius = 1.0f;
+		const float kInnerRadius = 0.2f;
+		const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
+
+		for (uint32_t i = 0; i < kRingDivide; ++i) {
+			float theta0 = radianPerDivide * i;
+			float theta1 = radianPerDivide * (i + 1);
+
+			float cos0 = std::cos(theta0);
+			float sin0 = std::sin(theta0);
+			float cos1 = std::cos(theta1);
+			float sin1 = std::sin(theta1);
+
+			float u0 = float(i) / float(kRingDivide);
+			float u1 = float(i + 1) / float(kRingDivide);
+
+			// 三角形1（outer0 → outer1 → inner0）
+			vertices.push_back({ { cos0 * kOuterRadius, sin0 * kOuterRadius, 0.0f, 1.0f }, { u0, 0.0f }, { 0.0f, 0.0f, 1.0f } });
+			vertices.push_back({ { cos1 * kOuterRadius, sin1 * kOuterRadius, 0.0f, 1.0f }, { u1, 0.0f }, { 0.0f, 0.0f, 1.0f } });
+			vertices.push_back({ { cos0 * kInnerRadius, sin0 * kInnerRadius, 0.0f, 1.0f }, { u0, 1.0f }, { 0.0f, 0.0f, 1.0f } });
+
+			// 三角形2（outer1 → inner1 → inner0）
+			vertices.push_back({ { cos1 * kOuterRadius, sin1 * kOuterRadius, 0.0f, 1.0f }, { u1, 0.0f }, { 0.0f, 0.0f, 1.0f } });
+			vertices.push_back({ { cos1 * kInnerRadius, sin1 * kInnerRadius, 0.0f, 1.0f }, { u1, 1.0f }, { 0.0f, 0.0f, 1.0f } });
+			vertices.push_back({ { cos0 * kInnerRadius, sin0 * kInnerRadius, 0.0f, 1.0f }, { u0, 1.0f }, { 0.0f, 0.0f, 1.0f } });
+		}
+		break;
+	}
+
+	// 頂点データを設定
+	ParticleGroup& group = particleGroups_[groupName];
+	group.vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * vertices.size());
+	group.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&group.vertexData));
+	std::memcpy(group.vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
+	group.vertexResource->Unmap(0, nullptr);
+
+	// 頂点バッファビューを設定
+	group.vertexBufferView.BufferLocation = group.vertexResource->GetGPUVirtualAddress();
+	group.vertexBufferView.StrideInBytes = sizeof(VertexData);
+	group.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
 }
 
 
