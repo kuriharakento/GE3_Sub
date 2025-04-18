@@ -17,6 +17,7 @@ void ImGuiManager::Initialize([[maybe_unused]] WinApp* winApp, [[maybe_unused]] 
 
 	//ImGUiのコンテキストを生成
 	ImGui::CreateContext();
+
 	//ImGUiのスタイルを設定(好きに変えて大丈夫)
 	ImGui::StyleColorsDark();
 

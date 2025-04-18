@@ -44,7 +44,7 @@ void TitleScene::Initialize()
 	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
 
 	//パーティクルグループの作成
-	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/uvChecker.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/gradationLine.png");
 }
 
 void TitleScene::Finalize()
@@ -141,9 +141,40 @@ void TitleScene::Update()
 #pragma region Particle
 	if (ImGui::CollapsingHeader("Particle"))
 	{
+		//ビルボードの有効無効
+		if (ImGui::Button("Billboard On"))
+		{
+			ParticleManager::GetInstance()->SetBillboard("test", true);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Billboard Off"))
+		{
+			ParticleManager::GetInstance()->SetBillboard("test", false);
+		}
+		//生成
 		if (ImGui::Button("Emit"))
 		{
-			ParticleManager::GetInstance()->Emit("test", { 0.0f,0.0f,0.0f },5);
+			ParticleManager::GetInstance()->Emit("test", { 0.0f,1.0f,-1.0f }, 100);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Emit Ring"))
+		{
+			ParticleManager::GetInstance()->EmitRing("test", { 0.0f,1.0f,-1.0f },5);
+			ParticleManager::GetInstance()->SetRandomRotate("test");
+			//ParticleManager::GetInstance()->SetRandomScale("test");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Emit Plane"))
+		{
+			ParticleManager::GetInstance()->EmitPlane("test", { 0.0f,1.0f,-1.0f }, 100);
+			ParticleManager::GetInstance()->SetRandomRotate("test");
+			//ParticleManager::GetInstance()->SetRandomScale("test");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Emit Cylinder"))
+		{
+			ParticleManager::GetInstance()->EmitCylinder("test", { 0.0f,1.0f,-1.0f }, 1);
+			//ParticleManager::GetInstance()->SetRandomRotate("test");
 		}
 		//テクスチャの変更
 		if (ImGui::Button("Change Texture: uvChecker"))
@@ -153,6 +184,15 @@ void TitleScene::Update()
 		if (ImGui::Button("Change Texture: black"))
 		{
 			ParticleManager::GetInstance()->SetTexture("test", "./Resources/black.png");
+		}
+		//頂点データの変更
+		if (ImGui::Button("Change VertexData: Plane"))
+		{
+			ParticleManager::GetInstance()->SetVertexData("test", VertexShape::Plane);
+		}
+		if (ImGui::Button("Change VertexData: Ring"))
+		{
+			ParticleManager::GetInstance()->SetVertexData("test", VertexShape::Ring);
 		}
 	}
 #pragma endregion
