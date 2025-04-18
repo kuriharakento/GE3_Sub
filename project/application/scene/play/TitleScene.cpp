@@ -170,6 +170,12 @@ void TitleScene::Update()
 			ParticleManager::GetInstance()->SetRandomRotate("test");
 			//ParticleManager::GetInstance()->SetRandomScale("test");
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Emit Cylinder"))
+		{
+			ParticleManager::GetInstance()->EmitCylinder("test", { 0.0f,1.0f,-1.0f }, 1);
+			//ParticleManager::GetInstance()->SetRandomRotate("test");
+		}
 		//テクスチャの変更
 		if (ImGui::Button("Change Texture: uvChecker"))
 		{

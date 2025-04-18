@@ -72,6 +72,9 @@ public:
 	void EmitPlane(const std::string& groupName, const Vector3& position, uint32_t count);
 
 	void EmitRing(const std::string& groupName, const Vector3& position, uint32_t count);
+
+	void EmitCylinder(const std::string& groupName, const Vector3& position, uint32_t count);
+
 	/**
 	 * \brief パーティクルのテクスチャの設定
 	 * \param groupName グループ名

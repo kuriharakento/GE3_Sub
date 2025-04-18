@@ -369,6 +369,90 @@ void ParticleManager::EmitRing(const std::string& groupName, const Vector3& posi
 	particleGroups_[groupName].vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * ringVertices.size());
 }
 
+void ParticleManager::EmitCylinder(const std::string& groupName, const Vector3& position, uint32_t count)
+{
+	//登録済みのパーティクルグループか確認
+	if (particleGroups_.find(groupName) == particleGroups_.end())
+	{
+		// ログ出力
+		Logger::Log("Particle group with name " + groupName + " does not exist.");
+		assert(false);
+	}
+	//パーティクルを生成
+	for (uint32_t i = 0; i < count; ++i)
+	{
+		Particle newParticle = MakeNewParticle(position);
+		particleGroups_[groupName].particles.push_back(newParticle);
+	}
+
+	const uint32_t kCylinderDivide = 32; // 円柱の分割数
+	const float kOuterRadius = 1.0f;     // 外側の半径
+	const float kHeight = 2.0f;          // 円柱の高さ
+	const float radianPerDiv = 2.0f * std::numbers::pi_v<float> / float(kCylinderDivide);
+
+	std::vector<VertexData> cylinderVertices;
+
+	//// 上面キャップの頂点データを生成
+	//for (uint32_t index = 0; index < kCylinderDivide; ++index) {
+	//	float sin0 = std::sin(radianPerDiv * index);
+	//	float cos0 = std::cos(radianPerDiv * index);
+	//	float sin1 = std::sin(radianPerDiv * (index + 1));
+	//	float cos1 = std::cos(radianPerDiv * (index + 1));
+	//	float u0 = float(index) / float(kCylinderDivide);
+	//	float u1 = float(index + 1) / float(kCylinderDivide);
+
+	//	// 三角形1: 中心 → 外側0 → 外側1
+	//	cylinderVertices.push_back({ { 0.0f, kHeight / 2.0f, 0.0f, 1.0f }, { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f } }); // 中心
+	//	cylinderVertices.push_back({ { cos0 * kOuterRadius, kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 0.0f }, { 0.0f, 1.0f, 0.0f } }); // 外側0
+	//	cylinderVertices.push_back({ { cos1 * kOuterRadius, kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { 0.0f, 1.0f, 0.0f } }); // 外側1
+	//}
+
+	//// 下面キャップの頂点データを生成
+	//for (uint32_t index = 0; index < kCylinderDivide; ++index) {
+	//	float sin0 = std::sin(radianPerDiv * index);
+	//	float cos0 = std::cos(radianPerDiv * index);
+	//	float sin1 = std::sin(radianPerDiv * (index + 1));
+	//	float cos1 = std::cos(radianPerDiv * (index + 1));
+	//	float u0 = float(index) / float(kCylinderDivide);
+	//	float u1 = float(index + 1) / float(kCylinderDivide);
+
+	//	// 三角形1: 中心 → 外側1 → 外側0
+	//	cylinderVertices.push_back({ { 0.0f, -kHeight / 2.0f, 0.0f, 1.0f }, { 0.5f, 0.5f }, { 0.0f, -1.0f, 0.0f } }); // 中心
+	//	cylinderVertices.push_back({ { cos1 * kOuterRadius, -kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { 0.0f, -1.0f, 0.0f } }); // 外側1
+	//	cylinderVertices.push_back({ { cos0 * kOuterRadius, -kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 0.0f }, { 0.0f, -1.0f, 0.0f } }); // 外側0
+	//}
+
+	// 側面の頂点データを生成
+	for (uint32_t index = 0; index < kCylinderDivide; ++index) {
+		float sin0 = std::sin(radianPerDiv * index);
+		float cos0 = std::cos(radianPerDiv * index);
+		float sin1 = std::sin(radianPerDiv * (index + 1));
+		float cos1 = std::cos(radianPerDiv * (index + 1));
+		float u0 = float(index) / float(kCylinderDivide);
+		float u1 = float(index + 1) / float(kCylinderDivide);
+
+		// 三角形1: 上外側0 → 上外側1 → 下外側0
+		cylinderVertices.push_back({ { cos0 * kOuterRadius, kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 0.0f }, { cos0, 0.0f, sin0 } });
+		cylinderVertices.push_back({ { cos1 * kOuterRadius, kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { cos1, 0.0f, sin1 } });
+		cylinderVertices.push_back({ { cos0 * kOuterRadius, -kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 1.0f }, { cos0, 0.0f, sin0 } });
+
+		// 三角形2: 上外側1 → 下外側1 → 下外側0
+		cylinderVertices.push_back({ { cos1 * kOuterRadius, kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { cos1, 0.0f, sin1 } });
+		cylinderVertices.push_back({ { cos1 * kOuterRadius, -kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 1.0f }, { cos1, 0.0f, sin1 } });
+		cylinderVertices.push_back({ { cos0 * kOuterRadius, -kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 1.0f }, { cos0, 0.0f, sin0 } });
+	}
+
+	// 頂点データを設定
+	particleGroups_[groupName].vertexResource = dxCommon_->CreateBufferResource(sizeof(VertexData) * cylinderVertices.size());
+	particleGroups_[groupName].vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroups_[groupName].vertexData));
+	std::memcpy(particleGroups_[groupName].vertexData, cylinderVertices.data(), sizeof(VertexData) * cylinderVertices.size());
+	particleGroups_[groupName].vertexResource->Unmap(0, nullptr);
+
+	particleGroups_[groupName].vertexBufferView.BufferLocation = particleGroups_[groupName].vertexResource->GetGPUVirtualAddress();
+	particleGroups_[groupName].vertexBufferView.StrideInBytes = sizeof(VertexData);
+	particleGroups_[groupName].vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * cylinderVertices.size());
+}
+
 void ParticleManager::SetTexture(const std::string& groupName, const std::string& textureFilePath)
 {
 	//NOTE:エラーが出るときはファイルパスが間違っててテクスチャが読み込めていない可能性がある
@@ -696,7 +780,7 @@ void ParticleManager::CreateGraphicsPipelineState()
 	//RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	//裏面(時計回り)を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
 	//三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
@@ -721,7 +805,7 @@ void ParticleManager::CreateGraphicsPipelineState()
 	//Depthの機能を有効化する
 	depthStencilDesc.DepthEnable = true;
 	//書き込みします
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	//比較関数はLessEqual。つまり、近ければ描画される
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
