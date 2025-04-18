@@ -159,7 +159,7 @@ void TitleScene::Update()
 		ImGui::SameLine();
 		if (ImGui::Button("Emit Ring"))
 		{
-			ParticleManager::GetInstance()->EmitRing("test", { 0.0f,1.0f,-1.0f },1);
+			ParticleManager::GetInstance()->EmitRing("test", { 0.0f,1.0f,-1.0f },5);
 			ParticleManager::GetInstance()->SetRandomRotate("test");
 			//ParticleManager::GetInstance()->SetRandomScale("test");
 		}

@@ -112,6 +112,7 @@ void ParticleManager::Update(CameraManager* camera)
 
 			// パーティクルの透明度計算
 			float alpha = 1.0f - (particleItr->currentTime / particleItr->lifeTime);
+			alpha = std::clamp(alpha, 0.0f, 1.0f); // 0.0～1.0に制限
 			materialData_->color = { 1.0f, 1.0f, 1.0f, alpha };
 
 			// インスタンス数の制限を守る
@@ -171,8 +172,10 @@ void ParticleManager::Draw()
 		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(group.instancingSrvIndex));
 		// SRVのDescriptorTableの先頭を設定
 		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(group.materialData.textureIndex));
+		// 頂点数を計算
+		UINT vertexCount = group.vertexBufferView.SizeInBytes / group.vertexBufferView.StrideInBytes;
 		// 描画
-		dxCommon_->GetCommandList()->DrawInstanced(6, group.instanceCount, 0, 0);
+		dxCommon_->GetCommandList()->DrawInstanced(vertexCount, group.instanceCount, 0, 0);
 	}
 }
 
@@ -221,7 +224,6 @@ void ParticleManager::CreateParticleGroup(const std::string& groupName, const st
 	//テクスチャを読み込む
 	TextureManager::GetInstance()->LoadTexture(newGroup.materialData.textureFilePath);
 	newGroup.materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(newGroup.materialData.textureFilePath);
-	
 
 	// 頂点データを矩形で初期化
 	std::vector<VertexData> rectangleVertices = {
@@ -440,7 +442,7 @@ void ParticleManager::CreateRootSignature()
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;				//バイリニアフィルタ
 	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;			//0～1の範囲外をリピート
-	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;			//比較しない
 	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;							//ありったけのMipmapを使う
