@@ -18,6 +18,15 @@ namespace MathUtils
 		return result;
 	}
 
+	Vector3 TransformNormal(const Vector3& normal, const Matrix4x4& matrix)
+	{
+		Vector3 result;
+		result.x = normal.x * matrix.m[0][0] + normal.y * matrix.m[1][0] + normal.z * matrix.m[2][0];
+		result.y = normal.x * matrix.m[0][1] + normal.y * matrix.m[1][1] + normal.z * matrix.m[2][1];
+		result.z = normal.x * matrix.m[0][2] + normal.y * matrix.m[1][2] + normal.z * matrix.m[2][2];
+		return result;
+	}
+
 	Matrix4x4 Transpose(const Matrix4x4& m)
 	{
 		Matrix4x4 result;

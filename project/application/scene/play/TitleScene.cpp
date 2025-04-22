@@ -45,6 +45,15 @@ void TitleScene::Initialize()
 
 	//パーティクルグループの作成
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/gradationLine.png");
+
+	//オービットカメラワークの生成
+	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
+	orbitCameraWork_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	orbitCameraWork_->Start(
+		object3d_->GetTranslate(),
+		10.0f,
+		1.0f
+	);
 }
 
 void TitleScene::Finalize()
@@ -223,7 +232,7 @@ void TitleScene::Update()
 		// フェードアウト
 		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
 	}
-
+	
 	// スプライトの更新
 	sprite_->Update();
 
@@ -235,6 +244,9 @@ void TitleScene::Update()
 
 	//平面オブジェクトの更新
 	plane_->Update(sceneManager_->GetCameraManager());
+
+	//カメラワークの更新
+	orbitCameraWork_->Update();
 }
 
 void TitleScene::Draw3D()

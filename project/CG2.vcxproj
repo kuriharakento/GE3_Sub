@@ -145,9 +145,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\scene\play\TitleScene.cpp" />
     <ClCompile Include="engine\scene\manager\SceneManager.cpp" />
     <ClCompile Include="engine\scene\factory\SceneFactory.cpp" />
+    <ClCompile Include="engine\camerawork\OrbitCameraWork.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
     <ClInclude Include="engine\line\LineManager.h" />
     <ClInclude Include="engine\lighting\DirectionalLight.h" />
     <ClInclude Include="engine\lighting\LightConstants.h" />
@@ -202,6 +204,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\lighting\LightManager.h" />
     <ClInclude Include="engine\line\Line.h" />
     <ClInclude Include="engine\line\LineCommon.h" />
+    <ClInclude Include="engine\camerawork\OrbitCameraWork.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
