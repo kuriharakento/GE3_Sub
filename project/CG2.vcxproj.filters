@@ -162,7 +162,10 @@
     <ClCompile Include="engine\camerawork\spline\Spline.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="SplineCamera.cpp">
+    <ClCompile Include="engine\camerawork\SplineCamera.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\jsonEditor\JsonEditorManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -344,7 +347,13 @@
     <ClInclude Include="engine\camerawork\spline\Spline.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="SplineCamera.h">
+    <ClInclude Include="engine\camerawork\SplineCamera.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\jsonEditor\IJsonEditable.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\jsonEditor\JsonEditorManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

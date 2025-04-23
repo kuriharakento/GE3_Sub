@@ -137,6 +137,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\lighting\LightManager.cpp" />
     <ClCompile Include="engine\line\Line.cpp" />
     <ClCompile Include="engine\line\LineCommon.cpp" />
+    <ClCompile Include="engine\jsonEditor\JsonEditorManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
@@ -148,7 +149,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\camerawork\OrbitCameraWork.cpp" />
     <ClCompile Include="engine\camerawork\spline\SplineData.cpp" />
     <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
-    <ClCompile Include="SplineCamera.cpp" />
+    <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -210,7 +211,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\camerawork\OrbitCameraWork.h" />
     <ClInclude Include="engine\camerawork\spline\SplineData.h" />
     <ClInclude Include="engine\camerawork\spline\Spline.h" />
-    <ClInclude Include="SplineCamera.h" />
+    <ClInclude Include="engine\jsonEditor\IJsonEditable.h" />
+    <ClInclude Include="engine\jsonEditor\JsonEditorManager.h" />
+    <ClInclude Include="engine\camerawork\SplineCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

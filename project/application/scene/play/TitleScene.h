@@ -1,11 +1,11 @@
 #pragma once
 #include <memory>
 
-#include "SplineCamera.h"
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
 #include "camerawork/OrbitCameraWork.h"
+#include "camerawork/SplineCamera.h"
 #include "engine/scene/interface/BaseScene.h"
 
 class TitleScene : public BaseScene
