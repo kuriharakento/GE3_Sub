@@ -100,7 +100,7 @@ void TitleScene::Update()
 	#pragma endregion
 
 	//Jsonエディタの表示
-	JsonEditorManager::GetInstance()->Edit();
+	JsonEditorManager::GetInstance()->RenderEditUI();
 
 #pragma region Debug Object3D
 	if (ImGui::CollapsingHeader("Object3D"))

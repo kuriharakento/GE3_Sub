@@ -24,7 +24,7 @@ void JsonEditorManager::Register(const std::string& name, std::shared_ptr<JsonEd
 	selectedItem_ = name; // 最後に登録したものを選択状態にする
 }
 
-void JsonEditorManager::Edit()
+void JsonEditorManager::RenderEditUI()
 {
     ImGui::Begin("JSON Editor");
 
@@ -32,10 +32,10 @@ void JsonEditorManager::Edit()
     {
         for (const auto& [name, editable] : editors_)
         {
-			//NULLチェック
-        	if (!editable) { continue; }
+            //NULLチェック
+            if (!editable) { continue; }
 
-        	if (ImGui::BeginTabItem(name.c_str()))
+            if (ImGui::BeginTabItem(name.c_str()))
             {
                 // タブがアクティブな間は選択状態にしておく
                 selectedItem_ = name;

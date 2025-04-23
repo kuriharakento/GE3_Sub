@@ -43,6 +43,7 @@ void JsonEditableBase::DrawImGui()
     {
 		LoadJson(fileName);
     }
+    ImGui::SeparatorText("Settings");
     for (auto& [name, drawer] : drawers_)
     {
         drawer();

@@ -10,7 +10,7 @@ public:
 	static JsonEditorManager* GetInstance();
 	void Initialize();
     void Register(const std::string& name, std::shared_ptr<JsonEditableBase> editor);
-	void Edit();
+	void RenderEditUI();
     void SaveAll();
 
 private:
