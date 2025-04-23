@@ -1,16 +1,20 @@
 #include "SplineCamera.h"
 
 #include "camerawork/spline/Spline.h"
+#include "jsonEditor/JsonEditorManager.h"
 #include "math/MathUtils.h"
+#include "line/LineManager.h"
 
 void SplineCamera::Initialize(Camera* camera)
 {
 	camera_ = camera;
+    splineData_ = std::make_shared<SplineData>();
+	JsonEditorManager::GetInstance()->Register("spline", splineData_);
 }
 
 void SplineCamera::Update()
 {
-    const auto& points = splineData_.GetControlPoints();
+    const auto& points = splineData_->GetControlPoints();
     if (points.size() < 4) return;  // 4つ以上のポイントが必要
 
     int numSegments = points.size() - 3;  // セグメント数を計算
@@ -55,7 +59,7 @@ void SplineCamera::Update()
         Vector3 targetPos = *targetPtr_;
         camera_->SetRotate(MathUtils::CalculateDirectionToTarget(pos, targetPos));
     }
-    else
+	else if (lookFront)
     {
         // ターゲットがない場合、進行方向から回転を計算
         // t + Δt（小さな値）を使って「次の位置」を取得
@@ -100,5 +104,35 @@ void SplineCamera::Start(float speed, bool loop)
 
 void SplineCamera::LoadJson(const std::string& filePath)
 {
-	splineData_.LoadJson(filePath);
+	splineData_->LoadJson(filePath);
+}
+
+void SplineCamera::DrawSplineLine()
+{
+    if (!lineManager_) return; // LineManager が初期化されていない場合は何もしない
+
+    const auto& points = splineData_->GetControlPoints();
+    if (points.size() < 4) return; // 4つ以上のポイントが必要
+
+    const int numSegments = points.size() - 3; // セグメント数を計算
+    const int samplesPerSegment = 20;         // 各セグメントを分割するサンプル数
+
+    for (int segment = 0; segment < numSegments; ++segment) {
+        Vector3 prevPoint = points[segment + 1]; // 初期点（セグメントの始点）
+
+        for (int i = 1; i <= samplesPerSegment; ++i) {
+            float t = static_cast<float>(i) / samplesPerSegment; // 補間の割合
+            Vector3 currentPoint = Spline::CatmullRom(
+                points[segment + 0],
+                points[segment + 1],
+                points[segment + 2],
+                points[segment + 3],
+                t
+            );
+
+            // 線を描画
+            lineManager_->Drawline(prevPoint, currentPoint, { 1.0f, 0.0f, 0.0f, 1.0f }); // 赤色の線
+            prevPoint = currentPoint; // 現在の点を次の始点に設定
+        }
+    }
 }

@@ -4,6 +4,7 @@
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
+#include "jsonEditor/JsonEditorManager.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
 #include "manager/ParticleManager.h"
@@ -46,6 +47,9 @@ void TitleScene::Initialize()
 	//パーティクルグループの作成
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/gradationLine.png");
 
+	//Jsonエディタ
+	JsonEditorManager::GetInstance()->Initialize();
+
 	//オービットカメラワークの生成
 	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
 	orbitCameraWork_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
@@ -59,9 +63,10 @@ void TitleScene::Initialize()
 	//スプラインカメラの生成
 	splineCamera_ = std::make_unique<SplineCamera>();
 	splineCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	splineCamera_->SetlineManager(sceneManager_->GetLineManager());
 	splineCamera_->LoadJson("spline.json");
 	splineCamera_->Start(0.001f, true);
-	//splineCamera_->SetTarget(&object3d_->GetTranslate());
+	splineCamera_->SetTarget(&object3d_->GetTranslate());
 }
 
 void TitleScene::Finalize()
@@ -93,6 +98,9 @@ void TitleScene::Update()
 		sprite_->SetColor(color);
 	}
 	#pragma endregion
+
+	//Jsonエディタの表示
+	JsonEditorManager::GetInstance()->Edit();
 
 #pragma region Debug Object3D
 	if (ImGui::CollapsingHeader("Object3D"))
@@ -274,6 +282,7 @@ void TitleScene::Draw3D()
 	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
 	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
 	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
+	splineCamera_->DrawSplineLine();
 }
 
 void TitleScene::Draw2D()
