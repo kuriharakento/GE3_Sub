@@ -49,11 +49,19 @@ void TitleScene::Initialize()
 	//オービットカメラワークの生成
 	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
 	orbitCameraWork_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	orbitCameraWork_->SetPositionOffset({ 0.0f,2.0f,0.0f });
 	orbitCameraWork_->Start(
-		object3d_->GetTranslate(),
+		&object3d_->GetTranslate(),
 		10.0f,
 		1.0f
 	);
+
+	//スプラインカメラの生成
+	splineCamera_ = std::make_unique<SplineCamera>();
+	splineCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	splineCamera_->LoadJson("spline.json");
+	splineCamera_->Start(0.001f, true);
+	//splineCamera_->SetTarget(&object3d_->GetTranslate());
 }
 
 void TitleScene::Finalize()
@@ -246,7 +254,8 @@ void TitleScene::Update()
 	plane_->Update(sceneManager_->GetCameraManager());
 
 	//カメラワークの更新
-	orbitCameraWork_->Update();
+	//orbitCameraWork_->Update();
+	splineCamera_->Update();
 }
 
 void TitleScene::Draw3D()

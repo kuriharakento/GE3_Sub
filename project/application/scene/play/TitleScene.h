@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 
+#include "SplineCamera.h"
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
@@ -37,5 +38,6 @@ private: //メンバ変数
 	Vector3 spherePos2_ = { 3.0f,0.0f,0.0f };
 	//カメラワーク
 	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
+	std::unique_ptr<SplineCamera> splineCamera_;
 };
 
