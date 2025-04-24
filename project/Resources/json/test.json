@@ -1,0 +1,6 @@
+{
+  "string": "This is String",
+  "integer": 123,
+  "float": 3.14,
+  "boolean": true
+}
