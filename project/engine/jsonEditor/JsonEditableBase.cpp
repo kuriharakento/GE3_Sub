@@ -20,25 +20,25 @@ bool JsonEditableBase::LoadJson(const std::string& path)
         // すでに登録されていない場合のみ動的に登録
         if (getters_.find(key) == getters_.end()) {
             if (value.is_number_float()) {
-                float* floatVal = new float(value.get<float>());
-                Register(key, floatVal);
+                auto floatVal = std::make_shared<float>(value.get<float>());
+                Register(key, floatVal.get());
             }
             else if (value.is_number_integer()) {
-                int* intVal = new int(value.get<int>());
-                Register(key, intVal);
+                auto intVal = std::make_shared<int>(value.get<int>());
+                Register(key, intVal.get());
             }
             else if (value.is_string()) {
-                std::string* stringVal = new std::string(value.get<std::string>());
-                Register(key, stringVal);
+                auto stringVal = std::make_shared<std::string>(value.get<std::string>());
+                Register(key, stringVal.get());
             }
             else if (value.is_array() && value.size() > 0 && value[0].is_object()) {
                 // 例えば Vector3 の配列を想定している場合
-                std::vector<Vector3>* vector3List = new std::vector<Vector3>();
+                auto vector3List = std::make_shared<std::vector<Vector3>>();
                 for (auto& item : value) {
                     Vector3 v = item.get<Vector3>();
                     vector3List->push_back(v);
                 }
-                Register(key, vector3List);
+                Register(key, vector3List.get());
             }
             // 他の型にも対応する場合はここに追加
             else {

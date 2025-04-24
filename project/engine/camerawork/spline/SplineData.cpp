@@ -6,6 +6,7 @@
 
 SplineData::SplineData()
 {
+	Register("controlPoints",&controlPoints);
 }
 
 void SplineData::Initialize(const std::string& name)

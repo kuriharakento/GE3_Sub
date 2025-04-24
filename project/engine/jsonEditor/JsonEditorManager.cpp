@@ -29,23 +29,23 @@ void JsonEditorManager::RenderEditUI()
 {
     ImGui::Begin("JSON Editor");
 
-    static char filePath[256] = ""; // 入力用バッファ
+  //  static char filePath[256] = ""; // 入力用バッファ
 
-    // ファイル入力欄
-    ImGui::InputText("File Path", filePath, IM_ARRAYSIZE(filePath));
-    ImGui::SameLine();
-    if (ImGui::Button("Load"))
-    {
-        // 適当なJsonEditableBase継承インスタンスを作成（例：SplineData）
-        auto newEditor = std::make_shared<JsonEditableBase>();
-        std::string name = filePath; // タブ名にファイル名を使う
+  //  // ファイル入力欄
+  //  ImGui::InputText("File Path", filePath, IM_ARRAYSIZE(filePath));
+  //  ImGui::SameLine();
+  //  if (ImGui::Button("Load"))
+  //  {
+  //      // 適当なJsonEditableBase継承インスタンスを作成（例：SplineData）
+  //      auto newEditor = std::make_shared<JsonEditableBase>();
+  //      std::string name = filePath; // タブ名にファイル名を使う
 
-		//読み込めたら登録
-        if (newEditor->LoadJson(filePath))
-        {
-            Register(name, newEditor); // 登録＆自動で選択状態にもなる
-        }
-    }
+		////読み込めたら登録
+  //      if (newEditor->LoadJson(filePath))
+  //      {
+  //          Register(name, newEditor); // 登録＆自動で選択状態にもなる
+  //      }
+  //  }
 
     if (ImGui::BeginTabBar("EditableTabs"))
     {
