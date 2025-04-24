@@ -16,17 +16,13 @@ void SplineData::Initialize(const std::string& name)
 
 void SplineData::DrawImGui()
 {
-	//ポイインタを使用して一意のIDを生成
-	ImGui::PushID(this);
-
+	//options
 	ImGui::SameLine();
 	if (ImGui::Button("Add ControlPoints"))
 	{
 		controlPoints.push_back(Vector3(0.0f, 0.0f, 0.0f));
 	}
 
+	//情報表示
 	JsonEditableBase::DrawImGui();
-
-	//IDをポップ
-	ImGui::PopID();
 }

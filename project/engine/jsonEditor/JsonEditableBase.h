@@ -11,6 +11,7 @@
 class JsonEditableBase : public IJsonEditable
 {
 public:
+	JsonEditableBase() = default;
 	bool LoadJson(const std::string& path) override;
 	bool SaveJson(const std::string& path) const override;
 	void DrawImGui() override;
@@ -32,15 +33,19 @@ template<typename T>
 void JsonEditableBase::Register(const std::string& name, T* value)
 {
     // すでに登録されている場合は何もしない
-    if (getters_.find(name) != getters_.end()) {
+    if (getters_.find(name) != getters_.end()) 
+    {
         return;
     }
 
+	// getters_, setters_, drawers_に登録
     getters_[name] = [value]() { return nlohmann::json(*value); };
     setters_[name] = [value](const nlohmann::json& j) { *value = j.get<T>(); };
     drawers_[name] = [value, name]() {
+    	ImGui::PushID(name.c_str());
         if (ImGui::CollapsingHeader(name.c_str()))  // コラプスヘッダーでまとめる
         {
+			
             // 型に応じたUI描画
             if constexpr (std::is_same_v<T, float>)
                 ImGui::DragFloat(name.c_str(), value, 0.1f);
@@ -85,7 +90,9 @@ void JsonEditableBase::Register(const std::string& name, T* value)
                     }
                 }
             }
+			
         }
+    	ImGui::PopID();
     };
 }
 

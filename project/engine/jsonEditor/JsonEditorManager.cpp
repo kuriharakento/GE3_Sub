@@ -59,10 +59,14 @@ void JsonEditorManager::RenderEditUI()
                 // タブがアクティブな間は選択状態にしておく
                 selectedItem_ = name;
 
+                ImGui::PushID(editable.get());
+
 				editable->DrawOptions(); // オプションを表示
 
                 // そのオブジェクトの ImGui UI を表示
                 editable->DrawImGui();
+
+                ImGui::PopID();
 
                 ImGui::EndTabItem();
             }
