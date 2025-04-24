@@ -4,6 +4,7 @@
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
+#include "jsonEditor/JsonEditorManager.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
 #include "manager/ParticleManager.h"
@@ -45,6 +46,27 @@ void TitleScene::Initialize()
 
 	//パーティクルグループの作成
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/gradationLine.png");
+
+	//Jsonエディタ
+	JsonEditorManager::GetInstance()->Initialize();
+
+	//オービットカメラワークの生成
+	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
+	orbitCameraWork_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	orbitCameraWork_->SetPositionOffset({ 0.0f,2.0f,0.0f });
+	orbitCameraWork_->Start(
+		&object3d_->GetTranslate(),
+		10.0f,
+		1.0f
+	);
+
+	//スプラインカメラの生成
+	splineCamera_ = std::make_unique<SplineCamera>();
+	splineCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	splineCamera_->SetlineManager(sceneManager_->GetLineManager());
+	splineCamera_->LoadJson("spline.json");
+	splineCamera_->Start(0.001f, true);
+	splineCamera_->SetTarget(&object3d_->GetTranslate());
 }
 
 void TitleScene::Finalize()
@@ -76,6 +98,9 @@ void TitleScene::Update()
 		sprite_->SetColor(color);
 	}
 	#pragma endregion
+
+	//Jsonエディタの表示
+	JsonEditorManager::GetInstance()->RenderEditUI();
 
 #pragma region Debug Object3D
 	if (ImGui::CollapsingHeader("Object3D"))
@@ -223,7 +248,7 @@ void TitleScene::Update()
 		// フェードアウト
 		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
 	}
-
+	
 	// スプライトの更新
 	sprite_->Update();
 
@@ -235,6 +260,10 @@ void TitleScene::Update()
 
 	//平面オブジェクトの更新
 	plane_->Update(sceneManager_->GetCameraManager());
+
+	//カメラワークの更新
+	//orbitCameraWork_->Update();
+	splineCamera_->Update();
 }
 
 void TitleScene::Draw3D()
@@ -253,6 +282,7 @@ void TitleScene::Draw3D()
 	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
 	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
 	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
+	splineCamera_->DrawSplineLine();
 }
 
 void TitleScene::Draw2D()

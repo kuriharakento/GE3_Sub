@@ -4,6 +4,8 @@
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
+#include "camerawork/OrbitCameraWork.h"
+#include "camerawork/SplineCamera.h"
 #include "engine/scene/interface/BaseScene.h"
 
 class TitleScene : public BaseScene
@@ -34,5 +36,8 @@ private: //メンバ変数
 	//球
 	Vector3 spherePos1_ = { 0.0f,0.0f,0.0f };
 	Vector3 spherePos2_ = { 3.0f,0.0f,0.0f };
+	//カメラワーク
+	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
+	std::unique_ptr<SplineCamera> splineCamera_;
 };
 
