@@ -77,6 +77,24 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+
+	static bool splineCameraUpdate = true;
+	static bool orbitCameraUpdate = false;
+
+	//カメラワークの更新
+	ImGui::Checkbox("orbitCamera Update", &orbitCameraUpdate);
+	ImGui::Checkbox("splineCamera Update", &splineCameraUpdate);
+	// カメラワークの更新
+	if (orbitCameraUpdate)
+	{
+		orbitCameraWork_->Update();
+	}
+
+	if (splineCameraUpdate)
+	{
+		splineCamera_->Update();
+	}
+
 	if(ImGui::CollapsingHeader("line"))
 	{
 		ImGui::DragFloat3("CubePos1", &cubePos1_.x, 0.1f);
@@ -166,6 +184,8 @@ void TitleScene::Update()
 #pragma region Particle
 	if (ImGui::CollapsingHeader("Particle"))
 	{
+		static Vector3 pos = {};
+		ImGui::DragFloat3("Emit pos", &pos.x);
 		//ビルボードの有効無効
 		if (ImGui::Button("Billboard On"))
 		{
@@ -179,26 +199,26 @@ void TitleScene::Update()
 		//生成
 		if (ImGui::Button("Emit"))
 		{
-			ParticleManager::GetInstance()->Emit("test", { 0.0f,1.0f,-1.0f }, 100);
+			ParticleManager::GetInstance()->Emit("test", pos, 100);
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Emit Ring"))
 		{
-			ParticleManager::GetInstance()->EmitRing("test", { 0.0f,1.0f,-1.0f },5);
+			ParticleManager::GetInstance()->EmitRing("test", pos,5);
 			ParticleManager::GetInstance()->SetRandomRotate("test");
 			//ParticleManager::GetInstance()->SetRandomScale("test");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Emit Plane"))
 		{
-			ParticleManager::GetInstance()->EmitPlane("test", { 0.0f,1.0f,-1.0f }, 100);
+			ParticleManager::GetInstance()->EmitPlane("test", pos, 100);
 			ParticleManager::GetInstance()->SetRandomRotate("test");
 			//ParticleManager::GetInstance()->SetRandomScale("test");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Emit Cylinder"))
 		{
-			ParticleManager::GetInstance()->EmitCylinder("test", { 0.0f,1.0f,-1.0f }, 1);
+			ParticleManager::GetInstance()->EmitCylinder("test", pos, 1);
 			//ParticleManager::GetInstance()->SetRandomRotate("test");
 		}
 		//テクスチャの変更
@@ -261,9 +281,6 @@ void TitleScene::Update()
 	//平面オブジェクトの更新
 	plane_->Update(sceneManager_->GetCameraManager());
 
-	//カメラワークの更新
-	//orbitCameraWork_->Update();
-	splineCamera_->Update();
 }
 
 void TitleScene::Draw3D()
