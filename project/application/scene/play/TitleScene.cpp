@@ -45,7 +45,8 @@ void TitleScene::Initialize()
 	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
 
 	//パーティクルグループの作成
-	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/gradationLine.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("plane", "./Resources/gradationLine.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("Ring", "./Resources/uvChecker.png");
 
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
