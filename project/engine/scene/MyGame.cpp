@@ -128,9 +128,7 @@ void MyGame::Draw()
 	imguiManager_->Draw();
 #endif
 
-	dxCommon_->PostDraw();
-
-	
+	dxCommon_->PostDraw();	
 }
 
 void MyGame::LoadTextures()

@@ -2,12 +2,13 @@
 
 #include "base/Logger.h"
 
-void GameObject::Initialize(Object3dCommon* object3dCommon, Camera* camera)
+void GameObject::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera)
 {
 	// 3Dオブジェクトの初期化
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(object3dCommon, camera);
 	object3d_->SetModel("cube.obj");
+	object3d_->SetLightManager(lightManager);
 	// Transformの初期化
 	transform_ = {
 		{ 1.0f, 1.0f, 1.0f }, // scale
@@ -26,7 +27,7 @@ void GameObject::Update()
 	}
 }
 
-void GameObject::Draw(Camera* camera)
+void GameObject::Draw(CameraManager* camera)
 {
 	if (!object3d_) { return; }
 
@@ -67,7 +68,7 @@ std::shared_ptr<IGameObjectComponent> GameObject::GetComponent(const std::string
 //	return nullptr;
 //}
 
-void GameObject::ApplyTransformToObject3D(Camera* camera)
+void GameObject::ApplyTransformToObject3D(CameraManager* camera)
 {
 	if (!object3d_) { return; }
 
@@ -77,5 +78,5 @@ void GameObject::ApplyTransformToObject3D(Camera* camera)
 	object3d_->SetScale(transform_.scale);
 
 	//行列の更新
-	object3d_->UpdateMatrix(camera);
+	object3d_->Update(camera);
 }

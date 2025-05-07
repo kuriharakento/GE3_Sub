@@ -9,9 +9,9 @@
 
 class GameObject {
 public:
-	virtual void Initialize(Object3dCommon* object3dCommon, Camera* camera = nullptr);		// 初期化
+	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera = nullptr);		// 初期化
 	virtual void Update();
-	virtual void Draw(Camera* camer);
+	virtual void Draw(CameraManager* camera);
 	void AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp);	// コンポーネントの追加
 	std::shared_ptr<IGameObjectComponent> GetComponent(const std::string& name);			// コンポーネントの取得
 	//std::shared_ptr<CollisionComponent> GetCollisionComponent();							// 衝突コンポーネントの取得
@@ -33,7 +33,7 @@ protected:
 	std::unique_ptr<Object3d> object3d_;													// 3Dオブジェクト
 
 private:
-	void ApplyTransformToObject3D(Camera* camera);											// Transform情報をObject3Dに適用
+	void ApplyTransformToObject3D(CameraManager* camera);											// Transform情報をObject3Dに適用
 
 private:
 	std::unordered_map<std::string, std::shared_ptr<IGameObjectComponent>> components_;		// コンポーネントのリスト
