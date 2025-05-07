@@ -16,12 +16,6 @@ void TitleScene::Initialize()
 	// 音声の再生
 	Audio::GetInstance()->PlayWave("fanfare", true);
 
-	// スプライトの生成
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize(sceneManager_->GetSpriteCommon(), "Resources/uvChecker.png");
-	sprite_->SetSize({ 150.0f,150.0f });
-	sprite_->SetPosition({ 0.0f,0.0f });
-
 	//デバック用オブジェクトの生成
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
@@ -30,19 +24,9 @@ void TitleScene::Initialize()
 	object3d_->SetDirectionalLightIntensity(0.0f);
 	object3d_->SetLightManager(sceneManager_->GetLightManager());
 
-	//地面の生成
-	terrain_ = std::make_unique<Object3d>();
-	terrain_->Initialize(sceneManager_->GetObject3dCommon());
-	terrain_->SetModel("terrain.obj");
-	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
-	terrain_->SetDirectionalLightIntensity(0.0f);
-	terrain_->SetLightManager(sceneManager_->GetLightManager());
-
-	//平面オブジェクトの生成
-	plane_ = std::make_unique<Object3d>();
-	plane_->Initialize(sceneManager_->GetObject3dCommon());
-	plane_->SetModel("plane.gltf");
-	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
+	//スカイドームの生成
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Initialize(sceneManager_->GetObject3dCommon(), "skydome.obj");
 
 	//パーティクルグループの作成
 	ParticleManager::GetInstance()->CreateParticleGroup("plane", "./Resources/gradationLine.png");
@@ -79,7 +63,7 @@ void TitleScene::Update()
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
 
-	static bool splineCameraUpdate = true;
+	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
 
 	//カメラワークの更新
@@ -103,20 +87,6 @@ void TitleScene::Update()
 		ImGui::DragFloat3("SpherePos1", &spherePos1_.x, 0.1f);
 		ImGui::DragFloat3("SpherePos2", &spherePos2_.x, 0.1f);
 	}
-	#pragma region Debug Sprite
-	if (ImGui::CollapsingHeader("Sprite"))
-	{
-		Vector2 pos = sprite_->GetPosition();
-		ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
-		sprite_->SetPosition(pos);
-		Vector2 size = sprite_->GetSize();
-		ImGui::SliderFloat2("Size", &size.x, 0.0f, 1280.0f);
-		sprite_->SetSize(size);
-		Vector4 color = sprite_->GetColor();
-		ImGui::ColorEdit4("Color", &color.x);
-		sprite_->SetColor(color);
-	}
-	#pragma endregion
 
 	//Jsonエディタの表示
 	JsonEditorManager::GetInstance()->RenderEditUI();
@@ -149,16 +119,6 @@ void TitleScene::Update()
 		Vector4 color3d = object3d_->GetColor();
 		ImGui::ColorEdit4("Color", &color3d.x);
 		object3d_->SetColor(color3d);
-		//plane
-		Vector3 pos3dPlane = plane_->GetTranslate();
-		ImGui::DragFloat3("PositionPlane", &pos3dPlane.x, 0.1f);
-		plane_->SetTranslate(pos3dPlane);
-		Vector3 scalePlane = plane_->GetScale();
-		ImGui::DragFloat3("ScalePlane", &scalePlane.x, 0.1f);
-		plane_->SetScale(scalePlane);
-		Vector3 rotatePlane = plane_->GetRotate();
-		ImGui::DragFloat3("RotatePlane", &rotatePlane.x, 0.01f);
-		plane_->SetRotate(rotatePlane);
 	#pragma endregion
 
 	#pragma region Lighting
@@ -269,19 +229,12 @@ void TitleScene::Update()
 		// フェードアウト
 		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
 	}
-	
-	// スプライトの更新
-	sprite_->Update();
 
 	//オブジェクトの更新
 	object3d_->Update(sceneManager_->GetCameraManager());
 
-	//地面の更新
-	terrain_->Update(sceneManager_->GetCameraManager());
-
-	//平面オブジェクトの更新
-	plane_->Update(sceneManager_->GetCameraManager());
-
+	//スカイドームの更新
+	skydome_->Update(sceneManager_->GetCameraManager());
 }
 
 void TitleScene::Draw3D()
@@ -289,22 +242,19 @@ void TitleScene::Draw3D()
 	//3Dオブジェクトの描画
 	object3d_->Draw();
 
-	//地面の描画
-	terrain_->Draw();
-
-	//平面オブジェクトの描画
-	plane_->Draw();
+	//スカイドームの描画
+	skydome_->Draw();
   
 	// ラインの描画
 	sceneManager_->GetLineManager()->DrawCube(cubePos1_, 1.0f, VectorColorCodes::Red);
 	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
 	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
 	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
+	sceneManager_->GetLineManager()->DrawGrid(300.0f, 5.0f, VectorColorCodes::White);
 	splineCamera_->DrawSplineLine();
 }
 
 void TitleScene::Draw2D()
 {
-	// スプライトの描画
-	sprite_->Draw();
+
 }

@@ -151,6 +151,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\camerawork\spline\SplineData.cpp" />
     <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
     <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
+    <ClCompile Include="application\Skydome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -217,6 +218,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\jsonEditor\JsonEditorManager.h" />
     <ClInclude Include="engine\camerawork\SplineCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
+    <ClInclude Include="application\Skydome.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

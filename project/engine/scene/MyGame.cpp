@@ -128,4 +128,5 @@ void MyGame::LoadModels()
 	ModelManager::GetInstance()->LoadModel("highPolygonSphere.obj");
 	ModelManager::GetInstance()->LoadModel("terrain.obj");
 	ModelManager::GetInstance()->LoadModel("plane.gltf");
+	ModelManager::GetInstance()->LoadModel("skydome.obj");
 }
