@@ -1,5 +1,6 @@
 #pragma once
 
+class PostProcessPass;
 class LineManager;
 class LightManager;
 class CameraManager;
@@ -14,4 +15,5 @@ struct SceneContext
 	CameraManager* cameraManager;
 	LightManager* lightManager;
 	LineManager* linesManager;
+	PostProcessPass* postProcessPass;
 };

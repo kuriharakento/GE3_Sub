@@ -1,6 +1,7 @@
 #include "TitleScene.h"
 
 #include "audio/Audio.h"
+#include "base/PostProcessPass.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
@@ -55,6 +56,12 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+	static bool isGrayScale = false;
+	if (ImGui::Checkbox("GrayScale", &isGrayScale))
+	{
+		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
+		
+	}
 	if(ImGui::CollapsingHeader("line"))
 	{
 		ImGui::DragFloat3("CubePos1", &cubePos1_.x, 0.1f);
