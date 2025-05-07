@@ -565,7 +565,7 @@ Particle ParticleManager::MakeNewParticle(const Vector3& position)
 	newParticle.transform.rotate = { 0.0f, 0.0f, 0.0f };
 	newParticle.velocity = { 0.0f, 0.0f, 0.0f };
 	newParticle.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	newParticle.lifeTime = 1.0f;
+	newParticle.lifeTime = 10.0f;
 	newParticle.currentTime = 0.0f;
 	return newParticle;
 }
@@ -578,7 +578,7 @@ Particle ParticleManager::MakeNewPlaneParticle(const Vector3& position)
 	newParticle.transform.rotate = { 0.0f, 0.0f, 0.0f };
 	newParticle.velocity = { 0.0f, 0.0f, 0.0f };
 	newParticle.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	newParticle.lifeTime = 1.0f;
+	newParticle.lifeTime = 10.0f;
 	newParticle.currentTime = 0.0f;
 	return newParticle;
 }

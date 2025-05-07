@@ -181,6 +181,7 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="application\GameObject\component\collision\CollisionComponent.cpp">
+    <ClCompile Include="application\Skydome.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -393,6 +394,7 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="application\GameObject\component\collision\CollisionComponent.h">
+    <ClInclude Include="application\Skydome.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
