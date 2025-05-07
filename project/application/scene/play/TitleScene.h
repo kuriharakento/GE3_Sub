@@ -4,6 +4,7 @@
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
+#include "application/GameObject/base/GameObject.h"
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
 #include "engine/scene/interface/BaseScene.h"
@@ -39,5 +40,8 @@ private: //メンバ変数
 	//カメラワーク
 	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
 	std::unique_ptr<SplineCamera> splineCamera_;
+	//ゲームオブジェクト
+	std::unique_ptr<GameObject> player;
+	std::unique_ptr<GameObject> enemy;
 };
 

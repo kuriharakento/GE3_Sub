@@ -105,6 +105,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
+    <ClCompile Include="application\GameObject\base\GameObject.cpp" />
+    <ClCompile Include="application\GameObject\collider\ColliderAABB.cpp" />
+    <ClCompile Include="application\GameObject\collider\CollisionManager.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\CollisionComponent.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
@@ -154,6 +158,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="application\GameObject\base\GameObject.h" />
+    <ClInclude Include="application\GameObject\base\IGameObjectComponent.h" />
+    <ClInclude Include="application\GameObject\collider\ICollider.h" />
+    <ClInclude Include="application\GameObject\collider\ColliderAABB.h" />
+    <ClInclude Include="application\GameObject\collider\CollisionManager.h" />
+    <ClInclude Include="application\GameObject\component\collision\CollisionComponent.h" />
     <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
     <ClInclude Include="engine\jsonEditor\JsonUtils.h" />
     <ClInclude Include="engine\line\LineManager.h" />

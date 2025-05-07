@@ -1,0 +1,51 @@
+#pragma once
+#include <vector>
+#include <memory>
+
+#include "IGameObjectComponent.h"
+#include "3d/Object3d.h"
+#include "application/GameObject/component/collision/CollisionComponent.h"
+#include "base/GraphicsTypes.h"
+
+class GameObject {
+public:
+	virtual void Initialize(Object3dCommon* object3dCommon, Camera* camera = nullptr);		// 初期化
+	virtual void Update();
+	virtual void Draw(Camera* camer);
+	void AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp);	// コンポーネントの追加
+	std::shared_ptr<IGameObjectComponent> GetComponent(const std::string& name);			// コンポーネントの取得
+	//std::shared_ptr<CollisionComponent> GetCollisionComponent();							// 衝突コンポーネントの取得
+	template<typename T>
+	std::shared_ptr<T> GetComponent() const;
+public: //アクセッサ
+	//セッター
+	virtual void SetPosition(const Vector3& pos) { transform_.translate = pos; }
+	virtual void SetRotation(const Vector3& rot) { transform_.rotate = rot; }
+	virtual void SetScale(const Vector3& scale) { transform_.scale = scale; }
+
+	//ゲッター
+	virtual const Vector3& GetPosition() const { return transform_.translate; }
+	virtual const Vector3& GetRotation() const { return transform_.rotate; }
+	virtual const Vector3& GetScale() const { return transform_.scale; }
+
+protected:
+	Transform transform_;																	// Transform情報
+	std::unique_ptr<Object3d> object3d_;													// 3Dオブジェクト
+
+private:
+	void ApplyTransformToObject3D(Camera* camera);											// Transform情報をObject3Dに適用
+
+private:
+	std::unordered_map<std::string, std::shared_ptr<IGameObjectComponent>> components_;		// コンポーネントのリスト
+};
+
+template <typename T>
+std::shared_ptr<T> GameObject::GetComponent() const
+{
+	for (const auto& [_, comp] : components_) {
+		if (auto casted = std::dynamic_pointer_cast<T>(comp)) {
+			return casted;
+		}
+	}
+	return nullptr;
+}
