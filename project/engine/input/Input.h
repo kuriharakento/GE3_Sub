@@ -79,12 +79,15 @@ public:
     // 入力の再生開始
     void PlayRecording();
 
-
 	//ボタンの押下チェック
     bool IsButtonPressed(DWORD gamepadIndex, DWORD buttonCode) const;
 
 	// ボタンのトリガーチェック
     bool IsButtonTriggered(DWORD gamepadIndex, DWORD buttonCode) const;
+
+    // マウスの移動量を取得
+    float GetMouseDeltaX() const;
+    float GetMouseDeltaY() const;
 
 private:
     // コンストラクタとデストラクタ
@@ -116,6 +119,12 @@ private:
     // キーボードの状態
     BYTE key_[256] = {};
     BYTE keyPre_[256] = {};
+
+	//マウスの状態
+    float mouseDeltaX_ = 0.0f; // 前フレームからのマウスのX移動量
+    float mouseDeltaY_ = 0.0f; // 前フレームからのマウスのY移動量
+    int lastMouseX_ = 0;       // 前フレームのマウスX座標
+    int lastMouseY_ = 0;       // 前フレームのマウスY座標
 
     // デッドゾーン
     float deadZone_;

@@ -68,6 +68,15 @@ void TitleScene::Initialize()
 	splineCamera_->LoadJson("spline.json");
 	splineCamera_->Start(0.001f, true);
 	splineCamera_->SetTarget(&player->GetPosition());
+
+	//フォローカメラの生成
+	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	followCamera_->Start(
+	&player->GetPosition(),
+		15.0f,
+		0.06f
+	);
 }
 
 void TitleScene::Finalize()
@@ -86,10 +95,16 @@ void TitleScene::Update()
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
+	static bool followCameraUpdate = true;
 
 	//カメラワークの更新
 	ImGui::Checkbox("orbitCamera Update", &orbitCameraUpdate);
 	ImGui::Checkbox("splineCamera Update", &splineCameraUpdate);
+	ImGui::Checkbox("followCamera Update", &followCameraUpdate);
+	if (Input::GetInstance()->TriggerKey(DIK_F))
+	{
+		followCameraUpdate = !followCameraUpdate;
+	}
 	// カメラワークの更新
 	if (orbitCameraUpdate)
 	{
@@ -99,6 +114,11 @@ void TitleScene::Update()
 	if (splineCameraUpdate)
 	{
 		splineCamera_->Update();
+	}
+
+	if (followCameraUpdate)
+	{
+		followCamera_->Update();
 	}
 
 	//Jsonエディタの表示

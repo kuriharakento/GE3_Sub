@@ -145,6 +145,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\line\LineCommon.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonEditorManager.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonEditableBase.cpp" />
+    <ClCompile Include="engine\camerawork\FollowCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
@@ -227,6 +228,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
     <ClInclude Include="application\Skydome.h" />
     <ClInclude Include="application\GameObject\component\MoveComponent.h" />
+    <ClInclude Include="engine\camerawork\FollowCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

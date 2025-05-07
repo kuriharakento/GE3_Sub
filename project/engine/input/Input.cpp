@@ -12,6 +12,9 @@
 // シングルトンのインスタンス初期化
 Input* Input::instance_ = nullptr;
 
+// トグル用のフラグを追加
+bool isMouseLockEnabled_ = false; // 初期状態はマウス固定有効
+
 // シングルトンの取得
 Input* Input::GetInstance()
 {
@@ -217,6 +220,49 @@ void Input::Update()
             }
         }
     }
+
+    // F1キーでマウス固定の有効/無効を切り替え
+    if (TriggerKey(DIK_F1)) {
+        isMouseLockEnabled_ = !isMouseLockEnabled_;
+        Logger::Log(isMouseLockEnabled_ ? "マウス固定: 有効\n" : "マウス固定: 無効\n");
+    }
+
+    // ウィンドウがアクティブかどうかを確認
+    HWND hwnd = GetActiveWindow();
+    if (hwnd != winApp_->GetHwnd()) {
+        // ウィンドウが非アクティブの場合、マウスの移動量をリセットして終了
+        mouseDeltaX_ = 0.0f;
+        mouseDeltaY_ = 0.0f;
+        return;
+    }
+
+    // マウス固定が無効の場合は処理をスキップ
+    if (!isMouseLockEnabled_) {
+        mouseDeltaX_ = 0.0f;
+        mouseDeltaY_ = 0.0f;
+        return;
+    }
+
+    // ウィンドウの中央座標を計算
+    RECT rect;
+    GetClientRect(hwnd, &rect);
+    POINT center = {
+        (rect.right - rect.left) / 2,
+        (rect.bottom - rect.top) / 2
+    };
+
+    // 現在のマウス座標を取得
+    POINT mousePos;
+    GetCursorPos(&mousePos);
+    ScreenToClient(hwnd, &mousePos);
+
+    // マウスの移動量を計算
+    mouseDeltaX_ = static_cast<float>(mousePos.x - center.x);
+    mouseDeltaY_ = static_cast<float>(mousePos.y - center.y);
+
+    // マウスの位置をウィンドウの中央にリセット
+    ClientToScreen(hwnd, &center);
+    SetCursorPos(center.x, center.y);
 }
 
 // キーが押されているか
@@ -342,4 +388,14 @@ bool Input::IsButtonTriggered(DWORD gamepadIndex, DWORD buttonCode) const
     bool isPressed = (currentState.Gamepad.wButtons & buttonCode) != 0;
 
     return isPressed && !wasPressed;
+}
+
+float Input::GetMouseDeltaX() const
+{
+	return mouseDeltaX_;
+}
+
+float Input::GetMouseDeltaY() const
+{
+	return mouseDeltaY_;
 }

@@ -6,6 +6,7 @@
 #include "application/Skydome.h"
 #include "application/Animation/Slide.h"
 #include "application/GameObject/base/GameObject.h"
+#include "camerawork/FollowCamera.h"
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
 #include "engine/scene/interface/BaseScene.h"
@@ -37,6 +38,7 @@ private: //メンバ変数
 	//カメラワーク
 	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
 	std::unique_ptr<SplineCamera> splineCamera_;
+	std::unique_ptr<FollowCamera> followCamera_;
 	//ゲームオブジェクト
 	std::unique_ptr<GameObject> player;
 	std::unique_ptr<GameObject> enemy;
