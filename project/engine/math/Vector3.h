@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <iostream>
 
 struct Vector3 {
     float x, y, z;
@@ -74,6 +75,7 @@ struct Vector3 {
     }
 
     Vector3 operator/(float scalar) const {
+        if (scalar == 0.0f) return Vector3{ 0.0f, 0.0f, 0.0f };
         return Vector3{ x / scalar, y / scalar, z / scalar };
     }
 
@@ -91,7 +93,40 @@ struct Vector3 {
         return *this;
     }
 
+    Vector3& operator*=(float scalar) {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
+    }
+
+    Vector3& operator/=(float scalar) {
+        if (scalar != 0.0f) {
+            x /= scalar;
+            y /= scalar;
+            z /= scalar;
+        }
+        return *this;
+    }
+
+    bool operator==(const Vector3& other) const {
+        return x == other.x && y == other.y && z == other.z;
+    }
+
+    bool operator!=(const Vector3& other) const {
+        return !(*this == other);
+    }
+
     Vector3 operator-() const {
         return Vector3{ -x, -y, -z };
+    }
+
+    Vector3 operator+() const {
+        return *this;
+    }
+
+    // --- フレンド関数（スカラー × ベクトル） ---
+    friend Vector3 operator*(float scalar, const Vector3& vec) {
+        return vec * scalar;
     }
 };

@@ -35,7 +35,7 @@ void TitleScene::Initialize()
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
 	player->SetPosition({ 0.0f,1.0f,0.0f });
 	// MoveComponentをプレイヤーに追加
-	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(0.1f)); // 移動速度0.1
+	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
 
 	//衝突コンポーネントの追加
 	/*auto playerCollision = std::make_shared<CollisionComponent>(player.get(),std::make_shared<ColliderAABB>());

@@ -30,8 +30,8 @@ namespace MathUtils
 	// 角度を -π ～ π の範囲に正規化
 	static float NormalizeAngleRad(float angle)
 	{
-		while (angle > std::numbers::pi) angle -= 2.0f * std::numbers::pi;
-		while (angle < -std::numbers::pi) angle += 2.0f * std::numbers::pi;
+		while (angle > std::numbers::pi_v<float>) angle -= 2.0f * std::numbers::pi_v<float>;
+		while (angle < -std::numbers::pi_v<float>) angle += 2.0f * std::numbers::pi_v<float>;
 		return angle;
 	}
 
