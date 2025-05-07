@@ -105,6 +105,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
+    <ClCompile Include="engine\base\PostProcessPass.cpp" />
+    <ClCompile Include="engine\base\RenderTexture.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
@@ -154,6 +156,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="engine\base\PostProcessPass.h" />
+    <ClInclude Include="engine\base\RenderTexture.h" />
     <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
     <ClInclude Include="engine\jsonEditor\JsonUtils.h" />
     <ClInclude Include="engine\line\LineManager.h" />
