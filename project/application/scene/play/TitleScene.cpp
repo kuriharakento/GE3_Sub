@@ -19,7 +19,7 @@ void TitleScene::Initialize()
 	//デバック用オブジェクトの生成
 	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize(sceneManager_->GetObject3dCommon());
-	object3d_->SetModel("highPolygonSphere.obj");
+	object3d_->SetModel("cube.obj");
 	object3d_->SetTranslate({ 0.0f,0.0f,1.0f });
 	object3d_->SetDirectionalLightIntensity(0.0f);
 	object3d_->SetLightManager(sceneManager_->GetLightManager());
@@ -246,10 +246,6 @@ void TitleScene::Draw3D()
 	skydome_->Draw();
   
 	// ラインの描画
-	sceneManager_->GetLineManager()->DrawCube(cubePos1_, 1.0f, VectorColorCodes::Red);
-	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
-	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
-	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
 	sceneManager_->GetLineManager()->DrawGrid(300.0f, 5.0f, VectorColorCodes::White);
 	splineCamera_->DrawSplineLine();
 }
