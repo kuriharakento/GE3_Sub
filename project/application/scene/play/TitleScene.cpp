@@ -9,6 +9,7 @@
 #include "line/LineManager.h"
 #include "manager/ParticleManager.h"
 #include "manager/TextureManager.h"
+#include "application/GameObject/collider/ColliderAABB.h"
 
 void TitleScene::Initialize()
 {
@@ -52,6 +53,22 @@ void TitleScene::Initialize()
 	splineCamera_->LoadJson("spline.json");
 	splineCamera_->Start(0.001f, true);
 	splineCamera_->SetTarget(&object3d_->GetTranslate());
+
+	//ゲームオブジェクトの生成
+	player = std::make_unique<GameObject>();
+	player->Initialize(sceneManager_->GetObject3dCommon(),sceneManager_->GetCameraManager()->GetActiveCamera());
+	//衝突コンポーネントの追加
+	/*auto playerCollision = std::make_shared<CollisionComponent>(player.get(),std::make_shared<ColliderAABB>());
+	playerCollision->SetDefaultCallbacks();
+	player->AddComponent("Collision", playerCollision);*/
+
+	enemy = std::make_unique<GameObject>();
+	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetCameraManager()->GetActiveCamera());
+	//衝突コンポーネントの追加
+	/*auto enemyCollision = std::make_shared<CollisionComponent>(enemy.get(), std::make_shared<ColliderAABB>());
+	enemyCollision->SetDefaultCallbacks();
+	enemy->AddComponent("Collision", enemyCollision);*/
+
 }
 
 void TitleScene::Finalize()
@@ -90,6 +107,10 @@ void TitleScene::Update()
 
 	//Jsonエディタの表示
 	JsonEditorManager::GetInstance()->RenderEditUI();
+
+	player->Update();
+
+	enemy->Update();
 
 #pragma region Debug Object3D
 	if (ImGui::CollapsingHeader("Object3D"))
@@ -242,6 +263,10 @@ void TitleScene::Draw3D()
 	//3Dオブジェクトの描画
 	object3d_->Draw();
 
+	player->Draw(sceneManager_->GetCameraManager()->GetActiveCamera());
+
+	enemy->Draw(sceneManager_->GetCameraManager()->GetActiveCamera());
+  
 	//スカイドームの描画
 	skydome_->Draw();
   
