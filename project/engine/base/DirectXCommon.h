@@ -21,12 +21,6 @@ public: //メンバ関数
 	//描画前処理
 	void PreDraw();
 
-	//SwapChainに対しての描画
-	void SwapChainDraw();
-
-	//RenderTextureに対しての描画
-	void RenderTextureDraw();
-
 	//描画後処理
 	void PostDraw();
 
@@ -61,15 +55,7 @@ public: //メンバ関数
 	 */
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
 
-	/**
-	 * \brief レンダーテクスチャリソースの生成
-	 * \param width 
-	 * \param height 
-	 * \param format 
-	 * \param clearColor 
-	 * \return 
-	 */
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor);
+	void CreateSamplerHeap();
 
 public://アクセッサ
 	/// \brief デバイスの取得
@@ -91,6 +77,7 @@ public://アクセッサ
 	//各種ディスクリプヒープの取得
 	ID3D12DescriptorHeap* GetRTVDescriptorHeap() { return rtvDescriptorHeap_.Get(); }
 	ID3D12DescriptorHeap* GetDSVDescriptorHeap() { return dsvDescriptorHeap_.Get(); }
+	ID3D12DescriptorHeap* GetSamplerHeap() { return samplerHeap_.Get(); }	
 
 	//各種ディスクリプタサイズの取得
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
@@ -99,6 +86,29 @@ public://アクセッサ
 	//バックバッファの取得
 	size_t GetBackBufferCount() { return swapChainResources_.size(); }
 
+	/// \brief CPUのDescriptorHandleを取得
+	/// \param descriptorHeap 
+	/// \param descriptorSize 
+	/// \param index 
+	/// \return 
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
+
+	/// \brief GPUのDescriptorHandleを取得
+	/// \param descriptorHeap 
+	/// \param descriptorSize 
+	/// \param index 
+	/// \return 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
+
+	// Sampler用ディスクリプタヒープのサイズを取得する関数
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerDescriptorHandle() const
+	{
+		assert(samplerHeap_ != nullptr && "Sampler Heap is not initialized!");
+		return samplerHeap_->GetGPUDescriptorHandleForHeapStart();
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() { return dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(); }
+	
 private: //メンバ関数
 	/// \brief デバイスの初期化
 	void InitializeDevice();
@@ -127,24 +137,7 @@ private: //メンバ関数
 	/// \brief FPS固定初期化
 	void InitializeFixFPS();
 	/// \brief FPS固定更新
-	void UpdateFixFPS();
-	/// \brief オフスクリーン用のレンダーテクスチャの生成
-	void CreateOffScreenRenderTarget();
-	
-
-	/// \brief CPUのDescriptorHandleを取得
-	/// \param descriptorHeap 
-	/// \param descriptorSize 
-	/// \param index 
-	/// \return 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
-
-	/// \brief GPUのDescriptorHandleを取得
-	/// \param descriptorHeap 
-	/// \param descriptorSize 
-	/// \param index 
-	/// \return 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
+	void UpdateFixFPS();	
 
 	
 private: //メンバ変数
@@ -174,6 +167,8 @@ private: //メンバ変数
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
 	//DSV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
+	//Sampler用のヒープ
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> samplerHeap_ = nullptr;
 	//RTVを2つ作るのでディスクリプタを２つ用意
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
 	//ディスクリプタサイズ

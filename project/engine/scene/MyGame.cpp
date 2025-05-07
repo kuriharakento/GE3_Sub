@@ -80,12 +80,15 @@ void MyGame::Update()
 
 void MyGame::Draw()
 {
-	//フレームワークの描画前処理
-	Framework::PreDraw();
+	/*----[ オフスクリーン描画 ]----*/
+
+	renderTexture_->BeginRender();
+
+	srvManager_->PreDraw();
 
 	/////////////////< 描画ここから >////////////////////
 
-	/*----[ 3Dオブジェクトの描画 ]----*/
+	// ---------- 3D描画 ---------
 
 	//パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
@@ -99,7 +102,8 @@ void MyGame::Draw()
 	//ラインの描画
 	lineManager_->Draw();
 	
-	/*----[ スプライトの描画 ]----*/
+	// ---------- 2D描画 ---------
+
 	//2D描画用設定
 	Framework::Draw2DSetting();
 
@@ -108,8 +112,22 @@ void MyGame::Draw()
 
 	/////////////////< 描画ここまで >////////////////////
 
-	//フレームワークの描画後処理
-	Framework::PostDraw();
+	renderTexture_->EndRender();
+
+	/*----[ スワップチェインの描画 ]----*/
+
+	dxCommon_->PreDraw();
+
+	copyPass_->Draw(dxCommon_->GetCommandList(), renderTexture_->GetGPUHandle());
+
+#ifdef _DEBUG
+	//ImGuiの描画
+	imguiManager_->Draw();
+#endif
+
+	dxCommon_->PostDraw();
+
+	
 }
 
 void MyGame::LoadTextures()

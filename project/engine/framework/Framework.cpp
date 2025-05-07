@@ -73,6 +73,13 @@ void Framework::Initialize()
 	lineManager_ = std::make_unique<LineManager>();
 	lineManager_->Initialize(dxCommon_.get(),cameraManager_.get());
 
+	//レンダーテクスチャの初期化
+	renderTexture_ = std::make_unique<RenderTexture>();
+	renderTexture_->Initialize(dxCommon_.get(), srvManager_.get(), WinApp::kClientWidth, WinApp::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	//コピー用のパス
+	copyPass_ = std::make_unique<CopyPass>();
+	copyPass_->Initialize(dxCommon_.get(), srvManager_.get(), L"Resources/shaders/CopyImage.VS.hlsl", L"Resources/shaders/CopyImage.PS.hlsl");
 }
 
 void Framework::Finalize()
@@ -93,6 +100,8 @@ void Framework::Finalize()
 	Audio::GetInstance()->Finalize();				//オーディオの解放
 	lightManager_.reset();							//ライトマネージャーの解放
 	lineManager_.reset();							//線マネージャーの解放
+	renderTexture_.reset();							//レンダーテクスチャの解放
+	copyPass_.reset();								//コピー用のパスの解放
 }
 
 void Framework::Update()
@@ -139,21 +148,6 @@ void Framework::Draw2DSetting()
 {
 	//スプライトの描画準備。共通の設定を行う
 	spriteCommon_->CommonRenderingSetting();
-}
-
-void Framework::PreDraw()
-{
-	//描画前処理
-	dxCommon_->PreDraw();
-	srvManager_->PreDraw();
-}
-
-void Framework::PostDraw()
-{
-	//ImGuiの描画
-	imguiManager_->Draw();
-	//描画後処理
-	dxCommon_->PostDraw();
 }
 
 void Framework::Run()

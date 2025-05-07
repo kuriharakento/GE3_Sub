@@ -1,9 +1,11 @@
 #pragma once
 #include "2d/SpriteCommon.h"
 #include "3d/Object3dCommon.h"
+#include "base/CopyPass.h"
 #include "engine/scene/factory/SceneFactory.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "base/DirectXCommon.h"
+#include "base/RenderTexture.h"
 #include "base/WinApp.h"
 #include "lighting/LightManager.h"
 #include "line/LineManager.h"
@@ -30,10 +32,6 @@ public: //メンバ関数
 	void Draw3DSetting();
 	//2D描画用の設定
 	void Draw2DSetting();
-	//描画前処理
-	void PreDraw();
-	//描画後処理
-	void PostDraw();
 	//パフォーマンス情報の表示
 	void ShowPerformanceInfo();
 	//終了リクエストがあるか
@@ -66,5 +64,9 @@ protected: //メンバ変数
 	std::unique_ptr<LightManager> lightManager_;
 	//線マネージャー
 	std::unique_ptr<LineManager> lineManager_;
+	//
+	std::unique_ptr<RenderTexture> renderTexture_;
+	//
+	std::unique_ptr<CopyPass> copyPass_;
 };
 

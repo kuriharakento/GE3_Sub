@@ -79,13 +79,6 @@ void DirectXCommon::PreDraw()
 	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	//transitionBarrierを張る
 	commandList_->ResourceBarrier(1, &barrier_);
-}
-
-void DirectXCommon::SwapChainDraw()
-{
-	/*--------------[ バックバッファの番号取得 ]-----------------*/
-
-	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
 
 	/*--------------[ 描画先のRTVとDSVを指定する ]-----------------*/
 
@@ -117,42 +110,6 @@ void DirectXCommon::SwapChainDraw()
 	/*--------------[ シザー矩形の設定 ]-----------------*/
 
 	commandList_->RSSetScissorRects(1, &scissorRect_);
-
-}
-
-void DirectXCommon::RenderTextureDraw()
-{
-	/*--------------[ バックバッファの番号取得 ]-----------------*/
-
-	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
-
-	/*--------------[ 描画先のRTVとDSVを指定する ]-----------------*/
-
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetCPUDescriptorHandle(rtvDescriptorHeap_, descriptorSizeRTV_, 0);
-
-	commandList_->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
-
-	/*--------------[ 画面全体の色をクリア ]-----------------*/
-	
-	commandList_->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-
-	/*--------------[ 画面全体の深度をクリアする ]-----------------*/
-	commandList_->ClearDepthStencilView(
-		dsvHandle,
-		D3D12_CLEAR_FLAG_DEPTH,
-		1.0f,
-		0,
-		0,
-		nullptr
-	);
-
-	/*--------------[ ビューポート領域の設定 ]-----------------*/
-	commandList_->RSSetViewports(1, &viewport_);
-
-	/*--------------[ シザー矩形の設定 ]-----------------*/
-	commandList_->RSSetScissorRects(1, &scissorRect_);
-
 }
 
 void DirectXCommon::PostDraw()
@@ -625,42 +582,6 @@ void DirectXCommon::UpdateFixFPS()
 
 }
 
-void DirectXCommon::CreateOffScreenRenderTarget()
-{
-	//レンダーテクスチャのクリア値。赤色
-	const Vector4 kRenderTargetClearValue{ 1.0f,0.0f,0.0f,1.0f };
-
-	renderTexture_ = CreateRenderTextureResource(
-		WinApp::kClientWidth,
-		WinApp::kClientHeight,
-		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-		kRenderTargetClearValue
-	);
-
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-
-	device_->CreateRenderTargetView(
-		renderTexture_.Get(),
-		&rtvDesc,
-		GetCPUDescriptorHandle(rtvDescriptorHeap_, descriptorSizeRTV_, 0)
-	);
-	//SRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC renderTextureSRVDesc{};
-	renderTextureSRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	renderTextureSRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	renderTextureSRVDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	renderTextureSRVDesc.Texture2D.MipLevels = 1;
-
-	//SRVを作成する
-	device_->CreateShaderResourceView(
-		renderTexture_.Get(),
-		&renderTextureSRVDesc,
-		GetCPUDescriptorHandle(, 0)
-	);
-}
-
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor,
                                                                                  bool shaderVisible)
 {
@@ -673,36 +594,34 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap
 	return descriptorHeap;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> DirectXCommon::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor)
+
+void DirectXCommon::CreateSamplerHeap()
 {
-	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource = nullptr;
+	D3D12_DESCRIPTOR_HEAP_DESC desc{};
+	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+	desc.NumDescriptors = 1;
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	HRESULT hr = device_->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&samplerHeap_));
+	assert(SUCCEEDED(hr) && "Failed to create Sampler Heap!");
 
-	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Width = width; //Textureの幅
-	resourceDesc.Height = height; //Textureの高さ
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET; //RenderTargetとして利用可能なフラグ
+	// デバッグログ
+	D3D12_GPU_DESCRIPTOR_HANDLE samplerHeapBase = samplerHeap_->GetGPUDescriptorHandleForHeapStart();
+	OutputDebugStringA(("Sampler Heap Base Address: " + std::to_string(samplerHeapBase.ptr) + "\n").c_str());
+	assert(samplerHeap_ != nullptr && "Sampler Descriptor Heap is null!");
 
-	//heap
-	D3D12_HEAP_PROPERTIES heapProperties{};
-	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;						//VRAM上に作る
+	D3D12_SAMPLER_DESC samplerDesc{};
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
-	//クリア値の設定
-	clearValue_.Format = format;
-	clearValue_.Color[0] = clearColor.x;
-	clearValue_.Color[1] = clearColor.y;
-	clearValue_.Color[2] = clearColor.z;
-	clearValue_.Color[3] = clearColor.w;
+	device_->CreateSampler(&samplerDesc, samplerHeap_->GetCPUDescriptorHandleForHeapStart());
 
-	device_->CreateCommittedResource(
-		&heapProperties,
-		D3D12_HEAP_FLAG_NONE,
-		&resourceDesc,
-		D3D12_RESOURCE_STATE_RENDER_TARGET,  //これから描画することを前提としたTextureなのでRenderTargetとして使うことから始める
-		&clearValue_,	//Clear最適値。ClearRenderTargetをこの色でクリアするようにする。最適化されているので高速である。
-		IID_PPV_ARGS(&textureResource)
-	);
-
-	return textureResource;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetCPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index)
