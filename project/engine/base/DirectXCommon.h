@@ -132,8 +132,6 @@ private: //メンバ関数
 	void InitializeScissorRect();
 	// DXCコンパイラの初期化
 	void InitializeDXCCompiler();
-	//ImGuiの初期化
-	void InitializeImGui();
 	/// \brief FPS固定初期化
 	void InitializeFixFPS();
 	/// \brief FPS固定更新

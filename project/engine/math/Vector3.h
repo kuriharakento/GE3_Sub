@@ -4,36 +4,36 @@
 struct Vector3 {
     float x, y, z;
 
+    // --- 基本処理 ---
+    float Length() const {
+        return std::sqrt(x * x + y * y + z * z);
+    }
+
+    float LengthSquared() const {
+        return x * x + y * y + z * z;
+    }
+
     Vector3 Normalize() const {
         float len = Length();
-        if (len == 0) return Vector3{ 0.0f, 0.0f, 0.0f };
+        if (len == 0.0f) return Vector3{ 0.0f, 0.0f, 0.0f };
         return *this / len;
     }
 
-    float Length() const {
-        return sqrtf(x * x + y * y + z * z);
+    bool IsZero(float epsilon = 1e-6f) const {
+        return LengthSquared() < epsilon * epsilon;
     }
 
-    float Dot(const Vector3& other) const {
-        return (x * other.x) + (y * other.y) + (z * other.z);
-    }
-
-    Vector3 Cross(const Vector3& other) const {
-        return Vector3{
-            (y * other.z) - (z * other.y),
-            (z * other.x) - (x * other.z),
-            (x * other.y) - (y * other.x)
-        };
-    }
-
+    // --- 静的関数 ---
     static Vector3 Normalize(const Vector3& vec) {
-        float len = vec.Length();
-        if (len == 0) return Vector3{ 0.0f, 0.0f, 0.0f };
-        return vec / len;
+        return vec.Normalize();
     }
 
     static float Length(const Vector3& vec) {
-        return sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+        return vec.Length();
+    }
+
+    static float LengthSquared(const Vector3& vec) {
+        return vec.LengthSquared();
     }
 
     static float Dot(const Vector3& a, const Vector3& b) {
@@ -48,6 +48,15 @@ struct Vector3 {
         };
     }
 
+    static float Distance(const Vector3& a, const Vector3& b) {
+        return (a - b).Length();
+    }
+
+    static float DistanceSquared(const Vector3& a, const Vector3& b) {
+        return (a - b).LengthSquared();
+    }
+
+    // --- 演算子 ---
     Vector3 operator+(const Vector3& other) const {
         return Vector3{ x + other.x, y + other.y, z + other.z };
     }
@@ -83,6 +92,6 @@ struct Vector3 {
     }
 
     Vector3 operator-() const {
-        return Vector3{ -this->x, -this->y, -this->z };
+        return Vector3{ -x, -y, -z };
     }
 };

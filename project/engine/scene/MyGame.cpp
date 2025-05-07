@@ -91,8 +91,7 @@ void MyGame::Draw()
 
 	// ---------- 3D描画 ---------
 
-	//パーティクルの描画
-	ParticleManager::GetInstance()->Draw();
+	
 
 	//3D描画用設定
 	Framework::Draw3DSetting();
@@ -102,6 +101,9 @@ void MyGame::Draw()
 
 	//ラインの描画
 	lineManager_->Draw();
+
+	//パーティクルの描画
+	ParticleManager::GetInstance()->Draw();
 	
 	// ---------- 2D描画 ---------
 
