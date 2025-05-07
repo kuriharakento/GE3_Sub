@@ -135,3 +135,24 @@ void LineManager::Drawline(const Vector3& start, const Vector3& end, const Vecto
 {
 	line_->AddLine(start, end, color);
 }
+
+void LineManager::DrawGrid(float gridSize, float gridSpacing, const Vector4& color)
+{
+    // グリッドの範囲を計算
+    float halfSize = gridSize / 2.0f;
+
+    // X軸方向の線を描画
+    for (float z = -halfSize; z <= halfSize; z += gridSpacing) {
+        Vector3 start = { -halfSize, 0.0f, z };
+        Vector3 end = { halfSize, 0.0f, z };
+        Drawline(start, end, color);
+    }
+
+    // Z軸方向の線を描画
+    for (float x = -halfSize; x <= halfSize; x += gridSpacing) {
+        Vector3 start = { x, 0.0f, -halfSize };
+        Vector3 end = { x, 0.0f, halfSize };
+        Drawline(start, end, color);
+    }
+}
+

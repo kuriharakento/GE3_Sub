@@ -1,6 +1,7 @@
 #include "TitleScene.h"
 
 #include "audio/Audio.h"
+#include "base/PostProcessPass.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
@@ -79,6 +80,12 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+	static bool isGrayScale = false;
+	if (ImGui::Checkbox("GrayScale", &isGrayScale))
+	{
+		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
+		
+	}
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
