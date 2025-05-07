@@ -17,6 +17,9 @@ public:
     void DrawCube(const Vector3& center, float size, const Vector4& color);
 	//球の描画
 	void DrawSphere(const Vector3& center, float radius, const Vector4& color);
+	//グリッドの描画
+	void DrawGrid(float gridSize, float gridSpacing, const Vector4& color);
+	
 private:
     std::unique_ptr<LineCommon> lineCommon_; ///< LineCommon クラスのインスタンス
     std::unique_ptr<Line> line_;             ///< Line クラスのインスタンス
