@@ -9,9 +9,8 @@
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
 #include "manager/ParticleManager.h"
-#include "manager/TextureManager.h"
-#include "application/GameObject/collider/ColliderAABB.h"
-#include "application/GameObject/component/MoveComponent.h"
+#include "manager/TextureManager.h"ｎ
+#include "application/GameObject/component/action/MoveComponent.h"
 
 void TitleScene::Initialize()
 {
@@ -31,11 +30,9 @@ void TitleScene::Initialize()
 	JsonEditorManager::GetInstance()->Initialize();
 
 	//ゲームオブジェクトの生成
-	player = std::make_unique<GameObject>();
-	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
-	player->SetPosition({ 0.0f,1.0f,0.0f });
-	// MoveComponentをプレイヤーに追加
-	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
+	player = std::make_unique<Player>();
+	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
+	player->GetGameObject()->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
 
 	//衝突コンポーネントの追加
 	/*auto playerCollision = std::make_shared<CollisionComponent>(player.get(),std::make_shared<ColliderAABB>());
@@ -77,6 +74,14 @@ void TitleScene::Initialize()
 		15.0f,
 		0.06f
 	);
+
+	//トップダウンカメラの生成
+	topDownCamera_ = std::make_unique<TopDownCamera>();
+	topDownCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	topDownCamera_->Start(
+		60.0f,
+		&player->GetPosition()
+	);
 }
 
 void TitleScene::Finalize()
@@ -95,12 +100,14 @@ void TitleScene::Update()
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
-	static bool followCameraUpdate = true;
+	static bool followCameraUpdate = false;
+	static bool topDownCameraUpdate = false;
 
 	//カメラワークの更新
 	ImGui::Checkbox("orbitCamera Update", &orbitCameraUpdate);
 	ImGui::Checkbox("splineCamera Update", &splineCameraUpdate);
 	ImGui::Checkbox("followCamera Update", &followCameraUpdate);
+	ImGui::Checkbox("topDownCamera Update", &topDownCameraUpdate);
 	if (Input::GetInstance()->TriggerKey(DIK_F))
 	{
 		followCameraUpdate = !followCameraUpdate;
@@ -110,15 +117,17 @@ void TitleScene::Update()
 	{
 		orbitCameraWork_->Update();
 	}
-
 	if (splineCameraUpdate)
 	{
 		splineCamera_->Update();
 	}
-
 	if (followCameraUpdate)
 	{
 		followCamera_->Update();
+	}
+	if (topDownCameraUpdate)
+	{
+		topDownCamera_->Update();
 	}
 
 	//Jsonエディタの表示

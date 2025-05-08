@@ -6,9 +6,11 @@
 #include "application/Skydome.h"
 #include "application/Animation/Slide.h"
 #include "application/GameObject/base/GameObject.h"
+#include "application/GameObject/character/player/Player.h"
 #include "camerawork/FollowCamera.h"
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
+#include "camerawork/TopDownCamera.h"
 #include "engine/scene/interface/BaseScene.h"
 
 class TitleScene : public BaseScene
@@ -39,8 +41,9 @@ private: //メンバ変数
 	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
 	std::unique_ptr<SplineCamera> splineCamera_;
 	std::unique_ptr<FollowCamera> followCamera_;
+	std::unique_ptr<TopDownCamera> topDownCamera_;
 	//ゲームオブジェクト
-	std::unique_ptr<GameObject> player;
+	std::unique_ptr<Player> player;
 	std::unique_ptr<GameObject> enemy;
 };
 

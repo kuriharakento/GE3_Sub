@@ -40,8 +40,7 @@ void GameObject::AddComponent(const std::string& name, std::shared_ptr<IGameObje
 {
 	//すでに同じ名前のコンポーネントが存在する場合はメッセージを出力
 	if (components_.find(name) != components_.end()) {
-		Logger::Log("Waring: Component not found: " + name);
-		return;
+		Logger::Log("Warning: Component already exists: " + name);
 	}
 	// コンポーネントを追加
 	components_[name] = std::move(comp);

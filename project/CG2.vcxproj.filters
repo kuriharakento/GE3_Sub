@@ -59,8 +59,11 @@
     <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
     <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
     <ClCompile Include="application\Skydome.cpp" />
-    <ClCompile Include="application\GameObject\component\MoveComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
     <ClCompile Include="engine\camerawork\FollowCamera.cpp" />
+    <ClCompile Include="engine\camerawork\TopDownCamera.cpp" />
+    <ClCompile Include="application\GameObject\character\base\Character.cpp" />
+    <ClCompile Include="application\GameObject\character\player\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -128,8 +131,13 @@
     <ClInclude Include="engine\camerawork\SplineCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
     <ClInclude Include="application\Skydome.h" />
-    <ClInclude Include="application\GameObject\component\MoveComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\MoveComponent.h" />
     <ClInclude Include="engine\camerawork\FollowCamera.h" />
+    <ClInclude Include="engine\camerawork\TopDownCamera.h" />
+    <ClInclude Include="application\GameObject\character\base\Character.h" />
+    <ClInclude Include="application\GameObject\character\player\Player.h" />
+    <ClInclude Include="application\GameObject\base\GameObject.h" />
+    <ClInclude Include="application\GameObject\base\IGameObjectComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

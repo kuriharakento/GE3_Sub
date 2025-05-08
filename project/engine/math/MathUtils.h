@@ -11,6 +11,10 @@ namespace MathUtils
 	{
 		return start + (end - start) * t;
 	}
+	static Vector3 Lerp(const Vector3& start, const Vector3& end, float t)
+	{
+		return start + (end - start) * t;
+	}
 
 	///座標変換
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix)
@@ -33,6 +37,20 @@ namespace MathUtils
 		while (angle > std::numbers::pi_v<float>) angle -= 2.0f * std::numbers::pi_v<float>;
 		while (angle < -std::numbers::pi_v<float>) angle += 2.0f * std::numbers::pi_v<float>;
 		return angle;
+	}
+
+	// 単一軸の角度補間（最短経路）
+	static float LerpAngle(float start, float end, float t)
+	{
+		float delta = NormalizeAngleRad(end - start);
+		return start + delta * t;
+	}
+	static Vector3 LerpAngle(const Vector3& from, const Vector3& to, float t) {
+		return {
+			LerpAngle(from.x, to.x, t),
+			LerpAngle(from.y, to.y, t),
+			LerpAngle(from.z, to.z, t)
+		};
 	}
 
 	///法線ベクトルの変換

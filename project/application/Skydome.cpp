@@ -11,6 +11,8 @@ void Skydome::Initialize(Object3dCommon* object3dCommon, const std::string& mode
 		{ 0.0f,0.0f,0.0f },
 		{ 0.0f,0.0f,0.0f },
 	};
+
+	skydome_->SetLightingIntensity(0.3f);
 }
 
 void Skydome::Update(CameraManager* cameraManager)

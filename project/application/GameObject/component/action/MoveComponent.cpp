@@ -84,14 +84,10 @@ void MoveComponent::Update(GameObject* owner)
         // 現在の回転を取得
         Vector3 currentRotation = owner->GetRotation();
 
-        // 角度を正規化（-π ～ π の範囲に収める）
-        float normalizedCurrentY = MathUtils::NormalizeAngleRad(currentRotation.y);
-        float normalizedTargetY = MathUtils::NormalizeAngleRad(targetRotationY);
-
-        // イージングを使用して滑らかに回転
-        float easedRotationY = MathUtils::Lerp(
-            normalizedCurrentY,
-            normalizedTargetY,
+        // Y軸の回転のみ、最短経路で補間
+        float easedRotationY = MathUtils::LerpAngle(
+            currentRotation.y,
+            targetRotationY,
             0.1f // 補間速度（0.0f～1.0f）
         );
 

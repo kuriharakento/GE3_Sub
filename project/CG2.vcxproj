@@ -106,11 +106,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
     <ClCompile Include="application\GameObject\base\GameObject.cpp" />
+    <ClCompile Include="application\GameObject\character\base\Character.cpp" />
     <ClCompile Include="application\GameObject\collider\ColliderAABB.cpp" />
     <ClCompile Include="application\GameObject\collider\CollisionManager.cpp" />
     <ClCompile Include="application\GameObject\component\collision\CollisionComponent.cpp" />
     <ClCompile Include="engine\base\PostProcessPass.cpp" />
     <ClCompile Include="engine\base\RenderTexture.cpp" />
+    <ClCompile Include="engine\camerawork\TopDownCamera.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
@@ -159,11 +161,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
     <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
     <ClCompile Include="application\Skydome.cpp" />
-    <ClCompile Include="application\GameObject\component\MoveComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
+    <ClCompile Include="application\GameObject\character\player\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="application\GameObject\base\GameObject.h" />
+    <ClInclude Include="application\GameObject\base\IGameObjectComponent.h" />
+    <ClInclude Include="application\GameObject\character\base\Character.h" />
     <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
+    <ClInclude Include="engine\camerawork\TopDownCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonUtils.h" />
     <ClInclude Include="engine\line\LineManager.h" />
     <ClInclude Include="engine\lighting\DirectionalLight.h" />
@@ -227,8 +234,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\camerawork\SplineCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
     <ClInclude Include="application\Skydome.h" />
-    <ClInclude Include="application\GameObject\component\MoveComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\MoveComponent.h" />
     <ClInclude Include="engine\camerawork\FollowCamera.h" />
+    <ClInclude Include="application\GameObject\character\player\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
