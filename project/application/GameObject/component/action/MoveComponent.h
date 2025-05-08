@@ -9,6 +9,7 @@ public:
     MoveComponent(float speed) : speed_(speed) {}
 
     void Update(GameObject* owner) override;
+    void Draw(CameraManager* camera) override {};
 
 private:
     float speed_; // 移動速度

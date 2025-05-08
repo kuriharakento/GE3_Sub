@@ -9,15 +9,16 @@
 
 class FireComponent : public IGameObjectComponent {
 public:
-    FireComponent();
+    FireComponent(Object3dCommon* object3dCommon, LightManager* lightManager);
     ~FireComponent();
 
     void Update(GameObject* owner) override;
+    void Draw(CameraManager* camera) override;
 
 private:
     void FireBullet(GameObject* owner);
-    Object3dCommon* object3dCommon = nullptr;
-    LightManager* lightManager = nullptr;
+    Object3dCommon* object3dCommon_ = nullptr;
+    LightManager* lightManager_ = nullptr;
 
     float fireCooldown_;  // 発射のクールダウン時間
     float fireCooldownTimer_;  // 現在のクールダウンタイマー

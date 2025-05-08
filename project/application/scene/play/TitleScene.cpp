@@ -1,5 +1,6 @@
 #include "TitleScene.h"
 
+#include "application/GameObject/component/action/FireComponent.h"
 #include "audio/Audio.h"
 #include "base/PostProcessPass.h"
 #include "engine/scene/manager/SceneManager.h"
@@ -9,7 +10,7 @@
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
 #include "manager/ParticleManager.h"
-#include "manager/TextureManager.h"ｎ
+#include "manager/TextureManager.h"
 #include "application/GameObject/component/action/MoveComponent.h"
 
 void TitleScene::Initialize()
@@ -33,6 +34,7 @@ void TitleScene::Initialize()
 	player = std::make_unique<Player>();
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	player->GetGameObject()->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
+	player->GetGameObject()->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 
 	//衝突コンポーネントの追加
 	/*auto playerCollision = std::make_shared<CollisionComponent>(player.get(),std::make_shared<ColliderAABB>());

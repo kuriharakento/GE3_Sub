@@ -7,6 +7,7 @@ public:
     BulletComponent();
     void Initialize(Vector3 direction, float speed, float lifetime);
     void Update(GameObject* owner) override;
+	void Draw(CameraManager* camera) override {};
 
 private:
     Vector3 direction_;  // 弾の進行方向

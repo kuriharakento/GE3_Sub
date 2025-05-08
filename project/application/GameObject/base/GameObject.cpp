@@ -31,9 +31,16 @@ void GameObject::Draw(CameraManager* camera)
 {
 	if (!object3d_) { return; }
 
+	// Transform情報をObject3Dに適用
 	ApplyTransformToObject3D(camera);
 
+	// 3Dオブジェクトの描画
 	object3d_->Draw();
+
+	// コンポーネントの描画
+	for (auto& [name, comp] : components_) {
+		comp->Draw(camera);
+	}
 }
 
 void GameObject::AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp)
