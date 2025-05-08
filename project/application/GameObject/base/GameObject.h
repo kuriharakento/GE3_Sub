@@ -18,15 +18,16 @@ public:
 	template<typename T>
 	std::shared_ptr<T> GetComponent() const;
 public: //アクセッサ
-	//セッター
+	//トランスフォーム
 	virtual void SetPosition(const Vector3& pos) { transform_.translate = pos; }
 	virtual void SetRotation(const Vector3& rot) { transform_.rotate = rot; }
 	virtual void SetScale(const Vector3& scale) { transform_.scale = scale; }
-
-	//ゲッター
 	virtual const Vector3& GetPosition() const { return transform_.translate; }
 	virtual const Vector3& GetRotation() const { return transform_.rotate; }
 	virtual const Vector3& GetScale() const { return transform_.scale; }
+
+	//オブジェクト3D
+	void SetModel(const std::string& modelName) { object3d_->SetModel(modelName); }	// モデルの設定
 
 protected:
 	Transform transform_;																	// Transform情報

@@ -110,6 +110,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\collider\ColliderAABB.cpp" />
     <ClCompile Include="application\GameObject\collider\CollisionManager.cpp" />
     <ClCompile Include="application\GameObject\component\collision\CollisionComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\action\BulletComponent.cpp" />
+    <ClCompile Include="application\GameObject\weapon\Bullet.cpp" />
     <ClCompile Include="engine\base\PostProcessPass.cpp" />
     <ClCompile Include="engine\base\RenderTexture.cpp" />
     <ClCompile Include="engine\camerawork\TopDownCamera.cpp" />
@@ -148,6 +150,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\jsonEditor\JsonEditorManager.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonEditableBase.cpp" />
     <ClCompile Include="engine\camerawork\FollowCamera.cpp" />
+    <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\manager\ParticleManager.cpp" />
@@ -169,6 +172,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\base\GameObject.h" />
     <ClInclude Include="application\GameObject\base\IGameObjectComponent.h" />
     <ClInclude Include="application\GameObject\character\base\Character.h" />
+    <ClInclude Include="application\GameObject\component\action\BulletComponent.h" />
+    <ClInclude Include="application\GameObject\weapon\Bullet.h" />
     <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
     <ClInclude Include="engine\camerawork\TopDownCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonUtils.h" />
@@ -237,6 +242,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\component\action\MoveComponent.h" />
     <ClInclude Include="engine\camerawork\FollowCamera.h" />
     <ClInclude Include="application\GameObject\character\player\Player.h" />
+    <ClInclude Include="application\GameObject\component\action\FireComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

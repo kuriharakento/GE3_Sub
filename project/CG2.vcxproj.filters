@@ -64,6 +64,9 @@
     <ClCompile Include="engine\camerawork\TopDownCamera.cpp" />
     <ClCompile Include="application\GameObject\character\base\Character.cpp" />
     <ClCompile Include="application\GameObject\character\player\Player.cpp" />
+    <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\action\BulletComponent.cpp" />
+    <ClCompile Include="application\GameObject\weapon\Bullet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -138,6 +141,9 @@
     <ClInclude Include="application\GameObject\character\player\Player.h" />
     <ClInclude Include="application\GameObject\base\GameObject.h" />
     <ClInclude Include="application\GameObject\base\IGameObjectComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\FireComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\BulletComponent.h" />
+    <ClInclude Include="application\GameObject\weapon\Bullet.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />
