@@ -101,131 +101,8 @@ void Input::Finalize()
 }
 
 // 更新
-void Input::Update()
-{
+void Input::Update() {
     HRESULT result;
-
-    // 前回のキー情報を保存
-    memcpy(keyPre_, key_, sizeof(key_));
-
-    // キーボード情報の取得
-    result = keyboard_->Acquire();
-    if (FAILED(result))
-    {
-        // 再取得を試みる
-        while (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
-        {
-            result = keyboard_->Acquire();
-            if (SUCCEEDED(result))
-                break;
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
-
-    // キーボードの状態を取得
-    result = keyboard_->GetDeviceState(sizeof(key_), key_);
-    if (FAILED(result))
-    {
-        memset(key_, 0, sizeof(key_));
-    }
-
-    // ゲームパッドの状態更新
-    for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i)
-    {
-        XINPUT_STATE state;
-        ZeroMemory(&state, sizeof(XINPUT_STATE));
-        DWORD dwResult = XInputGetState(i, &state);
-
-        if (dwResult == ERROR_SUCCESS)
-        {
-            gamepads_[i].isConnected = true;
-            gamepads_[i].prevState = gamepads_[i].state;
-            gamepads_[i].state = state;
-        } else
-        {
-            gamepads_[i].isConnected = false;
-            ZeroMemory(&gamepads_[i].state, sizeof(XINPUT_STATE));
-            ZeroMemory(&gamepads_[i].prevState, sizeof(XINPUT_STATE));
-        }
-    }
-
-    // 入力の記録
-    if (isRecording_)
-    {
-        for (const auto& [action, binding] : buttonMappings_)
-        {
-            if (binding.type == InputType::Keyboard)
-            {
-                if (PushKey(static_cast<BYTE>(binding.code)))
-                {
-                    recordedInputs_.emplace_back(action, binding.code);
-                }
-            } else if (binding.type == InputType::Gamepad)
-            {
-                DWORD gamepadIndex = binding.code >> 16;
-                DWORD buttonCode = binding.code & 0xFFFF;
-                if (IsButtonPressed(gamepadIndex, buttonCode))
-                {
-                    recordedInputs_.emplace_back(action, binding.code);
-                }
-            }
-        }
-    }
-
-    // 入力の再生
-    if (isPlaying_)
-    {
-        if (playIndex_ < recordedInputs_.size())
-        {
-            Action action = recordedInputs_[playIndex_].first;
-            DWORD code = recordedInputs_[playIndex_].second;
-            auto it = actionCallbacks_.find(action);
-            if (it != actionCallbacks_.end() && it->second)
-            {
-                it->second();
-            }
-            playIndex_++;
-        } else
-        {
-            isPlaying_ = false;
-            playIndex_ = 0;
-            Logger::Log("入力の再生が完了しました。\n");
-        }
-    }
-
-    // アクションの実行
-    for (const auto& [action, binding] : buttonMappings_)
-    {
-        if (binding.type == InputType::Keyboard)
-        {
-            if (TriggerKey(static_cast<BYTE>(binding.code)))
-            {
-                auto it = actionCallbacks_.find(action);
-                if (it != actionCallbacks_.end() && it->second)
-                {
-                    it->second();
-                }
-            }
-        } else if (binding.type == InputType::Gamepad)
-        {
-            DWORD gamepadIndex = binding.code >> 16;
-            DWORD buttonCode = binding.code & 0xFFFF;
-            if (IsButtonTriggered(gamepadIndex, buttonCode))
-            {
-                auto it = actionCallbacks_.find(action);
-                if (it != actionCallbacks_.end() && it->second)
-                {
-                    it->second();
-                }
-            }
-        }
-    }
-
-    // F1キーでマウス固定の有効/無効を切り替え
-    if (TriggerKey(DIK_F1)) {
-        isMouseLockEnabled_ = !isMouseLockEnabled_;
-        Logger::Log(isMouseLockEnabled_ ? "マウス固定: 有効\n" : "マウス固定: 無効\n");
-    }
 
     // ウィンドウがアクティブかどうかを確認
     HWND hwnd = GetActiveWindow();
@@ -236,33 +113,153 @@ void Input::Update()
         return;
     }
 
-    // マウス固定が無効の場合は処理をスキップ
-    if (!isMouseLockEnabled_) {
-        mouseDeltaX_ = 0.0f;
-        mouseDeltaY_ = 0.0f;
-        return;
+    // マウス固定の有効/無効を切り替え
+    if (TriggerKey(DIK_F1)) {
+        isMouseLockEnabled_ = !isMouseLockEnabled_;
+        Logger::Log(isMouseLockEnabled_ ? "マウス固定: 有効\n" : "マウス固定: 無効\n");
     }
 
-    // ウィンドウの中央座標を計算
-    RECT rect;
-    GetClientRect(hwnd, &rect);
-    POINT center = {
-        (rect.right - rect.left) / 2,
-        (rect.bottom - rect.top) / 2
-    };
+    // マウスの状態を更新
+    {
+        // ウィンドウの中央座標を計算
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+        POINT center = {
+            (rect.right - rect.left) / 2,
+            (rect.bottom - rect.top) / 2
+        };
 
-    // 現在のマウス座標を取得
-    POINT mousePos;
-    GetCursorPos(&mousePos);
-    ScreenToClient(hwnd, &mousePos);
+        // 現在のマウス座標を取得
+        POINT mousePos;
+        GetCursorPos(&mousePos);
+        ScreenToClient(hwnd, &mousePos);
 
-    // マウスの移動量を計算
-    mouseDeltaX_ = static_cast<float>(mousePos.x - center.x);
-    mouseDeltaY_ = static_cast<float>(mousePos.y - center.y);
+        mousePos_ = mousePos;
 
-    // マウスの位置をウィンドウの中央にリセット
-    ClientToScreen(hwnd, &center);
-    SetCursorPos(center.x, center.y);
+        // マウスの移動量を計算
+        mouseDeltaX_ = static_cast<float>(mousePos.x - center.x);
+        mouseDeltaY_ = static_cast<float>(mousePos.y - center.y);
+
+        // マウスボタンの状態を取得
+        mouseButtonsPre_[0] = mouseButtons_[0];
+        mouseButtonsPre_[1] = mouseButtons_[1];
+        mouseButtonsPre_[2] = mouseButtons_[2];
+
+        mouseButtons_[0] = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) ? 1 : 0; // 左ボタン
+        mouseButtons_[1] = (GetAsyncKeyState(VK_MBUTTON) & 0x8000) ? 1 : 0; // 中ボタン
+        mouseButtons_[2] = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) ? 1 : 0; // 右ボタン
+
+        // マウス固定が有効な場合、位置をウィンドウの中央にリセット
+        if (isMouseLockEnabled_) {
+            ClientToScreen(hwnd, &center);
+            SetCursorPos(center.x, center.y);
+        }
+        else {
+            mouseDeltaX_ = 0.0f;
+            mouseDeltaY_ = 0.0f;
+        }
+    }
+
+    // キーボードの状態を更新
+    {
+        // 前回のキー情報を保存
+        memcpy(keyPre_, key_, sizeof(key_));
+
+        // キーボード情報の取得
+        result = keyboard_->Acquire();
+        if (FAILED(result)) {
+            // 再取得を試みる
+            while (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED) {
+                result = keyboard_->Acquire();
+                if (SUCCEEDED(result)) break;
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        }
+
+        // キーボードの状態を取得
+        result = keyboard_->GetDeviceState(sizeof(key_), key_);
+        if (FAILED(result)) {
+            memset(key_, 0, sizeof(key_));
+        }
+    }
+
+    // ゲームパッドの状態を更新
+    {
+        for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
+            XINPUT_STATE state;
+            ZeroMemory(&state, sizeof(XINPUT_STATE));
+            DWORD dwResult = XInputGetState(i, &state);
+
+            if (dwResult == ERROR_SUCCESS) {
+                gamepads_[i].isConnected = true;
+                gamepads_[i].prevState = gamepads_[i].state;
+                gamepads_[i].state = state;
+            }
+            else {
+                gamepads_[i].isConnected = false;
+                ZeroMemory(&gamepads_[i].state, sizeof(XINPUT_STATE));
+                ZeroMemory(&gamepads_[i].prevState, sizeof(XINPUT_STATE));
+            }
+        }
+    }
+
+    // 入力の記録
+    if (isRecording_) {
+        for (const auto& [action, binding] : buttonMappings_) {
+            if (binding.type == InputType::Keyboard) {
+                if (PushKey(static_cast<BYTE>(binding.code))) {
+                    recordedInputs_.emplace_back(action, binding.code);
+                }
+            }
+            else if (binding.type == InputType::Gamepad) {
+                DWORD gamepadIndex = binding.code >> 16;
+                DWORD buttonCode = binding.code & 0xFFFF;
+                if (IsButtonPressed(gamepadIndex, buttonCode)) {
+                    recordedInputs_.emplace_back(action, binding.code);
+                }
+            }
+        }
+    }
+
+    // 入力の再生
+    if (isPlaying_) {
+        if (playIndex_ < recordedInputs_.size()) {
+            Action action = recordedInputs_[playIndex_].first;
+            DWORD code = recordedInputs_[playIndex_].second;
+            auto it = actionCallbacks_.find(action);
+            if (it != actionCallbacks_.end() && it->second) {
+                it->second();
+            }
+            playIndex_++;
+        }
+        else {
+            isPlaying_ = false;
+            playIndex_ = 0;
+            Logger::Log("入力の再生が完了しました。\n");
+        }
+    }
+
+    // アクションの実行
+    for (const auto& [action, binding] : buttonMappings_) {
+        if (binding.type == InputType::Keyboard) {
+            if (TriggerKey(static_cast<BYTE>(binding.code))) {
+                auto it = actionCallbacks_.find(action);
+                if (it != actionCallbacks_.end() && it->second) {
+                    it->second();
+                }
+            }
+        }
+        else if (binding.type == InputType::Gamepad) {
+            DWORD gamepadIndex = binding.code >> 16;
+            DWORD buttonCode = binding.code & 0xFFFF;
+            if (IsButtonTriggered(gamepadIndex, buttonCode)) {
+                auto it = actionCallbacks_.find(action);
+                if (it != actionCallbacks_.end() && it->second) {
+                    it->second();
+                }
+            }
+        }
+    }
 }
 
 // キーが押されているか
@@ -390,6 +387,27 @@ bool Input::IsButtonTriggered(DWORD gamepadIndex, DWORD buttonCode) const
     return isPressed && !wasPressed;
 }
 
+bool Input::IsMouseButtonPressed(int button) const
+{
+	if (button < 0 || button >= 3)
+		return false;
+	return mouseButtons_[button] == 1;
+}
+
+bool Input::IsMouseButtonTriggered(int button) const
+{
+	if (button < 0 || button >= 3)
+		return false;
+	return mouseButtons_[button] == 1 && mouseButtonsPre_[button] == 0;
+}
+
+bool Input::IsMouseButtonReleased(int button) const
+{
+	if (button < 0 || button >= 3)
+		return false;
+	return mouseButtons_[button] == 0 && mouseButtonsPre_[button] == 1;
+}
+
 float Input::GetMouseDeltaX() const
 {
 	return mouseDeltaX_;
@@ -398,4 +416,14 @@ float Input::GetMouseDeltaX() const
 float Input::GetMouseDeltaY() const
 {
 	return mouseDeltaY_;
+}
+
+float Input::GetMouseX() const
+{
+	return static_cast<float>(mousePos_.x);
+}
+
+float Input::GetMouseY() const
+{
+	return static_cast<float>(mousePos_.y);
 }

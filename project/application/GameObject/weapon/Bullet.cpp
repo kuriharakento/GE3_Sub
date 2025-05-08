@@ -10,6 +10,7 @@ Bullet::~Bullet()
 
 void Bullet::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, const Vector3& position) {
 	GameObject::Initialize(object3dCommon,lightManager); // GameObjectの初期化
+	SetPosition(position); // 弾の初期位置を設定
     isAlive_ = true;
 }
 

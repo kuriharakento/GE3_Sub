@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "Vector3.h"
+#include "Vector4.h"
 
 /// \brief コタンジェント
 /// \param a 
@@ -36,6 +37,16 @@ struct Matrix4x4
 		}
 
 		return result;
+	}
+
+	// 行列とベクトルの掛け算
+	Vector4 operator*(const Vector4& vec) const {
+		return {
+			m[0][0] * vec.x + m[0][1] * vec.y + m[0][2] * vec.z + m[0][3] * vec.w,
+			m[1][0] * vec.x + m[1][1] * vec.y + m[1][2] * vec.z + m[1][3] * vec.w,
+			m[2][0] * vec.x + m[2][1] * vec.y + m[2][2] * vec.z + m[2][3] * vec.w,
+			m[3][0] * vec.x + m[3][1] * vec.y + m[3][2] * vec.z + m[3][3] * vec.w
+		};
 	}
 };
 

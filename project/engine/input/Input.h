@@ -85,9 +85,22 @@ public:
 	// ボタンのトリガーチェック
     bool IsButtonTriggered(DWORD gamepadIndex, DWORD buttonCode) const;
 
+    // マウスのボタン押下チェック
+    bool IsMouseButtonPressed(int button) const;
+
+    // マウスのボタンのトリガーチェック
+    bool IsMouseButtonTriggered(int button) const;
+
+    // マウスのボタンのリリースチェック
+    bool IsMouseButtonReleased(int button) const;
+
     // マウスの移動量を取得
     float GetMouseDeltaX() const;
     float GetMouseDeltaY() const;
+
+	//マウスの座標を取得
+	float GetMouseX() const;
+	float GetMouseY() const;
 
 private:
     // コンストラクタとデストラクタ
@@ -125,6 +138,11 @@ private:
     float mouseDeltaY_ = 0.0f; // 前フレームからのマウスのY移動量
     int lastMouseX_ = 0;       // 前フレームのマウスX座標
     int lastMouseY_ = 0;       // 前フレームのマウスY座標
+	POINT mousePos_;         // マウスの現在の座標
+
+    // マウスボタンの状態
+    BYTE mouseButtons_[3] = {};     // 現在のマウスボタンの状態（左:0, 中:1, 右:2）
+    BYTE mouseButtonsPre_[3] = {};  // 前フレームのマウスボタンの状態
 
     // デッドゾーン
     float deadZone_;
