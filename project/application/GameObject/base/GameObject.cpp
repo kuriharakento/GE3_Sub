@@ -1,5 +1,6 @@
 #include "GameObject.h"
 
+#include "application/GameObject/component/base/IActionComponent.h"
 #include "base/Logger.h"
 
 void GameObject::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera)
@@ -23,7 +24,10 @@ void GameObject::Update()
 {
 	// コンポーネントを更新
 	for (auto& [name, comp] : components_) {
-		comp->Update(this);  // 依存性を必要最小限に
+		// IActionComponent にキャスト可能か確認
+		if (auto actionComp = std::dynamic_pointer_cast<IActionComponent>(comp)) {
+			actionComp->Update(this); // アクションコンポーネントの更新
+		}
 	}
 }
 
@@ -37,9 +41,12 @@ void GameObject::Draw(CameraManager* camera)
 	// 3Dオブジェクトの描画
 	object3d_->Draw();
 
-	// コンポーネントの描画
+	// コンポーネントを更新
 	for (auto& [name, comp] : components_) {
-		comp->Draw(camera);
+		// IActionComponent にキャスト可能か確認
+		if (auto actionComp = std::dynamic_pointer_cast<IActionComponent>(comp)) {
+			actionComp->Draw(camera); // アクションコンポーネントの描画
+		}
 	}
 }
 

@@ -1,10 +1,11 @@
 #pragma once
-#include <application/GameObject/base/GameObject.h>
-#include <application/GameObject/base/IGameObjectComponent.h>
+
+#include "application/GameObject/component/base/IActionComponent.h"
+
 #include "input/Input.h"
 #include "math/Vector3.h"
 
-class MoveComponent : public IGameObjectComponent {
+class MoveComponent : public IActionComponent {
 public:
     MoveComponent(float speed) : speed_(speed) {}
 

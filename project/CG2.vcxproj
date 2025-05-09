@@ -107,8 +107,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\animation\Slide.cpp" />
     <ClCompile Include="application\GameObject\base\GameObject.cpp" />
     <ClCompile Include="application\GameObject\character\base\Character.cpp" />
-    <ClCompile Include="application\GameObject\collider\ColliderAABB.cpp" />
-    <ClCompile Include="application\GameObject\collider\CollisionManager.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\collider\ColliderAABB.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\collider\CollisionManager.cpp" />
     <ClCompile Include="application\GameObject\component\collision\CollisionComponent.cpp" />
     <ClCompile Include="application\GameObject\component\action\BulletComponent.cpp" />
     <ClCompile Include="application\GameObject\weapon\Bullet.cpp" />
@@ -170,7 +170,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
     <ClInclude Include="application\GameObject\base\GameObject.h" />
-    <ClInclude Include="application\GameObject\base\IGameObjectComponent.h" />
+    <ClInclude Include="application\GameObject\component\base\IGameObjectComponent.h" />
     <ClInclude Include="application\GameObject\character\base\Character.h" />
     <ClInclude Include="application\GameObject\component\action\BulletComponent.h" />
     <ClInclude Include="application\GameObject\weapon\Bullet.h" />
@@ -243,6 +243,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\camerawork\FollowCamera.h" />
     <ClInclude Include="application\GameObject\character\player\Player.h" />
     <ClInclude Include="application\GameObject\component\action\FireComponent.h" />
+    <ClInclude Include="application\GameObject\component\base\IActionComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

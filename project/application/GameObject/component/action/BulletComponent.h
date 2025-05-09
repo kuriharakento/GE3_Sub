@@ -1,8 +1,8 @@
 #pragma once
-#include "application/GameObject/base/IGameObjectComponent.h"
+#include "application/GameObject/component/base/IActionComponent.h"
 #include "math/Vector3.h"
 
-class BulletComponent : public IGameObjectComponent {
+class BulletComponent : public IActionComponent {
 public:
     BulletComponent();
     void Initialize(Vector3 direction, float speed, float lifetime);

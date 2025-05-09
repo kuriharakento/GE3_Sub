@@ -2,8 +2,8 @@
 #include <vector>
 #include <memory>
 
-#include "IGameObjectComponent.h"
 #include "3d/Object3d.h"
+#include "application/GameObject/component/base/IGameObjectComponent.h"
 #include "application/GameObject/component/collision/CollisionComponent.h"
 #include "base/GraphicsTypes.h"
 
