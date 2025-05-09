@@ -3,6 +3,7 @@
 
 #include "BulletComponent.h"
 #include "3d/Object3dCommon.h"
+#include "base/Logger.h"
 
 FireComponent::FireComponent(Object3dCommon* object3dCommon, LightManager* lightManager): fireCooldown_(0.5f), fireCooldownTimer_(0.0f)
 {
@@ -55,63 +56,62 @@ void FireComponent::Draw(CameraManager* camera)
 	}
 }
 
-void FireComponent::FireBullet(GameObject* owner) {
+void FireComponent::FireBullet(GameObject* owner)
+{
     // 弾の作成
     auto bullet = std::make_shared<Bullet>();
-    bullet->Initialize(object3dCommon_, lightManager_, owner->GetPosition());
-    bullet->SetModel("cube.obj");
 
     // カメラ取得
     Camera* camera = object3dCommon_->GetDefaultCamera();
     if (!camera) return;
 
-    // Inputからマウスのクライアント座標を取得
+    // マウスのスクリーン座標を取得
     float mouseX = Input::GetInstance()->GetMouseX();
     float mouseY = Input::GetInstance()->GetMouseY();
 
-    // NDC（正規化デバイス座標）に変換
-    float ndcX = (2.0f * mouseX) / WinApp::kClientWidth - 1.0f;
-    float ndcY = 1.0f - (2.0f * mouseY) / WinApp::kClientHeight;
+    // ビューポート行列を作成
+    Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kClientWidth, WinApp::kClientHeight, 0, 1);
 
-    // NDC空間の近点と遠点（z = 0.0 と 1.0）
-    Vector4 nearPointNDC = { ndcX, ndcY, 0.0f, 1.0f };
-    Vector4 farPointNDC = { ndcX, ndcY, 1.0f, 1.0f };
+    // ビュー行列とプロジェクション行列を取得し、ビューポート行列と合成
+    Matrix4x4 matVPV = (camera->GetViewMatrix() * camera->GetProjectionMatrix()) * matViewport;
 
-    // ビュー・プロジェクションの逆行列
-    Matrix4x4 view = camera->GetViewMatrix();
-    Matrix4x4 proj = camera->GetProjectionMatrix();
-    Matrix4x4 invViewProj = Inverse(view * proj);
+    // 合成行列の逆行列を計算
+    Matrix4x4 matInverseVPV = Inverse(matVPV);
 
-    // NDC → ワールド空間
-    Vector4 nearWorld = invViewProj * nearPointNDC;
-    Vector4 farWorld = invViewProj * farPointNDC;
-    nearWorld /= nearWorld.w;
-    farWorld /= farWorld.w;
+    // スクリーン座標を定義（近点と遠点）
+    Vector3 posNear = Vector3(mouseX, mouseY, 0.0f); // 近クリップ面
+    Vector3 posFar = Vector3(mouseX, mouseY, 1.0f);  // 遠クリップ面
 
-    // レイ計算（ワールド空間でマウス方向ベクトル）
-    Vector3 rayOrigin = Vector3(nearWorld.x, nearWorld.y, nearWorld.z);
-    Vector3 rayDir = Vector3::Normalize(Vector3(farWorld.x, farWorld.y, farWorld.z) - rayOrigin);
+    // スクリーン座標をワールド座標に変換
+    posNear = MathUtils::Transform(posNear, matInverseVPV);
+    posFar = MathUtils::Transform(posFar, matInverseVPV);
 
-    // プレイヤーのY=0における地面とレイの交点を求める（t:rayの進み具合）
+    // レイの方向を計算
+    Vector3 rayDir = Vector3::Normalize(posFar - posNear);
+
+    // プレイヤーの位置を取得
     Vector3 playerPos = owner->GetPosition();
-    float t = (playerPos.y - rayOrigin.y) / rayDir.y;
-    Vector3 hitPos = rayOrigin + rayDir * t;
 
-    // 発射方向（水平面上）
-    Vector3 direction = hitPos - playerPos;
-    direction.y = 0.0f;
-    direction = Vector3::Normalize(direction);
+    // 地面（Y=0）との交点を計算
+    float t = -posNear.y / rayDir.y; // Y=0 の平面との交点
+    Vector3 targetPos = posNear + rayDir * t;
 
-    // 弾の回転を設定（左手座標系では atan2f の引数順が右手座標系と同じ）
+    // 発射方向を計算
+    Vector3 direction = Vector3::Normalize(targetPos - playerPos);
+
+    // 水平方向の角度を計算
     float rotationY = atan2f(direction.x, direction.z);
+
+    // 弾の初期化
+    bullet->Initialize(object3dCommon_, lightManager_, playerPos);
+    bullet->SetModel("cube.obj");
     bullet->SetRotation({ 0.0f, rotationY, 0.0f });
 
     // BulletComponentを追加
     auto bulletComp = std::make_shared<BulletComponent>();
-    bulletComp->Initialize(direction, 10.0f, 2.0f);
+    bulletComp->Initialize(direction, 10.0f, 2.0f); // 速度: 10.0f, 寿命: 2.0f
     bullet->AddComponent("Bullet", bulletComp);
 
     // 弾を管理リストに追加
     bullets_.push_back(bullet);
 }
-
