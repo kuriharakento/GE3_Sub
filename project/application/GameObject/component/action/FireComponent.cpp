@@ -98,6 +98,7 @@ void FireComponent::FireBullet(GameObject* owner)
 
     // 発射方向を計算
     Vector3 direction = Vector3::Normalize(targetPos - playerPos);
+	direction.y = 0.0f; // Y成分を0にすることで水平方向のベクトルにする
 
     // 水平方向の角度を計算
     float rotationY = atan2f(direction.x, direction.z);
@@ -109,7 +110,7 @@ void FireComponent::FireBullet(GameObject* owner)
 
     // BulletComponentを追加
     auto bulletComp = std::make_shared<BulletComponent>();
-    bulletComp->Initialize(direction, 10.0f, 2.0f); // 速度: 10.0f, 寿命: 2.0f
+    bulletComp->Initialize(direction, 30.0f, 2.0f); // 速度: 10.0f, 寿命: 2.0f
     bullet->AddComponent("Bullet", bulletComp);
 
     // 弾を管理リストに追加

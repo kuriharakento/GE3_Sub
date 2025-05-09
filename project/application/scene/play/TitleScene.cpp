@@ -81,7 +81,7 @@ void TitleScene::Initialize()
 	topDownCamera_ = std::make_unique<TopDownCamera>();
 	topDownCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
 	topDownCamera_->Start(
-		60.0f,
+		80.0f,
 		&player->GetPosition()
 	);
 }
