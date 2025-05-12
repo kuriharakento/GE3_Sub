@@ -145,6 +145,7 @@
     <ClInclude Include="application\GameObject\component\action\BulletComponent.h" />
     <ClInclude Include="application\GameObject\weapon\Bullet.h" />
     <ClInclude Include="application\GameObject\component\base\IActionComponent.h" />
+    <ClInclude Include="application\GameObject\component\base\ICollisionComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

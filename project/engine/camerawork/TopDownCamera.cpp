@@ -1,8 +1,5 @@
 #include "TopDownCamera.h"
 
-#include <numbers>
-#include <assimp/MathFunctions.h>
-
 #include "base/Camera.h"
 #include "math/MathUtils.h"
 
@@ -23,10 +20,10 @@ void TopDownCamera::Update()
 	Vector3 currentPosition = MathUtils::Lerp(camera_->GetTranslate(), targetCameraPos, 0.1f);
 
     // カメラの位置を設定
-    camera_->SetTranslate(currentPosition);
+    camera_->SetTranslate(currentPosition + offset_);
 
 	//カメラの向きを真下に向ける
-	camera_->SetRotate(Vector3(std::numbers::pi_v<float> / 2, 0.0f, 0.0f));
+	camera_->SetRotate(Vector3(pitch_, yaw_, 0.0f));
 }
 
 void TopDownCamera::Start(float height, const Vector3* target)

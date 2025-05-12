@@ -173,6 +173,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\component\base\IGameObjectComponent.h" />
     <ClInclude Include="application\GameObject\character\base\Character.h" />
     <ClInclude Include="application\GameObject\component\action\BulletComponent.h" />
+    <ClInclude Include="application\GameObject\component\base\ICollisionComponent.h" />
     <ClInclude Include="application\GameObject\weapon\Bullet.h" />
     <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
     <ClInclude Include="engine\camerawork\TopDownCamera.h" />

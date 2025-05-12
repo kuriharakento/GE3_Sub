@@ -1,8 +1,8 @@
 #pragma once
 #include "application/GameObject/base/GameObject.h"
 
-class IActionComponent : public IGameObjectComponent {
+class IActionComponent : public virtual IGameObjectComponent {
 public:
-    virtual void Update(GameObject* owner) = 0;
+	virtual ~IActionComponent() = default;
 	virtual void Draw(CameraManager* camera){}
 };
