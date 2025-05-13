@@ -8,9 +8,9 @@ class AABBColliderComponent;
 class CollisionManager
 {
 public:
-	static CollisionManager& GetInstance();
+	static CollisionManager* GetInstance();
 	void Initialize() { colliders_.clear(); }
-	void Finalize() { colliders_.clear(); }
+    void Finalize() { colliders_.clear(), currentCollisions_.clear(); }
 
 	void Register(ICollisionComponent* collider);
 	void Unregister(ICollisionComponent* collider);

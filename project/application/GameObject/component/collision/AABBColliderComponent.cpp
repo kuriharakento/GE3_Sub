@@ -11,6 +11,6 @@ void AABBColliderComponent::Update(GameObject* owner)
 	Vector3 pos = owner->GetPosition();
 	Vector3 size = owner->GetScale();
 	// AABBの更新
-	aabb_.min = pos - size;
-	aabb_.max = pos + size;
+	aabb_.min_ = pos - size;
+	aabb_.max_ = pos + size;
 }

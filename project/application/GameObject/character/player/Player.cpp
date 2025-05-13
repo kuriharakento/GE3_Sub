@@ -1,12 +1,13 @@
 #include "Player.h"
 
 #include "application/GameObject/component/base/ICollisionComponent.h"
+#include "base/Logger.h"
 
 void Player::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager)
 {
 	Character::Initialize(object3dCommon, lightManager);
 	//初期位置を設定
-	gameObject_->SetPosition({ 0.0f, 1.0f, 0.0f });
+	transform_.translate = { 0.0f, 1.0f, 0.0f };
 }
 
 void Player::Update()
@@ -28,19 +29,19 @@ void Player::AddComponent(const std::string& name, std::shared_ptr<IGameObjectCo
 	}
 
 	//コンポーネントを追加
-	gameObject_->AddComponent(name, comp);
+	GameObject::AddComponent(name, comp);
 }
 
 void Player::CollisionSettings(ICollisionComponent* collider)
 {
 	// 衝突時の処理を設定
 	collider->SetOnEnter([this](GameObject* other) {
-		
+		Logger::Log("Collision Enter: " + other->GetTag() + "\n");
 		});
 	collider->SetOnStay([this](GameObject* other) {
-		
+		Logger::Log("Collision Stay: " + other->GetTag() + "\n");
 		});
 	collider->SetOnExit([this](GameObject* other) {
-		
+		Logger::Log("Collision Exit: " + other->GetTag() + "\n");
 		});
 }

@@ -7,11 +7,11 @@
 
 CollisionManager* CollisionManager::instance_ = nullptr; // シングルトンインスタンス
 
-CollisionManager& CollisionManager::GetInstance() {
+CollisionManager* CollisionManager::GetInstance() {
 	if (instance_ == nullptr) {
 		instance_ = new CollisionManager();
 	}
-	return *instance_;
+	return instance_;
 }
 
 void CollisionManager::Register(ICollisionComponent* collider) {
@@ -77,7 +77,7 @@ bool CollisionManager::CheckCollision(const AABBColliderComponent* a, const AABB
     const AABB& aBox = a->GetAABB();
     const AABB& bBox = b->GetAABB();
 
-    return (aBox.max.x >= bBox.min.x && aBox.min.x <= bBox.max.x) &&
-        (aBox.max.y >= bBox.min.y && aBox.min.y <= bBox.max.y) &&
-        (aBox.max.z >= bBox.min.z && aBox.min.z <= bBox.max.z);
+    return (aBox.max_.x >= bBox.min_.x && aBox.min_.x <= bBox.max_.x) &&
+        (aBox.max_.y >= bBox.min_.y && aBox.min_.y <= bBox.max_.y) &&
+        (aBox.max_.z >= bBox.min_.z && aBox.min_.z <= bBox.max_.z);
 }

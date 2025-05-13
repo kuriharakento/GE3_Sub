@@ -2,12 +2,12 @@
 
 void Character::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager)
 {
-    gameObject_->Initialize(object3dCommon, lightManager);
+    GameObject::Initialize(object3dCommon, lightManager);
 }
 
 void Character::Update()
 {
-    gameObject_->Update();
+    GameObject::Update();
 
     // 無敵時間の更新
     if (isInvincible_)
@@ -23,7 +23,7 @@ void Character::Update()
 
 void Character::Draw(CameraManager* camera)
 {
-    gameObject_->Draw(camera);
+    GameObject::Draw(camera);
 }
 
 void Character::TakeDamage(int damage)

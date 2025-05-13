@@ -31,10 +31,7 @@ void GameObject::Update()
 {
 	// コンポーネントを更新
 	for (auto& [name, comp] : components_) {
-		// IActionComponent にキャスト可能か確認
-		if (auto actionComp = std::dynamic_pointer_cast<IActionComponent>(comp)) {
-			actionComp->Update(this); // アクションコンポーネントの更新
-		}
+		comp->Update(this); // コンポーネントの更新
 	}
 }
 

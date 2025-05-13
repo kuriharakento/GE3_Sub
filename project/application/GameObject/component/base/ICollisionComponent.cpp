@@ -4,11 +4,11 @@
 ICollisionComponent::~ICollisionComponent()
 {
 	owner_ = nullptr;
-	CollisionManager::GetInstance().Unregister(this);
+	CollisionManager::GetInstance()->Unregister(this);
 }
 
 ICollisionComponent::ICollisionComponent(GameObject* owner)
 {
 	owner_ = owner;
-	CollisionManager::GetInstance().Register(this);
+	CollisionManager::GetInstance()->Register(this);
 }

@@ -10,8 +10,9 @@
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
 #include "manager/ParticleManager.h"
-#include "manager/TextureManager.h"
+#include "application/GameObject/component/collision/AABBColliderComponent.h"
 #include "application/GameObject/component/action/MoveComponent.h"
+#include "application/GameObject/component/collision/CollisionManager.h"
 
 void TitleScene::Initialize()
 {
@@ -30,24 +31,23 @@ void TitleScene::Initialize()
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
 
+	//当たり判定マネージャーの初期化
+	CollisionManager::GetInstance()->Initialize();
+
 	//ゲームオブジェクトの生成
 	player = std::make_unique<Player>("player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
 	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
-
-	//衝突コンポーネントの追加
-	/*auto playerCollision = std::make_shared<CollisionComponent>(player.get(),std::make_shared<ColliderAABB>());
-	playerCollision->SetDefaultCallbacks();
-	player->AddComponent("Collision", playerCollision);*/
+	//衝突判定コンポーネント
+	player->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(player.get()));
+	
 
 	enemy = std::make_unique<GameObject>("enemy");
 	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
 	enemy->SetPosition({ 0.0f,1.0f,10.0f });
-	//衝突コンポーネントの追加
-	/*auto enemyCollision = std::make_shared<CollisionComponent>(enemy.get(), std::make_shared<ColliderAABB>());
-	enemyCollision->SetDefaultCallbacks();
-	enemy->AddComponent("Collision", enemyCollision);*/
+	//衝突判定コンポーネント
+	enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
 
 
 	//オービットカメラワークの生成
@@ -90,6 +90,7 @@ void TitleScene::Initialize()
 
 void TitleScene::Finalize()
 {
+	CollisionManager::GetInstance()->Finalize();
 }
 
 void TitleScene::Update()
@@ -245,9 +246,12 @@ void TitleScene::Update()
 	//スカイドームの更新
 	skydome_->Update(sceneManager_->GetCameraManager());
 
+	//キャラクターの更新
 	player->Update();
-
 	enemy->Update();
+
+	//衝突判定開始
+	CollisionManager::GetInstance()->CheckCollisions();
 
 }
 
