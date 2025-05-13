@@ -1,8 +1,5 @@
 #include "Bullet.h"
 
-Bullet::Bullet() : isAlive_(true)
-{
-}
 
 Bullet::~Bullet()
 {

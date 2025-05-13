@@ -1,20 +1,18 @@
 #pragma once
-#include <vector>
 #include <memory>
+#include <string>
 
 #include "3d/Object3d.h"
 #include "application/GameObject/component/base/IGameObjectComponent.h"
-#include "application/GameObject/component/collision/CollisionComponent.h"
 #include "base/GraphicsTypes.h"
 
 class GameObject {
 public:
+	explicit GameObject(std::string tag = "");	// コンストラクタ
 	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera = nullptr);		// 初期化
 	virtual void Update();
 	virtual void Draw(CameraManager* camera);
 	void AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp);	// コンポーネントの追加
-	std::shared_ptr<IGameObjectComponent> GetComponent(const std::string& name);			// コンポーネントの取得
-	//std::shared_ptr<CollisionComponent> GetCollisionComponent();							// 衝突コンポーネントの取得
 	template<typename T>
 	std::shared_ptr<T> GetComponent() const;
 public: //アクセッサ
@@ -29,6 +27,10 @@ public: //アクセッサ
 	//オブジェクト3D
 	void SetModel(const std::string& modelName) { object3d_->SetModel(modelName); }	// モデルの設定
 
+	//タグ
+	std::string GetTag() const { return tag_; }	// タグの取得
+	void SetTag(const std::string& tag) { tag_ = tag; }	// タグの設定
+
 protected:
 	Transform transform_;																	// Transform情報
 	std::unique_ptr<Object3d> object3d_;													// 3Dオブジェクト
@@ -38,6 +40,7 @@ private:
 
 private:
 	std::unordered_map<std::string, std::shared_ptr<IGameObjectComponent>> components_;		// コンポーネントのリスト
+	std::string tag_; 																		// オブジェクトのタグ
 };
 
 template <typename T>

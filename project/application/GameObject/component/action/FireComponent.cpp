@@ -59,7 +59,7 @@ void FireComponent::Draw(CameraManager* camera)
 void FireComponent::FireBullet(GameObject* owner)
 {
     // 弾の作成
-    auto bullet = std::make_shared<Bullet>();
+    auto bullet = std::make_shared<Bullet>("Bullet");
 
     // カメラ取得
     Camera* camera = object3dCommon_->GetDefaultCamera();

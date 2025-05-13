@@ -7,7 +7,7 @@ class Character
 {
 public:
     virtual ~Character() = default;
-
+	Character(std::string tag) : gameObject_(std::make_unique<GameObject>(tag)) {}
     virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager);
     virtual void Update();
     virtual void Draw(CameraManager* camera);

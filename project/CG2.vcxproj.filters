@@ -7,9 +7,6 @@
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
     <ClCompile Include="application\GameObject\base\GameObject.cpp" />
-    <ClCompile Include="application\GameObject\component\collision\collider\ColliderAABB.cpp" />
-    <ClCompile Include="application\GameObject\component\collision\collider\CollisionManager.cpp" />
-    <ClCompile Include="application\GameObject\component\collision\CollisionComponent.cpp" />
     <ClCompile Include="engine\base\PostProcessPass.cpp" />
     <ClCompile Include="engine\base\RenderTexture.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
@@ -67,6 +64,9 @@
     <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
     <ClCompile Include="application\GameObject\component\action\BulletComponent.cpp" />
     <ClCompile Include="application\GameObject\weapon\Bullet.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\CollisionManager.cpp" />
+    <ClCompile Include="application\GameObject\component\base\ICollisionComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\AABBColliderComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -146,6 +146,9 @@
     <ClInclude Include="application\GameObject\weapon\Bullet.h" />
     <ClInclude Include="application\GameObject\component\base\IActionComponent.h" />
     <ClInclude Include="application\GameObject\component\base\ICollisionComponent.h" />
+    <ClInclude Include="application\GameObject\component\collision\CollisionManager.h" />
+    <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
+    <ClInclude Include="engine\math\AABB.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

@@ -3,6 +3,13 @@
 #include "application/GameObject/component/base/IActionComponent.h"
 #include "base/Logger.h"
 
+GameObject::GameObject(std::string tag)
+{
+	// タグの初期化
+	assert(!tag.empty() && "ERROR: GameObject::GameObject() - Tag should not be empty. Ensure that you provide a valid tag.");
+	tag_ = tag;
+}
+
 void GameObject::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera)
 {
 	// 3Dオブジェクトの初期化
@@ -59,27 +66,6 @@ void GameObject::AddComponent(const std::string& name, std::shared_ptr<IGameObje
 	// コンポーネントを追加
 	components_[name] = std::move(comp);
 }
-
-std::shared_ptr<IGameObjectComponent> GameObject::GetComponent(const std::string& name)
-{
-	auto it = components_.find(name);
-	if (it != components_.end()) {
-		return it->second;
-	}
-	// 見つからなかった場合はnullptrを返す
-	Logger::Log("Warnig: Component not found: " + name);
-	return nullptr; 
-}
-
-//std::shared_ptr<CollisionComponent> GameObject::GetCollisionComponent()
-//{
-//	for (const auto& [name, comp] : components_) {
-//		if (auto collisionComp = std::dynamic_pointer_cast<CollisionComponent>(comp)) {
-//			return collisionComp;
-//		}
-//	}
-//	return nullptr;
-//}
 
 void GameObject::ApplyTransformToObject3D(CameraManager* camera)
 {

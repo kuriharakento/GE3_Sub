@@ -31,17 +31,17 @@ void TitleScene::Initialize()
 	JsonEditorManager::GetInstance()->Initialize();
 
 	//ゲームオブジェクトの生成
-	player = std::make_unique<Player>();
+	player = std::make_unique<Player>("player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
-	player->GetGameObject()->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
-	player->GetGameObject()->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
+	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
+	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 
 	//衝突コンポーネントの追加
 	/*auto playerCollision = std::make_shared<CollisionComponent>(player.get(),std::make_shared<ColliderAABB>());
 	playerCollision->SetDefaultCallbacks();
 	player->AddComponent("Collision", playerCollision);*/
 
-	enemy = std::make_unique<GameObject>();
+	enemy = std::make_unique<GameObject>("enemy");
 	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
 	enemy->SetPosition({ 0.0f,1.0f,10.0f });
 	//衝突コンポーネントの追加

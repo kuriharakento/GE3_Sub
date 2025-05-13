@@ -2,7 +2,6 @@
 
 void Character::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager)
 {
-    gameObject_ = std::make_unique<GameObject>();
     gameObject_->Initialize(object3dCommon, lightManager);
 }
 
