@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_set>
 
+#include "OBBColliderComponent.h"
 #include "application/GameObject/component/base/ICollisionComponent.h"
 
 class AABBColliderComponent;
@@ -24,7 +25,8 @@ private:
     CollisionManager& operator=(const CollisionManager&) = delete;
 
     // 衝突判定の具体的な関数群
-    static bool CheckCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);
+    bool CheckCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);
+	bool CheckCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);
 
     // ペアを識別するためのキー
     struct CollisionPair {

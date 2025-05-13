@@ -166,6 +166,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Skydome.cpp" />
     <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
     <ClCompile Include="application\GameObject\character\player\Player.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\OBBColliderComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -189,6 +190,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\math\AABB.h" />
     <ClInclude Include="engine\math\Easing.h" />
     <ClInclude Include="engine\math\MathUtils.h" />
+    <ClInclude Include="engine\math\OBB.h" />
     <ClInclude Include="engine\math\Vector2.h" />
     <ClInclude Include="engine\math\Vector3.h" />
     <ClInclude Include="engine\math\Vector4.h" />
@@ -248,6 +250,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\character\player\Player.h" />
     <ClInclude Include="application\GameObject\component\action\FireComponent.h" />
     <ClInclude Include="application\GameObject\component\base\IActionComponent.h" />
+    <ClInclude Include="application\GameObject\component\collision\OBBColliderComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

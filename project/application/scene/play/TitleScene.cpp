@@ -40,14 +40,14 @@ void TitleScene::Initialize()
 	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
 	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 	//衝突判定コンポーネント
-	player->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(player.get()));
+	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
 	
 
 	enemy = std::make_unique<GameObject>("enemy");
 	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
 	enemy->SetPosition({ 0.0f,1.0f,10.0f });
 	//衝突判定コンポーネント
-	enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
+	enemy->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(enemy.get()));
 
 
 	//オービットカメラワークの生成

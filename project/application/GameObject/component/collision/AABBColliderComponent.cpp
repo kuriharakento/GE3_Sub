@@ -3,6 +3,9 @@
 
 AABBColliderComponent::AABBColliderComponent(GameObject* owner) : ICollisionComponent(owner), aabb_(Vector3(), Vector3())
 {
+	// AABBの初期化
+	aabb_.min_ = owner->GetPosition() - owner->GetScale();
+	aabb_.max_ = owner->GetPosition() + owner->GetScale();
 }
 
 void AABBColliderComponent::Update(GameObject* owner)

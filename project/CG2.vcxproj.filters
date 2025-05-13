@@ -67,6 +67,7 @@
     <ClCompile Include="application\GameObject\component\collision\CollisionManager.cpp" />
     <ClCompile Include="application\GameObject\component\base\ICollisionComponent.cpp" />
     <ClCompile Include="application\GameObject\component\collision\AABBColliderComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\OBBColliderComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -149,6 +150,8 @@
     <ClInclude Include="application\GameObject\component\collision\CollisionManager.h" />
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
     <ClInclude Include="engine\math\AABB.h" />
+    <ClInclude Include="application\GameObject\component\collision\OBBColliderComponent.h" />
+    <ClInclude Include="engine\math\OBB.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />
