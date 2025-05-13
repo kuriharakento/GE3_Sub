@@ -4,6 +4,8 @@
 #include "math/AABB.h"
 #include "application/GameObject/component/collision/AABBColliderComponent.h"
 #include "application/GameObject/component/base/ICollisionComponent.h"
+#include "application/GameObject/base/GameObject.h"
+#include "base/Logger.h"
 
 CollisionManager* CollisionManager::instance_ = nullptr; // シングルトンインスタンス
 
@@ -62,11 +64,15 @@ void CollisionManager::CheckCollisions()
                 if (!currentCollisions_.contains(pair)) {
                     a->CallOnEnter(b->GetOwner());
                     b->CallOnEnter(a->GetOwner());
+                    //ログで確認できるように表示
+					LogCollision("Enter", a, b);
                 }
                 else {
 					//衝突している間の処理
                     a->CallOnStay(b->GetOwner());
                     b->CallOnStay(a->GetOwner());
+					//ログで確認できるように表示
+					LogCollision("Stay", a, b);
                 }
             }
         }
@@ -78,6 +84,8 @@ void CollisionManager::CheckCollisions()
             //衝突が離れた場合の処理
             pair.a->CallOnExit(pair.b->GetOwner());
             pair.b->CallOnExit(pair.a->GetOwner());
+			//ログで確認できるように表示
+			LogCollision("Exit", pair.a, pair.b);
         }
     }
 
@@ -217,4 +225,31 @@ bool CollisionManager::CheckCollision(const AABBColliderComponent* a, const OBBC
 
     // 衝突している
     return true;
+}
+
+std::string CollisionManager::GetColliderTypeString(ColliderType type) const
+{
+	switch (type) {
+	case ColliderType::AABB:
+		return "AABB";
+	case ColliderType::Sphere:
+		return "Sphere";
+	case ColliderType::OBB:
+		return "OBB";
+	}
+	return "Unknown";
+}
+
+void CollisionManager::LogCollision(const std::string& phase, const ICollisionComponent* a, const ICollisionComponent* b)
+{
+#ifdef _DEBUG   // デバッグビルド時のみログを出力
+    std::string tagA = a->GetOwner()->GetTag();
+    std::string tagB = b->GetOwner()->GetTag();
+    std::string typeAString = GetColliderTypeString(a->GetColliderType());
+    std::string typeBString = GetColliderTypeString(b->GetColliderType());
+
+    Logger::Log("| Collision " + phase + " " +
+        (phase == "Exit" ? "<-" : (phase == "Enter" ? "->" : "=="))
+        + " | " + tagA + ": " + typeAString + ", " + tagB + ": " + typeBString + "\n");
+#endif
 }

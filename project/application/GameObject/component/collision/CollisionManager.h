@@ -29,6 +29,11 @@ private:
 	bool CheckCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);
     bool CheckCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);
 
+	//コライダータイプから文字列を取得
+    std::string GetColliderTypeString(ColliderType type) const;
+	//　衝突したらログを出力
+    void LogCollision(const std::string& phase, const ICollisionComponent* a, const ICollisionComponent* b);
+
     // ペアを識別するためのキー
     struct CollisionPair {
         const ICollisionComponent* a;
