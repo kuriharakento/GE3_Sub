@@ -40,7 +40,7 @@ void TitleScene::Initialize()
 	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
 	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 	//衝突判定コンポーネント
-	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
+	player->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(player.get()));
 	
 
 	enemy = std::make_unique<GameObject>("enemy");

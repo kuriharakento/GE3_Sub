@@ -14,4 +14,7 @@ struct AABB
 	Vector3 GetSize() const {
 		return max_ - min_;
 	}
+	Vector3 GetHalfSize() const {
+		return (max_ - min_) * 0.5f;
+	}
 };

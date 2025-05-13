@@ -24,9 +24,10 @@ private:
     CollisionManager(const CollisionManager&) = delete;
     CollisionManager& operator=(const CollisionManager&) = delete;
 
-    // 衝突判定の具体的な関数群
+    // 衝突判定関数
     bool CheckCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);
 	bool CheckCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);
+    bool CheckCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);
 
     // ペアを識別するためのキー
     struct CollisionPair {

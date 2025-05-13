@@ -46,6 +46,13 @@ void CollisionManager::CheckCollisions()
             else if (typeA == ColliderType::OBB && typeB == ColliderType::OBB) {
                 isHit = CheckCollision(static_cast<OBBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
             }
+			/* AABB vs OBB */
+			else if (typeA == ColliderType::AABB && typeB == ColliderType::OBB) {
+				isHit = CheckCollision(static_cast<AABBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+			}
+			else if (typeA == ColliderType::OBB && typeB == ColliderType::AABB) {
+				isHit = CheckCollision(static_cast<AABBColliderComponent*>(b), static_cast<OBBColliderComponent*>(a));
+			}
             
 			// 衝突している場合
             if (isHit) {
@@ -148,5 +155,66 @@ bool CollisionManager::CheckCollision(const OBBColliderComponent* a, const OBBCo
         }
     }
 	// 衝突
+    return true;
+}
+
+bool CollisionManager::CheckCollision(const AABBColliderComponent* a, const OBBColliderComponent* b)
+{
+    const AABB& aBox = a->GetAABB();
+    const OBB& obb = b->GetOBB();
+
+    // OBBの回転行列（各軸ベクトル）
+    Matrix4x4 rot = obb.rotate;
+
+    // OBBの軸ベクトル
+    Vector3 axes[3] = {
+        Vector3::Normalize(Vector3(rot.m[0][0], rot.m[0][1], rot.m[0][2])),
+        Vector3::Normalize(Vector3(rot.m[1][0], rot.m[1][1], rot.m[1][2])),
+        Vector3::Normalize(Vector3(rot.m[2][0], rot.m[2][1], rot.m[2][2]))
+    };
+
+    // AABBの中心座標をOBBのローカル空間に変換
+    Vector3 toCenter = aBox.GetCenter() - obb.center;
+
+    // AABBの半分のサイズ
+	Vector3 aHalfSize = aBox.GetHalfSize();
+
+    // 15の分離軸
+    Vector3 testAxes[6];
+    int axisCount = 0;
+
+    // OBBの軸をテスト軸に追加
+    for (int i = 0; i < 3; ++i) testAxes[axisCount++] = axes[i];
+
+    // AABBの軸（X, Y, Z）をテスト軸に追加
+    testAxes[axisCount++] = Vector3(1, 0, 0);
+    testAxes[axisCount++] = Vector3(0, 1, 0);
+    testAxes[axisCount++] = Vector3(0, 0, 1);
+
+    // 各軸で分離軸テストを実行
+    for (int i = 0; i < axisCount; ++i) {
+        const Vector3& axis = testAxes[i];
+
+        // AABBの射影幅
+        float aProj = std::abs(Vector3::Dot(axis, Vector3(aHalfSize.x, 0.0f, 0.0f))) +
+            std::abs(Vector3::Dot(axis, Vector3(0.0f, aHalfSize.y, 0.0f))) +
+            std::abs(Vector3::Dot(axis, Vector3(0.0f, 0.0f, aHalfSize.z)));
+
+        // OBBの射影幅
+        float bProj = std::abs(Vector3::Dot(axes[0] * obb.size.x, axis)) +
+            std::abs(Vector3::Dot(axes[1] * obb.size.y, axis)) +
+            std::abs(Vector3::Dot(axes[2] * obb.size.z, axis));
+
+        // AABBとOBBの中心の距離
+        float distance = std::abs(Vector3::Dot(toCenter, axis));
+
+        // 分離軸テスト（衝突していない場合は離れている）
+        if (distance > aProj + bProj) {
+            // 非衝突
+            return false;
+        }
+    }
+
+    // 衝突している
     return true;
 }
