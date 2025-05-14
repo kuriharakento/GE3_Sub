@@ -56,6 +56,17 @@ struct Vector3 {
         return (a - b).LengthSquared();
     }
 
+    static Vector3 Rotate(const Vector3& vec, const Vector3& axis, float angleRad)
+    {
+        Vector3 normAxis = Normalize(axis);
+        float cosTheta = std::cos(angleRad);
+        float sinTheta = std::sin(angleRad);
+
+        return vec * cosTheta +
+            Cross(normAxis, vec) * sinTheta +
+            normAxis * Dot(normAxis, vec) * (1 - cosTheta);
+    }
+
     // --- 演算子 ---
     Vector3 operator+(const Vector3& other) const {
         return Vector3{ x + other.x, y + other.y, z + other.z };
