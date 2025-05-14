@@ -13,7 +13,6 @@ public:
 	void LoadJson(const std::string& filePath);
 	void SetLoop(bool loop) { loop_ = loop; }
 	void SetTarget(const Vector3* target) { targetPtr_ = target; }
-	void SetlineManager(LineManager* lineManager) { lineManager_ = lineManager; }
 	void SetLookFront(bool lookFront) { lookFront = lookFront; }
 	void DrawSplineLine();;
 

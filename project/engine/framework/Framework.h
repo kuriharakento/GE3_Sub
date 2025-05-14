@@ -62,8 +62,6 @@ protected: //メンバ変数
 	std::unique_ptr<SceneFactory> sceneFactory_;
 	//ライトマネージャー
 	std::unique_ptr<LightManager> lightManager_;
-	//線マネージャー
-	std::unique_ptr<LineManager> lineManager_;
 	//
 	std::unique_ptr<RenderTexture> renderTexture_;
 	//

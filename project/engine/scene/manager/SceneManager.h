@@ -36,8 +36,6 @@ public: //アクセッサ
 	Object3dCommon* GetObject3dCommon() const { return context_.object3dCommon; }
 	//ライトマネージャーの取得
 	LightManager* GetLightManager() const { return context_.lightManager; }
-	//線マネージャーの取得
-	LineManager* GetLineManager() const { return context_.linesManager; }
 	//ポストプロセスパスの取得
 	PostProcessPass* GetPostProcessPass() const { return context_.postProcessPass; }
 

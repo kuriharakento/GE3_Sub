@@ -14,6 +14,5 @@ struct SceneContext
     Object3dCommon* object3dCommon;
 	CameraManager* cameraManager;
 	LightManager* lightManager;
-	LineManager* linesManager;
 	PostProcessPass* postProcessPass;
 };
