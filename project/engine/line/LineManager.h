@@ -19,8 +19,16 @@ public:
     void DrawCube(const Vector3& center, float size, const Vector4& color);
 	//球の描画
 	void DrawSphere(const Vector3& center, float radius, const Vector4& color);
-	//グリッドの描画
-	void DrawGrid(float gridSize, float gridSpacing, const Vector4& color);
+	// グリッドの描画
+    void DrawGrid(float gridSize, float gridSpacing, const Vector4& color);
+	// 矢印の描画
+	void DrawArrow(const Vector3& start, const Vector3& direction, float length, const Vector4& color);
+	// 座標軸の描画
+	void DrawAxis(const Vector3& position, float scale = 1.0f);
+	// AABBの描画
+	void DrawAABB(const Vector3& min, const Vector3& max, const Vector4& color);
+	// OBBの描画
+	void DrawOBB(const Vector3& center, const Vector3& halfSize, const Matrix4x4& rotation, const Vector4& color);
 	
 private:
     std::unique_ptr<LineCommon> lineCommon_; ///< LineCommon クラスのインスタンス
