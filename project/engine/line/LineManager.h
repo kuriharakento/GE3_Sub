@@ -8,9 +8,11 @@ class CameraManager;
 
 class LineManager {
 public:
+	static LineManager* GetInstance();
     void Initialize(DirectXCommon* dxCommon,CameraManager* cameraManager);
-    void Draw();
+    void RenderLines();
     void Clear();
+	void Finalize();
 	//ラインの描画
 	void Drawline(const Vector3& start, const Vector3& end, const Vector4& color);
 	//キューブの描画
@@ -25,4 +27,11 @@ private:
     std::unique_ptr<Line> line_;             ///< Line クラスのインスタンス
     DirectXCommon* dxCommon_ = nullptr;      ///< DirectXCommon クラスのインスタンス
 	CameraManager* cameraManager_ = nullptr; ///< CameraManager クラスのインスタンス
+
+private:    //シングルトンインスタンス
+	static LineManager* instance_; ///< シングルトンインスタンス
+	LineManager() = default;        ///< コンストラクタ
+	~LineManager() = default;       ///< デストラクタ
+	LineManager(const LineManager&) = delete; ///< コピーコンストラクタ
+	LineManager& operator=(const LineManager&) = delete; ///< 代入演算子
 };

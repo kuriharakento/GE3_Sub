@@ -69,9 +69,8 @@ void Framework::Initialize()
 	lightManager_ = std::make_unique<LightManager>();
 	lightManager_->Initialize(dxCommon_.get());
 
-	//線マネージャーの初期化
-	lineManager_ = std::make_unique<LineManager>();
-	lineManager_->Initialize(dxCommon_.get(),cameraManager_.get());
+	//ラインマネージャーの初期化
+	LineManager::GetInstance()->Initialize(dxCommon_.get(), cameraManager_.get());
 
 	//レンダーテクスチャの初期化
 	renderTexture_ = std::make_unique<RenderTexture>();
@@ -99,7 +98,7 @@ void Framework::Finalize()
 	Input::GetInstance()->Finalize();				//入力の解放
 	Audio::GetInstance()->Finalize();				//オーディオの解放
 	lightManager_.reset();							//ライトマネージャーの解放
-	lineManager_.reset();							//線マネージャーの解放
+	LineManager::GetInstance()->Finalize();			//ラインマネージャーの解放
 	renderTexture_.reset();							//レンダーテクスチャの解放
 	postProcessPass.reset();								//コピー用のパスの解放
 }

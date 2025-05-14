@@ -4,6 +4,17 @@
 
 #include "manager/CameraManager.h"
 
+LineManager* LineManager::instance_ = nullptr; // シングルトンインスタンス
+
+LineManager* LineManager::GetInstance()
+{
+	if (instance_ == nullptr)
+	{
+		instance_ = new LineManager();
+	}
+	return instance_;
+}
+
 void LineManager::Initialize(DirectXCommon* dxCommon, CameraManager* cameraManager)
 {
 	dxCommon_ = dxCommon;
@@ -18,7 +29,16 @@ void LineManager::Clear() {
     line_->Clear();
 }
 
-void LineManager::Draw() {
+void LineManager::Finalize()
+{
+	line_.reset();
+	lineCommon_.reset();
+	dxCommon_ = nullptr;
+	cameraManager_ = nullptr;
+	instance_ = nullptr;
+}
+
+void LineManager::RenderLines() {
 	//頂点データ、行列データの更新
     line_->Update(cameraManager_->GetActiveCamera());
 	//描画

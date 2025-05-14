@@ -40,4 +40,3 @@ private: //メンバ変数
 	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
 	std::unique_ptr<SplineCamera> splineCamera_;
 };
-
