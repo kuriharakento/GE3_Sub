@@ -26,7 +26,7 @@ void CollisionManager::Unregister(ICollisionComponent* collider) {
 
 void CollisionManager::CheckCollisions()
  {
-    std::unordered_set<CollisionPair, CollisionPairHash> newCollisions;
+	std::unordered_set<CollisionPair, CollisionPairHash> newCollisions;
 
     for (size_t i = 0; i < colliders_.size(); ++i) {
         for (size_t j = i + 1; j < colliders_.size(); ++j) {
