@@ -24,6 +24,7 @@ struct LineSphere
 class Line {
 public:
     Line() = default;
+	~Line();
     void Initialize(LineCommon* lineCommon);
     void AddLine(const Vector3& start, const Vector3& end, const Vector4& color);
 	void Update(Camera* camera);

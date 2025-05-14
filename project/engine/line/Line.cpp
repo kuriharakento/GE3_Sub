@@ -2,6 +2,21 @@
 #include "base/DirectXCommon.h"
 #include "base/Camera.h"
 
+Line::~Line()
+{
+	if (vertexResource_) {
+		vertexResource_->Unmap(0, nullptr);
+		vertexResource_.Reset();
+	}
+	if (wvpResource_) {
+		wvpResource_->Unmap(0, nullptr);
+		wvpResource_.Reset();
+	}
+	vertexData_ = nullptr;
+	wvpData_ = nullptr;
+	vertices_.clear();
+}
+
 void Line::Initialize(LineCommon* lineCommon) {
     lineCommon_ = lineCommon;
 	CreateVertexData();

@@ -1,5 +1,7 @@
 #include "OBBColliderComponent.h"
 #include "application/GameObject/base/GameObject.h"
+#include "lighting/VectorColorCodes.h"
+#include "line/LineManager.h"
 
 OBBColliderComponent::OBBColliderComponent(GameObject* owner) : ICollisionComponent(owner)
 {
@@ -19,4 +21,6 @@ void OBBColliderComponent::Update(GameObject* owner)
 	obb_.center = pos;
 	obb_.rotate = MakeRotateMatrix(rotate);
 	obb_.size = size;
+	// OBBを可視化する
+	LineManager::GetInstance()->DrawOBB(obb_, VectorColorCodes::Cyan);
 }

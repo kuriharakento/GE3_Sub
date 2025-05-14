@@ -188,18 +188,18 @@ void LineManager::DrawAxis(const Vector3& position, float scale)
     Drawline(position, position + Vector3{ 0, 0, scale }, VectorColorCodes::Blue);
 }
 
-void LineManager::DrawAABB(const Vector3& min, const Vector3& max, const Vector4& color)
+void LineManager::DrawAABB(const AABB& aabb, const Vector4& color)
 {
     // 8頂点を計算
     Vector3 v[8] = {
-        {min.x, min.y, min.z},
-        {max.x, min.y, min.z},
-        {max.x, max.y, min.z},
-        {min.x, max.y, min.z},
-        {min.x, min.y, max.z},
-        {max.x, min.y, max.z},
-        {max.x, max.y, max.z},
-        {min.x, max.y, max.z},
+        {aabb.min_.x, aabb.min_.y, aabb.min_.z},
+        {aabb.max_.x, aabb.min_.y, aabb.min_.z},
+        {aabb.max_.x, aabb.max_.y, aabb.min_.z},
+        {aabb.min_.x, aabb.max_.y, aabb.min_.z},
+        {aabb.min_.x, aabb.min_.y, aabb.max_.z},
+        {aabb.max_.x, aabb.min_.y, aabb.max_.z},
+        {aabb.max_.x, aabb.max_.y, aabb.max_.z},
+        {aabb.min_.x, aabb.max_.y, aabb.max_.z},
     };
 
     // 12本のエッジを線で描画
@@ -213,9 +213,10 @@ void LineManager::DrawAABB(const Vector3& min, const Vector3& max, const Vector4
     Drawline(v[2], v[6], color); Drawline(v[3], v[7], color);
 }
 
-void LineManager::DrawOBB(const Vector3& center, const Vector3& halfSize, const Matrix4x4& rotation,
-	const Vector4& color)
+void LineManager::DrawOBB(const OBB& obb, const Vector4& color)
 {
+    Vector3 halfSize = obb.size;
+
     // ローカル座標での8頂点
     Vector3 localPoints[8] = {
         {-halfSize.x, -halfSize.y, -halfSize.z},
@@ -231,7 +232,7 @@ void LineManager::DrawOBB(const Vector3& center, const Vector3& halfSize, const 
     // 回転 + 移動適用
     Vector3 worldPoints[8];
     for (int i = 0; i < 8; ++i) {
-        worldPoints[i] = MathUtils::Transform(localPoints[i], rotation) + center;
+        worldPoints[i] = MathUtils::Transform(localPoints[i], obb.rotate) + obb.center;
     }
 
     // 12本のエッジを描画
