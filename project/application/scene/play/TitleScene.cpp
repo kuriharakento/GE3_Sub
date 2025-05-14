@@ -264,10 +264,12 @@ void TitleScene::Draw3D()
 	skydome_->Draw();
   
 	// ラインの描画
-	sceneManager_->GetLineManager()->DrawCube(cubePos1_, 1.0f, VectorColorCodes::Red);
-	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
-	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
-	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
+	LineManager::GetInstance()->DrawGrid(
+		300.0f,
+		5.0f,
+		Vector4(1.0f, 1.0f, 1.0f, 1.0f)
+	);
+
 	splineCamera_->DrawSplineLine();
 }
 
