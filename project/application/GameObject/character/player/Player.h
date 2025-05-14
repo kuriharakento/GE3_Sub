@@ -13,4 +13,3 @@ public:
 private:
 	void CollisionSettings(ICollisionComponent* collider) override;
 };
-

@@ -8,13 +8,16 @@ struct AABB
 	AABB() : min_(), max_() {}
 	AABB(const Vector3& min, const Vector3& max) : min_(min), max_(max) {}
 
-	Vector3 GetCenter() const {
+	Vector3 GetCenter() const
+	{
 		return (min_ + max_) * 0.5f;
 	}
-	Vector3 GetSize() const {
+	Vector3 GetSize() const
+	{
 		return max_ - min_;
 	}
-	Vector3 GetHalfSize() const {
+	Vector3 GetHalfSize() const
+	{
 		return (max_ - min_) * 0.5f;
 	}
 };

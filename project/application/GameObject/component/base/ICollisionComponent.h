@@ -39,7 +39,7 @@ protected:
 	GameObject* owner_ = nullptr;
 
 private:
-	CollisionCallback onEnter_= nullptr;
+	CollisionCallback onEnter_ = nullptr;
 	CollisionCallback onStay_ = nullptr;
 	CollisionCallback onExit_ = nullptr;
 };

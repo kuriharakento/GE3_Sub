@@ -25,12 +25,12 @@ void Player::CollisionSettings(ICollisionComponent* collider)
 	// 衝突時の処理を設定
 	collider->SetOnEnter([this](GameObject* other) {
 
-	});
+						 });
 
 	collider->SetOnStay([this](GameObject* other) {
 
-	});
+						});
 	collider->SetOnExit([this](GameObject* other) {
 
-	});
+						});
 }

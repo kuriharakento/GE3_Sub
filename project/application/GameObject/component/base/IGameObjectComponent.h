@@ -3,8 +3,9 @@
 class CameraManager;
 class GameObject;
 
-class IGameObjectComponent {
+class IGameObjectComponent
+{
 public:
-    virtual ~IGameObjectComponent() = default;
+	virtual ~IGameObjectComponent() = default;
 	virtual void Update(GameObject* owner) = 0;
 };

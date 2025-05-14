@@ -6,7 +6,8 @@
 #include "application/GameObject/component/base/IGameObjectComponent.h"
 #include "base/GraphicsTypes.h"
 
-class GameObject {
+class GameObject
+{
 public:
 	explicit GameObject(std::string tag = "");	// コンストラクタ
 	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera = nullptr);		// 初期化
@@ -46,8 +47,10 @@ private:
 template <typename T>
 std::shared_ptr<T> GameObject::GetComponent() const
 {
-	for (const auto& [_, comp] : components_) {
-		if (auto casted = std::dynamic_pointer_cast<T>(comp)) {
+	for (const auto& [_, comp] : components_)
+	{
+		if (auto casted = std::dynamic_pointer_cast<T>(comp))
+		{
 			return casted;
 		}
 	}
