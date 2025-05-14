@@ -1,6 +1,8 @@
 #pragma once
 
 #include <application/GameObject/base/GameObject.h>
+
+#include "application/GameObject/component/base/ICollisionComponent.h"
 #include "math/Vector3.h"
 
 class Character : public GameObject
@@ -11,6 +13,8 @@ public:
 	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager);
     virtual void Update();
     virtual void Draw(CameraManager* camera);
+    void AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp);
+   
 
     // HP
     void TakeDamage(int damage);
@@ -47,4 +51,9 @@ protected:
     bool isInvincible_ = false;
     float invincibleTimer_ = 0.0f; // 無敵時間の残り
     bool isControllable_ = true;   // 操作可能フラグ
+
+private:
+	//　当たり判定コンポーネントを追加した際の処理
+    virtual void CollisionSettings(ICollisionComponent* collider) {};
+
 };

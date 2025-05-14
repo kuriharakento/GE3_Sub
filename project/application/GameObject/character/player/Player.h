@@ -10,9 +10,7 @@ public:
 	void Update() override;
 	void Draw(CameraManager* camera) override;
 
-	void AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp);
-
 private:
-	void CollisionSettings(ICollisionComponent* collider);
+	void CollisionSettings(ICollisionComponent* collider) override;
 };
 

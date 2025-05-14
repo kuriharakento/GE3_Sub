@@ -26,6 +26,17 @@ void Character::Draw(CameraManager* camera)
     GameObject::Draw(camera);
 }
 
+void Character::AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp)
+{
+	if (auto collider = std::dynamic_pointer_cast<ICollisionComponent>(comp))
+	{
+		// 衝突判定コンポーネントの場合は、衝突時の処理を設定
+		CollisionSettings(collider.get());
+	}
+	// コンポーネントを追加
+	GameObject::AddComponent(name, comp);
+}
+
 void Character::TakeDamage(int damage)
 {
     if (isInvincible_) return; // 無敵状態ならダメージを受けない
