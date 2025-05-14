@@ -263,11 +263,11 @@ void TitleScene::Draw3D()
 	//スカイドームの描画
 	skydome_->Draw();
   
-	// ラインの描画
+	// グリッドの描画
 	LineManager::GetInstance()->DrawGrid(
 		300.0f,
 		5.0f,
-		Vector4(1.0f, 1.0f, 1.0f, 1.0f)
+		VectorColorCodes::White
 	);
 
 	splineCamera_->DrawSplineLine();
