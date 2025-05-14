@@ -63,7 +63,6 @@ void TitleScene::Initialize()
 	//スプラインカメラの生成
 	splineCamera_ = std::make_unique<SplineCamera>();
 	splineCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
-	splineCamera_->SetlineManager(sceneManager_->GetLineManager());
 	splineCamera_->LoadJson("spline.json");
 	splineCamera_->Start(0.001f, true);
 	splineCamera_->SetTarget(&player->GetPosition());
@@ -265,7 +264,10 @@ void TitleScene::Draw3D()
 	skydome_->Draw();
   
 	// ラインの描画
-	sceneManager_->GetLineManager()->DrawGrid(300.0f, 5.0f, VectorColorCodes::White);
+	sceneManager_->GetLineManager()->DrawCube(cubePos1_, 1.0f, VectorColorCodes::Red);
+	sceneManager_->GetLineManager()->DrawCube(cubePos2_, 1.0f, VectorColorCodes::Blue);
+	sceneManager_->GetLineManager()->DrawSphere(spherePos1_, 0.5f, VectorColorCodes::Green);
+	sceneManager_->GetLineManager()->DrawSphere(spherePos2_, 0.5f, VectorColorCodes::Yellow);
 	splineCamera_->DrawSplineLine();
 }
 

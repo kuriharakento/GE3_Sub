@@ -109,8 +109,6 @@ void SplineCamera::LoadJson(const std::string& filePath)
 
 void SplineCamera::DrawSplineLine()
 {
-    if (!lineManager_) return; // LineManager が初期化されていない場合は何もしない
-
     const auto& points = splineData_->GetControlPoints();
     if (points.size() < 4) return; // 4つ以上のポイントが必要
 
@@ -131,7 +129,7 @@ void SplineCamera::DrawSplineLine()
             );
 
             // 線を描画
-            lineManager_->Drawline(prevPoint, currentPoint, { 1.0f, 0.0f, 0.0f, 1.0f }); // 赤色の線
+            LineManager::GetInstance()->Drawline(prevPoint, currentPoint, { 1.0f, 0.0f, 0.0f, 1.0f }); // 赤色の線
             prevPoint = currentPoint; // 現在の点を次の始点に設定
         }
     }

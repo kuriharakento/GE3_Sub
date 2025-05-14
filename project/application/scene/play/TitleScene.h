@@ -46,4 +46,3 @@ private: //メンバ変数
 	std::unique_ptr<Player> player;
 	std::unique_ptr<GameObject> enemy;
 };
-

@@ -19,7 +19,6 @@ void MyGame::Initialize()
 		objectCommon_.get(),
 		cameraManager_.get(),
 		lightManager_.get(),
-		lineManager_.get(),
 		postProcessPass.get(),
 	};
 
@@ -100,7 +99,7 @@ void MyGame::Draw()
 	sceneManager_->Draw3D();
 
 	//ラインの描画
-	lineManager_->Draw();
+	LineManager::GetInstance()->RenderLines();
 
 	//パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
