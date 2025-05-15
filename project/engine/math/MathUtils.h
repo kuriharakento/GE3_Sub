@@ -7,6 +7,11 @@ namespace MathUtils
 	float RandomFloat(float min, float max);
 	Vector3 RandomVector3(Vector3 min, Vector3 max);
 
+	//行列から成分を取得,設定する関数
+	Vector3 GetMatrixTranslate(const Matrix4x4& matrix);
+	Vector3 GetMatrixScale(const Matrix4x4& matrix);
+	Vector3 GetMatrixRotate(const Matrix4x4& matrix);
+
 	///座標変換
 	Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 

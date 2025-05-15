@@ -2,6 +2,8 @@
 
 #include "audio/Audio.h"
 #include "base/PostProcessPass.h"
+#include "effects/component/GravityComponent.h"
+#include "effects/component/MoveWithVelocityComponent.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
@@ -71,13 +73,16 @@ void TitleScene::Initialize()
 	//エミッターの初期化
 	emitter_ = std::make_unique<ParticleEmitter>();
 	emitter_->Initialize("test", "./Resources/uvChecker.png");
-	emitter_->SetEmitRange({ -1.0f, 0.0f, -1.0f }, { 1.0f, 2.0f, 1.0f });
+	emitter_->SetEmitRange({ -2.0f,-2.0f,-2.0f }, { 2.0f, 2.0f, 2.0f });
 	emitter_->Start(
 		{ 2.0f,2.0f,2.0f },
-		100,
-		5.0f,
+		3,
+		10.0f,
 		true
 	);
+	emitter_->SetEmitRate(0.2f);
+	//試しにコンポーネントを追加
+	emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.5f, 0.0f }));
 }
 
 void TitleScene::Finalize()
