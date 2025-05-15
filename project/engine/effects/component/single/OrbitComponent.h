@@ -1,6 +1,7 @@
 #pragma once
-#include "IParticleBehaviorComponent.h"
 #include <cmath>
+
+#include "effects/component/interface/IParticleBehaviorComponent.h"
 
 class OrbitComponent : public IParticleBehaviorComponent
 {

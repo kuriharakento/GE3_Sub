@@ -1,5 +1,5 @@
 #pragma once
-#include "IParticleBehaviorComponent.h"
+#include "effects/component/interface/IParticleBehaviorComponent.h"
 
 class DragComponent : public IParticleBehaviorComponent
 {

@@ -1,6 +1,5 @@
 #pragma once
-#include "IParticleBehaviorComponent.h"
-#include "base/GraphicsTypes.h"
+#include "effects/component/interface/IParticleBehaviorComponent.h"
 
 class GravityComponent : public IParticleBehaviorComponent
 {

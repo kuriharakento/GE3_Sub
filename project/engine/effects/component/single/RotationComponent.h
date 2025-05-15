@@ -1,6 +1,6 @@
 #pragma once
-#include "IParticleBehaviorComponent.h"
 #include "base/GraphicsTypes.h"
+#include "effects/component/interface/IParticleBehaviorComponent.h"
 
 class RotationComponent : public IParticleBehaviorComponent
 {

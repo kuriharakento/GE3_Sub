@@ -3,7 +3,7 @@
 #include <list>
 #include <string>
 #include "ParticleGroup.h"
-#include "effects/component/IParticleComponent.h"
+#include "effects/component/interface/IParticleComponent.h"
 
 class ParticleEmitter
 {

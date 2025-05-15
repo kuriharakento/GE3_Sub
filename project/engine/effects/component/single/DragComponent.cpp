@@ -1,5 +1,7 @@
 #include "DragComponent.h"
 
+#include "base/GraphicsTypes.h"
+
 DragComponent::DragComponent(float drag)
     : dragFactor_(drag)
 {

@@ -1,6 +1,6 @@
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
-#include "component/IParticleGroupComponent.h"
+#include "component/interface/IParticleGroupComponent.h"
 #include "math/MathUtils.h"
 
 ParticleEmitter::~ParticleEmitter()

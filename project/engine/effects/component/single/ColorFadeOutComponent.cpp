@@ -1,5 +1,7 @@
 #include "ColorFadeOutComponent.h"
 
+#include "base/GraphicsTypes.h"
+
 void ColorFadeOutComponent::Update(Particle& particle)
 {
     float lifeRatio = particle.currentTime / particle.lifeTime;

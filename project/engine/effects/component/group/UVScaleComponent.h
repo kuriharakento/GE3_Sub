@@ -1,6 +1,6 @@
 #pragma once
-#include "IParticleGroupComponent.h"
 #include "effects/ParticleGroup.h"
+#include "effects/component/interface/IParticleGroupComponent.h"
 #include "math/Vector3.h"
 
 class UVScaleComponent : public IParticleGroupComponent

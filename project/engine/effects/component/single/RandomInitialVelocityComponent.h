@@ -1,6 +1,7 @@
 #pragma once
-#include "IParticleBehaviorComponent.h"
 #include <cstdlib>
+
+#include "effects/component/interface/IParticleBehaviorComponent.h"
 
 class RandomInitialVelocityComponent : public IParticleBehaviorComponent
 {
