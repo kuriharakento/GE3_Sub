@@ -4,7 +4,7 @@
 #include <memory>
 #include <wrl.h>
 
-#include "IParticleBehaviorComponent.h"
+#include "effects/component/IParticleBehaviorComponent.h"
 #include "base/GraphicsTypes.h"
 
 class SrvManager;

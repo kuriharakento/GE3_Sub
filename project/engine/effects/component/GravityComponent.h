@@ -1,0 +1,12 @@
+#pragma once
+#include "IParticleBehaviorComponent.h"
+#include "base/GraphicsTypes.h"
+
+class GravityComponent : public IParticleBehaviorComponent
+{
+public:
+    explicit GravityComponent(const Vector3& g);
+    void Update(Particle& particle) override;
+private:
+	Vector3 gravity; // 重力ベクトル
+};

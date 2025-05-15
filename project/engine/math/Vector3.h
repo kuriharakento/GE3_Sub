@@ -105,4 +105,12 @@ struct Vector3 {
     Vector3 operator-() const {
         return Vector3{ -x, -y, -z };
     }
+
+    Vector3& operator*=(float scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
+    }
 };

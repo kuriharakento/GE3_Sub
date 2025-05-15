@@ -34,7 +34,7 @@ protected:
 	Vector3 emitRangeMin_ = {};
 	Vector3 emitRangeMax_ = {};
 	// 発生頻度
-	float emitRate_ = 0.0f;
+	float emitRate_ = 5.0f;
 	// 最後生成してからの経過時間
 	float timeSinceLastEmit_ = 0.0f;
 	//発生させる数
