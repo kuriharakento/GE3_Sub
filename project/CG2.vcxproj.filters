@@ -45,7 +45,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\effects\ParticleManager.cpp" />
-    <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
     <ClCompile Include="engine\scene\MyGame.cpp" />
     <ClCompile Include="application\scene\play\TitleScene.cpp" />
     <ClCompile Include="engine\scene\manager\SceneManager.cpp" />
@@ -55,6 +54,8 @@
     <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
     <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
     <ClCompile Include="engine\effects\ParticlePipelineManager.cpp" />
+    <ClCompile Include="engine\effects\ParticleGroup.cpp" />
+    <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -105,7 +106,6 @@
     <ClInclude Include="engine\manager\SrvManager.h" />
     <ClInclude Include="engine\manager\ImGuiManager.h" />
     <ClInclude Include="engine\effects\ParticleManager.h" />
-    <ClInclude Include="engine\effects\ParticleEmitter.h" />
     <ClInclude Include="engine\scene\MyGame.h" />
     <ClInclude Include="engine\framework\Framework.h" />
     <ClInclude Include="application\scene\play\GamePlayScene.h" />
@@ -124,6 +124,9 @@
     <ClInclude Include="engine\camerawork\SplineCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
     <ClInclude Include="engine\effects\ParticlePipelineManager.h" />
+    <ClInclude Include="engine\effects\IParticleBehaviorComponent.h" />
+    <ClInclude Include="engine\effects\ParticleGroup.h" />
+    <ClInclude Include="engine\effects\ParticleEmitter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

@@ -1,0 +1,66 @@
+#pragma once
+#include <d3d12.h>
+#include <list>
+#include <memory>
+#include <wrl.h>
+
+#include "IParticleBehaviorComponent.h"
+#include "base/GraphicsTypes.h"
+
+class SrvManager;
+class DirectXCommon;
+class CameraManager;
+
+class ParticleGroup
+{
+public:
+	enum class ParticleType
+	{
+		Plane,
+		Ring,
+		Cylinder,
+	};
+
+	ParticleGroup() = default;
+	~ParticleGroup();
+
+	void Initialize(const std::string& groupName, const std::string& textureFilePath);
+	void Update(CameraManager* camera);
+	void Draw(DirectXCommon* dxCommon, SrvManager* srvManager);
+	void AddParticle(const Particle& particle) { particles.push_back(particle); }
+
+	void SetModelType(ParticleType type);
+	std::list<Particle>& GetParticles() { return particles; }
+	void SetBillboard(bool isBillboard) { isBillboard_ = isBillboard; }
+
+private:
+	void UpdateInstanceData(Particle& particle, const Matrix4x4& billboardMatrix, CameraManager* camera);
+	bool UpdateLifeTime(std::list<Particle>::iterator& itr);
+	void MakePlaneVertexData();
+	void MakeRingVertexData();
+	void MakeCylinderVertexData();
+
+private:
+	//===========================[ 描画設定用変数 ]===========================//
+	const uint32_t kMaxParticleCount = 100; // 最大パーティクル数
+
+	MaterialData materialData;
+	uint32_t instancingSrvIndex = 0;
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource = nullptr;
+	uint32_t instanceCount = 0;
+	ParticleForGPU* instancingData = nullptr;
+	//モデルの頂点データ
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
+	VertexData* vertexData = nullptr;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	bool isBillboard_ = true; // ビルボードフラグ
+	//マテリアルデータ
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+	MaterialData* modelData_ = nullptr;
+	Material* materialData_ = nullptr;
+
+	//===========================[ パーティクル ]===========================//
+
+	std::list<Particle> particles;
+};
+

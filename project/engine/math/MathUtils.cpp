@@ -1,9 +1,24 @@
 #include "MathUtils.h"
 
 #include <cassert>
+#include <random>
 
 namespace MathUtils
 {
+	float RandomFloat(float min, float max)
+	{
+		static std::random_device rd;  // シード生成器（staticで初期化は1回だけ）
+		static std::mt19937 gen(rd()); // メルセンヌ・ツイスタの乱数生成器
+
+		std::uniform_real_distribution<float> dist(min, max);
+		return dist(gen);
+	}
+
+	Vector3 RandomVector3(Vector3 min, Vector3 max)
+	{
+		return Vector3(RandomFloat(min.x, max.x), RandomFloat(min.y, max.y), RandomFloat(min.z, max.z));
+	}
+
 	Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix)
 	{
 		Vector3 result;

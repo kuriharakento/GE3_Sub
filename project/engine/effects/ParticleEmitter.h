@@ -1,35 +1,51 @@
 #pragma once
 #include <memory>
-
-#include "ParticleManager.h"
+#include "ParticleGroup.h"
 
 class ParticleEmitter
 {
 public:
-	ParticleEmitter(Transform transform,uint32_t count);
+	~ParticleEmitter();
+	void Initialize(const std::string& groupName, const std::string& textureFilePath);
+	void Update(CameraManager* camera);
+	void Draw(DirectXCommon* dxCommon, SrvManager* srvManager);
+	void AddComponent(std::shared_ptr<IParticleBehaviorComponent> component);
 
-	void Update();
-
-	void Emit();
+	void Start(const Vector3& position, uint32_t count, float duration, bool isLoop = false);
+	void StopEmit();
+	void SetEmitRange(const Vector3& min, const Vector3& max);
+	void SetEmitRate(float rate) { emitRate_ = rate; }
+	void SetEmitCount(uint32_t count) { emitCount_ = count; }
+	void SetLoop(bool loop) { isLoop_ = loop; }
 
 private:
-	//座標
-	Transform transform_ = {};
+	void Emit();
 
-	//時間
-	uint32_t time_ = 0;
-
-	//パーティクルの数
-	uint32_t count_ = 5;
-
-	//発生頻度
-	const uint32_t kEmitFrequency_ = 60;
-
-	//グループ番号
-	uint32_t groupIndex_ = 1;
-
-	//モデルのファイルパス
-	std::string modelFilePath_ = "Resources/axis.obj";
-
+protected:
+	// パーティクルのグループ名
+	std::string groupName_ = "";
+	// パーティクルグループ
+	std::unique_ptr<ParticleGroup> particleGroup_ = nullptr;
+	//　コンポーネントのリスト
+	std::list<std::shared_ptr<IParticleBehaviorComponent>> behaviorComponents_;
+	// パーティクルの発生位置
+	Vector3 position_ = {};
+	// 発生範囲の最小,最大座標
+	Vector3 emitRangeMin_ = {};
+	Vector3 emitRangeMax_ = {};
+	// 発生頻度
+	float emitRate_ = 0.0f;
+	// 最後生成してからの経過時間
+	float timeSinceLastEmit_ = 0.0f;
+	//発生させる数
+	uint32_t emitCount_ = 3;
+	// ループフラグ
+	bool isLoop_ = false;
+	// 発生させてるか
+	bool isPlaying_ = false;
+	// 発生させる時間
+	float emitTime_ = 0.0f;
+	// 継続時間
+	float duration_ = 0.0f;
 };
 

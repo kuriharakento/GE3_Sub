@@ -46,9 +46,7 @@ void TitleScene::Initialize()
 	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
 
 	//パーティクルグループの作成
-	ParticleManager::GetInstance()->CreateParticleGroup("plane", "./Resources/gradationLine.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("Ring", "./Resources/uvChecker.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("test", "./Resources/uvChecker.png");
+
 
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
@@ -69,6 +67,17 @@ void TitleScene::Initialize()
 	splineCamera_->LoadJson("spline.json");
 	splineCamera_->Start(0.001f, true);
 	splineCamera_->SetTarget(&object3d_->GetTranslate());
+
+	//エミッターの初期化
+	emitter_ = std::make_unique<ParticleEmitter>();
+	emitter_->Initialize("test", "./Resources/uvChecker.png");
+	emitter_->SetEmitRange({ -1.0f, 0.0f, -1.0f }, { 1.0f, 2.0f, 1.0f });
+	emitter_->Start(
+		{ 2.0f,2.0f,2.0f },
+		100,
+		5.0f,
+		true
+	);
 }
 
 void TitleScene::Finalize()
@@ -192,61 +201,7 @@ void TitleScene::Update()
 #pragma region Particle
 	if (ImGui::CollapsingHeader("Particle"))
 	{
-		static Vector3 pos = {};
-		ImGui::DragFloat3("Emit pos", &pos.x);
-		//ビルボードの有効無効
-		if (ImGui::Button("Billboard On"))
-		{
-			ParticleManager::GetInstance()->SetBillboard("test", true);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Billboard Off"))
-		{
-			ParticleManager::GetInstance()->SetBillboard("test", false);
-		}
-		//生成
-		if (ImGui::Button("Emit"))
-		{
-			ParticleManager::GetInstance()->Emit("test", pos, 100);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Emit Ring"))
-		{
-			ParticleManager::GetInstance()->EmitRing("test", pos,5);
-			ParticleManager::GetInstance()->SetRandomRotate("test");
-			//ParticleManager::GetInstance()->SetRandomScale("test");
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Emit Plane"))
-		{
-			ParticleManager::GetInstance()->EmitPlane("test", pos, 100);
-			ParticleManager::GetInstance()->SetRandomRotate("test");
-			//ParticleManager::GetInstance()->SetRandomScale("test");
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Emit Cylinder"))
-		{
-			ParticleManager::GetInstance()->EmitCylinder("test", pos, 1);
-			//ParticleManager::GetInstance()->SetRandomRotate("test");
-		}
-		//テクスチャの変更
-		if (ImGui::Button("Change Texture: uvChecker"))
-		{
-			ParticleManager::GetInstance()->SetTexture("test", "./Resources/uvChecker.png");
-		}
-		if (ImGui::Button("Change Texture: black"))
-		{
-			ParticleManager::GetInstance()->SetTexture("test", "./Resources/black.png");
-		}
-		//頂点データの変更
-		if (ImGui::Button("Change VertexData: Plane"))
-		{
-			ParticleManager::GetInstance()->SetVertexData("test", VertexShape::Plane);
-		}
-		if (ImGui::Button("Change VertexData: Ring"))
-		{
-			ParticleManager::GetInstance()->SetVertexData("test", VertexShape::Ring);
-		}
+		
 	}
 #pragma endregion
 	ImGui::End();
