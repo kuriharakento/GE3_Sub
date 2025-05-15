@@ -54,6 +54,7 @@
     <ClCompile Include="engine\camerawork\spline\SplineData.cpp" />
     <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
     <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
+    <ClCompile Include="engine\effects\ParticlePipelineManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="engine\jsonEditor\JsonEditorManager.h" />
     <ClInclude Include="engine\camerawork\SplineCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
+    <ClInclude Include="engine\effects\ParticlePipelineManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

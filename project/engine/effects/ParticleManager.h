@@ -5,6 +5,7 @@
 #include <list>
 #include <unordered_map>
 
+#include "ParticlePipelineManager.h"
 #include "engine/manager/CameraManager.h"
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
@@ -125,14 +126,6 @@ private: //メンバ関数
 	 */
 	void InitializeModelData();
 	/**
-	 * \brief パイプラインの生成
-	 */
-	void CreateGraphicsPipelineState();
-	/**
-	 * \brief ルートシグネチャの生成
-	 */
-	void CreateRootSignature();
-	/**
 	* \brief パーティクルの生成
 	* \param position 位置
 	* \return 生成したパーティクル
@@ -151,10 +144,9 @@ private: //メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 	Model* model_ = nullptr;
-	//ルートシグネチャ
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
-	//パイプライン
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
+	//パイプラインマネージャー
+	std::unique_ptr<ParticlePipelineManager> pipelineManager_ = nullptr;
+
 	//ランダムエンジン
 	std::mt19937 mt_;
 
