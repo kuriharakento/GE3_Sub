@@ -29,6 +29,36 @@ void ParticleManager::Finalize()
 	if (instance_ != nullptr)
 	{
 		//パーティクルグループの解放
+		// 各パーティクルグループのリソース解放
+		for (auto& groupPair : instance_->particleGroups_)
+		{
+			ParticleGroup& group = groupPair.second;
+
+			if (group.instancingResource)
+			{
+				group.instancingResource->Unmap(0, nullptr);
+				group.instancingResource.Reset();
+				group.instancingData = nullptr;
+			}
+
+			if (group.vertexResource)
+			{
+				//vertexResourceは変更するたびにUnmapしてるのでする必要なし
+				group.vertexResource.Reset();
+				group.vertexData = nullptr;
+			}
+
+			if (group.materialResource_)
+			{
+				group.materialResource_->Unmap(0, nullptr);
+				group.materialResource_.Reset();
+				group.materialData_ = nullptr;
+			}
+		}
+
+		// パイプラインマネージャーの解放
+		instance_->pipelineManager_.reset();
+		
 		delete instance_;
 		instance_ = nullptr;
 	}
@@ -46,9 +76,6 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
 
 	//パーティクルグループの初期化
 	particleGroups_.clear();
-
-	//マテリアルデータの生成
-	CreateMaterialData();
 
 	//モデルデータの初期化
 	InitializeModelData();
@@ -114,7 +141,7 @@ void ParticleManager::Update(CameraManager* camera)
 			// パーティクルの透明度計算
 			float alpha = 1.0f - (particleItr->currentTime / particleItr->lifeTime);
 			alpha = std::clamp(alpha, 0.0f, 1.0f); // 0.0～1.0に制限
-			materialData_->color = { 1.0f, 1.0f, 1.0f, alpha };
+			particleItr->color.w = alpha;
 
 			// インスタンス数の制限を守る
 			if (group.instanceCount < kMaxParticleCount) {
@@ -168,7 +195,7 @@ void ParticleManager::Draw()
 		//頂点バッファビューの設定
 		dxCommon_->GetCommandList()->IASetVertexBuffers(0, 1, &group.vertexBufferView);
 		//
-		dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+		dxCommon_->GetCommandList()->SetGraphicsRootConstantBufferView(0, group.materialResource_->GetGPUVirtualAddress());
 		// インスタンシングデータのSRVのDescriptorTableの先頭を設定
 		dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvManager_->GetGPUDescriptorHandle(group.instancingSrvIndex));
 		// SRVのDescriptorTableの先頭を設定
@@ -178,24 +205,6 @@ void ParticleManager::Draw()
 		// 描画
 		dxCommon_->GetCommandList()->DrawInstanced(vertexCount, group.instanceCount, 0, 0);
 	}
-}
-
-void ParticleManager::CreateMaterialData()
-{
-	//マテリアル用のリソースを作成
-	materialResource_ = dxCommon_->CreateBufferResource(sizeof(Material));
-
-	//書き込むためのアドレスを取得
-	materialResource_->Map(
-		0,
-		nullptr,
-		reinterpret_cast<void**>(&materialData_)
-	);
-	//マテリアルデータの初期化
-	materialData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	materialData_->enableLighting = false;
-	materialData_->uvTransform = MakeIdentity4x4();
-
 }
 
 void ParticleManager::InitializeModelData()
@@ -246,6 +255,13 @@ void ParticleManager::CreateParticleGroup(const std::string& groupName, const st
 	newGroup.vertexBufferView.BufferLocation = newGroup.vertexResource->GetGPUVirtualAddress();
 	newGroup.vertexBufferView.StrideInBytes = sizeof(VertexData);
 	newGroup.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * rectangleVertices.size());
+
+	//マテリアルデータを設定
+	newGroup.materialResource_ = dxCommon_->CreateBufferResource(sizeof(Material));
+	newGroup.materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&newGroup.materialData_));
+	newGroup.materialData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	newGroup.materialData_->enableLighting = false;
+	newGroup.materialData_->uvTransform = MakeIdentity4x4();
 
 	//インスタンシング用のリソースを作成
 	newGroup.instancingResource = dxCommon_->CreateBufferResource(sizeof(ParticleForGPU) * kMaxParticleCount);

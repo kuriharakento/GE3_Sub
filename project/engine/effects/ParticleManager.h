@@ -28,14 +28,17 @@ struct ParticleGroup
 	MaterialData materialData;
 	std::list<Particle> particles;
 	uint32_t instancingSrvIndex = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;
+	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource = nullptr;
 	uint32_t instanceCount = 0;
 	ParticleForGPU* instancingData = nullptr;
 	//モデルの頂点データ
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
 	VertexData* vertexData = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 	bool isBillboard = true; // ビルボードフラグ
+	//マテリアルデータ
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+	Material* materialData_ = nullptr;
 };
 
 class ParticleManager
@@ -118,10 +121,6 @@ public:
 
 private: //メンバ関数
 	/**
-	 * \brief マテリアルの初期化
-	 */
-	void CreateMaterialData();
-	/**
 	 * \brief モデルデータの初期化
 	 */
 	void InitializeModelData();
@@ -152,10 +151,7 @@ private: //メンバ変数
 
 	/*--------------[ マテリアルデータ ]-----------------*/
 
-	//バッファリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
-	//データ
-	Material* materialData_ = nullptr;
+	
 	//モデルデータ
 	ModelData modelData_;
 
