@@ -152,7 +152,7 @@ void TitleScene::Update()
 		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
 	}
 
-	static bool splineCameraUpdate = false;
+	static bool splineCameraUpdate = true;
 	static bool orbitCameraUpdate = false;
 
 	//カメラワークの更新
