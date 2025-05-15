@@ -3,6 +3,10 @@
 
 namespace MathUtils
 {
+	// 範囲[min, max]のランダムfloatを返す関数
+	float RandomFloat(float min, float max);
+	Vector3 RandomVector3(Vector3 min, Vector3 max);
+
 	///座標変換
 	Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
