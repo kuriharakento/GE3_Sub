@@ -6,10 +6,14 @@
 #include "effects/component/ColorFadeOutComponent.h"
 #include "effects/component/DragComponent.h"
 #include "effects/component/GravityComponent.h"
+#include "effects/component/MaterialColorComponent.h"
 #include "effects/component/OrbitComponent.h"
 #include "effects/component/RandomInitialVelocityComponent.h"
 #include "effects/component/RotationComponent.h"
 #include "effects/component/ScaleOverLifetimeComponent.h"
+#include "effects/component/UVRotateComponent.h"
+#include "effects/component/UVScaleComponent.h"
+#include "effects/component/UVTranslateComponent.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
@@ -87,30 +91,36 @@ void TitleScene::Initialize()
 		true
 	);
 	emitter_->SetEmitRate(0.2f);
-	//試しにコンポーネントを追加
-	emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.5f, 0.0f }));
-	// 空気抵抗コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<DragComponent>(0.98f));
+	//======コンポーネントの追加=========================
+	//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
+	//// 空気抵抗コンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<DragComponent>(0.98f));
 
-	// スケール変化コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(1.0f, 0.0f));
+	//// スケール変化コンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(1.0f, 0.0f));
 
-	// 色フェードアウトコンポーネントを追加
-	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+	//// 色フェードアウトコンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 
-	// 初期速度ランダム化コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
-		Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
+	//// 初期速度ランダム化コンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
+	//	Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
+	//// 回転コンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.1f, 0.0f }));
+	//// 軌道コンポーネントを追加 (中心座標、半径、速度)
+	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
+	//	Vector3{ 0.0f, 0.0f, 0.0f }, 5.0f, 0.05f));
+	//// 加速度コンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
 
-	// 回転コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.1f, 0.0f }));
+	// UV変換コンポーネント
+	emitter_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.01f, 0.0f, 0.0f })); // UVをX方向に毎フレーム0.01移動
+	//emitter_->AddComponent(std::make_shared<UVRotateComponent>(Vector3{ 0.0f, 0.0f, 0.01f }));    // UVをZ軸周りに毎フレーム0.01ラジアン回転
+	//emitter_->AddComponent(std::make_shared<UVScaleComponent>(Vector3{ 0.005f, 0.005f, 0.0f }));   // UVを毎フレーム1.005倍に拡大
 
-	// 軌道コンポーネントを追加 (中心座標、半径、速度)
-	emitter_->AddComponent(std::make_shared<OrbitComponent>(
-		Vector3{ 0.0f, 0.0f, 0.0f }, 5.0f, 0.05f));
+	// マテリアル色変更コンポーネント
+	//emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Red));
 
-	// 加速度コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
 }
 
 void TitleScene::Finalize()
@@ -121,11 +131,20 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+	Vector3 uvtranslate = emitter_->GetUVTranslate();
+	ImGui::DragFloat3("UVTranslate", &uvtranslate.x, 0.01f);
+	emitter_->SetUVTranslate(uvtranslate);
+	Vector3 uvscale = emitter_->GetUVScale();
+	ImGui::DragFloat3("UVScale", &uvscale.x, 0.01f);
+	emitter_->SetUVScale(uvscale);
+	Vector3 uvrotate = emitter_->GetUVRotate();
+	ImGui::DragFloat3("UVRotate", &uvrotate.x, 0.01f);
+	emitter_->SetUVRotate(uvrotate);
+
 	static bool isGrayScale = false;
 	if (ImGui::Checkbox("GrayScale", &isGrayScale))
 	{
 		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
-		
 	}
 
 	static bool splineCameraUpdate = true;

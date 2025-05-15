@@ -163,12 +163,18 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\effects\component\ScaleOverLifetimeComponent.cpp" />
     <ClCompile Include="engine\effects\component\OrbitComponent.cpp" />
     <ClCompile Include="engine\effects\component\RandomInitialVelocityComponent.cpp" />
+    <ClCompile Include="engine\effects\component\UVTranslateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\UVScaleComponent.cpp" />
+    <ClCompile Include="engine\effects\component\UVRotateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\MaterialColorComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\effects\component\AccelerationComponent.h" />
     <ClInclude Include="application\animation\Slide.h" />
     <ClInclude Include="engine\effects\component\ColorFadeOutComponent.h" />
     <ClInclude Include="engine\effects\component\DragComponent.h" />
+    <ClInclude Include="engine\effects\component\IParticleComponent.h" />
+    <ClInclude Include="engine\effects\component\IParticleGroupComponent.h" />
     <ClInclude Include="engine\effects\ParticleEmitter.h" />
     <ClInclude Include="engine\base\PostProcessPass.h" />
     <ClInclude Include="engine\base\RenderTexture.h" />
@@ -242,6 +248,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\effects\component\ScaleOverLifetimeComponent.h" />
     <ClInclude Include="engine\effects\component\OrbitComponent.h" />
     <ClInclude Include="engine\effects\component\RandomInitialVelocityComponent.h" />
+    <ClInclude Include="engine\effects\component\UVTranslateComponent.h" />
+    <ClInclude Include="engine\effects\component\UVScaleComponent.h" />
+    <ClInclude Include="engine\effects\component\UVRotateComponent.h" />
+    <ClInclude Include="engine\effects\component\MaterialColorComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

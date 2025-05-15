@@ -182,17 +182,17 @@ Vector3 ParticleGroup::GetUVRotate() const
 
 void ParticleGroup::SetUVTranslate(const Vector3& translate)
 {
-	materialData_->uvTransform = MakeAffineMatrix(translate, GetUVRotate(), GetUVScale());
+	materialData_->uvTransform = MakeAffineMatrix(GetUVScale(), GetUVRotate(), translate);
 }
 
 void ParticleGroup::SetUVScale(const Vector3& scale)
 {
-	materialData_->uvTransform = MakeAffineMatrix(GetUVTranslate(), GetUVRotate(), scale);
+	materialData_->uvTransform = MakeAffineMatrix(scale, GetUVRotate(), GetUVTranslate());
 }
 
 void ParticleGroup::SetUVRotate(const Vector3& rotate)
 {
-	materialData_->uvTransform = MakeAffineMatrix(GetUVTranslate(), rotate, GetUVScale());
+	materialData_->uvTransform = MakeAffineMatrix(GetUVScale(), rotate, GetUVTranslate());
 }
 
 void ParticleGroup::UpdateInstanceData(Particle& particle, const Matrix4x4& billboardMatrix, CameraManager* camera)

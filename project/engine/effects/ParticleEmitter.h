@@ -3,7 +3,7 @@
 #include <list>
 #include <string>
 #include "ParticleGroup.h"
-#include "effects/component/IParticleBehaviorComponent.h"
+#include "effects/component/IParticleComponent.h"
 
 class ParticleEmitter
 {
@@ -12,7 +12,7 @@ public:
     void Initialize(const std::string& groupName, const std::string& textureFilePath);
     void Update(CameraManager* camera);
     void Draw(DirectXCommon* dxCommon, SrvManager* srvManager);
-    void AddComponent(std::shared_ptr<IParticleBehaviorComponent> component);
+    void AddComponent(std::shared_ptr<IParticleComponent> component);
 
     void Start(const Vector3& position, uint32_t count, float duration, bool isLoop = false);
     void StopEmit();
@@ -22,6 +22,12 @@ public:
     void SetLoop(bool loop) { isLoop_ = loop; }
 	void SetBillborad(bool flag) { particleGroup_->SetBillboard(flag); }
 	void SetModelType(ParticleGroup::ParticleType type) { particleGroup_->SetModelType(type); }
+	Vector3 GetUVTranslate() const { return particleGroup_->GetUVTranslate(); }
+	void SetUVTranslate(const Vector3& translate) { particleGroup_->SetUVTranslate(translate); }
+	Vector3 GetUVScale() const { return particleGroup_->GetUVScale(); }
+	void SetUVScale(const Vector3& scale) { particleGroup_->SetUVScale(scale); }
+	Vector3 GetUVRotate() const { return particleGroup_->GetUVRotate(); }
+	void SetUVRotate(const Vector3& rotate) { particleGroup_->SetUVRotate(rotate); }
 
     // 初期パラメータのアクセッサ
     void SetInitialLifeTime(float time) { initialLifeTime_ = time; }
@@ -40,7 +46,7 @@ private:
 private:
     std::string groupName_ = "";
     std::unique_ptr<ParticleGroup> particleGroup_ = nullptr;
-    std::list<std::shared_ptr<IParticleBehaviorComponent>> behaviorComponents_;
+    std::list<std::shared_ptr<IParticleComponent>> behaviorComponents_;
 
     Vector3 position_ = {};
     Vector3 emitRangeMin_ = {};

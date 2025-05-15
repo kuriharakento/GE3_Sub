@@ -64,6 +64,10 @@
     <ClCompile Include="engine\effects\component\AccelerationComponent.cpp" />
     <ClCompile Include="engine\effects\component\OrbitComponent.cpp" />
     <ClCompile Include="engine\effects\component\RandomInitialVelocityComponent.cpp" />
+    <ClCompile Include="engine\effects\component\UVTranslateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\UVScaleComponent.cpp" />
+    <ClCompile Include="engine\effects\component\UVRotateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\MaterialColorComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -143,6 +147,12 @@
     <ClInclude Include="engine\effects\component\AccelerationComponent.h" />
     <ClInclude Include="engine\effects\component\OrbitComponent.h" />
     <ClInclude Include="engine\effects\component\RandomInitialVelocityComponent.h" />
+    <ClInclude Include="engine\effects\component\IParticleComponent.h" />
+    <ClInclude Include="engine\effects\component\IParticleGroupComponent.h" />
+    <ClInclude Include="engine\effects\component\UVTranslateComponent.h" />
+    <ClInclude Include="engine\effects\component\UVScaleComponent.h" />
+    <ClInclude Include="engine\effects\component\UVRotateComponent.h" />
+    <ClInclude Include="engine\effects\component\MaterialColorComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

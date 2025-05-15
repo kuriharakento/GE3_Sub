@@ -38,6 +38,8 @@ public:
 	void SetUVTranslate(const Vector3& translate);
 	void SetUVScale(const Vector3& scale);
 	void SetUVRotate(const Vector3& rotate);
+	Vector4 GetMaterialColor() const { return materialData_->color; }
+	void SetMaterialColor(const Vector4& color) { materialData_->color = color; }
 
 private:
 	void UpdateInstanceData(Particle& particle, const Matrix4x4& billboardMatrix, CameraManager* camera);

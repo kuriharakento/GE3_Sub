@@ -1,5 +1,6 @@
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
+#include "component/IParticleGroupComponent.h"
 #include "math/MathUtils.h"
 
 ParticleEmitter::~ParticleEmitter()
@@ -25,7 +26,18 @@ void ParticleEmitter::Update(CameraManager* camera)
     {
         for (auto& behavior : behaviorComponents_)
         {
-            behavior->Update(particle);
+			// もしIPaarticleBehaviorComponentにキャストできたら
+			
+			if (auto behaviorComponent = std::dynamic_pointer_cast<IParticleBehaviorComponent>(behavior))
+			{
+				behaviorComponent->Update(particle);
+			}
+            else
+            {
+				//IParticleGroupComponentの更新
+				auto groupComponent = std::dynamic_pointer_cast<IParticleGroupComponent>(behavior);
+				groupComponent->Update(*particleGroup_);
+            }
         }
     }
 
@@ -38,7 +50,7 @@ void ParticleEmitter::Draw(DirectXCommon* dxCommon, SrvManager* srvManager)
     particleGroup_->Draw(dxCommon, srvManager);
 }
 
-void ParticleEmitter::AddComponent(std::shared_ptr<IParticleBehaviorComponent> component)
+void ParticleEmitter::AddComponent(std::shared_ptr<IParticleComponent> component)
 {
     behaviorComponents_.push_back(component);
 }

@@ -1,7 +1,8 @@
 #pragma once
+#include "IParticleComponent.h"
 #include "base/GraphicsTypes.h"
 
-class IParticleBehaviorComponent
+class IParticleBehaviorComponent : virtual public IParticleComponent
 {
 public:
 	virtual ~IParticleBehaviorComponent() = default;
