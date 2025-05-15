@@ -8,7 +8,7 @@
 #include "jsonEditor/JsonEditorManager.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
-#include "manager/ParticleManager.h"
+#include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 
 void TitleScene::Initialize()

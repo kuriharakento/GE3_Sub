@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#include "manager/ParticleManager.h"
+#include "ParticleManager.h"
 
 class ParticleEmitter
 {

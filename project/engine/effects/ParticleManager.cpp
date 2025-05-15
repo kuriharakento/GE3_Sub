@@ -3,7 +3,7 @@
 #include <dxcapi.h>
 #include <numbers>
 
-#include "TextureManager.h"
+#include "manager/TextureManager.h"
 #include "3d/ModelManager.h"
 #include "base/DirectXCommon.h"
 #include "base/Logger.h"

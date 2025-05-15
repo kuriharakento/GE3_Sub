@@ -5,7 +5,7 @@
 #include <list>
 #include <unordered_map>
 
-#include "CameraManager.h"
+#include "engine/manager/CameraManager.h"
 #include "base/GraphicsTypes.h"
 #include "3d/Model.h"
 
