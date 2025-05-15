@@ -159,7 +159,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
     <ClCompile Include="engine\effects\ParticlePipelineManager.cpp" />
     <ClCompile Include="engine\effects\ParticleGroup.cpp" />
-    <ClCompile Include="engine\effects\component\MoveWithVelocityComponent.cpp" />
     <ClCompile Include="engine\effects\component\RotationComponent.cpp" />
     <ClCompile Include="engine\effects\component\ScaleOverLifetimeComponent.cpp" />
     <ClCompile Include="engine\effects\component\OrbitComponent.cpp" />
@@ -238,7 +237,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
     <ClInclude Include="engine\effects\ParticlePipelineManager.h" />
     <ClInclude Include="engine\effects\ParticleGroup.h" />
-    <ClInclude Include="engine\effects\component\MoveWithVelocityComponent.h" />
     <ClInclude Include="engine\effects\component\GravityComponent.h" />
     <ClInclude Include="engine\effects\component\RotationComponent.h" />
     <ClInclude Include="engine\effects\component\ScaleOverLifetimeComponent.h" />

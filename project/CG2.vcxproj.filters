@@ -56,7 +56,6 @@
     <ClCompile Include="engine\effects\ParticlePipelineManager.cpp" />
     <ClCompile Include="engine\effects\ParticleGroup.cpp" />
     <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
-    <ClCompile Include="engine\effects\component\MoveWithVelocityComponent.cpp" />
     <ClCompile Include="engine\effects\component\GravityComponent.cpp" />
     <ClCompile Include="engine\effects\component\DragComponent.cpp" />
     <ClCompile Include="engine\effects\component\RotationComponent.cpp" />
@@ -136,7 +135,6 @@
     <ClInclude Include="engine\effects\component\IParticleBehaviorComponent.h" />
     <ClInclude Include="engine\effects\ParticleGroup.h" />
     <ClInclude Include="engine\effects\ParticleEmitter.h" />
-    <ClInclude Include="engine\effects\component\MoveWithVelocityComponent.h" />
     <ClInclude Include="engine\effects\component\GravityComponent.h" />
     <ClInclude Include="engine\effects\component\DragComponent.h" />
     <ClInclude Include="engine\effects\component\RotationComponent.h" />
