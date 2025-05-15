@@ -56,6 +56,14 @@
     <ClCompile Include="engine\effects\ParticlePipelineManager.cpp" />
     <ClCompile Include="engine\effects\ParticleGroup.cpp" />
     <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
+    <ClCompile Include="engine\effects\component\GravityComponent.cpp" />
+    <ClCompile Include="engine\effects\component\DragComponent.cpp" />
+    <ClCompile Include="engine\effects\component\RotationComponent.cpp" />
+    <ClCompile Include="engine\effects\component\ColorFadeOutComponent.cpp" />
+    <ClCompile Include="engine\effects\component\ScaleOverLifetimeComponent.cpp" />
+    <ClCompile Include="engine\effects\component\AccelerationComponent.cpp" />
+    <ClCompile Include="engine\effects\component\OrbitComponent.cpp" />
+    <ClCompile Include="engine\effects\component\RandomInitialVelocityComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -124,9 +132,17 @@
     <ClInclude Include="engine\camerawork\SplineCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
     <ClInclude Include="engine\effects\ParticlePipelineManager.h" />
-    <ClInclude Include="engine\effects\IParticleBehaviorComponent.h" />
+    <ClInclude Include="engine\effects\component\IParticleBehaviorComponent.h" />
     <ClInclude Include="engine\effects\ParticleGroup.h" />
     <ClInclude Include="engine\effects\ParticleEmitter.h" />
+    <ClInclude Include="engine\effects\component\GravityComponent.h" />
+    <ClInclude Include="engine\effects\component\DragComponent.h" />
+    <ClInclude Include="engine\effects\component\RotationComponent.h" />
+    <ClInclude Include="engine\effects\component\ColorFadeOutComponent.h" />
+    <ClInclude Include="engine\effects\component\ScaleOverLifetimeComponent.h" />
+    <ClInclude Include="engine\effects\component\AccelerationComponent.h" />
+    <ClInclude Include="engine\effects\component\OrbitComponent.h" />
+    <ClInclude Include="engine\effects\component\RandomInitialVelocityComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

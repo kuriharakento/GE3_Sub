@@ -4,7 +4,7 @@
 #include <memory>
 #include <wrl.h>
 
-#include "IParticleBehaviorComponent.h"
+#include "effects/component/IParticleBehaviorComponent.h"
 #include "base/GraphicsTypes.h"
 
 class SrvManager;
@@ -32,10 +32,17 @@ public:
 	void SetModelType(ParticleType type);
 	std::list<Particle>& GetParticles() { return particles; }
 	void SetBillboard(bool isBillboard) { isBillboard_ = isBillboard; }
+	Vector3 GetUVTranslate() const;
+	Vector3 GetUVScale() const;
+	Vector3 GetUVRotate() const;
+	void SetUVTranslate(const Vector3& translate);
+	void SetUVScale(const Vector3& scale);
+	void SetUVRotate(const Vector3& rotate);
 
 private:
 	void UpdateInstanceData(Particle& particle, const Matrix4x4& billboardMatrix, CameraManager* camera);
 	bool UpdateLifeTime(std::list<Particle>::iterator& itr);
+	void UpdateTranslate(std::list<Particle>::iterator& itr);
 	void MakePlaneVertexData();
 	void MakeRingVertexData();
 	void MakeCylinderVertexData();

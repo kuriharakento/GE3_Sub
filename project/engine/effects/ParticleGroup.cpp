@@ -9,6 +9,7 @@
 #include "base/DirectXCommon.h"
 #include "base/Logger.h"
 #include "manager/TextureManager.h"
+#include "math/MathUtils.h"
 
 ParticleGroup::~ParticleGroup()
 {
@@ -31,8 +32,8 @@ ParticleGroup::~ParticleGroup()
 		materialData_ = nullptr;
 	}
 	particles.clear();
-	modelData_ = nullptr;
 	delete modelData_;
+	modelData_ = nullptr;
 }
 
 void ParticleGroup::Initialize(const std::string& groupName, const std::string& textureFilePath)
@@ -116,6 +117,8 @@ void ParticleGroup::Update(CameraManager* camera)
 
         if (instanceCount < kMaxParticleCount)
         {
+			// 座標を速度によって更新
+			UpdateTranslate(particleItr);
 			// インスタンスデータの更新
 			UpdateInstanceData(*particleItr, billboardMatrix, camera);
 
@@ -162,6 +165,36 @@ void ParticleGroup::SetModelType(ParticleType type)
 	}
 }
 
+Vector3 ParticleGroup::GetUVTranslate() const
+{
+	return MathUtils::GetMatrixTranslate(materialData_->uvTransform);
+}
+
+Vector3 ParticleGroup::GetUVScale() const
+{
+	return MathUtils::GetMatrixScale(materialData_->uvTransform);
+}
+
+Vector3 ParticleGroup::GetUVRotate() const
+{
+	return MathUtils::GetMatrixRotate(materialData_->uvTransform);
+}
+
+void ParticleGroup::SetUVTranslate(const Vector3& translate)
+{
+	materialData_->uvTransform = MakeAffineMatrix(translate, GetUVRotate(), GetUVScale());
+}
+
+void ParticleGroup::SetUVScale(const Vector3& scale)
+{
+	materialData_->uvTransform = MakeAffineMatrix(GetUVTranslate(), GetUVRotate(), scale);
+}
+
+void ParticleGroup::SetUVRotate(const Vector3& rotate)
+{
+	materialData_->uvTransform = MakeAffineMatrix(GetUVTranslate(), rotate, GetUVScale());
+}
+
 void ParticleGroup::UpdateInstanceData(Particle& particle, const Matrix4x4& billboardMatrix, CameraManager* camera)
 {
 	// スケール、回転、平行移動の行列を計算
@@ -198,6 +231,12 @@ bool ParticleGroup::UpdateLifeTime(std::list<Particle>::iterator& itr)
 		return true;
 	}
 	return false;
+}
+
+void ParticleGroup::UpdateTranslate(std::list<Particle>::iterator& itr)
+{
+	// 速度を加算
+	itr->transform.translate += itr->velocity * (1.0f / 60.0f); // 1フレーム分の時間を加算
 }
 
 void ParticleGroup::MakePlaneVertexData()

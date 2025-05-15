@@ -2,6 +2,14 @@
 
 #include "audio/Audio.h"
 #include "base/PostProcessPass.h"
+#include "effects/component/AccelerationComponent.h"
+#include "effects/component/ColorFadeOutComponent.h"
+#include "effects/component/DragComponent.h"
+#include "effects/component/GravityComponent.h"
+#include "effects/component/OrbitComponent.h"
+#include "effects/component/RandomInitialVelocityComponent.h"
+#include "effects/component/RotationComponent.h"
+#include "effects/component/ScaleOverLifetimeComponent.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
 #include "input/Input.h"
@@ -71,13 +79,38 @@ void TitleScene::Initialize()
 	//エミッターの初期化
 	emitter_ = std::make_unique<ParticleEmitter>();
 	emitter_->Initialize("test", "./Resources/uvChecker.png");
-	emitter_->SetEmitRange({ -1.0f, 0.0f, -1.0f }, { 1.0f, 2.0f, 1.0f });
+	emitter_->SetEmitRange({ -2.0f,-2.0f,-2.0f }, { 2.0f, 2.0f, 2.0f });
 	emitter_->Start(
 		{ 2.0f,2.0f,2.0f },
-		100,
-		5.0f,
+		3,
+		10.0f,
 		true
 	);
+	emitter_->SetEmitRate(0.2f);
+	//試しにコンポーネントを追加
+	emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.5f, 0.0f }));
+	// 空気抵抗コンポーネントを追加
+	emitter_->AddComponent(std::make_shared<DragComponent>(0.98f));
+
+	// スケール変化コンポーネントを追加
+	emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(1.0f, 0.0f));
+
+	// 色フェードアウトコンポーネントを追加
+	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+
+	// 初期速度ランダム化コンポーネントを追加
+	emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
+		Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
+
+	// 回転コンポーネントを追加
+	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.1f, 0.0f }));
+
+	// 軌道コンポーネントを追加 (中心座標、半径、速度)
+	emitter_->AddComponent(std::make_shared<OrbitComponent>(
+		Vector3{ 0.0f, 0.0f, 0.0f }, 5.0f, 0.05f));
+
+	// 加速度コンポーネントを追加
+	emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
 }
 
 void TitleScene::Finalize()
