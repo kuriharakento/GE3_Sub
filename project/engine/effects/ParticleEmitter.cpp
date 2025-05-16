@@ -22,22 +22,24 @@ void ParticleEmitter::Update(CameraManager* camera)
 {
     Emit();
 
+    // パーティクル単体に作用するコンポーネントの更新
     for (auto& particle : particleGroup_->GetParticles())
     {
         for (auto& behavior : behaviorComponents_)
         {
-			// もしIPaarticleBehaviorComponentにキャストできたら
-			
-			if (auto behaviorComponent = std::dynamic_pointer_cast<IParticleBehaviorComponent>(behavior))
-			{
-				behaviorComponent->Update(particle);
-			}
-            else
+            if (auto behaviorComponent = std::dynamic_pointer_cast<IParticleBehaviorComponent>(behavior))
             {
-				//IParticleGroupComponentの更新
-				auto groupComponent = std::dynamic_pointer_cast<IParticleGroupComponent>(behavior);
-				groupComponent->Update(*particleGroup_);
+                behaviorComponent->Update(particle);
             }
+        }
+    }
+
+    // パーティクルグループ全体に作用するコンポーネントの更新
+    for (auto& behavior : behaviorComponents_)
+    {
+        if (auto groupComponent = std::dynamic_pointer_cast<IParticleGroupComponent>(behavior))
+        {
+            groupComponent->Update(*particleGroup_);
         }
     }
 

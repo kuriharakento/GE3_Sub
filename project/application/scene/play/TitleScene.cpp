@@ -124,7 +124,7 @@ void TitleScene::Initialize()
 	//emitter_->AddComponent(std::make_shared<UVScaleComponent>(Vector3{ 0.005f, 0.005f, 0.0f }));   // UVを毎フレーム1.005倍に拡大
 
 	// マテリアル色変更コンポーネント
-	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Red));
+	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
 
 }
 
