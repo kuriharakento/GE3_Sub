@@ -68,6 +68,7 @@
     <ClCompile Include="engine\effects\component\group\UVScaleComponent.cpp" />
     <ClCompile Include="engine\effects\component\group\UVRotateComponent.cpp" />
     <ClCompile Include="engine\effects\component\group\MaterialColorComponent.cpp" />
+    <ClCompile Include="engine\effects\ParticleMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\animation\Slide.h" />
@@ -153,6 +154,7 @@
     <ClInclude Include="engine\effects\component\group\UVScaleComponent.h" />
     <ClInclude Include="engine\effects\component\group\UVRotateComponent.h" />
     <ClInclude Include="engine\effects\component\group\MaterialColorComponent.h" />
+    <ClInclude Include="engine\effects\ParticleMath.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

@@ -83,7 +83,7 @@ void TitleScene::Initialize()
 	//エミッターの初期化
 	emitter_ = std::make_unique<ParticleEmitter>();
 	emitter_->Initialize("test", "./Resources/gradationLine.png");
-	//emitter_->Initialize("test", "./Resources/uvChecker.png");
+	//emitter_->SetTexture("Resources/uvChecker.png");
 	emitter_->SetEmitRange({ -2.0f,-2.0f,-2.0f }, { 2.0f, 2.0f, 2.0f });
 	emitter_->Start(
 		{ 2.0f,2.0f,2.0f },
@@ -93,7 +93,13 @@ void TitleScene::Initialize()
 	);
 	emitter_->SetEmitRate(0.2f);
 	//emitter_->SetModelType(ParticleGroup::ParticleType::Plane);
-	emitter_->SetModelType(ParticleGroup::ParticleType::Cylinder);
+	//emitter_->SetModelType(ParticleGroup::ParticleType::Cylinder);
+	//emitter_->SetModelType(ParticleGroup::ParticleType::Sphere);
+	//emitter_->SetModelType(ParticleGroup::ParticleType::Torus);
+	//emitter_->SetModelType(ParticleGroup::ParticleType::Star);
+	//emitter_->SetModelType(ParticleGroup::ParticleType::Heart);
+	emitter_->SetModelType(ParticleGroup::ParticleType::Spiral);
+	//emitter_->SetModelType(ParticleGroup::ParticleType::Cone);
 	//emitter_->SetBillborad(true);
 	emitter_->SetBillborad(false);
 	//======コンポーネントの追加=========================

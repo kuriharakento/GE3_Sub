@@ -167,6 +167,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\effects\component\group\UVScaleComponent.cpp" />
     <ClCompile Include="engine\effects\component\group\UVRotateComponent.cpp" />
     <ClCompile Include="engine\effects\component\group\MaterialColorComponent.cpp" />
+    <ClCompile Include="engine\effects\ParticleMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\effects\component\single\AccelerationComponent.h" />
@@ -252,6 +253,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\effects\component\group\UVScaleComponent.h" />
     <ClInclude Include="engine\effects\component\group\UVRotateComponent.h" />
     <ClInclude Include="engine\effects\component\group\MaterialColorComponent.h" />
+    <ClInclude Include="engine\effects\ParticleMath.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

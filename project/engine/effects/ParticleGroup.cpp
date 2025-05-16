@@ -4,6 +4,7 @@
 #include <numbers>
 
 #include "ParticleManager.h"
+#include "ParticleMath.h"
 #include "manager/CameraManager.h"
 #include "manager/SrvManager.h"
 #include "base/DirectXCommon.h"
@@ -88,25 +89,25 @@ void ParticleGroup::Update(CameraManager* camera)
 {
 	if (particles.empty()) { return; } // パーティクルがない場合は更新しない
 
-    const float kDeltaTime = 1.0f / 60.0f;
+	const float kDeltaTime = 1.0f / 60.0f;
 
-    // ビルボード用の行列計算
-    Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>); // Z軸正方向を基準にする
-    Matrix4x4 billboardMatrix = MakeIdentity4x4();
+	// ビルボード用の行列計算
+	Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>); // Z軸正方向を基準にする
+	Matrix4x4 billboardMatrix = MakeIdentity4x4();
 
-    // カメラの回転を取得
-    Matrix4x4 cameraRotationMatrix = camera->GetActiveCamera()->GetWorldMatrix();
-    cameraRotationMatrix.m[3][0] = 0.0f;
-    cameraRotationMatrix.m[3][1] = 0.0f;
-    cameraRotationMatrix.m[3][2] = 0.0f;
+	// カメラの回転を取得
+	Matrix4x4 cameraRotationMatrix = camera->GetActiveCamera()->GetWorldMatrix();
+	cameraRotationMatrix.m[3][0] = 0.0f;
+	cameraRotationMatrix.m[3][1] = 0.0f;
+	cameraRotationMatrix.m[3][2] = 0.0f;
 
-    // カメラの回転をビルボード行列に適用
-    billboardMatrix = backToFrontMatrix * cameraRotationMatrix;
+	// カメラの回転をビルボード行列に適用
+	billboardMatrix = backToFrontMatrix * cameraRotationMatrix;
 
-    instanceCount = 0; // このグループのインスタンスカウントをリセット
+	instanceCount = 0; // このグループのインスタンスカウントをリセット
 
-    for (auto particleItr = particles.begin(); particleItr != particles.end(); )
-    {
+	for (auto particleItr = particles.begin(); particleItr != particles.end(); )
+	{
 		// 寿命の更新
 		if (UpdateLifeTime(particleItr))
 		{
@@ -115,17 +116,17 @@ void ParticleGroup::Update(CameraManager* camera)
 			continue;
 		}
 
-        if (instanceCount < kMaxParticleCount)
-        {
+		if (instanceCount < kMaxParticleCount)
+		{
 			// 座標を速度によって更新
 			UpdateTranslate(particleItr);
 			// インスタンスデータの更新
 			UpdateInstanceData(*particleItr, billboardMatrix, camera);
 
-            ++instanceCount;
-        }
-        ++particleItr;
-    }
+			++instanceCount;
+		}
+		++particleItr;
+	}
 }
 
 
@@ -145,6 +146,13 @@ void ParticleGroup::Draw(DirectXCommon* dxCommon, SrvManager* srvManager)
 	dxCommon->GetCommandList()->DrawInstanced(vertexCount, instanceCount, 0, 0);
 }
 
+void ParticleGroup::SetTexture(const std::string& textureFilePath)
+{
+	modelData_->textureFilePath = textureFilePath;
+	TextureManager::GetInstance()->LoadTexture(modelData_->textureFilePath);
+	modelData_->textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_->textureFilePath);
+}
+
 void ParticleGroup::SetModelType(ParticleType type)
 {
 	switch (type)
@@ -157,6 +165,24 @@ void ParticleGroup::SetModelType(ParticleType type)
 		break;
 	case ParticleType::Cylinder:
 		MakeCylinderVertexData();
+		break;
+	case ParticleType::Sphere:
+		MakeSphereVertexData();
+		break;
+	case ParticleType::Torus:
+		MakeTorusVertexData();
+		break;
+	case ParticleType::Star:
+		MakeStarVertexData();
+		break;
+	case ParticleType::Heart:
+		MakeHeartVertexData();
+		break;
+	case ParticleType::Spiral:
+		MakeSpiralVertexData();
+		break;
+	case ParticleType::Cone:
+		MakeConeVertexData();
 		break;
 	default:
 		Logger::Log("Invalid particle type.");
@@ -239,142 +265,94 @@ void ParticleGroup::UpdateTranslate(std::list<Particle>::iterator& itr)
 	itr->transform.translate += itr->velocity * (1.0f / 60.0f); // 1フレーム分の時間を加算
 }
 
-void ParticleGroup::MakePlaneVertexData()
+void ParticleGroup::UpdateVertexBuffer(const std::vector<VertexData>& vertices)
 {
-	// 頂点データを矩形で初期化
-	std::vector<VertexData> rectangleVertices = {
-	{ {  1.0f,  1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }, // 右上
-	{ { -1.0f,  1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }, // 左上
-	{ {  1.0f, -1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }, // 右下
-	{ {  1.0f, -1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }, // 右下
-	{ { -1.0f,  1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }, // 左上
-	{ { -1.0f, -1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }  // 左下
-	};
-	vertexResource = ParticleManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * rectangleVertices.size());
+	// 頂点データをGPUへ転送
+	vertexResource = ParticleManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * vertices.size());
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, rectangleVertices.data(), sizeof(VertexData) * rectangleVertices.size());
+	std::memcpy(vertexData, vertices.data(), sizeof(VertexData) * vertices.size());
 	vertexResource->Unmap(0, nullptr);
 	// 頂点バッファービューの再設定
 	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	vertexBufferView.StrideInBytes = sizeof(VertexData);
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * rectangleVertices.size());
+	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * vertices.size());
+}
+
+void ParticleGroup::MakePlaneVertexData()
+{
+	// 頂点データを矩形で初期化
+	std::vector<VertexData> rectangleVertices = ParticleMath::MakePlaneVertexData();
+
+	// 頂点データを更新
+	UpdateVertexBuffer(rectangleVertices);
 }
 
 void ParticleGroup::MakeRingVertexData()
 {
-	// 頂点データをリングで初期化（triangle list）
-	const uint32_t kRingDivide = 32;
-	const float    kOuterRadius = 1.0f;
-	const float    kInnerRadius = 0.2f;
-	const float    radianPerDiv = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
+	// 頂点データをリングで初期化
+	std::vector<VertexData> ringVertices = ParticleMath::MakeRingVertexData();
 
-	std::vector<VertexData> ringVertices;
-	ringVertices.reserve(kRingDivide * 6);  // 1セグメントあたり6頂点
-
-	for (uint32_t i = 0; i < kRingDivide; ++i)
-	{
-		// 0→1 の角度
-		float theta0 = radianPerDiv * float(i);
-		float theta1 = radianPerDiv * float(i + 1);
-
-		// sin/cos をそれぞれ計算
-		float c0 = std::cos(theta0), s0 = std::sin(theta0);
-		float c1 = std::cos(theta1), s1 = std::sin(theta1);
-
-		// テクスチャ座標 U
-		float u0 = float(i) / float(kRingDivide);
-		float u1 = float(i + 1) / float(kRingDivide);
-
-		// ▽ 三角形 1： outer0 → outer1 → inner0
-		ringVertices.push_back({ { c0 * kOuterRadius, s0 * kOuterRadius, 0, 1 }, { u0, 0 }, { 0,0,1 } });
-		ringVertices.push_back({ { c1 * kOuterRadius, s1 * kOuterRadius, 0, 1 }, { u1, 0 }, { 0,0,1 } });
-		ringVertices.push_back({ { c0 * kInnerRadius, s0 * kInnerRadius, 0, 1 }, { u0, 1 }, { 0,0,1 } });
-
-		// ▽ 三角形 2： outer1 → inner1 → inner0
-		ringVertices.push_back({ { c1 * kOuterRadius, s1 * kOuterRadius, 0, 1 }, { u1, 0 }, { 0,0,1 } });
-		ringVertices.push_back({ { c1 * kInnerRadius, s1 * kInnerRadius, 0, 1 }, { u1, 1 }, { 0,0,1 } });
-		ringVertices.push_back({ { c0 * kInnerRadius, s0 * kInnerRadius, 0, 1 }, { u0, 1 }, { 0,0,1 } });
-	}
-
-	// 頂点データを設定
-	vertexResource = ParticleManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * ringVertices.size());
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, ringVertices.data(), sizeof(VertexData) * ringVertices.size());
-	vertexResource->Unmap(0, nullptr);
-
-	// 頂点バッファービューの再設定
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * ringVertices.size());
+	// 頂点データを更新
+	UpdateVertexBuffer(ringVertices);
 }
 
 void ParticleGroup::MakeCylinderVertexData()
 {
-	const uint32_t kCylinderDivide = 32; // 円柱の分割数
-	const float kOuterRadius = 1.0f;     // 外側の半径
-	const float kHeight = 2.0f;          // 円柱の高さ
-	const float radianPerDiv = 2.0f * std::numbers::pi_v<float> / float(kCylinderDivide);
+	// 頂点データを円柱で初期化
+	std::vector<VertexData> cylinderVertices = ParticleMath::MakeCylinderVertexData();
 
-	std::vector<VertexData> cylinderVertices;
+	// 頂点データを更新
+	UpdateVertexBuffer(cylinderVertices);
+}
 
-	//// 上面キャップの頂点データを生成
-	//for (uint32_t index = 0; index < kCylinderDivide; ++index) {
-	//	float sin0 = std::sin(radianPerDiv * index);
-	//	float cos0 = std::cos(radianPerDiv * index);
-	//	float sin1 = std::sin(radianPerDiv * (index + 1));
-	//	float cos1 = std::cos(radianPerDiv * (index + 1));
-	//	float u0 = float(index) / float(kCylinderDivide);
-	//	float u1 = float(index + 1) / float(kCylinderDivide);
+void ParticleGroup::MakeSphereVertexData()
+{
+	// 頂点データを球体で初期化
+	std::vector<VertexData> sphereVertices = ParticleMath::MakeSphereVertexData();
 
-	//	// 三角形1: 中心 → 外側0 → 外側1
-	//	cylinderVertices.push_back({ { 0.0f, kHeight / 2.0f, 0.0f, 1.0f }, { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f } }); // 中心
-	//	cylinderVertices.push_back({ { cos0 * kOuterRadius, kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 0.0f }, { 0.0f, 1.0f, 0.0f } }); // 外側0
-	//	cylinderVertices.push_back({ { cos1 * kOuterRadius, kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { 0.0f, 1.0f, 0.0f } }); // 外側1
-	//}
+	// 頂点データを更新
+	UpdateVertexBuffer(sphereVertices);
+}
 
-	//// 下面キャップの頂点データを生成
-	//for (uint32_t index = 0; index < kCylinderDivide; ++index) {
-	//	float sin0 = std::sin(radianPerDiv * index);
-	//	float cos0 = std::cos(radianPerDiv * index);
-	//	float sin1 = std::sin(radianPerDiv * (index + 1));
-	//	float cos1 = std::cos(radianPerDiv * (index + 1));
-	//	float u0 = float(index) / float(kCylinderDivide);
-	//	float u1 = float(index + 1) / float(kCylinderDivide);
+void ParticleGroup::MakeTorusVertexData()
+{
+	// 頂点データをトーラスで初期化
+	std::vector<VertexData> torusVertices = ParticleMath::MakeTorusVertexData();
 
-	//	// 三角形1: 中心 → 外側1 → 外側0
-	//	cylinderVertices.push_back({ { 0.0f, -kHeight / 2.0f, 0.0f, 1.0f }, { 0.5f, 0.5f }, { 0.0f, -1.0f, 0.0f } }); // 中心
-	//	cylinderVertices.push_back({ { cos1 * kOuterRadius, -kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { 0.0f, -1.0f, 0.0f } }); // 外側1
-	//	cylinderVertices.push_back({ { cos0 * kOuterRadius, -kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 0.0f }, { 0.0f, -1.0f, 0.0f } }); // 外側0
-	//}
+	// 頂点データを更新
+	UpdateVertexBuffer(torusVertices);
+}
 
-	// 側面の頂点データを生成
-	for (uint32_t index = 0; index < kCylinderDivide; ++index)
-	{
-		float sin0 = std::sin(radianPerDiv * index);
-		float cos0 = std::cos(radianPerDiv * index);
-		float sin1 = std::sin(radianPerDiv * (index + 1));
-		float cos1 = std::cos(radianPerDiv * (index + 1));
-		float u0 = float(index) / float(kCylinderDivide);
-		float u1 = float(index + 1) / float(kCylinderDivide);
+void ParticleGroup::MakeStarVertexData()
+{
+	// 頂点データを星型で初期化
+	std::vector<VertexData> vertices = ParticleMath::MakeStarVertexData();
 
-		// 三角形1: 上外側0 → 上外側1 → 下外側0
-		cylinderVertices.push_back({ { cos0 * kOuterRadius, kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 0.0f }, { cos0, 0.0f, sin0 } });
-		cylinderVertices.push_back({ { cos1 * kOuterRadius, kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { cos1, 0.0f, sin1 } });
-		cylinderVertices.push_back({ { cos0 * kOuterRadius, -kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 1.0f }, { cos0, 0.0f, sin0 } });
+	// 頂点データを更新
+	UpdateVertexBuffer(vertices);
+}
 
-		// 三角形2: 上外側1 → 下外側1 → 下外側0
-		cylinderVertices.push_back({ { cos1 * kOuterRadius, kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 0.0f }, { cos1, 0.0f, sin1 } });
-		cylinderVertices.push_back({ { cos1 * kOuterRadius, -kHeight / 2.0f, sin1 * kOuterRadius, 1.0f }, { u1, 1.0f }, { cos1, 0.0f, sin1 } });
-		cylinderVertices.push_back({ { cos0 * kOuterRadius, -kHeight / 2.0f, sin0 * kOuterRadius, 1.0f }, { u0, 1.0f }, { cos0, 0.0f, sin0 } });
-	}
+void ParticleGroup::MakeHeartVertexData()
+{
+	// 頂点データをハート型で初期化
+	std::vector<VertexData> vertices = ParticleMath::MakeHeartVertexData();
 
-	// 頂点データを設定
-	vertexResource = ParticleManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * cylinderVertices.size());
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, cylinderVertices.data(), sizeof(VertexData) * cylinderVertices.size());
-	vertexResource->Unmap(0, nullptr);
+	// 頂点データを更新
+	UpdateVertexBuffer(vertices);
+}
 
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * cylinderVertices.size());
+void ParticleGroup::MakeSpiralVertexData()
+{
+	// 頂点データをスパイラルで初期化
+	std::vector<VertexData> spiralVertices = ParticleMath::MakeSpiralVertexData();
+	// 頂点データを更新
+	UpdateVertexBuffer(spiralVertices);
+}
+
+void ParticleGroup::MakeConeVertexData()
+{
+	// 頂点データを円錐で初期化
+	std::vector<VertexData> coneVertices = ParticleMath::MakeConeVertexData();
+	// 頂点データを更新
+	UpdateVertexBuffer(coneVertices);
 }
