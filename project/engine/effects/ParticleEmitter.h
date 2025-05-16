@@ -21,6 +21,7 @@ public:
     void SetEmitCount(uint32_t count) { emitCount_ = count; }
     void SetLoop(bool loop) { isLoop_ = loop; }
 	void SetBillborad(bool flag) { particleGroup_->SetBillboard(flag); }
+	void SetTexture(const std::string& textureFilePath) { particleGroup_->SetTexture(textureFilePath); }
 	void SetModelType(ParticleGroup::ParticleType type) { particleGroup_->SetModelType(type); }
 	Vector3 GetUVTranslate() const { return particleGroup_->GetUVTranslate(); }
 	void SetUVTranslate(const Vector3& translate) { particleGroup_->SetUVTranslate(translate); }

@@ -19,6 +19,12 @@ public:
 		Plane,
 		Ring,
 		Cylinder,
+		Sphere,
+		Torus,
+		Star,
+		Heart,
+		Spiral,
+		Cone,
 	};
 
 	ParticleGroup() = default;
@@ -29,6 +35,7 @@ public:
 	void Draw(DirectXCommon* dxCommon, SrvManager* srvManager);
 	void AddParticle(const Particle& particle) { particles.push_back(particle); }
 
+	void SetTexture(const std::string& textureFilePath);
 	void SetModelType(ParticleType type);
 	std::list<Particle>& GetParticles() { return particles; }
 	void SetBillboard(bool isBillboard) { isBillboard_ = isBillboard; }
@@ -45,9 +52,16 @@ private:
 	void UpdateInstanceData(Particle& particle, const Matrix4x4& billboardMatrix, CameraManager* camera);
 	bool UpdateLifeTime(std::list<Particle>::iterator& itr);
 	void UpdateTranslate(std::list<Particle>::iterator& itr);
+	void UpdateVertexBuffer(const std::vector<VertexData>& vertices);
 	void MakePlaneVertexData();
 	void MakeRingVertexData();
 	void MakeCylinderVertexData();
+	void MakeSphereVertexData();
+	void MakeTorusVertexData();
+	void MakeStarVertexData();
+	void MakeHeartVertexData();
+	void MakeSpiralVertexData();
+	void MakeConeVertexData();
 
 private:
 	//===========================[ 描画設定用変数 ]===========================//
