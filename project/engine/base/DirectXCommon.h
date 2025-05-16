@@ -9,6 +9,8 @@
 
 #include "base/WinApp.h"
 #include "externals/DirectXTex/DirectXTex.h"
+#include "math/Vector4.h"
+
 
 class DirectXCommon
 {
@@ -53,6 +55,8 @@ public: //メンバ関数
 	 */
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
 
+	void CreateSamplerHeap();
+
 public://アクセッサ
 	/// \brief デバイスの取得
 	/// \return 
@@ -73,6 +77,7 @@ public://アクセッサ
 	//各種ディスクリプヒープの取得
 	ID3D12DescriptorHeap* GetRTVDescriptorHeap() { return rtvDescriptorHeap_.Get(); }
 	ID3D12DescriptorHeap* GetDSVDescriptorHeap() { return dsvDescriptorHeap_.Get(); }
+	ID3D12DescriptorHeap* GetSamplerHeap() { return samplerHeap_.Get(); }	
 
 	//各種ディスクリプタサイズの取得
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
@@ -81,8 +86,29 @@ public://アクセッサ
 	//バックバッファの取得
 	size_t GetBackBufferCount() { return swapChainResources_.size(); }
 
+	/// \brief CPUのDescriptorHandleを取得
+	/// \param descriptorHeap 
+	/// \param descriptorSize 
+	/// \param index 
+	/// \return 
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
 
+	/// \brief GPUのDescriptorHandleを取得
+	/// \param descriptorHeap 
+	/// \param descriptorSize 
+	/// \param index 
+	/// \return 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
 
+	// Sampler用ディスクリプタヒープのサイズを取得する関数
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerDescriptorHandle() const
+	{
+		assert(samplerHeap_ != nullptr && "Sampler Heap is not initialized!");
+		return samplerHeap_->GetGPUDescriptorHandleForHeapStart();
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() { return dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(); }
+	
 private: //メンバ関数
 	/// \brief デバイスの初期化
 	void InitializeDevice();
@@ -106,29 +132,10 @@ private: //メンバ関数
 	void InitializeScissorRect();
 	// DXCコンパイラの初期化
 	void InitializeDXCCompiler();
-	//ImGuiの初期化
-	void InitializeImGui();
 	/// \brief FPS固定初期化
 	void InitializeFixFPS();
 	/// \brief FPS固定更新
-	void UpdateFixFPS();
-
-
-	
-
-	/// \brief CPUのDescriptorHandleを取得
-	/// \param descriptorHeap 
-	/// \param descriptorSize 
-	/// \param index 
-	/// \return 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
-
-	/// \brief GPUのDescriptorHandleを取得
-	/// \param descriptorHeap 
-	/// \param descriptorSize 
-	/// \param index 
-	/// \return 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index);
+	void UpdateFixFPS();	
 
 	
 private: //メンバ変数
@@ -139,56 +146,50 @@ private: //メンバ変数
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 	//DXGIファクトリー
 	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_;
-
 	//コマンドアロケータ
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_ = nullptr;
 	//コマンドリスト
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_ = nullptr;
 	//コマンドキュー
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_ = nullptr;
-
 	//スワップチェイン
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
+	//レンダーテクスチャ
+	Microsoft::WRL::ComPtr<ID3D12Resource> renderTexture_ = nullptr;
 	//スワップチェインリソース
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> swapChainResources_;
-
 	//深度バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_ = nullptr;
-
 	//ディスクリプタヒープ
 	//RTV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
 	//DSV
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
-
+	//Sampler用のヒープ
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> samplerHeap_ = nullptr;
 	//RTVを2つ作るのでディスクリプタを２つ用意
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
-
 	//ディスクリプタサイズ
 	uint32_t descriptorSizeRTV_;
 	uint32_t descriptorSizeDSV_;
-
 	//フェンス
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
 	uint64_t fenceValue_ = 0;
 	//HANDLE fenceEvent_;
-
 	//ビューポート
 	D3D12_VIEWPORT viewport_{};
-
 	//シザー矩形
 	D3D12_RECT scissorRect_{};
-	
 	//DXCユーティリティ
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;
 	//DXCコンパイラ
 	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_ = nullptr;
 	//インクルードハンドラ
 	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_ = nullptr;
-
 	//リソースバリア
 	D3D12_RESOURCE_BARRIER barrier_{};
-
 	std::chrono::steady_clock::time_point reference_;
+	//レンダーテクスチャのクリア値
+	D3D12_CLEAR_VALUE clearValue_;
 };
 

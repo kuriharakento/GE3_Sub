@@ -3,7 +3,8 @@
 #include <vector>
 
 #include "math/MatrixFunc.h"
-#include "math/VectorFunc.h"
+#include "math/Vector2.h"
+#include "math/Vector4.h"
 
 /**
  * \brief 頂点データ
@@ -72,12 +73,23 @@ struct MaterialData
 };
 
 /**
+ * \brief ノード
+ */
+struct Node
+{
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<Node> children;
+};
+
+/**
  * \brief モデルデータ
  */
 struct ModelData
 {
-    std::vector<VertexData> vertices;            // 頂点データ
-    MaterialData material;                       // マテリアルデータ
+	std::vector<VertexData> vertices;			// 頂点データ
+	MaterialData material;						// マテリアルデータ
+	Node rootNode;								// ノード
 };
 
 /**
@@ -90,6 +102,8 @@ struct Particle
     Vector4 color;                               // 色
     float lifeTime;                              // 寿命
     float currentTime;                           // 現在の時間
+
+	bool isAlive() const { return currentTime < lifeTime; }
 };
 struct ParticleForGPU
 {

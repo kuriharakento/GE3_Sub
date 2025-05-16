@@ -55,8 +55,6 @@ void DirectXCommon::Initialize(WinApp* winApp)
 	InitializeScissorRect();
 	//DXCコンパイラの初期化
 	InitializeDXCCompiler();
-	//ImGuiの初期化
-	InitializeImGui();
 }
 
 void DirectXCommon::PreDraw()
@@ -110,7 +108,6 @@ void DirectXCommon::PreDraw()
 	/*--------------[ シザー矩形の設定 ]-----------------*/
 
 	commandList_->RSSetScissorRects(1, &scissorRect_);
-
 }
 
 void DirectXCommon::PostDraw()
@@ -518,38 +515,6 @@ void DirectXCommon::InitializeDXCCompiler()
 	assert(SUCCEEDED(hr));
 }
 
-void DirectXCommon::InitializeImGui()
-{
-	/*--------------[ ImGuiの初期化 ]-----------------*/
-
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-	swapChainDesc.Width = WinApp::kClientWidth;								//画面の幅。ウィンドウのクライアント領域を同じものにしておく
-	swapChainDesc.Height = WinApp::kClientHeight;							//画面の高さ。ウィンドウのクライアント領域を同じものにしておく
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;				//色の形式
-	swapChainDesc.SampleDesc.Count = 1;								//マルチサンプルしない
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	//描画のターゲットとして利用する
-	swapChainDesc.BufferCount = 2;									//ダブルバッファ
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;		//モニタにうつしたら、中身を廃棄
-
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-
-	////ImGuiの初期化
-	//IMGUI_CHECKVERSION();
-	//ImGui::CreateContext();
-	//ImGui::StyleColorsDark();
-	//ImGui_ImplWin32_Init(winApp_->GetHwnd());
-	//ImGui_ImplDX12_Init(
-	//	device_.Get(),
-	//	swapChainDesc.BufferCount,
-	//	rtvDesc.Format,
-	//	srvDescriptorHeap_.Get(),
-	//	srvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
-	//	srvDescriptorHeap_->GetGPUDescriptorHandleForHeapStart()
-	//);
-}
-
 void DirectXCommon::InitializeFixFPS()
 {
 	//現在時間を記録する
@@ -593,6 +558,36 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap
 	HRESULT hr = device_->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
 	assert(SUCCEEDED(hr));
 	return descriptorHeap;
+}
+
+
+void DirectXCommon::CreateSamplerHeap()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC desc{};
+	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+	desc.NumDescriptors = 1;
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	HRESULT hr = device_->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&samplerHeap_));
+	assert(SUCCEEDED(hr) && "Failed to create Sampler Heap!");
+
+	// デバッグログ
+	D3D12_GPU_DESCRIPTOR_HANDLE samplerHeapBase = samplerHeap_->GetGPUDescriptorHandleForHeapStart();
+	OutputDebugStringA(("Sampler Heap Base Address: " + std::to_string(samplerHeapBase.ptr) + "\n").c_str());
+	assert(samplerHeap_ != nullptr && "Sampler Descriptor Heap is null!");
+
+	D3D12_SAMPLER_DESC samplerDesc{};
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	device_->CreateSampler(&samplerDesc, samplerHeap_->GetCPUDescriptorHandleForHeapStart());
+
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetCPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index)

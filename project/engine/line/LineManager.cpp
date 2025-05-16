@@ -2,7 +2,20 @@
 
 #include <numbers>
 
+#include "lighting/VectorColorCodes.h"
 #include "manager/CameraManager.h"
+#include "math/MathUtils.h"
+
+LineManager* LineManager::instance_ = nullptr; // シングルトンインスタンス
+
+LineManager* LineManager::GetInstance()
+{
+	if (instance_ == nullptr)
+	{
+		instance_ = new LineManager();
+	}
+	return instance_;
+}
 
 void LineManager::Initialize(DirectXCommon* dxCommon, CameraManager* cameraManager)
 {
@@ -18,7 +31,16 @@ void LineManager::Clear() {
     line_->Clear();
 }
 
-void LineManager::Draw() {
+void LineManager::Finalize()
+{
+	line_.reset();
+	lineCommon_.reset();
+	dxCommon_ = nullptr;
+	cameraManager_ = nullptr;
+	instance_ = nullptr;
+}
+
+void LineManager::RenderLines() {
 	//頂点データ、行列データの更新
     line_->Update(cameraManager_->GetActiveCamera());
 	//描画
@@ -114,4 +136,116 @@ void LineManager::DrawSphere(const Vector3& center, float radius, const Vector4&
 void LineManager::Drawline(const Vector3& start, const Vector3& end, const Vector4& color)
 {
 	line_->AddLine(start, end, color);
+}
+
+void LineManager::DrawGrid(float gridSize, float gridSpacing, const Vector4& color)
+{
+    // グリッドの範囲を計算
+    float halfSize = gridSize / 2.0f;
+
+    // X軸方向の線を描画
+    for (float z = -halfSize; z <= halfSize; z += gridSpacing) {
+        Vector3 start = { -halfSize, 0.0f, z };
+        Vector3 end = { halfSize, 0.0f, z };
+        Drawline(start, end, color);
+    }
+
+    // Z軸方向の線を描画
+    for (float x = -halfSize; x <= halfSize; x += gridSpacing) {
+        Vector3 start = { x, 0.0f, -halfSize };
+        Vector3 end = { x, 0.0f, halfSize };
+        Drawline(start, end, color);
+    }
+}
+
+void LineManager::DrawArrow(const Vector3& start, const Vector3& direction, float length, const Vector4& color)
+{
+    Vector3 dir = Vector3::Normalize(direction) * length;
+    Vector3 end = start + dir;
+
+    // メインの矢印線
+    Drawline(start, end, color);
+
+    // 矢じり（左右に 45 度開いた線を描画）
+    Vector3 up = { 0, 1, 0 };
+    Vector3 right = Vector3::Cross(up, dir);
+    if (Vector3::Length(right) < 0.0001f) {
+        right = { 1, 0, 0 }; // 向きが真上 or 真下の時は強制
+    }
+    right = Vector3::Normalize(right);
+    up = Vector3::Normalize(Vector3::Cross(dir, right)); // カメラと垂直な方向
+
+    float headLength = length * 0.1f;
+    Vector3 leftWing = Vector3::Rotate(-dir, up, 0.4f) * headLength;
+    Vector3 rightWing = Vector3::Rotate(-dir, up, -0.4f) * headLength;
+
+    Drawline(end, end + leftWing, color);
+    Drawline(end, end + rightWing, color);
+}
+
+void LineManager::DrawAxis(const Vector3& position, float scale)
+{
+    // X軸（赤）
+    Drawline(position, position + Vector3{ scale, 0, 0 }, VectorColorCodes::Red);
+    // Y軸（緑）
+    Drawline(position, position + Vector3{ 0, scale, 0 }, VectorColorCodes::Green);
+    // Z軸（青）
+    Drawline(position, position + Vector3{ 0, 0, scale }, VectorColorCodes::Blue);
+}
+
+void LineManager::DrawAABB(const Vector3& min, const Vector3& max, const Vector4& color)
+{
+    // 8頂点を計算
+    Vector3 v[8] = {
+        {min.x, min.y, min.z},
+        {max.x, min.y, min.z},
+        {max.x, max.y, min.z},
+        {min.x, max.y, min.z},
+        {min.x, min.y, max.z},
+        {max.x, min.y, max.z},
+        {max.x, max.y, max.z},
+        {min.x, max.y, max.z},
+    };
+
+    // 12本のエッジを線で描画
+    Drawline(v[0], v[1], color); Drawline(v[1], v[2], color);
+    Drawline(v[2], v[3], color); Drawline(v[3], v[0], color);
+
+    Drawline(v[4], v[5], color); Drawline(v[5], v[6], color);
+    Drawline(v[6], v[7], color); Drawline(v[7], v[4], color);
+
+    Drawline(v[0], v[4], color); Drawline(v[1], v[5], color);
+    Drawline(v[2], v[6], color); Drawline(v[3], v[7], color);
+}
+
+void LineManager::DrawOBB(const Vector3& center, const Vector3& halfSize, const Matrix4x4& rotation,
+	const Vector4& color)
+{
+    // ローカル座標での8頂点
+    Vector3 localPoints[8] = {
+        {-halfSize.x, -halfSize.y, -halfSize.z},
+        {+halfSize.x, -halfSize.y, -halfSize.z},
+        {+halfSize.x, +halfSize.y, -halfSize.z},
+        {-halfSize.x, +halfSize.y, -halfSize.z},
+        {-halfSize.x, -halfSize.y, +halfSize.z},
+        {+halfSize.x, -halfSize.y, +halfSize.z},
+        {+halfSize.x, +halfSize.y, +halfSize.z},
+        {-halfSize.x, +halfSize.y, +halfSize.z},
+    };
+
+    // 回転 + 移動適用
+    Vector3 worldPoints[8];
+    for (int i = 0; i < 8; ++i) {
+        worldPoints[i] = MathUtils::Transform(localPoints[i], rotation) + center;
+    }
+
+    // 12本のエッジを描画
+    int indices[12][2] = {
+        {0,1},{1,2},{2,3},{3,0},
+        {4,5},{5,6},{6,7},{7,4},
+        {0,4},{1,5},{2,6},{3,7},
+    };
+    for (int i = 0; i < 12; ++i) {
+        Drawline(worldPoints[indices[i][0]], worldPoints[indices[i][1]], color);
+    }
 }

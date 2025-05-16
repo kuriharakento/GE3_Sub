@@ -62,11 +62,13 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)engine\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)engine\;$(ProjectDir);$(ProjectDir)externals\;$(ProjectDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -85,7 +87,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)engine\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)engine\;$(ProjectDir);$(ProjectDir)externals\;$(ProjectDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MinSpace</Optimization>
     </ClCompile>
     <Link>
@@ -93,6 +95,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -100,7 +104,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\effects\component\single\AccelerationComponent.cpp" />
     <ClCompile Include="application\animation\Slide.cpp" />
+    <ClCompile Include="engine\effects\component\single\ColorFadeOutComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\DragComponent.cpp" />
+    <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
+    <ClCompile Include="engine\base\PostProcessPass.cpp" />
+    <ClCompile Include="engine\base\RenderTexture.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
     <ClCompile Include="engine\audio\Audio.cpp" />
     <ClCompile Include="engine\manager\CameraManager.cpp" />
@@ -133,17 +143,45 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\lighting\LightManager.cpp" />
     <ClCompile Include="engine\line\Line.cpp" />
     <ClCompile Include="engine\line\LineCommon.cpp" />
+    <ClCompile Include="engine\jsonEditor\JsonEditorManager.cpp" />
+    <ClCompile Include="engine\jsonEditor\JsonEditableBase.cpp" />
+    <ClCompile Include="engine\effects\component\single\GravityComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
-    <ClCompile Include="engine\manager\ParticleManager.cpp" />
-    <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
+    <ClCompile Include="engine\effects\ParticleManager.cpp" />
     <ClCompile Include="engine\scene\MyGame.cpp" />
     <ClCompile Include="application\scene\play\TitleScene.cpp" />
     <ClCompile Include="engine\scene\manager\SceneManager.cpp" />
     <ClCompile Include="engine\scene\factory\SceneFactory.cpp" />
+    <ClCompile Include="engine\camerawork\OrbitCameraWork.cpp" />
+    <ClCompile Include="engine\camerawork\spline\SplineData.cpp" />
+    <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
+    <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
+    <ClCompile Include="engine\effects\ParticlePipelineManager.cpp" />
+    <ClCompile Include="engine\effects\ParticleGroup.cpp" />
+    <ClCompile Include="engine\effects\component\single\RotationComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\ScaleOverLifetimeComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\OrbitComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\RandomInitialVelocityComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\UVTranslateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\UVScaleComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\UVRotateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\MaterialColorComponent.cpp" />
+    <ClCompile Include="engine\effects\ParticleMath.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine\effects\component\single\AccelerationComponent.h" />
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="engine\effects\component\single\ColorFadeOutComponent.h" />
+    <ClInclude Include="engine\effects\component\single\DragComponent.h" />
+    <ClInclude Include="engine\effects\component\interface\IParticleComponent.h" />
+    <ClInclude Include="engine\effects\component\interface\IParticleGroupComponent.h" />
+    <ClInclude Include="engine\effects\ParticleEmitter.h" />
+    <ClInclude Include="engine\base\PostProcessPass.h" />
+    <ClInclude Include="engine\base\RenderTexture.h" />
+    <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
+    <ClInclude Include="engine\effects\component\interface\IParticleBehaviorComponent.h" />
+    <ClInclude Include="engine\jsonEditor\JsonUtils.h" />
     <ClInclude Include="engine\line\LineManager.h" />
     <ClInclude Include="engine\lighting\DirectionalLight.h" />
     <ClInclude Include="engine\lighting\LightConstants.h" />
@@ -152,6 +190,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\lighting\VectorColorCodes.h" />
     <ClInclude Include="engine\math\Easing.h" />
     <ClInclude Include="engine\math\MathUtils.h" />
+    <ClInclude Include="engine\math\Vector2.h" />
+    <ClInclude Include="engine\math\Vector3.h" />
+    <ClInclude Include="engine\math\Vector4.h" />
     <ClInclude Include="engine\scene\SceneContext.h" />
     <ClInclude Include="engine\scene\interface\AbstractSceneFactory.h" />
     <ClInclude Include="engine\audio\Audio.h" />
@@ -173,7 +214,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\input\Input.h" />
     <ClInclude Include="engine\3d\Object3dCommon.h" />
     <ClInclude Include="engine\math\MatrixFunc.h" />
-    <ClInclude Include="engine\math\VectorFunc.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -184,8 +224,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="engine\manager\SrvManager.h" />
     <ClInclude Include="engine\manager\ImGuiManager.h" />
-    <ClInclude Include="engine\manager\ParticleManager.h" />
-    <ClInclude Include="engine\effects\ParticleEmitter.h" />
+    <ClInclude Include="engine\effects\ParticleManager.h" />
     <ClInclude Include="engine\scene\MyGame.h" />
     <ClInclude Include="engine\framework\Framework.h" />
     <ClInclude Include="application\scene\play\GamePlayScene.h" />
@@ -196,6 +235,25 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\lighting\LightManager.h" />
     <ClInclude Include="engine\line\Line.h" />
     <ClInclude Include="engine\line\LineCommon.h" />
+    <ClInclude Include="engine\camerawork\OrbitCameraWork.h" />
+    <ClInclude Include="engine\camerawork\spline\SplineData.h" />
+    <ClInclude Include="engine\camerawork\spline\Spline.h" />
+    <ClInclude Include="engine\jsonEditor\IJsonEditable.h" />
+    <ClInclude Include="engine\jsonEditor\JsonEditorManager.h" />
+    <ClInclude Include="engine\camerawork\SplineCamera.h" />
+    <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
+    <ClInclude Include="engine\effects\ParticlePipelineManager.h" />
+    <ClInclude Include="engine\effects\ParticleGroup.h" />
+    <ClInclude Include="engine\effects\component\single\GravityComponent.h" />
+    <ClInclude Include="engine\effects\component\single\RotationComponent.h" />
+    <ClInclude Include="engine\effects\component\single\ScaleOverLifetimeComponent.h" />
+    <ClInclude Include="engine\effects\component\single\OrbitComponent.h" />
+    <ClInclude Include="engine\effects\component\single\RandomInitialVelocityComponent.h" />
+    <ClInclude Include="engine\effects\component\group\UVTranslateComponent.h" />
+    <ClInclude Include="engine\effects\component\group\UVScaleComponent.h" />
+    <ClInclude Include="engine\effects\component\group\UVRotateComponent.h" />
+    <ClInclude Include="engine\effects\component\group\MaterialColorComponent.h" />
+    <ClInclude Include="engine\effects\ParticleMath.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

@@ -4,7 +4,7 @@
 #include "audio/Audio.h"
 #include "base/Logger.h"
 #include "input/Input.h"
-#include "manager/ParticleManager.h"
+#include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 #include <Psapi.h>
 
@@ -69,10 +69,16 @@ void Framework::Initialize()
 	lightManager_ = std::make_unique<LightManager>();
 	lightManager_->Initialize(dxCommon_.get());
 
-	//線マネージャーの初期化
-	lineManager_ = std::make_unique<LineManager>();
-	lineManager_->Initialize(dxCommon_.get(),cameraManager_.get());
+	//ラインマネージャーの初期化
+	LineManager::GetInstance()->Initialize(dxCommon_.get(), cameraManager_.get());
 
+	//レンダーテクスチャの初期化
+	renderTexture_ = std::make_unique<RenderTexture>();
+	renderTexture_->Initialize(dxCommon_.get(), srvManager_.get(), WinApp::kClientWidth, WinApp::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, /*Vector4(1.0f, 0.0f, 0.0f, 1.0f)*/Vector4(0.1f, 0.25f, 0.5f, 1.0f));
+
+	//コピー用のパス
+	postProcessPass = std::make_unique<PostProcessPass>();
+	postProcessPass->Initialize(dxCommon_.get(), srvManager_.get(), L"Resources/shaders/CopyImage.VS.hlsl", L"Resources/shaders/CopyImage.PS.hlsl");
 }
 
 void Framework::Finalize()
@@ -92,7 +98,9 @@ void Framework::Finalize()
 	Input::GetInstance()->Finalize();				//入力の解放
 	Audio::GetInstance()->Finalize();				//オーディオの解放
 	lightManager_.reset();							//ライトマネージャーの解放
-	lineManager_.reset();							//線マネージャーの解放
+	LineManager::GetInstance()->Finalize();			//ラインマネージャーの解放
+	renderTexture_.reset();							//レンダーテクスチャの解放
+	postProcessPass.reset();								//コピー用のパスの解放
 }
 
 void Framework::Update()
@@ -112,6 +120,9 @@ void Framework::Update()
 	//カメラの更新
 	cameraManager_->Update();
 
+	//パーティクルマネージャーの更新
+	ParticleManager::GetInstance()->Update(cameraManager_.get());
+
 	//オーディオの更新
 	Audio::GetInstance()->Update();
 
@@ -129,27 +140,13 @@ void Framework::Draw3DSetting()
 {
 	//NOTE:3Dオブジェクトの描画準備。共通の設定を行う
 	objectCommon_->CommonRenderingSetting();
+
 }
 
 void Framework::Draw2DSetting()
 {
 	//スプライトの描画準備。共通の設定を行う
 	spriteCommon_->CommonRenderingSetting();
-}
-
-void Framework::PreDraw()
-{
-	//描画前処理
-	dxCommon_->PreDraw();
-	srvManager_->PreDraw();
-}
-
-void Framework::PostDraw()
-{
-	//ImGuiの描画
-	imguiManager_->Draw();
-	//描画後処理
-	dxCommon_->PostDraw();
 }
 
 void Framework::Run()
