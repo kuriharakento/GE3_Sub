@@ -102,6 +102,8 @@ struct Particle
     Vector4 color;                               // 色
     float lifeTime;                              // 寿命
     float currentTime;                           // 現在の時間
+
+	bool isAlive() const { return currentTime < lifeTime; }
 };
 struct ParticleForGPU
 {

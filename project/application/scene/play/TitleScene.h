@@ -10,6 +10,7 @@
 #include "camerawork/FollowCamera.h"
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
+#include "effects/ParticleEmitter.h"
 #include "camerawork/TopDownCamera.h"
 #include "engine/scene/interface/BaseScene.h"
 
@@ -45,4 +46,6 @@ private: //メンバ変数
 	//ゲームオブジェクト
 	std::unique_ptr<Player> player;
 	std::unique_ptr<GameObject> enemy;
+  //エミッター
+	std::unique_ptr<ParticleEmitter> emitter_;
 };

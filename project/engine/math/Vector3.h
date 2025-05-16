@@ -132,6 +132,19 @@ struct Vector3 {
         return Vector3{ -x, -y, -z };
     }
 
+    Vector3& operator*=(float scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
+    }
+    Vector3& operator*=(const Vector3& other)
+    {
+        x *= other.x;
+        y *= other.y;
+        z *= other.z;
+        return *this;
     Vector3 operator+() const {
         return *this;
     }
