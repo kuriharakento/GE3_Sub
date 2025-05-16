@@ -1,5 +1,4 @@
 #include "MathUtils.h"
-
 #include <cassert>
 #include <random>
 
@@ -66,7 +65,6 @@ namespace MathUtils
 		result.z /= w;
 		return result;
 	}
-
 	Vector3 TransformNormal(const Vector3& normal, const Matrix4x4& matrix)
 	{
 		Vector3 result;

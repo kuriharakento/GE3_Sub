@@ -6,6 +6,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
+    <ClCompile Include="application\GameObject\base\GameObject.cpp" />
     <ClCompile Include="engine\base\PostProcessPass.cpp" />
     <ClCompile Include="engine\base\RenderTexture.cpp" />
     <ClCompile Include="engine\line\LineManager.cpp" />
@@ -45,6 +46,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\effects\ParticleManager.cpp" />
+    <ClCompile Include="engine\manager\ParticleManager.cpp" />
+    <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
     <ClCompile Include="engine\scene\MyGame.cpp" />
     <ClCompile Include="application\scene\play\TitleScene.cpp" />
     <ClCompile Include="engine\scene\manager\SceneManager.cpp" />
@@ -74,6 +77,22 @@
     <ClInclude Include="application\animation\Slide.h" />
     <ClInclude Include="engine\base\PostProcessPass.h" />
     <ClInclude Include="engine\base\RenderTexture.h" />
+    <ClCompile Include="application\Skydome.cpp" />
+    <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
+    <ClCompile Include="engine\camerawork\FollowCamera.cpp" />
+    <ClCompile Include="engine\camerawork\TopDownCamera.cpp" />
+    <ClCompile Include="application\GameObject\character\base\Character.cpp" />
+    <ClCompile Include="application\GameObject\character\player\Player.cpp" />
+    <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\action\BulletComponent.cpp" />
+    <ClCompile Include="application\GameObject\weapon\Bullet.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\CollisionManager.cpp" />
+    <ClCompile Include="application\GameObject\component\base\ICollisionComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\AABBColliderComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\OBBColliderComponent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="application\animation\Slide.h" />
     <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
     <ClInclude Include="engine\jsonEditor\JsonUtils.h" />
     <ClInclude Include="engine\line\LineManager.h" />
@@ -119,6 +138,8 @@
     <ClInclude Include="engine\manager\SrvManager.h" />
     <ClInclude Include="engine\manager\ImGuiManager.h" />
     <ClInclude Include="engine\effects\ParticleManager.h" />
+    <ClInclude Include="engine\manager\ParticleManager.h" />
+    <ClInclude Include="engine\effects\ParticleEmitter.h" />
     <ClInclude Include="engine\scene\MyGame.h" />
     <ClInclude Include="engine\framework\Framework.h" />
     <ClInclude Include="application\scene\play\GamePlayScene.h" />
@@ -155,6 +176,24 @@
     <ClInclude Include="engine\effects\component\group\UVRotateComponent.h" />
     <ClInclude Include="engine\effects\component\group\MaterialColorComponent.h" />
     <ClInclude Include="engine\effects\ParticleMath.h" />
+    <ClInclude Include="application\Skydome.h" />
+    <ClInclude Include="application\GameObject\component\action\MoveComponent.h" />
+    <ClInclude Include="engine\camerawork\FollowCamera.h" />
+    <ClInclude Include="engine\camerawork\TopDownCamera.h" />
+    <ClInclude Include="application\GameObject\character\base\Character.h" />
+    <ClInclude Include="application\GameObject\character\player\Player.h" />
+    <ClInclude Include="application\GameObject\base\GameObject.h" />
+    <ClInclude Include="application\GameObject\component\base\IGameObjectComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\FireComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\BulletComponent.h" />
+    <ClInclude Include="application\GameObject\weapon\Bullet.h" />
+    <ClInclude Include="application\GameObject\component\base\IActionComponent.h" />
+    <ClInclude Include="application\GameObject\component\base\ICollisionComponent.h" />
+    <ClInclude Include="application\GameObject\component\collision\CollisionManager.h" />
+    <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
+    <ClInclude Include="engine\math\AABB.h" />
+    <ClInclude Include="application\GameObject\component\collision\OBBColliderComponent.h" />
+    <ClInclude Include="engine\math\OBB.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />
