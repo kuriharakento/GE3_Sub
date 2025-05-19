@@ -104,7 +104,7 @@ void TitleScene::Initialize()
 	//emitter_->SetTexture("Resources/uvChecker.png");
 	emitter_->SetEmitRange({ -2.0f,-2.0f,-2.0f }, { 2.0f, 2.0f, 2.0f });
 	emitter_->Start(
-		{ 2.0f,2.0f,2.0f },
+		&player->GetPosition(),
 		3,
 		10.0f,
 		true
