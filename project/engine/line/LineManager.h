@@ -4,6 +4,9 @@
 #include <memory>
 #include <vector>
 
+#include "math/AABB.h"
+#include "math/OBB.h"
+
 class CameraManager;
 
 class LineManager {
@@ -26,9 +29,9 @@ public:
 	// 座標軸の描画
 	void DrawAxis(const Vector3& position, float scale = 1.0f);
 	// AABBの描画
-	void DrawAABB(const Vector3& min, const Vector3& max, const Vector4& color);
+	void DrawAABB(const AABB& aabb, const Vector4& color);
 	// OBBの描画
-	void DrawOBB(const Vector3& center, const Vector3& halfSize, const Matrix4x4& rotation, const Vector4& color);
+	void DrawOBB(const OBB& obb, const Vector4& color);
 	
 private:
     std::unique_ptr<LineCommon> lineCommon_; ///< LineCommon クラスのインスタンス

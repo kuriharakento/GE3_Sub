@@ -1,4 +1,7 @@
 #pragma once
+#include <cassert>
+#include <numbers>
+
 #include "MatrixFunc.h"
 
 namespace MathUtils
@@ -12,8 +15,40 @@ namespace MathUtils
 	Vector3 GetMatrixScale(const Matrix4x4& matrix);
 	Vector3 GetMatrixRotate(const Matrix4x4& matrix);
 
+	// 線形補間（Lerp）関数
+	static float Lerp(float start, float end, float t)
+	{
+		return start + (end - start) * t;
+	}
+	static Vector3 Lerp(const Vector3& start, const Vector3& end, float t)
+	{
+		return start + (end - start) * t;
+	}
+
 	///座標変換
 	Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
+
+	// 角度を -π ～ π の範囲に正規化
+	static float NormalizeAngleRad(float angle)
+	{
+		while (angle > std::numbers::pi_v<float>) angle -= 2.0f * std::numbers::pi_v<float>;
+		while (angle < -std::numbers::pi_v<float>) angle += 2.0f * std::numbers::pi_v<float>;
+		return angle;
+	}
+
+	// 単一軸の角度補間（最短経路）
+	static float LerpAngle(float start, float end, float t)
+	{
+		float delta = NormalizeAngleRad(end - start);
+		return start + delta * t;
+	}
+	static Vector3 LerpAngle(const Vector3& from, const Vector3& to, float t) {
+		return {
+			LerpAngle(from.x, to.x, t),
+			LerpAngle(from.y, to.y, t),
+			LerpAngle(from.z, to.z, t)
+		};
+	}
 
 	///法線ベクトルの変換
 	Vector3 TransformNormal(const Vector3& normal, const Matrix4x4& matrix);
