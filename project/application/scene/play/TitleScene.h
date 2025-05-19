@@ -11,6 +11,7 @@
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
 #include "camerawork/TopDownCamera.h"
+#include "effects/ParticleEmitter.h"
 #include "engine/scene/interface/BaseScene.h"
 
 class TitleScene : public BaseScene
@@ -45,4 +46,6 @@ private: //メンバ変数
 	//ゲームオブジェクト
 	std::unique_ptr<Player> player;
 	std::unique_ptr<GameObject> enemy;
+	//エミッター
+	std::unique_ptr<ParticleEmitter> emitter_;
 };

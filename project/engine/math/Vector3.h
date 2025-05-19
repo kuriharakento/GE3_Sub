@@ -140,4 +140,19 @@ struct Vector3 {
     friend Vector3 operator*(float scalar, const Vector3& vec) {
         return vec * scalar;
     }
+
+    Vector3& operator*=(float scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
+    }
+    Vector3& operator*=(const Vector3& other)
+    {
+        x *= other.x;
+        y *= other.y;
+        z *= other.z;
+        return *this;
+    }
 };

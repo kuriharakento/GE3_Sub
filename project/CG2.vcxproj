@@ -104,6 +104,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\effects\component\single\AccelerationComponent.cpp" />
     <ClCompile Include="application\GameObject\component\collision\AABBColliderComponent.cpp" />
     <ClCompile Include="application\animation\Slide.cpp" />
     <ClCompile Include="application\GameObject\base\GameObject.cpp" />
@@ -112,6 +113,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\component\base\ICollisionComponent.cpp" />
     <ClCompile Include="application\GameObject\weapon\Bullet.cpp" />
     <ClCompile Include="application\GameObject\component\collision\CollisionManager.cpp" />
+    <ClCompile Include="engine\effects\component\single\ColorFadeOutComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\DragComponent.cpp" />
+    <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
     <ClCompile Include="engine\base\PostProcessPass.cpp" />
     <ClCompile Include="engine\base\RenderTexture.cpp" />
     <ClCompile Include="engine\camerawork\TopDownCamera.cpp" />
@@ -151,10 +155,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\jsonEditor\JsonEditableBase.cpp" />
     <ClCompile Include="engine\camerawork\FollowCamera.cpp" />
     <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\GravityComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
-    <ClCompile Include="engine\manager\ParticleManager.cpp" />
-    <ClCompile Include="engine\effects\ParticleEmitter.cpp" />
+    <ClCompile Include="engine\effects\ParticleManager.cpp" />
     <ClCompile Include="engine\scene\MyGame.cpp" />
     <ClCompile Include="application\scene\play\TitleScene.cpp" />
     <ClCompile Include="engine\scene\manager\SceneManager.cpp" />
@@ -163,6 +167,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\camerawork\spline\SplineData.cpp" />
     <ClCompile Include="engine\camerawork\spline\Spline.cpp" />
     <ClCompile Include="engine\camerawork\SplineCamera.cpp" />
+    <ClCompile Include="engine\effects\ParticlePipelineManager.cpp" />
+    <ClCompile Include="engine\effects\ParticleGroup.cpp" />
+    <ClCompile Include="engine\effects\component\single\RotationComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\ScaleOverLifetimeComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\OrbitComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\RandomInitialVelocityComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\UVTranslateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\UVScaleComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\UVRotateComponent.cpp" />
+    <ClCompile Include="engine\effects\component\group\MaterialColorComponent.cpp" />
+    <ClCompile Include="engine\effects\ParticleMath.cpp" />
     <ClCompile Include="application\Skydome.cpp" />
     <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
     <ClCompile Include="application\GameObject\character\player\Player.cpp" />
@@ -170,7 +185,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
+    <ClInclude Include="engine\effects\component\single\AccelerationComponent.h" />
     <ClInclude Include="application\animation\Slide.h" />
+    <ClInclude Include="engine\effects\component\single\ColorFadeOutComponent.h" />
+    <ClInclude Include="engine\effects\component\single\DragComponent.h" />
+    <ClInclude Include="engine\effects\component\interface\IParticleComponent.h" />
+    <ClInclude Include="engine\effects\component\interface\IParticleGroupComponent.h" />
+    <ClInclude Include="engine\effects\ParticleEmitter.h" />
+    <ClInclude Include="engine\base\PostProcessPass.h" />
+    <ClInclude Include="engine\base\RenderTexture.h" />
     <ClInclude Include="application\GameObject\base\GameObject.h" />
     <ClInclude Include="application\GameObject\component\base\IGameObjectComponent.h" />
     <ClInclude Include="application\GameObject\character\base\Character.h" />
@@ -179,6 +202,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\weapon\Bullet.h" />
     <ClInclude Include="application\GameObject\component\collision\CollisionManager.h" />
     <ClInclude Include="engine\camerawork\CameraWorkBase.h" />
+    <ClInclude Include="engine\effects\component\interface\IParticleBehaviorComponent.h" />
     <ClInclude Include="engine\camerawork\TopDownCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonUtils.h" />
     <ClInclude Include="engine\line\LineManager.h" />
@@ -225,8 +249,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="engine\manager\SrvManager.h" />
     <ClInclude Include="engine\manager\ImGuiManager.h" />
-    <ClInclude Include="engine\manager\ParticleManager.h" />
-    <ClInclude Include="engine\effects\ParticleEmitter.h" />
+    <ClInclude Include="engine\effects\ParticleManager.h" />
     <ClInclude Include="engine\scene\MyGame.h" />
     <ClInclude Include="engine\framework\Framework.h" />
     <ClInclude Include="application\scene\play\GamePlayScene.h" />
@@ -244,6 +267,18 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\jsonEditor\JsonEditorManager.h" />
     <ClInclude Include="engine\camerawork\SplineCamera.h" />
     <ClInclude Include="engine\jsonEditor\JsonEditableBase.h" />
+    <ClInclude Include="engine\effects\ParticlePipelineManager.h" />
+    <ClInclude Include="engine\effects\ParticleGroup.h" />
+    <ClInclude Include="engine\effects\component\single\GravityComponent.h" />
+    <ClInclude Include="engine\effects\component\single\RotationComponent.h" />
+    <ClInclude Include="engine\effects\component\single\ScaleOverLifetimeComponent.h" />
+    <ClInclude Include="engine\effects\component\single\OrbitComponent.h" />
+    <ClInclude Include="engine\effects\component\single\RandomInitialVelocityComponent.h" />
+    <ClInclude Include="engine\effects\component\group\UVTranslateComponent.h" />
+    <ClInclude Include="engine\effects\component\group\UVScaleComponent.h" />
+    <ClInclude Include="engine\effects\component\group\UVRotateComponent.h" />
+    <ClInclude Include="engine\effects\component\group\MaterialColorComponent.h" />
+    <ClInclude Include="engine\effects\ParticleMath.h" />
     <ClInclude Include="application\Skydome.h" />
     <ClInclude Include="application\GameObject\component\action\MoveComponent.h" />
     <ClInclude Include="engine\camerawork\FollowCamera.h" />

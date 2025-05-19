@@ -4,7 +4,7 @@
 #include "audio/Audio.h"
 #include "base/Logger.h"
 #include "input/Input.h"
-#include "manager/ParticleManager.h"
+#include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 #include <Psapi.h>
 

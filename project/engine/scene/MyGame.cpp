@@ -4,7 +4,7 @@
 #include <chrono>
 #include "3d/ModelManager.h"
 #include "base/Logger.h"
-#include "manager/ParticleManager.h"
+#include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 
 void MyGame::Initialize()
