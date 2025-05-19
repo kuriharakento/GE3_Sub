@@ -127,9 +127,7 @@ void MyGame::Draw()
 	imguiManager_->Draw();
 #endif
 
-	dxCommon_->PostDraw();
-
-	
+	dxCommon_->PostDraw();	
 }
 
 void MyGame::LoadTextures()
@@ -146,4 +144,5 @@ void MyGame::LoadModels()
 	ModelManager::GetInstance()->LoadModel("highPolygonSphere.obj");
 	ModelManager::GetInstance()->LoadModel("terrain.obj");
 	ModelManager::GetInstance()->LoadModel("plane.gltf");
+	ModelManager::GetInstance()->LoadModel("skydome.obj");
 }

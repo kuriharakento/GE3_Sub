@@ -1,5 +1,6 @@
 #include "TitleScene.h"
 
+#include "application/GameObject/component/action/FireComponent.h"
 #include "audio/Audio.h"
 #include "base/PostProcessPass.h"
 #include "effects/component/single/AccelerationComponent.h"
@@ -20,6 +21,9 @@
 #include "jsonEditor/JsonEditorManager.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
+#include "application/GameObject/component/collision/AABBColliderComponent.h"
+#include "application/GameObject/component/action/MoveComponent.h"
+#include "application/GameObject/component/collision/CollisionManager.h"
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 
@@ -29,33 +33,9 @@ void TitleScene::Initialize()
 	// 音声の再生
 	Audio::GetInstance()->PlayWave("fanfare", true);
 
-	// スプライトの生成
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize(sceneManager_->GetSpriteCommon(), "Resources/uvChecker.png");
-	sprite_->SetSize({ 150.0f,150.0f });
-	sprite_->SetPosition({ 0.0f,0.0f });
-
-	//デバック用オブジェクトの生成
-	object3d_ = std::make_unique<Object3d>();
-	object3d_->Initialize(sceneManager_->GetObject3dCommon());
-	object3d_->SetModel("highPolygonSphere.obj");
-	object3d_->SetTranslate({ 0.0f,0.0f,1.0f });
-	object3d_->SetDirectionalLightIntensity(0.0f);
-	object3d_->SetLightManager(sceneManager_->GetLightManager());
-
-	//地面の生成
-	terrain_ = std::make_unique<Object3d>();
-	terrain_->Initialize(sceneManager_->GetObject3dCommon());
-	terrain_->SetModel("terrain.obj");
-	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
-	terrain_->SetDirectionalLightIntensity(0.0f);
-	terrain_->SetLightManager(sceneManager_->GetLightManager());
-
-	//平面オブジェクトの生成
-	plane_ = std::make_unique<Object3d>();
-	plane_->Initialize(sceneManager_->GetObject3dCommon());
-	plane_->SetModel("plane.gltf");
-	plane_->SetTranslate({ -1.0f,1.0f,1.0f });
+	//スカイドームの生成
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Initialize(sceneManager_->GetObject3dCommon(), "skydome.obj");
 
 	//パーティクルグループの作成
 
@@ -63,12 +43,31 @@ void TitleScene::Initialize()
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
 
+	//当たり判定マネージャーの初期化
+	CollisionManager::GetInstance()->Initialize();
+
+	//ゲームオブジェクトの生成
+	player = std::make_unique<Player>("player");
+	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
+	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
+	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
+	//衝突判定コンポーネント
+	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
+
+
+	enemy = std::make_unique<GameObject>("enemy");
+	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
+	enemy->SetPosition({ 0.0f,1.0f,10.0f });
+	//衝突判定コンポーネント
+	enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
+
+
 	//オービットカメラワークの生成
 	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
 	orbitCameraWork_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
 	orbitCameraWork_->SetPositionOffset({ 0.0f,2.0f,0.0f });
 	orbitCameraWork_->Start(
-		&object3d_->GetTranslate(),
+		&player->GetPosition(),
 		10.0f,
 		1.0f
 	);
@@ -78,7 +77,26 @@ void TitleScene::Initialize()
 	splineCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
 	splineCamera_->LoadJson("spline.json");
 	splineCamera_->Start(0.001f, true);
-	splineCamera_->SetTarget(&object3d_->GetTranslate());
+	splineCamera_->SetTarget(&player->GetPosition());
+
+	//フォローカメラの生成
+	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	followCamera_->Start(
+		&player->GetPosition(),
+		15.0f,
+		0.06f
+	);
+
+	//トップダウンカメラの生成
+	topDownCamera_ = std::make_unique<TopDownCamera>();
+	topDownCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	topDownCamera_->SetOffset({ 0.0f, 0.0f, -4.0f });
+	topDownCamera_->SetPitch(1.1f);
+	topDownCamera_->Start(
+		70.0f,
+		&player->GetPosition()
+	);
 
 	//エミッターの初期化
 	emitter_ = std::make_unique<ParticleEmitter>();
@@ -86,7 +104,7 @@ void TitleScene::Initialize()
 	//emitter_->SetTexture("Resources/uvChecker.png");
 	emitter_->SetEmitRange({ -2.0f,-2.0f,-2.0f }, { 2.0f, 2.0f, 2.0f });
 	emitter_->Start(
-		{ 2.0f,2.0f,2.0f },
+		&player->GetPosition(),
 		3,
 		10.0f,
 		true
@@ -136,6 +154,7 @@ void TitleScene::Initialize()
 
 void TitleScene::Finalize()
 {
+	CollisionManager::GetInstance()->Finalize();
 }
 
 void TitleScene::Update()
@@ -158,108 +177,55 @@ void TitleScene::Update()
 		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
 	}
 
-	static bool splineCameraUpdate = true;
+	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
+	static bool followCameraUpdate = false;
+	static bool topDownCameraUpdate = false;
 
 	//カメラワークの更新
 	ImGui::Checkbox("orbitCamera Update", &orbitCameraUpdate);
 	ImGui::Checkbox("splineCamera Update", &splineCameraUpdate);
+	ImGui::Checkbox("followCamera Update", &followCameraUpdate);
+	ImGui::Checkbox("topDownCamera Update", &topDownCameraUpdate);
+	if (Input::GetInstance()->TriggerKey(DIK_F))
+	{
+		followCameraUpdate = !followCameraUpdate;
+	}
 	// カメラワークの更新
 	if (orbitCameraUpdate)
 	{
 		orbitCameraWork_->Update();
 	}
-
 	if (splineCameraUpdate)
 	{
 		splineCamera_->Update();
 	}
-
-	if(ImGui::CollapsingHeader("line"))
+	if (followCameraUpdate)
 	{
-		ImGui::DragFloat3("CubePos1", &cubePos1_.x, 0.1f);
-		ImGui::DragFloat3("CubePos2", &cubePos2_.x, 0.1f);
-		ImGui::DragFloat3("SpherePos1", &spherePos1_.x, 0.1f);
-		ImGui::DragFloat3("SpherePos2", &spherePos2_.x, 0.1f);
+		followCamera_->Update();
 	}
-	#pragma region Debug Sprite
-	if (ImGui::CollapsingHeader("Sprite"))
+	if (topDownCameraUpdate)
 	{
-		Vector2 pos = sprite_->GetPosition();
-		ImGui::SliderFloat2("Position", &pos.x, 0.0f, 1280.0f);
-		sprite_->SetPosition(pos);
-		Vector2 size = sprite_->GetSize();
-		ImGui::SliderFloat2("Size", &size.x, 0.0f, 1280.0f);
-		sprite_->SetSize(size);
-		Vector4 color = sprite_->GetColor();
-		ImGui::ColorEdit4("Color", &color.x);
-		sprite_->SetColor(color);
+		topDownCamera_->Update();
 	}
-	#pragma endregion
 
 	//Jsonエディタの表示
 	JsonEditorManager::GetInstance()->RenderEditUI();
 
-#pragma region Debug Object3D
-	if (ImGui::CollapsingHeader("Object3D"))
+#pragma region GameObject
+	if (ImGui::CollapsingHeader("GameObject"))
 	{
-		//モデルの変更
-		ImGui::Text("Change Model :");
-		ImGui::SameLine();
-		if (ImGui::Button("cube"))
-		{
-			object3d_->SetModel("cube.obj");
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("sphere"))
-		{
-			object3d_->SetModel("highPolygonSphere.obj");
-		}
-	#pragma region Transform
-		Vector3 pos3d = object3d_->GetTranslate();
-		ImGui::DragFloat3("Position", &pos3d.x, 0.1f);
-		object3d_->SetTranslate(pos3d);
-		Vector3 scale = object3d_->GetScale();
-		ImGui::DragFloat3("Scale", &scale.x, 0.1f);
-		object3d_->SetScale(scale);
-		Vector3 rotate = object3d_->GetRotate();
-		ImGui::DragFloat3("Rotate", &rotate.x, 0.01f);
-		object3d_->SetRotate(rotate);
-		Vector4 color3d = object3d_->GetColor();
-		ImGui::ColorEdit4("Color", &color3d.x);
-		object3d_->SetColor(color3d);
-		//plane
-		Vector3 pos3dPlane = plane_->GetTranslate();
-		ImGui::DragFloat3("PositionPlane", &pos3dPlane.x, 0.1f);
-		plane_->SetTranslate(pos3dPlane);
-		Vector3 scalePlane = plane_->GetScale();
-		ImGui::DragFloat3("ScalePlane", &scalePlane.x, 0.1f);
-		plane_->SetScale(scalePlane);
-		Vector3 rotatePlane = plane_->GetRotate();
-		ImGui::DragFloat3("RotatePlane", &rotatePlane.x, 0.01f);
-		plane_->SetRotate(rotatePlane);
-	#pragma endregion
-
-	#pragma region Lighting
-		bool enableLighting = object3d_->IsEnableLighting();
-		ImGui::Checkbox("Enable Lighting", &enableLighting);
-		object3d_->SetEnableLighting(enableLighting);
-		//ディレクショナルライトの設定
-		#pragma region DirectionalLight
-		if (ImGui::CollapsingHeader("DirectionalLight")) {
-			Vector4 lightingColor = object3d_->GetLightingColor();
-			ImGui::ColorEdit4("Lighting Color", &lightingColor.x);
-			object3d_->SetLightingColor(lightingColor);
-			Vector3 lightingDirection = object3d_->GetLightingDirection();
-			ImGui::DragFloat3("Lighting Direction", &lightingDirection.x, 0.01f,-1.0f,1.0f);
-			object3d_->SetLightingDirection(lightingDirection);
-			float shininess = object3d_->GetShininess();
-			ImGui::DragFloat("Shininess", &shininess, 0.1f);
-			object3d_->SetShininess(shininess);
-		}
-		#pragma endregion
+		ImGui::Text("Player");
+		Vector3 playerPos = player->GetPosition();
+		ImGui::DragFloat3("Player Position", &playerPos.x, 0.1f);
+		player->SetPosition(playerPos);
+		ImGui::Text("Enemy");
+		Vector3 enemyPos = enemy->GetPosition();
+		ImGui::DragFloat3("Enemy Position", &enemyPos.x, 0.1f);
+		enemy->SetPosition(enemyPos);
 	}
 #pragma endregion
+
 
 #pragma region Particle
 	if (ImGui::CollapsingHeader("Particle"))
@@ -267,23 +233,25 @@ void TitleScene::Update()
 		
 	}
 #pragma endregion
+
 	ImGui::End();
+
 #endif
-    if (Input::GetInstance()->TriggerKey(DIK_SPACE))
-    {
-        // 音声を停止
-        Audio::GetInstance()->StopWave("fanfare");
-    }
-    if (Input::GetInstance()->TriggerKey(DIK_UP))
-    {
-        // 音量を上げる
-        Audio::GetInstance()->SetVolume("fanfare", 1.0f); // 最大音量
-    }
-    if (Input::GetInstance()->TriggerKey(DIK_DOWN))
-    {
-        // 音量を下げる
-        Audio::GetInstance()->SetVolume("fanfare", 0.5f); // 50%の音量
-    }
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE))
+	{
+		// 音声を停止
+		Audio::GetInstance()->StopWave("fanfare");
+	}
+	if (Input::GetInstance()->TriggerKey(DIK_UP))
+	{
+		// 音量を上げる
+		Audio::GetInstance()->SetVolume("fanfare", 1.0f); // 最大音量
+	}
+	if (Input::GetInstance()->TriggerKey(DIK_DOWN))
+	{
+		// 音量を下げる
+		Audio::GetInstance()->SetVolume("fanfare", 0.5f); // 50%の音量
+	}
 	if (Input::GetInstance()->TriggerKey(DIK_LEFT))
 	{
 		// フェードイン
@@ -294,38 +262,39 @@ void TitleScene::Update()
 		// フェードアウト
 		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
 	}
-	
-	// スプライトの更新
-	sprite_->Update();
 
-	//オブジェクトの更新
-	object3d_->Update(sceneManager_->GetCameraManager());
+	//スカイドームの更新
+	skydome_->Update(sceneManager_->GetCameraManager());
 
-	//地面の更新
-	terrain_->Update(sceneManager_->GetCameraManager());
+	//キャラクターの更新
+	player->Update();
+	enemy->Update();
 
-	//平面オブジェクトの更新
-	plane_->Update(sceneManager_->GetCameraManager());
+	//衝突判定開始
+	CollisionManager::GetInstance()->CheckCollisions();
 
 }
 
 void TitleScene::Draw3D()
 {
-	//3Dオブジェクトの描画
-	object3d_->Draw();
+	player->Draw(sceneManager_->GetCameraManager());
 
-	//地面の描画
-	terrain_->Draw();
+	enemy->Draw(sceneManager_->GetCameraManager());
 
-	//平面オブジェクトの描画
-	plane_->Draw();
-  
-	// ラインの描画
+	//スカイドームの描画
+	skydome_->Draw();
+
+	// グリッドの描画
+	LineManager::GetInstance()->DrawGrid(
+		300.0f,
+		5.0f,
+		VectorColorCodes::White
+	);
+
 	splineCamera_->DrawSplineLine();
 }
 
 void TitleScene::Draw2D()
 {
-	// スプライトの描画
-	sprite_->Draw();
+
 }

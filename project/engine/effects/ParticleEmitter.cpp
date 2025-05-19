@@ -20,6 +20,9 @@ void ParticleEmitter::Initialize(const std::string& groupName, const std::string
 
 void ParticleEmitter::Update(CameraManager* camera)
 {
+    //
+    UpdateEmitPosition();
+
     Emit();
 
     // パーティクル単体に作用するコンポーネントの更新
@@ -60,12 +63,28 @@ void ParticleEmitter::AddComponent(std::shared_ptr<IParticleComponent> component
 void ParticleEmitter::Start(const Vector3& position, uint32_t count, float duration, bool isLoop)
 {
     isPlaying_ = true;
+	target_ = nullptr;
     position_ = position;
     emitCount_ = count;
     emitTime_ = 0.0f;
     timeSinceLastEmit_ = 0.0f;
     duration_ = duration;
     isLoop_ = isLoop;
+}
+
+void ParticleEmitter::Start(const Vector3* target, uint32_t count, float duration, bool isLoop)
+{
+	target_ = target;
+	if (target)
+	{
+		position_ = *target_;
+	}
+	isPlaying_ = true;
+	emitCount_ = count;
+	emitTime_ = 0.0f;
+	timeSinceLastEmit_ = 0.0f;
+	duration_ = duration;
+	isLoop_ = isLoop;
 }
 
 void ParticleEmitter::StopEmit()
@@ -120,4 +139,13 @@ void ParticleEmitter::Emit()
         }
         timeSinceLastEmit_ = 0.0f;
     }
+}
+
+void ParticleEmitter::UpdateEmitPosition()
+{
+	// 追従対象が設定されている場合、エミッターの位置を更新
+	if (target_)
+	{
+		position_ = *target_;
+	}
 }

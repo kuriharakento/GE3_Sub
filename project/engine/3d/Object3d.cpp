@@ -91,6 +91,9 @@ void Object3d::Draw()
 
 void Object3d::UpdateMatrix(Camera* camera)
 {
+	//引数が指定されていれば引数のカメラを使う。指定されていなければデフォルトのカメラを使う
+	camera_ = camera ? camera : object3dCommon_->GetDefaultCamera();
+
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 worldViewProjectionMatrix;
 	Matrix4x4 worldInverseTransposeMatrix = MathUtils::Transpose(Inverse(worldMatrix));

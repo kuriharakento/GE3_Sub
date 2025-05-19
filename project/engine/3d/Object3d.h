@@ -36,7 +36,7 @@ public:	/*========[ メンバ関数 ]========*/
 	/**
 	 * \brief 行列の更新
 	 */
-	void UpdateMatrix(Camera* camera);
+	void UpdateMatrix(Camera* camera = nullptr);
 
 public: /*========[ ゲッター ]========*/
 	//Transform

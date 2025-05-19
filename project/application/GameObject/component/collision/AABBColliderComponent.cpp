@@ -1,0 +1,23 @@
+#include "AABBColliderComponent.h"
+#include "application/GameObject/base/GameObject.h"
+#include "lighting/VectorColorCodes.h"
+#include "line/LineManager.h"
+
+AABBColliderComponent::AABBColliderComponent(GameObject* owner) : ICollisionComponent(owner), aabb_(Vector3(), Vector3())
+{
+	// AABBの初期化
+	aabb_.min_ = owner->GetPosition() - owner->GetScale();
+	aabb_.max_ = owner->GetPosition() + owner->GetScale();
+}
+
+void AABBColliderComponent::Update(GameObject* owner)
+{
+	// オーナーの位置とスケールを取得
+	Vector3 pos = owner->GetPosition();
+	Vector3 size = owner->GetScale();
+	// AABBの更新
+	aabb_.min_ = pos - size;
+	aabb_.max_ = pos + size;
+	//AABBを可視化する
+	LineManager::GetInstance()->DrawAABB(aabb_, VectorColorCodes::Cyan);
+}

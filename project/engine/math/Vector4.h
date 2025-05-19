@@ -72,4 +72,20 @@ struct Vector4 {
         w -= other.w;
         return *this;
     }
+
+    Vector4& operator*=(float scalar) {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        w *= scalar;
+        return *this;
+    }
+
+    Vector4& operator/=(float scalar) {
+        x /= scalar;
+        y /= scalar;
+        z /= scalar;
+        w /= scalar;
+        return *this;
+    }
 };
