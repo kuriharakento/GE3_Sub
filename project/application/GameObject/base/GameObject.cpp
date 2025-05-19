@@ -30,8 +30,7 @@ void GameObject::Initialize(Object3dCommon* object3dCommon, LightManager* lightM
 void GameObject::Update()
 {
 	// コンポーネントを更新
-	for (auto& [name, comp] : components_)
-	{
+	for (auto& [name, comp] : components_) {
 		comp->Update(this); // コンポーネントの更新
 	}
 }
@@ -47,11 +46,9 @@ void GameObject::Draw(CameraManager* camera)
 	object3d_->Draw();
 
 	// コンポーネントを更新
-	for (auto& [name, comp] : components_)
-	{
+	for (auto& [name, comp] : components_) {
 		// IActionComponent にキャスト可能か確認
-		if (auto actionComp = std::dynamic_pointer_cast<IActionComponent>(comp))
-		{
+		if (auto actionComp = std::dynamic_pointer_cast<IActionComponent>(comp)) {
 			actionComp->Draw(camera); // アクションコンポーネントの描画
 		}
 	}
@@ -60,8 +57,7 @@ void GameObject::Draw(CameraManager* camera)
 void GameObject::AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp)
 {
 	//すでに同じ名前のコンポーネントが存在する場合はメッセージを出力
-	if (components_.find(name) != components_.end())
-	{
+	if (components_.find(name) != components_.end()) {
 		Logger::Log("Warning: Component already exists: " + name);
 	}
 	// コンポーネントを追加

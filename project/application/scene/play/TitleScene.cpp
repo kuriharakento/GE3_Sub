@@ -53,7 +53,7 @@ void TitleScene::Initialize()
 	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 	//衝突判定コンポーネント
 	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
-
+	
 
 	enemy = std::make_unique<GameObject>("enemy");
 	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
@@ -83,7 +83,7 @@ void TitleScene::Initialize()
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
 	followCamera_->Start(
-		&player->GetPosition(),
+	&player->GetPosition(),
 		15.0f,
 		0.06f
 	);
@@ -211,7 +211,7 @@ void TitleScene::Update()
 	//Jsonエディタの表示
 	JsonEditorManager::GetInstance()->RenderEditUI();
 
-#pragma region GameObject
+	#pragma region GameObject
 	if (ImGui::CollapsingHeader("GameObject"))
 	{
 		ImGui::Text("Player");
@@ -223,34 +223,88 @@ void TitleScene::Update()
 		ImGui::DragFloat3("Enemy Position", &enemyPos.x, 0.1f);
 		enemy->SetPosition(enemyPos);
 	}
-#pragma endregion
+	#pragma endregion
 
 
-#pragma region Particle
+	#pragma region Particle
 	if (ImGui::CollapsingHeader("Particle"))
 	{
-    
+		static Vector3 pos = {};
+		ImGui::DragFloat3("Emit pos", &pos.x);
+		//ビルボードの有効無効
+		if (ImGui::Button("Billboard On"))
+		{
+			ParticleManager::GetInstance()->SetBillboard("test", true);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Billboard Off"))
+		{
+			ParticleManager::GetInstance()->SetBillboard("test", false);
+		}
+		//生成
+		if (ImGui::Button("Emit"))
+		{
+			ParticleManager::GetInstance()->Emit("test", pos, 100);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Emit Ring"))
+		{
+			ParticleManager::GetInstance()->EmitRing("test", pos,5);
+			ParticleManager::GetInstance()->SetRandomRotate("test");
+			//ParticleManager::GetInstance()->SetRandomScale("test");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Emit Plane"))
+		{
+			ParticleManager::GetInstance()->EmitPlane("test", pos, 100);
+			ParticleManager::GetInstance()->SetRandomRotate("test");
+			//ParticleManager::GetInstance()->SetRandomScale("test");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Emit Cylinder"))
+		{
+			ParticleManager::GetInstance()->EmitCylinder("test", pos, 1);
+			//ParticleManager::GetInstance()->SetRandomRotate("test");
+		}
+		//テクスチャの変更
+		if (ImGui::Button("Change Texture: uvChecker"))
+		{
+			ParticleManager::GetInstance()->SetTexture("test", "./Resources/uvChecker.png");
+		}
+		if (ImGui::Button("Change Texture: black"))
+		{
+			ParticleManager::GetInstance()->SetTexture("test", "./Resources/black.png");
+		}
+		//頂点データの変更
+		if (ImGui::Button("Change VertexData: Plane"))
+		{
+			ParticleManager::GetInstance()->SetVertexData("test", VertexShape::Plane);
+		}
+		if (ImGui::Button("Change VertexData: Ring"))
+		{
+			ParticleManager::GetInstance()->SetVertexData("test", VertexShape::Ring);
+		}
 	}
-#pragma endregion
+	#pragma endregion
 
 	ImGui::End();
 
 #endif
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE))
-	{
-		// 音声を停止
-		Audio::GetInstance()->StopWave("fanfare");
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_UP))
-	{
-		// 音量を上げる
-		Audio::GetInstance()->SetVolume("fanfare", 1.0f); // 最大音量
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_DOWN))
-	{
-		// 音量を下げる
-		Audio::GetInstance()->SetVolume("fanfare", 0.5f); // 50%の音量
-	}
+    if (Input::GetInstance()->TriggerKey(DIK_SPACE))
+    {
+        // 音声を停止
+        Audio::GetInstance()->StopWave("fanfare");
+    }
+    if (Input::GetInstance()->TriggerKey(DIK_UP))
+    {
+        // 音量を上げる
+        Audio::GetInstance()->SetVolume("fanfare", 1.0f); // 最大音量
+    }
+    if (Input::GetInstance()->TriggerKey(DIK_DOWN))
+    {
+        // 音量を下げる
+        Audio::GetInstance()->SetVolume("fanfare", 0.5f); // 50%の音量
+    }
 	if (Input::GetInstance()->TriggerKey(DIK_LEFT))
 	{
 		// フェードイン
@@ -279,10 +333,10 @@ void TitleScene::Draw3D()
 	player->Draw(sceneManager_->GetCameraManager());
 
 	enemy->Draw(sceneManager_->GetCameraManager());
-
+  
 	//スカイドームの描画
 	skydome_->Draw();
-
+  
 	// グリッドの描画
 	LineManager::GetInstance()->DrawGrid(
 		300.0f,
