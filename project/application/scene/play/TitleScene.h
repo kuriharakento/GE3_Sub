@@ -3,7 +3,6 @@
 
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
-#include "application/Skydome.h"
 #include "application/Animation/Slide.h"
 #include "application/GameObject/base/GameObject.h"
 #include "application/GameObject/character/player/Player.h"
@@ -30,8 +29,8 @@ public:
 private: //メンバ変数
 	//デバック用オブジェクト
 	std::unique_ptr<Object3d> object3d_;
-	//スカイドーム
-	std::unique_ptr<Skydome> skydome_;
+	//デバック用オブジェクト地面
+	std::unique_ptr<Object3d> terrain_;
 	//キューブの座標
 	Vector3 cubePos1_ = { 0.0f,0.0f,0.0f };
 	Vector3 cubePos2_ = { 3.0f,0.0f,0.0f };

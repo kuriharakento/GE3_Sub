@@ -33,12 +33,13 @@ void TitleScene::Initialize()
 	// 音声の再生
 	Audio::GetInstance()->PlayWave("fanfare", true);
 
-	//スカイドームの生成
-	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize(sceneManager_->GetObject3dCommon(), "skydome.obj");
-
-	//パーティクルグループの作成
-
+	//地面の生成
+	terrain_ = std::make_unique<Object3d>();
+	terrain_->Initialize(sceneManager_->GetObject3dCommon());
+	terrain_->SetModel("terrain.obj");
+	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
+	terrain_->SetDirectionalLightIntensity(0.0f);
+	terrain_->SetLightManager(sceneManager_->GetLightManager());	//パーティクルグループの作成
 
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
@@ -263,8 +264,8 @@ void TitleScene::Update()
 		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
 	}
 
-	//スカイドームの更新
-	skydome_->Update(sceneManager_->GetCameraManager());
+	// 地面の更新
+	terrain_->Update(sceneManager_->GetCameraManager());
 
 	//キャラクターの更新
 	player->Update();
@@ -282,7 +283,7 @@ void TitleScene::Draw3D()
 	enemy->Draw(sceneManager_->GetCameraManager());
 
 	//スカイドームの描画
-	skydome_->Draw();
+	terrain_->Draw();
 
 	// グリッドの描画
 	LineManager::GetInstance()->DrawGrid(
