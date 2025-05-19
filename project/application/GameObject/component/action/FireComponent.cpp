@@ -3,6 +3,7 @@
 
 #include "BulletComponent.h"
 #include "3d/Object3dCommon.h"
+#include "application/GameObject/component/collision/OBBColliderComponent.h"
 #include "base/Logger.h"
 
 FireComponent::FireComponent(Object3dCommon* object3dCommon, LightManager* lightManager) : fireCooldown_(0.5f), fireCooldownTimer_(0.0f)
@@ -123,6 +124,17 @@ void FireComponent::FireBullet(GameObject* owner)
 	auto bulletComp = std::make_shared<BulletComponent>();
 	bulletComp->Initialize(direction, 30.0f, 2.0f); // 速度: 10.0f, 寿命: 2.0f
 	bullet->AddComponent("Bullet", bulletComp);
+
+	// 衝突判定コンポーネントを追加
+	auto colliderComp = std::make_shared<OBBColliderComponent>(bullet.get());
+	colliderComp->SetOnEnter([bullet](GameObject* other) {
+		if (other->GetTag() == "enemy")
+		{
+			// 敵に当たった場合の処理
+			bullet->SetActive(false);  // 弾を非アクティブにする
+		}
+							 });
+	bullet->AddComponent("OBBCollider", colliderComp);
 
 	// 弾を管理リストに追加
 	bullets_.push_back(bullet);
