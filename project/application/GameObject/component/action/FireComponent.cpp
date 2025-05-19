@@ -127,13 +127,6 @@ void FireComponent::FireBullet(GameObject* owner)
 
 	// 衝突判定コンポーネントを追加
 	auto colliderComp = std::make_shared<OBBColliderComponent>(bullet.get());
-	colliderComp->SetOnEnter([bullet](GameObject* other) {
-		if (other->GetTag() == "enemy")
-		{
-			// 敵に当たった場合の処理
-			bullet->SetActive(false);  // 弾を非アクティブにする
-		}
-							 });
 	bullet->AddComponent("OBBCollider", colliderComp);
 
 	// 弾を管理リストに追加

@@ -11,6 +11,11 @@ OBBColliderComponent::OBBColliderComponent(GameObject* owner) : ICollisionCompon
 	obb_.size = owner->GetScale();
 }
 
+OBBColliderComponent::~OBBColliderComponent()
+{
+
+}
+
 void OBBColliderComponent::Update(GameObject* owner)
 {
 	// オーナーの位置とスケールを取得

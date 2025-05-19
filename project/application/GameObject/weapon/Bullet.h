@@ -17,6 +17,7 @@ public:
 
 	void SetActive(bool active) { isAlive_ = active; }
 	bool IsAlive() const { return isAlive_; }
+	void AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp);
 
 private:
 	bool isAlive_;       // 生死状態

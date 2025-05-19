@@ -10,6 +10,11 @@ AABBColliderComponent::AABBColliderComponent(GameObject* owner) : ICollisionComp
 	aabb_.max_ = owner->GetPosition() + owner->GetScale();
 }
 
+AABBColliderComponent::~AABBColliderComponent()
+{
+	
+}
+
 void AABBColliderComponent::Update(GameObject* owner)
 {
 	// オーナーの位置とスケールを取得

@@ -26,6 +26,8 @@ void CollisionManager::Register(ICollisionComponent* collider)
 void CollisionManager::Unregister(ICollisionComponent* collider)
 {
 	colliders_.erase(std::remove(colliders_.begin(), colliders_.end(), collider), colliders_.end());
+	// コライダーを削除する際に、現在の衝突リストからも削除
+
 }
 
 void CollisionManager::CheckCollisions()

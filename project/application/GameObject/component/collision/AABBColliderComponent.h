@@ -8,6 +8,7 @@ class AABBColliderComponent : public ICollisionComponent
 {
 public:
 	AABBColliderComponent(GameObject* owner);
+	~AABBColliderComponent();
 
 	void Update(GameObject* owner) override;
 	ColliderType GetColliderType() const override { return ColliderType::AABB; }
