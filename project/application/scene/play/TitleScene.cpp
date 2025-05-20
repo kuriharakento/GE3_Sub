@@ -134,9 +134,9 @@ void TitleScene::Initialize()
 	// 色フェードアウトコンポーネントを追加
 	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 
-	//// 初期速度ランダム化コンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
-	//	Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
+	// 初期速度ランダム化コンポーネントを追加
+	emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
+		Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
 	//// 回転コンポーネントを追加
 	//emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.1f, 0.0f }));
 	//// 軌道コンポーネントを追加 (中心座標、半径、速度)
