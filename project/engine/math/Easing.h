@@ -89,6 +89,9 @@ template<class T> T EaseInOutElastic(T x) {
 
 template<class T> T EaseInExpo(T x) { return x == 0 ? 0 : static_cast<T>(pow(2, 10 * x - 10)); }
 
+template<class T> T EaseOutExpo(T x) { return x == 1 ? 1 : static_cast<T>(1 - powf(2, -10 * x)); }
+
+
 //============================================
 // Quad
 //============================================
@@ -146,6 +149,7 @@ template<class T> T EaseOutBounce(T x) {
 }
 
 template<class T> T EaseInOutBounce(T x) { return x < 0.5 ? static_cast<T>((1 - EaseOutBounce(1 - 2 * x)) / 2) : static_cast<T>((1 + EaseOutBounce(2 * x - 1)) / 2); }
+
 
 //============================================
 // LerpAngle

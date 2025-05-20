@@ -74,6 +74,9 @@ void MyGame::Update()
 	//ゲームの更新処理
 	sceneManager_->Update();
 
+	//パーティクルマネージャーの更新
+	ParticleManager::GetInstance()->Update(cameraManager_.get());
+
 	//フレームワークの更新後処理
 	Framework::PostUpdate();
 }
@@ -136,6 +139,7 @@ void MyGame::LoadTextures()
 	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/testSprite.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/circle2.png");
 }
 
 void MyGame::LoadModels()

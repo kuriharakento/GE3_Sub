@@ -97,11 +97,12 @@ struct ModelData
  */
 struct Particle
 {
-    Transform transform;                         // トランスフォーム
-    Vector3 velocity;                            // 速度
-    Vector4 color;                               // 色
-    float lifeTime;                              // 寿命
-    float currentTime;                           // 現在の時間
+    Transform transform;                        // トランスフォーム
+    Vector3 velocity;                           // 速度
+    Vector4 color;                              // 色
+    float lifeTime;                             // 寿命
+    float currentTime;                          // 現在の時間
+	Vector3 startPos;                           // 開始位置
 
 	bool isAlive() const { return currentTime < lifeTime; }
 };

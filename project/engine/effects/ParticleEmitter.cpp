@@ -133,6 +133,7 @@ void ParticleEmitter::Emit()
             newParticle.velocity = initialVelocity_;
             newParticle.color = initialColor_;
             newParticle.lifeTime = initialLifeTime_;
+			newParticle.startPos = newParticle.transform.translate;
             newParticle.currentTime = 0.0f;
 
             particleGroup_->AddParticle(newParticle);

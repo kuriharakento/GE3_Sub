@@ -53,6 +53,13 @@ namespace MathUtils
 		return rotate;
 	}
 
+	float Clamp(float value, float min, float max)
+	{
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}
+
 	Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix)
 	{
 		Vector3 result;

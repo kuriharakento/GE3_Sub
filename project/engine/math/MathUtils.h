@@ -15,6 +15,8 @@ namespace MathUtils
 	Vector3 GetMatrixScale(const Matrix4x4& matrix);
 	Vector3 GetMatrixRotate(const Matrix4x4& matrix);
 
+	float Clamp(float value, float min, float max);
+
 	// 線形補間（Lerp）関数
 	static float Lerp(float start, float end, float t)
 	{

@@ -17,6 +17,9 @@ public:
     void Start(const Vector3& position, uint32_t count, float duration, bool isLoop = false);
     void Start(const Vector3* target, uint32_t count, float duration, bool isLoop = false);
 	void StopEmit();
+
+	void SetPosition(const Vector3& position) { position_ = position; }
+	Vector3 GetPosition() const { return position_; }
     void SetEmitRange(const Vector3& min, const Vector3& max);
     void SetEmitRate(float rate) { emitRate_ = rate; }
     void SetEmitCount(uint32_t count) { emitCount_ = count; }
