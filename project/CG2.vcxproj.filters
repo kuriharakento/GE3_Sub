@@ -82,6 +82,9 @@
     <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
     <ClCompile Include="application\GameObject\character\player\Player.cpp" />
     <ClCompile Include="application\GameObject\component\collision\OBBColliderComponent.cpp" />
+    <ClCompile Include="engine\base\BasePostEffect.cpp" />
+    <ClCompile Include="engine\base\GrayscaleEffect.cpp" />
+    <ClCompile Include="engine\base\PostProcessManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\base\GameObject.h" />
@@ -185,6 +188,10 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="engine\base\IPostEffect.h" />
+    <ClInclude Include="engine\base\BasePostEffect.h" />
+    <ClInclude Include="engine\base\GrayscaleEffect.h" />
+    <ClInclude Include="engine\base\PostProcessManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

@@ -24,6 +24,7 @@
 #include "application/GameObject/component/collision/AABBColliderComponent.h"
 #include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/collision/CollisionManager.h"
+#include "base/PostProcessManager.h"
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 
@@ -51,7 +52,6 @@ void TitleScene::Initialize()
 	player = std::make_unique<Player>("player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
-	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 	//衝突判定コンポーネント
 	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
 
@@ -175,8 +175,11 @@ void TitleScene::Update()
 	static bool isGrayScale = false;
 	if (ImGui::Checkbox("GrayScale", &isGrayScale))
 	{
-		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
+		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
 	}
+	float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
+	ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+	sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;

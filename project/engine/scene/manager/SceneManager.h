@@ -37,7 +37,7 @@ public: //アクセッサ
 	//ライトマネージャーの取得
 	LightManager* GetLightManager() const { return context_.lightManager; }
 	//ポストプロセスパスの取得
-	PostProcessPass* GetPostProcessPass() const { return context_.postProcessPass; }
+	PostProcessManager* GetPostProcessManager() const { return context_.postProcessManager; }
 
 private: //メンバ関数
 	//次のシーンが予約されているか
