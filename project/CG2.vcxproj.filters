@@ -84,6 +84,7 @@
     <ClCompile Include="application\GameObject\character\player\Player.cpp" />
     <ClCompile Include="application\GameObject\component\collision\OBBColliderComponent.cpp" />
     <ClCompile Include="engine\effects\component\single\MoveToTargetComponent.cpp" />
+    <ClCompile Include="application\GameObject\character\enemy\base\EnemyBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\base\GameObject.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="engine\effects\component\single\MoveToTargetComponent.h" />
+    <ClInclude Include="application\GameObject\character\enemy\base\EnemyBase.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />
