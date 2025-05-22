@@ -102,6 +102,23 @@ void RenderTexture::EndRender() {
     }
 }
 
+void RenderTexture::TransitionForCompute()
+{
+    if (currentState_ == D3D12_RESOURCE_STATE_GENERIC_READ)
+    {
+        return; // すでに適切な状態
+    }
+
+    auto cmdList = dxCommon_->GetCommandList();
+    D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        texture_.Get(),
+        currentState_,
+        D3D12_RESOURCE_STATE_GENERIC_READ
+    );
+    cmdList->ResourceBarrier(1, &barrier);
+    currentState_ = D3D12_RESOURCE_STATE_GENERIC_READ;
+}
+
 D3D12_GPU_DESCRIPTOR_HANDLE RenderTexture::GetGPUHandle() const {
     return srvManager_->GetGPUDescriptorHandle(srvIndex_);
 }

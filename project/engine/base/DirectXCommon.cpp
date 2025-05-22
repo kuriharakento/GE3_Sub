@@ -399,6 +399,7 @@ void DirectXCommon::CreateDescriptorHeap()
 
 	descriptorSizeRTV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	descriptorSizeDSV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	descriptorSizeUAV_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	///===================================================================
 	///ディスクリプタヒープの生成
@@ -410,6 +411,8 @@ void DirectXCommon::CreateDescriptorHeap()
 	//DSV用のヒープでディスクリプタの数は１。DSVはSharder内で触るものではないので、ShaderVisibleはfalse
 	dsvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 
+	// UAV用（ShaderVisibleはtrue）
+	uavDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 100, true);
 
 }
 
@@ -588,6 +591,20 @@ void DirectXCommon::CreateSamplerHeap()
 
 	device_->CreateSampler(&samplerDesc, samplerHeap_->GetCPUDescriptorHandleForHeapStart());
 
+}
+
+void DirectXCommon::CreateUAVDesciptorHeap()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC desc{};
+	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	desc.NumDescriptors = 16;
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	HRESULT hr = device_->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&uavDescriptorHeap_));
+	assert(SUCCEEDED(hr) && "Failed to create UAV Descriptor Heap!");
+	// デバッグログ
+	D3D12_GPU_DESCRIPTOR_HANDLE uavHeapBase = uavDescriptorHeap_->GetGPUDescriptorHandleForHeapStart();
+	OutputDebugStringA(("UAV Heap Base Address: " + std::to_string(uavHeapBase.ptr) + "\n").c_str());
+	assert(uavDescriptorHeap_ != nullptr && "UAV Descriptor Heap is null!");
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetCPUDescriptorHandle(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap, uint32_t descriptorSize, uint32_t index)

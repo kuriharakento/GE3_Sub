@@ -7,9 +7,9 @@ class GrayscaleEffect : public BasePostEffect
 public:
     GrayscaleEffect();
     ~GrayscaleEffect() override;
-
-    void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, const std::wstring& vsPath, const std::wstring& psPath) override;
-    void Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputSRV, D3D12_CPU_DESCRIPTOR_HANDLE outputRTV) override;
+    void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, PostProcessManager* postProcessManager) override;
+    void Draw() override;
+	void ImGuiUpdate() override;
 
     // グレースケール特有のパラメータ
     void SetIntensity(float intensity);
@@ -21,9 +21,9 @@ protected:
 private:
     struct Parameters
     {
-        float intensity;    // グレースケールの強度 (0.0f～1.0f)
-        int enabled;        // エフェクトが有効かどうか (0または1)
-        float padding[2];   // 16バイトアラインメントのためのパディング
+        int enabled;     // シェーダーの grayscaleEnabled に対応 (オフセット0)
+        float intensity; // シェーダーの grayscaleIntensity に対応 (オフセット4)
+        float padding[2]; // 残りのパディング (オフセット8, 12)
     };
 
     Parameters params_;

@@ -2,6 +2,7 @@
 #include "IPostEffect.h"
 #include <wrl.h>
 #include <d3d12.h>
+class PostProcessManager;
 class DirectXCommon;
 class SrvManager;
 
@@ -12,8 +13,9 @@ public:
     BasePostEffect();
 	virtual ~BasePostEffect() = default;
 
-    virtual void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, const std::wstring& vsPath, const std::wstring& psPath) = 0;
-	virtual void Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputSRV, D3D12_CPU_DESCRIPTOR_HANDLE outputRTV) = 0;
+    virtual void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, PostProcessManager* postProcessManager);
+    virtual void Draw() = 0;
+    virtual void ImGuiUpdate() {};
 
     void UpdateParameters() ;
 
@@ -23,10 +25,8 @@ public:
 protected:
     DirectXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
+	PostProcessManager* postProcessManager_ = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> constantBuffer_;
-    // パイプライン・ルートシグネチャ
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
-    Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;
 
 	bool enabled_ = false; // エフェクトが有効かどうか (0または1)
     bool isDirty_ = true; // パラメータが変更されたかのフラグ

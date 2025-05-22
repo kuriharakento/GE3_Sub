@@ -3,13 +3,14 @@
 
 #include "base/DirectXCommon.h"
 #include "DirectXTex/d3dx12.h"
+#include "ImGui/imgui.h"
 #include "manager/SrvManager.h"
 
 GrayscaleEffect::GrayscaleEffect()
 {
     // デフォルトパラメータの設定
     params_.intensity = 1.0f;
-	params_.enabled = 0;  // エフェクトは無効
+	params_.enabled = 1;
 }
 
 GrayscaleEffect::~GrayscaleEffect()
@@ -17,94 +18,58 @@ GrayscaleEffect::~GrayscaleEffect()
     
 }
 
-void GrayscaleEffect::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, const std::wstring& vsPath,
-	const std::wstring& psPath)
+void GrayscaleEffect::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager,
+	PostProcessManager* postProcessManager)
 {
-    dxCommon_ = dxCommon;
-    srvManager_ = srvManager;
+	BasePostEffect::Initialize(dxCommon, srvManager, postProcessManager);
 
-    CD3DX12_DESCRIPTOR_RANGE range{};
-    range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	// 定数バッファの作成
+	D3D12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	D3D12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(Parameters) + 255) & ~255); // 256バイトアラインメント
+	HRESULT hr = dxCommon_->GetDevice()->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&constantBuffer_));
+	assert(SUCCEEDED(hr));
 
-    CD3DX12_DESCRIPTOR_RANGE samplerRange{};
-    samplerRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
-
-    CD3DX12_ROOT_PARAMETER rootParams[3]{};
-    rootParams[0].InitAsDescriptorTable(1, &range, D3D12_SHADER_VISIBILITY_PIXEL);
-    rootParams[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
-    rootParams[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
-
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
-    rootSigDesc.Init(_countof(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-    Microsoft::WRL::ComPtr<ID3DBlob> sigBlob, errBlob;
-    D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &sigBlob, &errBlob);
-    dxCommon_->GetDevice()->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
-
-    auto vs = dxCommon_->CompileSharder(vsPath, L"vs_6_0");
-    auto ps = dxCommon_->CompileSharder(psPath, L"ps_6_0");
-
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-    psoDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
-    psoDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
-    psoDesc.pRootSignature = rootSignature_.Get();
-    psoDesc.RTVFormats[0] = /*DXGI_FORMAT_R8G8B8A8_UNORM;*/ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.SampleDesc.Count = 1;
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.InputLayout = { nullptr, 0 };
-    psoDesc.DepthStencilState.DepthEnable = FALSE;
-    psoDesc.DepthStencilState.StencilEnable = FALSE;
-    psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN; // ← ここが重要
-    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-
-    dxCommon_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_));
-
-    // 定数バッファの作成
-    D3D12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    D3D12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(Parameters) + 255) & ~255); // 256バイトアラインメント
-
-    HRESULT hr = dxCommon_->GetDevice()->CreateCommittedResource(
-        &heapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &bufferDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&constantBuffer_));
-    assert(SUCCEEDED(hr));
-
-    // 定数バッファの初期化
-    UpdateParameters();
-
-    // Samplerヒープの作成
-    dxCommon_->CreateSamplerHeap();
+	//初期データの書き込み
+	isDirty_ = true;  // パラメータが変更されたことを示す
+	UpdateParameters();
 }
 
-void GrayscaleEffect::Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputSRV, D3D12_CPU_DESCRIPTOR_HANDLE outputRTV)
+void GrayscaleEffect::Draw()
 {
-	// 定数バッファの更新
+	auto cmdList = dxCommon_->GetCommandList();
+	//定数バッファの更新
 	UpdateParameters();
 
-	auto cmdList = dxCommon_->GetCommandList();
-    cmdList->OMSetRenderTargets(1, &outputRTV, FALSE, nullptr);
-	cmdList->SetPipelineState(pipelineState_.Get());
-	cmdList->SetGraphicsRootSignature(rootSignature_.Get());
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //// ルートパラメータセット（パイプラインのルートレイアウトに合わせて）
+    //cmdList->SetComputeRootDescriptorTable(0, inputSRV);  // 入力テクスチャSRV
+    //cmdList->SetComputeRootDescriptorTable(1, outputUAV); // 出力テクスチャUAV
+    cmdList->SetComputeRootConstantBufferView(3, constantBuffer_->GetGPUVirtualAddress());
 
-	// SRVヒープとSamplerヒープを両方指定
-	ID3D12DescriptorHeap* heaps[] = {
-		srvManager_->GetSrvHeap(),
-		dxCommon_->GetSamplerHeap()
-	};
-	cmdList->SetDescriptorHeaps(_countof(heaps), heaps);
-	cmdList->SetGraphicsRootDescriptorTable(0, inputSRV);
-	cmdList->SetGraphicsRootDescriptorTable(1, dxCommon_->GetSamplerDescriptorHandle());
-	cmdList->SetGraphicsRootConstantBufferView(2, constantBuffer_->GetGPUVirtualAddress());
-	// 描画コマンドを発行
-	cmdList->DrawInstanced(3, 1, 0, 0);
+    // Dispatchサイズは画面サイズに合わせる（例）
+    /*UINT dispatchX = (UINT)ceilf((float)WinApp::kClientWidth / 16);
+    UINT dispatchY = (UINT)ceilf((float)WinApp::kClientHeight / 16);
+
+    cmdList->Dispatch(dispatchX, dispatchY, 1);*/
 }
+
+void GrayscaleEffect::ImGuiUpdate()
+{
+#ifdef _DEBUG
+	// ImGuiで強度を調整するスライダーを表示
+	if (ImGui::CollapsingHeader("Grayscale Effect"))
+	{
+		isDirty_ |= ImGui::Checkbox("Enabled", &enabled_);
+		isDirty_ |= ImGui::SliderFloat("Grayscale Intensity", &params_.intensity, 0.0f, 1.0f);
+	}
+#endif
+}
+
 
 void GrayscaleEffect::SetIntensity(float intensity)
 {

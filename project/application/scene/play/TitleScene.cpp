@@ -172,14 +172,35 @@ void TitleScene::Update()
 	ImGui::DragFloat3("UVRotate", &uvrotate.x, 0.01f);
 	emitter_->SetUVRotate(uvrotate);
 
-	static bool isGrayScale = false;
-	if (ImGui::Checkbox("GrayScale", &isGrayScale))
+	if (ImGui::CollapsingHeader("Grayscale"))
 	{
-		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
+		/*static bool isGrayScale = false;
+		if (ImGui::Checkbox("GrayScale", &isGrayScale))
+		{
+			sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
+		}*/
 	}
-	float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
-	ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
-	sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
+	if (ImGui::CollapsingHeader("vignette"))
+	{
+		/*static bool isVignette = false;
+		if (ImGui::Checkbox("Vignette", &isVignette))
+		{
+			sceneManager_->GetPostProcessManager()->vignetteEffect_->SetEnabled(isVignette);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetIntensity();
+		ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetIntensity(intensity);
+		float radius = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetRadius();
+		ImGui::DragFloat("Radius", &radius, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetRadius(radius);
+		float softness = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetSoftness();
+		ImGui::DragFloat("Softness", &softness, 0.01f, 0.01f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetSoftness(softness);
+		Vector3 color = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetColor();
+		ImGui::ColorEdit3("Color", &color.x);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetColor(color);*/
+	}
+	
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;

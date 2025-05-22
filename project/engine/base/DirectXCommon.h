@@ -56,6 +56,7 @@ public: //メンバ関数
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptor, bool shaderVisible);
 
 	void CreateSamplerHeap();
+	void CreateUAVDesciptorHeap();
 
 public://アクセッサ
 	/// \brief デバイスの取得
@@ -118,6 +119,15 @@ public://アクセッサ
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() { return dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(); }
+
+	//UAV用ディスクリプタヒープの取得
+	ID3D12DescriptorHeap* GetUAVDescriptorHeap() { return uavDescriptorHeap_.Get(); }
+	uint32_t GetDescriptorSizeUAV() { return descriptorSizeUAV_; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetUAVHandle(uint32_t index)
+	{
+		assert(index < swapChainResources_.size() && "Index out of range!");
+		return uavDescriptorHeap_->GetGPUDescriptorHandleForHeapStart();
+	}
 	
 private: //メンバ関数
 	/// \brief デバイスの初期化
@@ -177,11 +187,14 @@ private: //メンバ変数
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
 	//Sampler用のヒープ
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> samplerHeap_ = nullptr;
+	//UAV用のヒープ
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> uavDescriptorHeap_ = nullptr;
 	//RTVを2つ作るのでディスクリプタを２つ用意
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
 	//ディスクリプタサイズ
 	uint32_t descriptorSizeRTV_;
 	uint32_t descriptorSizeDSV_;
+	uint32_t descriptorSizeUAV_;
 	//フェンス
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
 	uint64_t fenceValue_ = 0;

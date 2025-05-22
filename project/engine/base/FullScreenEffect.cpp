@@ -63,7 +63,7 @@ void FullScreenEffect::Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputSRV, D3D12_CPU_DESC
     };
     dxCommon_->GetCommandList()->SetDescriptorHeaps(_countof(heaps), heaps); // 2つを一括バインド
 
-	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
    
     // ルートシグネチャ・パイプラインセット
     dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
@@ -75,6 +75,5 @@ void FullScreenEffect::Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputSRV, D3D12_CPU_DESC
 	// RTVセット
     dxCommon_->GetCommandList()->OMSetRenderTargets(1, &outputRTV, FALSE, nullptr);
     // フルスクリーンクアッド描画
-    
-    dxCommon_->GetCommandList()->DrawInstanced(4, 1, 0, 0);
+    dxCommon_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }

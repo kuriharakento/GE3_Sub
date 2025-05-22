@@ -6,22 +6,20 @@ struct VSOutput
 
 VSOutput main(uint id : SV_VertexID)
 {
-    float2 pos[4] =
-    {
-        float2(-1, 1),
-        float2(1, 1),
-        float2(-1, -1),
-        float2(1, -1)
-    };
-    float2 uv[4] =
-    {
-        float2(0, 0),
-        float2(1, 0),
-        float2(0, 1),
-        float2(1, 1)
-    };
+    float4 positions[3];
+    float2 uvs[3];
+
+    positions[0] = float4(-1.0, 1.0, 0.0, 1.0);
+    positions[1] = float4(3.0, 1.0, 0.0, 1.0);
+    positions[2] = float4(-1.0, -3.0, 0.0, 1.0);
+
+    uvs[0] = float2(0.0, 0.0);
+    uvs[1] = float2(2.0, 0.0);
+    uvs[2] = float2(0.0, 2.0);
+
     VSOutput o;
-    o.pos = float4(pos[id], 0, 1);
-    o.uv = uv[id];
+    o.pos = positions[id];
+    o.uv = uvs[id];
+
     return o;
 }

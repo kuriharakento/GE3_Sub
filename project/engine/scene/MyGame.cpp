@@ -74,6 +74,9 @@ void MyGame::Update()
 	//ゲームの更新処理
 	sceneManager_->Update();
 
+	// ポストプロセスの更新
+	postProcessManager_->ImGuiUpdate();
+
 	//フレームワークの更新後処理
 	Framework::PostUpdate();
 }
@@ -115,6 +118,7 @@ void MyGame::Draw()
 	/////////////////< 描画ここまで >////////////////////
 
 	renderTexture_->EndRender();
+	renderTexture_->TransitionForCompute();
 
 	/*----[ スワップチェインの描画 ]----*/
 

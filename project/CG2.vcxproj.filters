@@ -5,6 +5,9 @@
     <FxCompile Include="Resources\shaders\Object3d.Vs.hlsl" />
     <FxCompile Include="Resources\shaders\FullScreen.VS.hlsl" />
     <FxCompile Include="Resources\shaders\FullScreen.PS.hlsl" />
+    <FxCompile Include="Resources\shaders\Vignette.PS.hlsl" />
+    <FxCompile Include="Resources\shaders\Vignette.VS.hlsl" />
+    <FxCompile Include="Resources\shaders\PostProcessCompute.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
@@ -88,6 +91,7 @@
     <ClCompile Include="engine\base\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\base\PostProcessManager.cpp" />
     <ClCompile Include="engine\base\FullScreenEffect.cpp" />
+    <ClCompile Include="engine\base\VignetteEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\base\GameObject.h" />
@@ -196,6 +200,7 @@
     <ClInclude Include="engine\base\GrayscaleEffect.h" />
     <ClInclude Include="engine\base\PostProcessManager.h" />
     <ClInclude Include="engine\base\FullScreenEffect.h" />
+    <ClInclude Include="engine\base\VignetteEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />
