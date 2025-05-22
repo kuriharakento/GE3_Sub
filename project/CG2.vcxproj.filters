@@ -3,6 +3,8 @@
   <ItemGroup>
     <FxCompile Include="Resources\shaders\Object3d.PS.hlsl" />
     <FxCompile Include="Resources\shaders\Object3d.Vs.hlsl" />
+    <FxCompile Include="Resources\shaders\FullScreen.VS.hlsl" />
+    <FxCompile Include="Resources\shaders\FullScreen.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application\animation\Slide.cpp" />
@@ -85,6 +87,7 @@
     <ClCompile Include="engine\base\BasePostEffect.cpp" />
     <ClCompile Include="engine\base\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\base\PostProcessManager.cpp" />
+    <ClCompile Include="engine\base\FullScreenEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\base\GameObject.h" />
@@ -192,6 +195,7 @@
     <ClInclude Include="engine\base\BasePostEffect.h" />
     <ClInclude Include="engine\base\GrayscaleEffect.h" />
     <ClInclude Include="engine\base\PostProcessManager.h" />
+    <ClInclude Include="engine\base\FullScreenEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

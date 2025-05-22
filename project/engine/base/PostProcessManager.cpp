@@ -9,84 +9,132 @@ PostProcessManager::PostProcessManager() {}
 
 PostProcessManager::~PostProcessManager() {}
 
-void PostProcessManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, const std::wstring& vsPath, const std::wstring& psPath)
+void PostProcessManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
 {
 	dxCommon_ = dxCommon;
 	srvManager_ = srvManager;
 
-	SetupPipeline(vsPath, psPath);
-
 	grayscaleEffect_ = std::make_unique<GrayscaleEffect>();
-	grayscaleEffect_->Initialize(dxCommon);
+	grayscaleEffect_->Initialize(dxCommon, srvManager, L"Resources/shaders/Grayscale.VS.hlsl", L"Resources/shaders/Grayscale.PS.hlsl");
+
+	fullScreenEffect_ = std::make_unique<FullScreenEffect>();
+	fullScreenEffect_->Initialize(dxCommon, srvManager, L"Resources/shaders/FullScreen.VS.hlsl", L"Resources/shaders/FullScreen.PS.hlsl");
+
+	// 中間リソースの作成
+	CreateIntermediateResources();
 }
 
-void PostProcessManager::SetupPipeline(const std::wstring& vsPath, const std::wstring& psPath)
+void PostProcessManager::CreateIntermediateResources()
 {
-	// ルートシグネチャの作成
-	CD3DX12_DESCRIPTOR_RANGE srvRange{};
-	srvRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	// 画面サイズの中間テクスチャ2枚を作成
+	auto device = dxCommon_->GetDevice();
+	UINT width = WinApp::kClientWidth;
+	UINT height = WinApp::kClientHeight;
 
-	CD3DX12_DESCRIPTOR_RANGE samplerRange{};
-	samplerRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+	D3D12_RESOURCE_DESC texDesc = {};
+	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	texDesc.Width = width;
+	texDesc.Height = height;
+	texDesc.DepthOrArraySize = 1;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-	CD3DX12_ROOT_PARAMETER rootParams[3]{};
-	rootParams[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootParams[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootParams[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+	D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	clearValue.Color[0] = 0.0f;
+	clearValue.Color[1] = 0.0f;
+	clearValue.Color[2] = 0.0f;
+	clearValue.Color[3] = 1.0f;
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
-	rootSigDesc.Init(_countof(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
-	Microsoft::WRL::ComPtr<ID3DBlob> sigBlob, errBlob;
-	D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &sigBlob, &errBlob);
-	dxCommon_->GetDevice()->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
+	// tempTextureA
+	device->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&texDesc,
+		D3D12_RESOURCE_STATE_RENDER_TARGET, // ←ここを修正
+		&clearValue,
+		IID_PPV_ARGS(&tempTextureA_)
+	);
+	// tempTextureB
+	device->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&texDesc,
+		D3D12_RESOURCE_STATE_RENDER_TARGET, // ←ここを修正
+		&clearValue,
+		IID_PPV_ARGS(&tempTextureB_)
+	);
 
-	// パイプラインステートの作成
-	auto vs = dxCommon_->CompileSharder(vsPath, L"vs_6_0");
-	auto ps = dxCommon_->CompileSharder(psPath, L"ps_6_0");
+	// SRV/RTVの作成（SrvManager等でSRV/RTVを作成し、ハンドルを取得）
+	// ここでは仮にSrvManagerでSRV/RTVを作成し、インデックスを取得する例
+	uint32_t srvIndexA = srvManager_->Allocate();
+	uint32_t srvIndexB = srvManager_->Allocate();
+	srvManager_->CreateSRVforTexture2D(srvIndexA, tempTextureA_.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
+	srvManager_->CreateSRVforTexture2D(srvIndexB, tempTextureB_.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
+	tempSRVA_ = srvManager_->GetGPUDescriptorHandle(srvIndexA);
+	tempSRVB_ = srvManager_->GetGPUDescriptorHandle(srvIndexB);
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-	psoDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };
-	psoDesc.PS = { ps->GetBufferPointer(), ps->GetBufferSize() };
-	psoDesc.pRootSignature = rootSignature_.Get();
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.SampleDesc.Count = 1;
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	psoDesc.InputLayout = { nullptr, 0 };
-	psoDesc.DepthStencilState.DepthEnable = FALSE;
-	psoDesc.DepthStencilState.StencilEnable = FALSE;
-	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	// RTVはDirectXCommonで作成したヒープを使う
+	auto rtvHeap = dxCommon_->GetRTVDescriptorHeap();
+	UINT rtvSize = dxCommon_->GetDescriptorSizeRTV();
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-	dxCommon_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_));
+	// 2,3番をPing-Pong用に使う
+	tempRTVA_ = dxCommon_->GetCPUDescriptorHandle(rtvHeap, rtvSize, 2);
+	tempRTVB_ = dxCommon_->GetCPUDescriptorHandle(rtvHeap, rtvSize, 3);
+
+	device->CreateRenderTargetView(tempTextureA_.Get(), &rtvDesc, tempRTVA_);
+	device->CreateRenderTargetView(tempTextureB_.Get(), &rtvDesc, tempRTVB_);
+
 }
 
 void PostProcessManager::Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputTexture)
 {
-	auto cmdList = dxCommon_->GetCommandList();
+	auto* cmdList = dxCommon_->GetCommandList();
 
-	cmdList->SetPipelineState(pipelineState_.Get());
-	cmdList->SetGraphicsRootSignature(rootSignature_.Get());
-	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// tempTextureA_ をRTVとして使う前
+	if (tempTextureAState_ == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+	{
+		D3D12_RESOURCE_BARRIER barrier{};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource = tempTextureA_.Get();
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		cmdList->ResourceBarrier(1, &barrier);
+		tempTextureAState_ = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	}
 
-	// SRVヒープとSamplerヒープを両方指定
-	ID3D12DescriptorHeap* heaps[] = {
-		srvManager_->GetSrvHeap(),
-		dxCommon_->GetSamplerHeap()
-	};
-	cmdList->SetDescriptorHeaps(_countof(heaps), heaps);
-
-	cmdList->SetGraphicsRootDescriptorTable(0, inputTexture);
-	cmdList->SetGraphicsRootDescriptorTable(1, dxCommon_->GetSamplerDescriptorHandle());
-
-	//グレイスケールの描画
+	// グレースケールエフェクトを tempTextureA_ に描画
 	grayscaleEffect_->UpdateParameters();
-	cmdList->SetGraphicsRootConstantBufferView(2, grayscaleEffect_->GetConstantBufferAddress());
+	grayscaleEffect_->Draw(inputTexture, tempRTVA_);
 
+	// tempTextureA_ をSRVとして使う前
+	if (tempTextureAState_ == D3D12_RESOURCE_STATE_RENDER_TARGET)
+	{
+		D3D12_RESOURCE_BARRIER barrier{};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource = tempTextureA_.Get();
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		cmdList->ResourceBarrier(1, &barrier);
+		tempTextureAState_ = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	}
 
+	// スワップチェインのRTVに描画
+	UINT backBufferIndex = dxCommon_->GetSwapChain()->GetCurrentBackBufferIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE swapchainRTV = dxCommon_->GetRTVHandle(backBufferIndex);
+	cmdList->OMSetRenderTargets(1, &swapchainRTV, FALSE, nullptr);
 
-	cmdList->DrawInstanced(3, 1, 0, 0);
+	fullScreenEffect_->Draw(tempSRVA_, swapchainRTV);
 }

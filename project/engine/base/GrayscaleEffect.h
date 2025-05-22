@@ -8,13 +8,14 @@ public:
     GrayscaleEffect();
     ~GrayscaleEffect() override;
 
+    void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, const std::wstring& vsPath, const std::wstring& psPath) override;
+    void Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputSRV, D3D12_CPU_DESCRIPTOR_HANDLE outputRTV) override;
+
     // グレースケール特有のパラメータ
     void SetIntensity(float intensity);
     float GetIntensity() const { return params_.intensity; }
-    void SetEnabled(bool enabled) override;
 protected:
     // 基底クラスのメソッドをオーバーライド
-    size_t GetConstantBufferSize() const override;
     void CopyDataToConstantBuffer(void* mappedData) override;
 
 private:

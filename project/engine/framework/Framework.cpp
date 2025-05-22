@@ -78,7 +78,7 @@ void Framework::Initialize()
 
 	//ポストプロセスマネージャーの初期化
 	postProcessManager_ = std::make_unique<PostProcessManager>();
-	postProcessManager_->Initialize(dxCommon_.get(), srvManager_.get(), L"Resources/shaders/PostEffect.VS.hlsl", L"Resources/shaders/PostEffect.PS.hlsl");
+	postProcessManager_->Initialize(dxCommon_.get(), srvManager_.get());
 }
 
 void Framework::Finalize()

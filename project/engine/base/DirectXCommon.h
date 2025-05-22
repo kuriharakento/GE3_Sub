@@ -74,6 +74,16 @@ public://アクセッサ
 	//インクルードハンドラの取得
 	IDxcIncludeHandler* GetIncludeHandler() { return includeHandler_.Get(); }
 
+	//スワップチェインの取得
+	IDXGISwapChain4* GetSwapChain() { return swapChain_.Get(); }
+
+	//rtvハンドルの取得
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(uint32_t index)
+	{
+		assert(index < swapChainResources_.size() && "Index out of range!");
+		return rtvHandles_[index];
+	}
+
 	//各種ディスクリプヒープの取得
 	ID3D12DescriptorHeap* GetRTVDescriptorHeap() { return rtvDescriptorHeap_.Get(); }
 	ID3D12DescriptorHeap* GetDSVDescriptorHeap() { return dsvDescriptorHeap_.Get(); }

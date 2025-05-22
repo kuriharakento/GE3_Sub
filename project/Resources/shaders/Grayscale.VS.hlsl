@@ -1,4 +1,4 @@
-#include "PostEffect.hlsli"
+#include "Grayscale.hlsli"
 
 static const int kNumVertex = 3;
 
