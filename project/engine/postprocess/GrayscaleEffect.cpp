@@ -6,6 +6,7 @@ GrayscaleEffect::GrayscaleEffect()
     // デフォルトパラメータの設定
     params_.intensity = 1.0f;
 	params_.enabled = 0;  // エフェクトは無効
+	isDirty_ = true;  // 初期状態ではパラメータが変更されているとみなす
 }
 
 GrayscaleEffect::~GrayscaleEffect()

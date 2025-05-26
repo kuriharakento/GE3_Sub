@@ -5,7 +5,7 @@
 #include "engine/scene/factory/SceneFactory.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "base/DirectXCommon.h"
-#include "base/PostProcessManager.h"
+#include "postprocess/PostProcessManager.h"
 #include "base/RenderTexture.h"
 #include "base/WinApp.h"
 #include "lighting/LightManager.h"

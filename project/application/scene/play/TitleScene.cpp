@@ -24,7 +24,7 @@
 #include "application/GameObject/component/collision/AABBColliderComponent.h"
 #include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/collision/CollisionManager.h"
-#include "base/PostProcessManager.h"
+#include "postprocess/PostProcessManager.h"
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 
@@ -172,6 +172,8 @@ void TitleScene::Update()
 	ImGui::DragFloat3("UVRotate", &uvrotate.x, 0.01f);
 	emitter_->SetUVRotate(uvrotate);
 
+	ImGui::SeparatorText("PostProcess");
+
 	if (ImGui::CollapsingHeader("GrayScale"))
 	{
 		static bool isGrayScale = false;
@@ -202,6 +204,26 @@ void TitleScene::Update()
 		Vector3 color = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetColor();
 		ImGui::ColorEdit3("Vignette Color", &color.x);
 		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetColor(color);
+	}
+	if (ImGui::CollapsingHeader("Noise"))
+	{
+		static bool isNoise = false;
+		if (ImGui::Checkbox("enable", &isNoise))
+		{
+			sceneManager_->GetPostProcessManager()->noiseEffect_->SetEnabled(isNoise);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->noiseEffect_->GetIntensity();
+		ImGui::DragFloat("Noise Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetIntensity(intensity);
+		float time = sceneManager_->GetPostProcessManager()->noiseEffect_->GetTime();
+		ImGui::DragFloat("Noise Time", &time, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetTime(time);
+		float grainSize = sceneManager_->GetPostProcessManager()->noiseEffect_->GetGrainSize();
+		ImGui::DragFloat("Noise Grain Size", &grainSize, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetGrainSize(grainSize);
+		float luminanceAffect = sceneManager_->GetPostProcessManager()->noiseEffect_->GetLuminanceAffect();
+		ImGui::DragFloat("Noise Luminance Affect", &luminanceAffect, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetLuminanceAffect(luminanceAffect);
 	}
 
 	ImGui::SeparatorText("camera work");

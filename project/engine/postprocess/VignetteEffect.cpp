@@ -13,6 +13,7 @@ VignetteEffect::VignetteEffect()
     params_.softness = 0.3f;
     params_.color = { 0.0f, 0.0f, 0.0f };
     params_.enabled = 0;
+	isDirty_ = true; // 初期状態ではパラメータが変更されているとみなす
 }
 
 VignetteEffect::~VignetteEffect() {}

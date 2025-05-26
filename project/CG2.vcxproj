@@ -104,7 +104,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="engine\base\BasePostEffect.cpp" />
+    <ClCompile Include="engine\postprocess\BasePostEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\AccelerationComponent.cpp" />
     <ClCompile Include="application\GameObject\component\collision\AABBColliderComponent.cpp" />
     <ClCompile Include="application\animation\Slide.cpp" />
@@ -157,7 +157,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\camerawork\FollowCamera.cpp" />
     <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
     <ClCompile Include="engine\effects\component\single\GravityComponent.cpp" />
-    <ClCompile Include="engine\base\GrayscaleEffect.cpp" />
+    <ClCompile Include="engine\postprocess\GrayscaleEffect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\effects\ParticleManager.cpp" />
@@ -183,12 +183,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
     <ClCompile Include="application\GameObject\character\player\Player.cpp" />
     <ClCompile Include="application\GameObject\component\collision\OBBColliderComponent.cpp" />
-    <ClCompile Include="engine\base\PostProcessManager.cpp" />
-    <ClCompile Include="engine\base\VignetteEffect.cpp" />
+    <ClCompile Include="engine\postprocess\PostProcessManager.cpp" />
+    <ClCompile Include="engine\postprocess\VignetteEffect.cpp" />
+    <ClCompile Include="engine\postprocess\NoiseEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
-    <ClInclude Include="engine\base\BasePostEffect.h" />
+    <ClInclude Include="engine\postprocess\BasePostEffect.h" />
     <ClInclude Include="engine\effects\component\single\AccelerationComponent.h" />
     <ClInclude Include="application\animation\Slide.h" />
     <ClInclude Include="engine\effects\component\single\ColorFadeOutComponent.h" />
@@ -289,10 +290,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\component\action\FireComponent.h" />
     <ClInclude Include="application\GameObject\component\base\IActionComponent.h" />
     <ClInclude Include="application\GameObject\component\collision\OBBColliderComponent.h" />
-    <ClInclude Include="engine\base\IPostEffect.h" />
-    <ClInclude Include="engine\base\GrayscaleEffect.h" />
-    <ClInclude Include="engine\base\PostProcessManager.h" />
-    <ClInclude Include="engine\base\VignetteEffect.h" />
+    <ClInclude Include="engine\postprocess\IPostEffect.h" />
+    <ClInclude Include="engine\postprocess\GrayscaleEffect.h" />
+    <ClInclude Include="engine\postprocess\PostProcessManager.h" />
+    <ClInclude Include="engine\postprocess\VignetteEffect.h" />
+    <ClInclude Include="engine\postprocess\NoiseEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

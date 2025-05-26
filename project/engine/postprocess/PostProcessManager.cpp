@@ -20,6 +20,8 @@ void PostProcessManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvMana
 	grayscaleEffect_->Initialize(dxCommon);
 	vignetteEffect_ = std::make_unique<VignetteEffect>();
 	vignetteEffect_->Initialize(dxCommon);
+	noiseEffect_ = std::make_unique<NoiseEffect>();
+	noiseEffect_->Initialize(dxCommon);
 }
 
 void PostProcessManager::SetupPipeline(const std::wstring& vsPath, const std::wstring& psPath)
@@ -31,13 +33,15 @@ void PostProcessManager::SetupPipeline(const std::wstring& vsPath, const std::ws
 	CD3DX12_DESCRIPTOR_RANGE samplerRange{};
 	samplerRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
-	CD3DX12_ROOT_PARAMETER rootParams[4]{};
+	CD3DX12_ROOT_PARAMETER rootParams[5]{};
 	rootParams[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParams[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
 	// グレイスケールエフェクトの定数バッファ
 	rootParams[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 	// ビネットエフェクトの定数バッファ
 	rootParams[3].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+	// ノイズエフェクトの定数バッファ
+	rootParams[4].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
 	rootSigDesc.Init(_countof(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -94,6 +98,10 @@ void PostProcessManager::Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputTexture)
 	//ビネットの描画
 	vignetteEffect_->UpdateParameters();
 	cmdList->SetGraphicsRootConstantBufferView(3, vignetteEffect_->GetConstantBufferAddress());
+
+	//ノイズの描画
+	noiseEffect_->UpdateParameters();
+	cmdList->SetGraphicsRootConstantBufferView(4, noiseEffect_->GetConstantBufferAddress());
 
 	cmdList->DrawInstanced(3, 1, 0, 0);
 }
