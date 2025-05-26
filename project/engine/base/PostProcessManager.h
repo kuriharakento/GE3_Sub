@@ -7,6 +7,7 @@
 #include <string>
 
 #include "GrayscaleEffect.h"
+#include "VignetteEffect.h"
 
 class DirectXCommon;
 class SrvManager;
@@ -21,6 +22,7 @@ public:
     void Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputTexture);
 
 	std::unique_ptr<GrayscaleEffect> grayscaleEffect_;
+	std::unique_ptr<VignetteEffect> vignetteEffect_;
 
 private:
     DirectXCommon* dxCommon_ = nullptr;

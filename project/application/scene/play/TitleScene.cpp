@@ -172,14 +172,39 @@ void TitleScene::Update()
 	ImGui::DragFloat3("UVRotate", &uvrotate.x, 0.01f);
 	emitter_->SetUVRotate(uvrotate);
 
-	static bool isGrayScale = false;
-	if (ImGui::Checkbox("GrayScale", &isGrayScale))
+	if (ImGui::CollapsingHeader("GrayScale"))
 	{
-		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
+		static bool isGrayScale = false;
+		if (ImGui::Checkbox("enable", &isGrayScale))
+		{
+			sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
+		ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
 	}
-	float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
-	ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
-	sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
+	if (ImGui::CollapsingHeader("Vignette"))
+	{
+		static bool isVignette = false;
+		if (ImGui::Checkbox("enable", &isVignette))
+		{
+			sceneManager_->GetPostProcessManager()->vignetteEffect_->SetEnabled(isVignette);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetIntensity();
+		ImGui::DragFloat("Vignette Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetIntensity(intensity);
+		float radius = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetRadius();
+		ImGui::DragFloat("Vignette Radius", &radius, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetRadius(radius);
+		float softness = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetSoftness();
+		ImGui::DragFloat("Vignette Softness", &softness, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetSoftness(softness);
+		Vector3 color = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetColor();
+		ImGui::ColorEdit3("Vignette Color", &color.x);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetColor(color);
+	}
+
+	ImGui::SeparatorText("camera work");
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
