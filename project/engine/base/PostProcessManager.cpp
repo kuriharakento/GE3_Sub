@@ -69,18 +69,9 @@ void PostProcessManager::CreateIntermediateResources()
 		&clearValue,
 		IID_PPV_ARGS(&tempTextureA_)
 	);
-	device->CreateCommittedResource(
-		&heapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&texDesc,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		&clearValue,
-		IID_PPV_ARGS(&tempTextureB_)
-	);
 
 	// 状態を初期化
 	tempTextureAState_ = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-	tempTextureBState_ = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 
 	// SRV/UAV作成（srvManager_で作成・管理）
 	uint32_t srvIndexA = srvManager_->Allocate();
@@ -89,7 +80,6 @@ void PostProcessManager::CreateIntermediateResources()
 	uint32_t uavIndexB = srvManager_->Allocate();
 
 	srvManager_->CreateSRVforTexture2D(srvIndexA, tempTextureA_.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
-	srvManager_->CreateSRVforTexture2D(srvIndexB, tempTextureB_.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
 
 	// UAVディスクリプタ作成
 	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -107,13 +97,10 @@ void PostProcessManager::CreateIntermediateResources()
 	uavHandleB.ptr += uavIndexB * descriptorSize;
 
 	device->CreateUnorderedAccessView(tempTextureA_.Get(), nullptr, &uavDesc, uavHandleA);
-	device->CreateUnorderedAccessView(tempTextureB_.Get(), nullptr, &uavDesc, uavHandleB);
 
 	// GPUディスクリプタハンドルも取得
 	tempSRVA_ = srvManager_->GetGPUDescriptorHandle(srvIndexA);
-	tempSRVB_ = srvManager_->GetGPUDescriptorHandle(srvIndexB);
 	tempUAVA_ = srvManager_->GetGPUDescriptorHandle(uavIndexA);
-	tempUAVB_ = srvManager_->GetGPUDescriptorHandle(uavIndexB);
 }
 
 void PostProcessManager::CreateComComputePipelineState(const std::wstring& csPath)

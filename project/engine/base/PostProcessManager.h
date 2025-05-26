@@ -40,16 +40,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> computePipelineState_;
     // 中間Ping-Pongバッファ
     Microsoft::WRL::ComPtr<ID3D12Resource> tempTextureA_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> tempTextureB_;
     // SRVハンドル（GPUハンドル）
     D3D12_GPU_DESCRIPTOR_HANDLE tempSRVA_;
-    D3D12_GPU_DESCRIPTOR_HANDLE tempSRVB_;
     // UAVハンドル（GPUハンドル） ← 追加
     D3D12_GPU_DESCRIPTOR_HANDLE tempUAVA_;
-    D3D12_GPU_DESCRIPTOR_HANDLE tempUAVB_;
     // 状態管理
     D3D12_RESOURCE_STATES tempTextureAState_ = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    D3D12_RESOURCE_STATES tempTextureBState_ = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 
     void CreateIntermediateResources();
     void CreateComComputePipelineState(const std::wstring& csPath);
