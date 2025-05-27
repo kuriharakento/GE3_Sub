@@ -5,6 +5,7 @@
 #include "engine/scene/factory/SceneFactory.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "base/DirectXCommon.h"
+#include "postprocess/PostProcessManager.h"
 #include "base/RenderTexture.h"
 #include "base/WinApp.h"
 #include "lighting/LightManager.h"
@@ -65,6 +66,6 @@ protected: //メンバ変数
 	//
 	std::unique_ptr<RenderTexture> renderTexture_;
 	//
-	std::unique_ptr<PostProcessPass> postProcessPass;
+	std::unique_ptr<PostProcessManager> postProcessManager_;
 };
 

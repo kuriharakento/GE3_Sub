@@ -24,6 +24,7 @@
 #include "application/GameObject/component/collision/AABBColliderComponent.h"
 #include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/collision/CollisionManager.h"
+#include "postprocess/PostProcessManager.h"
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 
@@ -51,7 +52,6 @@ void TitleScene::Initialize()
 	player = std::make_unique<Player>("player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
-	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 	//衝突判定コンポーネント
 	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
 
@@ -172,11 +172,106 @@ void TitleScene::Update()
 	ImGui::DragFloat3("UVRotate", &uvrotate.x, 0.01f);
 	emitter_->SetUVRotate(uvrotate);
 
-	static bool isGrayScale = false;
-	if (ImGui::Checkbox("GrayScale", &isGrayScale))
+	ImGui::SeparatorText("PostProcess");
+
+	if (ImGui::CollapsingHeader("GrayScale"))
 	{
-		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
+		static bool isGrayScale = false;
+		if (ImGui::Checkbox("enable", &isGrayScale))
+		{
+			sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
+		ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
 	}
+	if (ImGui::CollapsingHeader("Vignette"))
+	{
+		static bool isVignette = false;
+		if (ImGui::Checkbox("enable", &isVignette))
+		{
+			sceneManager_->GetPostProcessManager()->vignetteEffect_->SetEnabled(isVignette);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetIntensity();
+		ImGui::DragFloat("Vignette Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetIntensity(intensity);
+		float radius = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetRadius();
+		ImGui::DragFloat("Vignette Radius", &radius, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetRadius(radius);
+		float softness = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetSoftness();
+		ImGui::DragFloat("Vignette Softness", &softness, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetSoftness(softness);
+		Vector3 color = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetColor();
+		ImGui::ColorEdit3("Vignette Color", &color.x);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetColor(color);
+	}
+	if (ImGui::CollapsingHeader("Noise"))
+	{
+		static bool isNoise = false;
+		if (ImGui::Checkbox("enable", &isNoise))
+		{
+			sceneManager_->GetPostProcessManager()->noiseEffect_->SetEnabled(isNoise);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->noiseEffect_->GetIntensity();
+		ImGui::DragFloat("Noise Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetIntensity(intensity);
+		float time = sceneManager_->GetPostProcessManager()->noiseEffect_->GetTime();
+		ImGui::DragFloat("Noise Time", &time, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetTime(time);
+		float grainSize = sceneManager_->GetPostProcessManager()->noiseEffect_->GetGrainSize();
+		ImGui::DragFloat("Noise Grain Size", &grainSize, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetGrainSize(grainSize);
+		float luminanceAffect = sceneManager_->GetPostProcessManager()->noiseEffect_->GetLuminanceAffect();
+		ImGui::DragFloat("Noise Luminance Affect", &luminanceAffect, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetLuminanceAffect(luminanceAffect);
+	}
+	if (ImGui::CollapsingHeader("CRT"))
+	{
+		static  bool isEnabled = false;
+		static bool isCrt = false; // CRTエフェクトの有効/無効
+		static bool isScanline = false;
+		static bool isDistortion = false;
+		static bool isChromAberration = false;
+
+		if (ImGui::Checkbox("enable", &isEnabled))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetEnabled(isEnabled);
+		}
+		if (ImGui::Checkbox("Crt", &isCrt))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetCrtEnabled(isCrt);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Scanline", &isScanline))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineEnabled(isScanline);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Distortion", &isDistortion))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionEnabled(isDistortion);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("ChromAberration", &isChromAberration))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationEnabled(isChromAberration);
+		}
+		float scanlineIntensity = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineIntensity();
+		ImGui::DragFloat("Scanline Intensity", &scanlineIntensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineIntensity(scanlineIntensity);
+		float scanlineCount = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineCount();
+		ImGui::DragFloat("Scanline Count", &scanlineCount, 0.01f, 0.0f, 100.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineCount(scanlineCount);
+		float distortionStrength = sceneManager_->GetPostProcessManager()->crtEffect_->GetDistortionStrength();
+		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionStrength(distortionStrength);
+		float chromAberrationOffset = sceneManager_->GetPostProcessManager()->crtEffect_->GetChromaticAberrationOffset();
+		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
+	}
+
+
+	ImGui::SeparatorText("camera work");
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;

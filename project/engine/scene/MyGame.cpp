@@ -19,7 +19,7 @@ void MyGame::Initialize()
 		objectCommon_.get(),
 		cameraManager_.get(),
 		lightManager_.get(),
-		postProcessPass.get(),
+		postProcessManager_.get(),
 	};
 
 	// 処理開始時間を記録
@@ -120,7 +120,7 @@ void MyGame::Draw()
 
 	dxCommon_->PreDraw();
 
-	postProcessPass->Draw(renderTexture_->GetGPUHandle());
+	postProcessManager_->Draw(renderTexture_->GetGPUHandle());
 
 #ifdef _DEBUG
 	//ImGuiの描画

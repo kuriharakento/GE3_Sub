@@ -1,4 +1,4 @@
-#include "CopyImage.hlsli"
+#include "PostEffect.hlsli"
 
 static const int kNumVertex = 3;
 
