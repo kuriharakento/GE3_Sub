@@ -24,9 +24,12 @@
 #include "application/GameObject/component/collision/AABBColliderComponent.h"
 #include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/collision/CollisionManager.h"
+#include "effects/component/single/BounceComponent.h"
 #include "postprocess/PostProcessManager.h"
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
+
+static Vector3 startPos{ 0.0f, 2.0f, 0.0f };
 
 void TitleScene::Initialize()
 {
@@ -102,29 +105,31 @@ void TitleScene::Initialize()
 	//エミッターの初期化
 	emitter_ = std::make_unique<ParticleEmitter>();
 	emitter_->Initialize("test", "./Resources/gradationLine.png");
-	//emitter_->SetTexture("Resources/uvChecker.png");
+	emitter_->SetTexture("Resources/uvChecker.png");
 	emitter_->SetEmitRange({ -2.0f,-2.0f,-2.0f }, { 2.0f, 2.0f, 2.0f });
+	
 	emitter_->Start(
-		&player->GetPosition(),
-		3,
+		&startPos,
+		1,
 		10.0f,
 		true
 	);
-	emitter_->SetEmitRate(0.2f);
+	emitter_->SetEmitRate(2.0f);
+	emitter_->SetInitialLifeTime(3.0f);
 	//emitter_->SetModelType(ParticleGroup::ParticleType::Plane);
 	//emitter_->SetModelType(ParticleGroup::ParticleType::Cylinder);
 	//emitter_->SetModelType(ParticleGroup::ParticleType::Sphere);
 	//emitter_->SetModelType(ParticleGroup::ParticleType::Torus);
 	//emitter_->SetModelType(ParticleGroup::ParticleType::Star);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Heart);
-	emitter_->SetModelType(ParticleGroup::ParticleType::Spiral);
+	emitter_->SetModelType(ParticleGroup::ParticleType::Heart);
+	//emitter_->SetModelType(ParticleGroup::ParticleType::Spiral);
 	//emitter_->SetModelType(ParticleGroup::ParticleType::Cone);
 	//emitter_->SetBillborad(true);
 	emitter_->SetBillborad(false);
 	//======コンポーネントの追加=========================
-	emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.2f, 0.0f }));
-	// 空気抵抗コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<DragComponent>(0.98f));
+	emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, -0.2f, 0.0f }));
+	//// 空気抵抗コンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<DragComponent>(0.98f));
 
 	// スケール変化コンポーネントを追加
 	emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(1.0f, 0.0f));
@@ -137,11 +142,13 @@ void TitleScene::Initialize()
 		Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
 	// 回転コンポーネントを追加
 	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.1f, 0.0f }));
-	// 軌道コンポーネントを追加 (中心座標、半径、速度)
-	emitter_->AddComponent(std::make_shared<OrbitComponent>(
-		Vector3{ 0.0f, 0.0f, 0.0f }, 5.0f, 0.05f));
-	// 加速度コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
+	//// 軌道コンポーネントを追加 (中心座標、半径、速度)
+	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
+	//	Vector3{ 0.0f, 0.0f, 0.0f }, 5.0f, 0.05f));
+	//// 加速度コンポーネントを追加
+	//emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
+	// バウンスコンポーネントを追加
+	emitter_->AddComponent(std::make_shared<BounceComponent>(0.0f, 0.5f, 0.05f)); // 地面の高さ、反発係数、最小速度
 
 	// UV変換コンポーネント
 	emitter_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.5f, 0.0f, 0.0f })); // UVをX方向に毎フレーム0.01移動
@@ -149,7 +156,7 @@ void TitleScene::Initialize()
 	//emitter_->AddComponent(std::make_shared<UVScaleComponent>(Vector3{ 0.005f, 0.005f, 0.0f }));   // UVを毎フレーム1.005倍に拡大
 
 	// マテリアル色変更コンポーネント
-	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
+	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Yellow));
 
 }
 
@@ -162,6 +169,7 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+	ImGui::DragFloat3("emit pos", &startPos.x, 0.1f);
 	Vector3 uvtranslate = emitter_->GetUVTranslate();
 	ImGui::DragFloat3("UVTranslate", &uvtranslate.x, 0.01f);
 	emitter_->SetUVTranslate(uvtranslate);
