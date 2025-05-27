@@ -32,17 +32,17 @@ struct alignas(16) PostEffectParams
     float pad2[3];
 
     //// --- CRT ---
-    //int crtEnabled;
-    //int scanlineEnabled;
-    //float scanlineIntensity;
-    //float scanlineCount;
+    int crtEnabled;
+    int scanlineEnabled;
+    float scanlineIntensity;
+    float scanlineCount;
 
-    //int distortionEnabled;
-    //float distortionStrength;
-    //int chromAberrationEnabled;
-    //float chromAberrationOffset;
+    int distortionEnabled;
+    float distortionStrength;
+    int chromAberrationEnabled;
+    float chromAberrationOffset;
 
-    //float pad3[4];
+    float pad3[4];
 
     bool operator==(const PostEffectParams& other) const
     {
@@ -57,7 +57,7 @@ struct alignas(16) PostEffectParams
             noiseIntensity == other.noiseIntensity &&
             noiseTime == other.noiseTime &&
             grainSize == other.grainSize &&
-            luminanceAffect == other.luminanceAffect /*&&
+            luminanceAffect == other.luminanceAffect &&
             crtEnabled == other.crtEnabled &&
             scanlineEnabled == other.scanlineEnabled &&
             scanlineIntensity == other.scanlineIntensity &&
@@ -65,7 +65,7 @@ struct alignas(16) PostEffectParams
             distortionEnabled == other.distortionEnabled &&
             distortionStrength == other.distortionStrength &&
             chromAberrationEnabled == other.chromAberrationEnabled &&
-            chromAberrationOffset == other.chromAberrationOffset*/;
+            chromAberrationOffset == other.chromAberrationOffset;
     }
 
     bool operator!=(const PostEffectParams& other) const

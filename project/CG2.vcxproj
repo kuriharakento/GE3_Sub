@@ -104,6 +104,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CRTEffect.cpp" />
     <ClCompile Include="engine\postprocess\BasePostEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\AccelerationComponent.cpp" />
     <ClCompile Include="application\GameObject\component\collision\AABBColliderComponent.cpp" />
@@ -189,6 +190,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
+    <ClInclude Include="CRTEffect.h" />
     <ClInclude Include="engine\postprocess\BasePostEffect.h" />
     <ClInclude Include="engine\effects\component\single\AccelerationComponent.h" />
     <ClInclude Include="application\animation\Slide.h" />

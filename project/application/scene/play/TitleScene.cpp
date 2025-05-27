@@ -225,6 +225,51 @@ void TitleScene::Update()
 		ImGui::DragFloat("Noise Luminance Affect", &luminanceAffect, 0.01f, 0.0f, 1.0f);
 		sceneManager_->GetPostProcessManager()->noiseEffect_->SetLuminanceAffect(luminanceAffect);
 	}
+	if (ImGui::CollapsingHeader("CRT"))
+	{
+		static  bool isEnabled = false;
+		static bool isCrt = false; // CRTエフェクトの有効/無効
+		static bool isScanline = false;
+		static bool isDistortion = false;
+		static bool isChromAberration = false;
+
+		if (ImGui::Checkbox("enable", &isEnabled))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetEnabled(isEnabled);
+		}
+		if (ImGui::Checkbox("Crt", &isCrt))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetCrtEnabled(isCrt);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Scanline", &isScanline))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineEnabled(isScanline);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Distortion", &isDistortion))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionEnabled(isDistortion);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("ChromAberration", &isChromAberration))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationEnabled(isChromAberration);
+		}
+		float scanlineIntensity = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineIntensity();
+		ImGui::DragFloat("Scanline Intensity", &scanlineIntensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineIntensity(scanlineIntensity);
+		float scanlineCount = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineCount();
+		ImGui::DragFloat("Scanline Count", &scanlineCount, 0.01f, 0.0f, 100.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineCount(scanlineCount);
+		float distortionStrength = sceneManager_->GetPostProcessManager()->crtEffect_->GetDistortionStrength();
+		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionStrength(distortionStrength);
+		float chromAberrationOffset = sceneManager_->GetPostProcessManager()->crtEffect_->GetChromaticAberrationOffset();
+		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
+	}
+
 
 	ImGui::SeparatorText("camera work");
 

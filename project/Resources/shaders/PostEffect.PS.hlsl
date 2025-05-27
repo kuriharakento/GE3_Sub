@@ -1,5 +1,5 @@
+// スマート色収差最適化 - 適応的サンプリング
 #include "PostEffect.hlsli"
-
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
 
@@ -8,39 +8,27 @@ cbuffer PostEffectParams : register(b0)
     float grayscaleIntensity;
     int grayscaleEnabled;
     float2 pad0;
-
     int vignetteEnabled;
     float vignetteIntensity;
     float vignetteRadius;
     float vignetteSoftness;
-
     float3 vignetteColor;
     float pad1;
-
     int noiseEnabled;
     float noiseIntensity;
     float noiseTime;
     float grainSize;
-
     float luminanceAffect;
     float3 pad2;
-
-    //int crtEnabled;
-    //int scanlineEnabled;
-    //float scanlineIntensity;
-    //float scanlineCount;
-
-    //int distortionEnabled;
-    //float distortionStrength;
-    //int chromAberrationEnabled;
-    //float chromAberrationOffset;
-
-    //float4 pad3;
-};
-
-float random(float2 uv)
-{
-    return frac(sin(dot(uv.xy, float2(12.9898, 78.233)) + noiseTime) * 43758.5453);
+    int crtEnabled;
+    int scanlineEnabled;
+    float scanlineIntensity;
+    float scanlineCount;
+    int distortionEnabled;
+    float distortionStrength;
+    int chromAberrationEnabled;
+    float chromAberrationOffset;
+    float4 pad3;
 }
 
 struct PixelShaderOutput
@@ -50,40 +38,70 @@ struct PixelShaderOutput
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
+    float2 uv = input.texcoord;
+    
+    // 係数の事前計算（分岐回避）
+    float crtFactor = (float) crtEnabled;
+    float chromaticActive = crtFactor * (float) chromAberrationEnabled;
+    float distortActive = crtFactor * (float) distortionEnabled;
+    float scanlineActive = crtFactor * (float) scanlineEnabled;
+    
+    // 歪み（線形補間で分岐回避）
+    float2 centerOffset = uv - 0.5;
+    float distortStrength = distortActive * distortionStrength * dot(centerOffset, centerOffset);
+    uv += centerOffset * distortStrength;
+    
+    // 色収差の最適化サンプリング
+    float2 chromaticOffset = float2(chromAberrationOffset * 0.001, 0.0);
+    
+    // 条件付きサンプリング（分岐は避けられないが最小化）
+    float3 color;
+    [branch]
+    if (chromaticActive > 0.0)
+    {
+        // 効率的な3サンプル戦略
+        float3 centerColor = gTexture.Sample(gSampler, uv).rgb;
+        float redShift = gTexture.Sample(gSampler, uv + chromaticOffset).r;
+        float blueShift = gTexture.Sample(gSampler, uv - chromaticOffset).b;
+        
+        // 係数による混合（完全置換ではなく混合で自然な見た目）
+        color = float3(
+            lerp(centerColor.r, redShift, chromaticActive),
+            centerColor.g,
+            lerp(centerColor.b, blueShift, chromaticActive)
+        );
+    }
+    else
+    {
+        color = gTexture.Sample(gSampler, uv).rgb;
+    }
+    
+    // 残りのエフェクトを統合処理（分岐完全排除）
+    float luminance = dot(color, float3(0.299, 0.587, 0.114));
+    
+    // 走査線
+    float scanPattern = step(0.5, frac(uv.y * scanlineCount));
+    float scanEffect = lerp(1.0, lerp(0.7, 1.0, scanPattern), scanlineActive * scanlineIntensity);
+    color *= scanEffect;
+    
+    // ノイズ
+    float noise = frac(uv.x * 12.9898 + uv.y * 78.233 + noiseTime) - 0.5;
+    float noiseAmount = (float) noiseEnabled * noiseIntensity;
+    float lumFactor = lerp(1.0, luminance, saturate(luminanceAffect));
+    color += noise * noiseAmount * lumFactor;
+    
+    // ビネット（二乗距離使用）
+    float vignetteDistSq = dot(centerOffset, centerOffset);
+    float vignetteEffect = saturate((vignetteDistSq - vignetteRadius * vignetteRadius) /
+                                   (vignetteSoftness * vignetteSoftness));
+    float vignetteAmount = (float) vignetteEnabled * vignetteIntensity;
+    color = lerp(color, vignetteColor, vignetteEffect * vignetteAmount);
+    
+    // グレースケール
+    float grayAmount = (float) grayscaleEnabled * grayscaleIntensity;
+    color = lerp(color, luminance.xxx, grayAmount);
+    
     PixelShaderOutput output;
-    output.color = gTexture.Sample(gSampler, input.texcoord);
-
-    // --- ノイズ処理 ---
-    if (noiseEnabled != 0)
-    {
-        float2 grainUV = input.texcoord * grainSize + float2(noiseTime, noiseTime);
-        float noiseValue = random(grainUV);
-
-        float luminance = dot(output.color.rgb, float3(0.299, 0.587, 0.114));
-        float luminanceFactor = lerp(1.0, luminance, saturate(luminanceAffect));
-
-        float finalNoise = (noiseValue - 0.5f) * noiseIntensity * luminanceFactor;
-        output.color.rgb += finalNoise;
-    }
-
-    // --- ヴィネット処理 ---
-    if (vignetteEnabled != 0)
-    {
-        float2 center = float2(0.5, 0.5);
-        float dist = distance(input.texcoord, center);
-
-        float vignette = smoothstep(vignetteRadius - vignetteSoftness, vignetteRadius, dist);
-        output.color.rgb = lerp(output.color.rgb, vignetteColor, vignette * vignetteIntensity);
-    }
-
-    // --- グレースケール処理 ---
-    if (grayscaleEnabled != 0)
-    {
-        float gray = dot(output.color.rgb, float3(0.2125, 0.7154, 0.0721));
-        output.color.rgb = lerp(output.color.rgb, float3(gray, gray, gray), grayscaleIntensity);
-    }
-
-    // オバーフロー対策
-    output.color.rgb = saturate(output.color.rgb);
+    output.color = float4(saturate(color), 1.0);
     return output;
 }

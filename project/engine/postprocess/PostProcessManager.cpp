@@ -21,6 +21,7 @@ void PostProcessManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvMana
 	grayscaleEffect_ = std::make_unique<GrayscaleEffect>();
 	vignetteEffect_ = std::make_unique<VignetteEffect>();
 	noiseEffect_ = std::make_unique<NoiseEffect>();
+	crtEffect_ = std::make_unique<CRTEffect>();
 
 	preParams_ = {};
 }
@@ -91,6 +92,7 @@ void PostProcessManager::Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputTexture)
 	grayscaleEffect_->ApplyEffect(params_);
 	vignetteEffect_->ApplyEffect(params_);
 	noiseEffect_->ApplyEffect(params_);
+	crtEffect_->ApplyEffect(params_);
 	// 定数バッファを更新
 	UpdateConstantBuffer();
 	// 定数バッファビューを設定

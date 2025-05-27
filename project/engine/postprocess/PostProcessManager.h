@@ -6,6 +6,7 @@
 #include <d3d12.h>
 #include <string>
 
+#include "CRTEffect.h"
 #include "GrayscaleEffect.h"
 #include "NoiseEffect.h"
 #include "VignetteEffect.h"
@@ -25,6 +26,7 @@ public:
 	std::unique_ptr<GrayscaleEffect> grayscaleEffect_;
 	std::unique_ptr<VignetteEffect> vignetteEffect_;
 	std::unique_ptr<NoiseEffect> noiseEffect_;
+	std::unique_ptr<CRTEffect> crtEffect_;
 
 private:
 	void CreateConstantBuffer();
