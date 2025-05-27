@@ -87,7 +87,7 @@
     <ClCompile Include="engine\postprocess\PostProcessManager.cpp" />
     <ClCompile Include="engine\postprocess\VignetteEffect.cpp" />
     <ClCompile Include="engine\postprocess\NoiseEffect.cpp" />
-    <ClCompile Include="CRTEffect.cpp" />
+    <ClCompile Include="engine\postprocess\CRTEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\base\GameObject.h" />
@@ -197,7 +197,7 @@
     <ClInclude Include="engine\postprocess\PostProcessManager.h" />
     <ClInclude Include="engine\postprocess\VignetteEffect.h" />
     <ClInclude Include="engine\postprocess\NoiseEffect.h" />
-    <ClInclude Include="CRTEffect.h" />
+    <ClInclude Include="engine\postprocess\CRTEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />
