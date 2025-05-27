@@ -7,6 +7,8 @@ public:
     NoiseEffect();
     ~NoiseEffect() override;
 
+    void ApplyEffect(PostEffectParams& params) override;
+
     void SetIntensity(float intensity);
     void SetTime(float time);
     void SetGrainSize(float grainSize);
@@ -17,10 +19,6 @@ public:
     float GetTime() const { return params_.time; }
     float GetGrainSize() const { return params_.grainSize; }
     float GetLuminanceAffect() const { return params_.luminanceAffect; }
-
-protected:
-    size_t GetConstantBufferSize() const override;
-    void CopyDataToConstantBuffer(void* mappedData) override;
 
 private:
     struct Parameters

@@ -14,6 +14,22 @@ NoiseEffect::~NoiseEffect()
 {
 }
 
+void NoiseEffect::ApplyEffect(PostEffectParams& params)
+{
+	if (enabled_)
+	{
+		params.noiseEnabled = 1; // ノイズエフェクトを有効にする
+		params.noiseIntensity = params_.intensity;
+		params.noiseTime = params_.time;
+		params.grainSize = params_.grainSize;
+		params.luminanceAffect = params_.luminanceAffect;
+	}
+	else
+	{
+		params.noiseEnabled = 0; // ノイズエフェクトを無効にする
+	}
+}
+
 void NoiseEffect::SetIntensity(float intensity)
 {
     if (params_.intensity != intensity)
@@ -57,19 +73,4 @@ void NoiseEffect::SetEnabled(bool enabled)
         enabled_ = enabled;
         isDirty_ = true;
     }
-}
-
-size_t NoiseEffect::GetConstantBufferSize() const
-{
-    return sizeof(Parameters);
-}
-
-void NoiseEffect::CopyDataToConstantBuffer(void* mappedData)
-{
-    Parameters* data = static_cast<Parameters*>(mappedData);
-    data->intensity = params_.intensity;
-    data->time = params_.time;
-    data->grainSize = params_.grainSize;
-    data->luminanceAffect = params_.luminanceAffect;
-    data->enabled = enabled_ ? 1 : 0;
 }

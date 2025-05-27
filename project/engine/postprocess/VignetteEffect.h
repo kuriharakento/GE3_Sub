@@ -11,6 +11,8 @@ public:
     VignetteEffect();
     ~VignetteEffect() override;
 
+    void ApplyEffect(PostEffectParams& params) override;
+
     // ビネット特有のパラメータ
     void SetIntensity(float intensity);
     float GetIntensity() const { return params_.intensity; }
@@ -21,11 +23,6 @@ public:
     void SetColor(const Vector3& color);
     Vector3 GetColor() const { return params_.color; }
     void SetEnabled(bool enabled) override;
-
-protected:
-    // 基底クラスのメソッドをオーバーライド
-    size_t GetConstantBufferSize() const override;
-    void CopyDataToConstantBuffer(void* mappedData) override;
 
 private:
     struct Parameters

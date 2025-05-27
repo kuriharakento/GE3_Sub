@@ -16,12 +16,13 @@ void PostProcessManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvMana
 
 	SetupPipeline(vsPath, psPath);
 
+	CreateConstantBuffer();
+
 	grayscaleEffect_ = std::make_unique<GrayscaleEffect>();
-	grayscaleEffect_->Initialize(dxCommon);
 	vignetteEffect_ = std::make_unique<VignetteEffect>();
-	vignetteEffect_->Initialize(dxCommon);
 	noiseEffect_ = std::make_unique<NoiseEffect>();
-	noiseEffect_->Initialize(dxCommon);
+
+	preParams_ = {};
 }
 
 void PostProcessManager::SetupPipeline(const std::wstring& vsPath, const std::wstring& psPath)
@@ -33,15 +34,11 @@ void PostProcessManager::SetupPipeline(const std::wstring& vsPath, const std::ws
 	CD3DX12_DESCRIPTOR_RANGE samplerRange{};
 	samplerRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
-	CD3DX12_ROOT_PARAMETER rootParams[5]{};
+	CD3DX12_ROOT_PARAMETER rootParams[3]{};
 	rootParams[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParams[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
-	// グレイスケールエフェクトの定数バッファ
+	//　ポストプロセスのエフェクト用の定数バッファ
 	rootParams[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
-	// ビネットエフェクトの定数バッファ
-	rootParams[3].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_PIXEL);
-	// ノイズエフェクトの定数バッファ
-	rootParams[4].InitAsConstantBufferView(2, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
 	rootSigDesc.Init(_countof(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -87,21 +84,51 @@ void PostProcessManager::Draw(D3D12_GPU_DESCRIPTOR_HANDLE inputTexture)
 		dxCommon_->GetSamplerHeap()
 	};
 	cmdList->SetDescriptorHeaps(_countof(heaps), heaps);
-
 	cmdList->SetGraphicsRootDescriptorTable(0, inputTexture);
 	cmdList->SetGraphicsRootDescriptorTable(1, dxCommon_->GetSamplerDescriptorHandle());
 
-	//グレイスケールの描画
-	grayscaleEffect_->UpdateParameters();
-	cmdList->SetGraphicsRootConstantBufferView(2, grayscaleEffect_->GetConstantBufferAddress());
-
-	//ビネットの描画
-	vignetteEffect_->UpdateParameters();
-	cmdList->SetGraphicsRootConstantBufferView(3, vignetteEffect_->GetConstantBufferAddress());
-
-	//ノイズの描画
-	noiseEffect_->UpdateParameters();
-	cmdList->SetGraphicsRootConstantBufferView(4, noiseEffect_->GetConstantBufferAddress());
-
+	// ポストプロセスのエフェクトパラメータを設定
+	grayscaleEffect_->ApplyEffect(params_);
+	vignetteEffect_->ApplyEffect(params_);
+	noiseEffect_->ApplyEffect(params_);
+	// 定数バッファを更新
+	UpdateConstantBuffer();
+	// 定数バッファビューを設定
+	cmdList->SetGraphicsRootConstantBufferView(2, constantBuffer_->GetGPUVirtualAddress());
+	// 描画
 	cmdList->DrawInstanced(3, 1, 0, 0);
+}
+
+void PostProcessManager::CreateConstantBuffer()
+{
+	size_t bufferSize = (sizeof(PostEffectParams) + 255) & ~255; // 256バイトアラインメント
+
+	D3D12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	D3D12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+	HRESULT hr = dxCommon_->GetDevice()->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&constantBuffer_));
+	assert(SUCCEEDED(hr));
+
+	// サンプラーヒープの作成
+	dxCommon_->CreateSamplerHeap();
+}
+
+void PostProcessManager::UpdateConstantBuffer()
+{
+	if (params_ == preParams_)
+	{
+		return; // 前フレームと同じパラメータなら更新しない
+	}
+
+	void* mappedData = nullptr;
+	constantBuffer_->Map(0, nullptr, &mappedData);
+	memcpy(mappedData, &params_, sizeof(PostEffectParams));
+	constantBuffer_->Unmap(0, nullptr);
+	preParams_ = params_; // 前フレームのパラメータを更新
 }

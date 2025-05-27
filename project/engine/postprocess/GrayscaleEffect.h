@@ -8,14 +8,12 @@ public:
     GrayscaleEffect();
     ~GrayscaleEffect() override;
 
+	void ApplyEffect(PostEffectParams& params) override;
+
     // グレースケール特有のパラメータ
     void SetIntensity(float intensity);
     float GetIntensity() const { return params_.intensity; }
     void SetEnabled(bool enabled) override;
-protected:
-    // 基底クラスのメソッドをオーバーライド
-    size_t GetConstantBufferSize() const override;
-    void CopyDataToConstantBuffer(void* mappedData) override;
 
 private:
     struct Parameters

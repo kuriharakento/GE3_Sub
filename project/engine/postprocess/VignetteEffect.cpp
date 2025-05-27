@@ -18,6 +18,22 @@ VignetteEffect::VignetteEffect()
 
 VignetteEffect::~VignetteEffect() {}
 
+void VignetteEffect::ApplyEffect(PostEffectParams& params)
+{
+	if (enabled_)
+	{
+		params.vignetteEnabled = 1; // ビネットエフェクトを有効にする
+		params.vignetteIntensity = params_.intensity;
+		params.vignetteRadius = params_.radius;
+		params.vignetteSoftness = params_.softness;
+		params.vignetteColor = params_.color;
+	}
+	else
+	{
+		params.vignetteEnabled = 0; // ビネットエフェクトを無効にする
+	}
+}
+
 void VignetteEffect::SetIntensity(float intensity)
 {
     if (params_.intensity != intensity)
@@ -61,20 +77,4 @@ void VignetteEffect::SetEnabled(bool enabled)
         enabled_ = enabled;
         isDirty_ = true;
     }
-}
-
-size_t VignetteEffect::GetConstantBufferSize() const
-{
-    // 256バイトアラインメント
-    return (sizeof(Parameters) + 255) & ~255;
-}
-
-void VignetteEffect::CopyDataToConstantBuffer(void* mappedData)
-{
-    Parameters* data = static_cast<Parameters*>(mappedData);
-	data->intensity = params_.intensity;
-	data->radius = params_.radius;
-	data->softness = params_.softness;
-	data->color = params_.color;
-	data->enabled = enabled_ ? 1 : 0; // 0または1で有効/無効を表現
 }

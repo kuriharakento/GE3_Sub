@@ -27,11 +27,19 @@ public:
 	std::unique_ptr<NoiseEffect> noiseEffect_;
 
 private:
+	void CreateConstantBuffer();
+	void UpdateConstantBuffer();
+
+private:
     DirectXCommon* dxCommon_ = nullptr;
     SrvManager* srvManager_ = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;
+    //定数バッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> constantBuffer_;
 
     void SetupPipeline(const std::wstring& vsPath, const std::wstring& psPath);
+	PostEffectParams params_;
+	PostEffectParams preParams_; // 前フレームのパラメータを保持
 };

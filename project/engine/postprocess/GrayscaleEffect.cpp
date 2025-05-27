@@ -14,6 +14,19 @@ GrayscaleEffect::~GrayscaleEffect()
     
 }
 
+void GrayscaleEffect::ApplyEffect(PostEffectParams& params)
+{
+	if (enabled_)
+	{
+		params.grayscaleEnabled = 1; // グレースケールエフェクトを有効にする
+		params.grayscaleIntensity = params_.intensity;
+	}
+	else
+	{
+		params.grayscaleEnabled = 0; // グレースケールエフェクトを無効にする
+	}
+}
+
 void GrayscaleEffect::SetIntensity(float intensity)
 {
     // 値が変更された場合のみ更新フラグを立てる
@@ -31,17 +44,4 @@ void GrayscaleEffect::SetEnabled(bool enabled)
 		enabled_ = enabled;
 		isDirty_ = true;  // 基底クラスのフラグを使用
 	}
-}
-
-size_t GrayscaleEffect::GetConstantBufferSize() const
-{
-    return sizeof(Parameters);
-}
-
-void GrayscaleEffect::CopyDataToConstantBuffer(void* mappedData)
-{
-    // 定数バッファにデータをコピー
-    Parameters* data = static_cast<Parameters*>(mappedData);
-    data->intensity = params_.intensity;
-    data->enabled = enabled_ ? 1 : 0;  // 基底クラスのenabledフラグを使用
 }
