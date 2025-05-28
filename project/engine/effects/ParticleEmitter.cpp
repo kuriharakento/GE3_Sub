@@ -75,6 +75,17 @@ void ParticleEmitter::AddComponent(std::shared_ptr<IParticleComponent> component
 	behaviorComponents_.push_back(component);
 }
 
+void ParticleEmitter::Play()
+{
+	isPlaying_ = true;
+	if (target_)
+	{
+		position_ = *target_;
+	}
+	emitTime_ = 0.0f;
+	timeSinceLastEmit_ = 0.0f;
+}
+
 void ParticleEmitter::Start(const Vector3& position, uint32_t count, float duration, bool isLoop)
 {
 	isPlaying_ = true;

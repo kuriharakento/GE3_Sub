@@ -79,7 +79,7 @@ private:
 	bool isBillboard_ = true; // ビルボードフラグ
 	//マテリアルデータ
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
-	MaterialData* modelData_ = nullptr;
+	MaterialData modelData_;
 	Material* materialData_ = nullptr;
 
 	//===========================[ パーティクル ]===========================//

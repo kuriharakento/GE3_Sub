@@ -14,6 +14,7 @@ public:
     void Draw(DirectXCommon* dxCommon, SrvManager* srvManager);
     void AddComponent(std::shared_ptr<IParticleComponent> component);
 
+    void Play();
     void Start(const Vector3& position, uint32_t count, float duration, bool isLoop = false);
     void Start(const Vector3* target, uint32_t count, float duration, bool isLoop = false);
 	void StopEmit();

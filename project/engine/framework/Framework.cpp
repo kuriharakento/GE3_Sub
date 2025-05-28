@@ -120,9 +120,6 @@ void Framework::Update()
 	//カメラの更新
 	cameraManager_->Update();
 
-	//パーティクルマネージャーの更新
-	ParticleManager::GetInstance()->Update(cameraManager_.get());
-
 	//オーディオの更新
 	Audio::GetInstance()->Update();
 
