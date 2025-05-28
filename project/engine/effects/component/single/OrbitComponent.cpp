@@ -5,6 +5,18 @@ OrbitComponent::OrbitComponent(const Vector3& c, float radius_, float speed)
 {
 }
 
+OrbitComponent::OrbitComponent(const Vector3* target, float radius_, float speed) : target_(target), radius_(radius_), angularSpeed_(speed)
+{
+	if (target_)
+	{
+		center_ = *target_;
+	}
+	else
+	{
+        center_ = Vector3();
+	}
+}
+
 void OrbitComponent::Update(Particle& particle)
 {
     float angle = angularSpeed_;

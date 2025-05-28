@@ -22,9 +22,13 @@ void ParticleEmitter::Initialize(const std::string& groupName, const std::string
 
 void ParticleEmitter::Update(CameraManager* camera)
 {
-	//
+	// 発生位置の更新
 	UpdateEmitPosition();
 
+	// 初期パラメータのランダム化
+	RandomizeInitialParameters();
+
+	// パーティクル生成
 	Emit();
 
 	// パーティクル単体に作用するコンポーネントの更新
@@ -173,5 +177,21 @@ void ParticleEmitter::UpdateEmitPosition()
 	if (target_)
 	{
 		position_ = *target_;
+	}
+}
+
+void ParticleEmitter::RandomizeInitialParameters()
+{
+	if (isRandomVelocity_)
+	{
+		initialVelocity_ = MathUtils::RandomVector3(Vector3{ -1.0f, 0.0f, -1.0f }, Vector3{ 1.0f, 3.0f, 1.0f });
+	}
+	if (isRandomScale_)
+	{
+		initialScale_ = MathUtils::RandomVector3(randomScaleRange_.min_, randomScaleRange_.max_);
+	}
+	if (isRandomColor_)
+	{
+		initialColor_ = MathUtils::RandomVector4(randomColormin_, randomColormax_);
 	}
 }

@@ -89,6 +89,7 @@
     <ClCompile Include="engine\postprocess\NoiseEffect.cpp" />
     <ClCompile Include="engine\postprocess\CRTEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\BounceComponent.cpp" />
+    <ClCompile Include="engine\effects\component\single\ForceFieldComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\base\GameObject.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="engine\postprocess\NoiseEffect.h" />
     <ClInclude Include="engine\postprocess\CRTEffect.h" />
     <ClInclude Include="engine\effects\component\single\BounceComponent.h" />
+    <ClInclude Include="engine\effects\component\single\ForceFieldComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

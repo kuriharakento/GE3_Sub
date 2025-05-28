@@ -139,6 +139,8 @@ void MyGame::LoadTextures()
 	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/testSprite.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/gradationLine.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/circle2.png");
 }
 
 void MyGame::LoadModels()
