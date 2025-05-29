@@ -25,9 +25,6 @@ void ParticleEmitter::Update(CameraManager* camera)
 	// 発生位置の更新
 	UpdateEmitPosition();
 
-	// 初期パラメータのランダム化
-	RandomizeInitialParameters();
-
 	// パーティクル生成
 	Emit();
 
@@ -154,12 +151,13 @@ void ParticleEmitter::Emit()
 	{
 		for (uint32_t i = 0; i < emitCount_; ++i)
 		{
+			RandomizeInitialParameters();
 			Particle newParticle;
 			Vector3 randomOffset = MathUtils::RandomVector3(emitRangeMin_, emitRangeMax_);
 
 			newParticle.transform.translate = position_ + randomOffset;
 			newParticle.transform.scale = initialScale_;
-			newParticle.transform.rotate = { 0.0f, 0.0f, 0.0f };
+			newParticle.transform.rotate = initialRotation_;
 			newParticle.velocity = initialVelocity_;
 			newParticle.color = initialColor_;
 			newParticle.lifeTime = initialLifeTime_;
@@ -184,7 +182,7 @@ void ParticleEmitter::RandomizeInitialParameters()
 {
 	if (isRandomVelocity_)
 	{
-		initialVelocity_ = MathUtils::RandomVector3(Vector3{ -1.0f, 0.0f, -1.0f }, Vector3{ 1.0f, 3.0f, 1.0f });
+		initialVelocity_ = MathUtils::RandomVector3(randomVelocityRange_.min_, randomVelocityRange_.max_);
 	}
 	if (isRandomScale_)
 	{
@@ -193,5 +191,9 @@ void ParticleEmitter::RandomizeInitialParameters()
 	if (isRandomColor_)
 	{
 		initialColor_ = MathUtils::RandomVector4(randomColormin_, randomColormax_);
+	}
+	if (isRandomRotation_)
+	{
+		initialRotation_ = MathUtils::RandomVector3(randomRotationRange_.min_, randomRotationRange_.max_);
 	}
 }

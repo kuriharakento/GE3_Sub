@@ -19,6 +19,11 @@ OrbitComponent::OrbitComponent(const Vector3* target, float radius_, float speed
 
 void OrbitComponent::Update(Particle& particle)
 {
+	if (target_)
+	{
+		center_ = *target_;
+	}
+
     float angle = angularSpeed_;
 
     Vector3 offset = particle.transform.translate - center_;

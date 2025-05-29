@@ -24,6 +24,7 @@ public:
 	void SetEmitCount(uint32_t count) { emitCount_ = count; }
 	void SetLoop(bool loop) { isLoop_ = loop; }
 	void SetBillborad(bool flag) { particleGroup_->SetBillboard(flag); }
+	const Vector3& GetPosition() const { return position_; }
 	void SetTexture(const std::string& textureFilePath) { particleGroup_->SetTexture(textureFilePath); }
 	void SetModelType(ParticleGroup::ParticleType type) { particleGroup_->SetModelType(type); }
 	Vector3 GetUVTranslate() const { return particleGroup_->GetUVTranslate(); }
@@ -39,6 +40,7 @@ public:
 	void SetInitialVelocity(const Vector3& velocity) { initialVelocity_ = velocity; }
 	void SetInitialColor(const Vector4& color) { initialColor_ = color; }
 	void SetInitialScale(const Vector3& scale) { initialScale_ = scale; }
+	void SetInitialRotation(const Vector3& rotation) { initialRotation_ = rotation; }
 	float GetInitialLifeTime() const { return initialLifeTime_; }
 	Vector3 GetInitialVelocity() const { return initialVelocity_; }
 	Vector4 GetInitialColor() const { return initialColor_; }
@@ -46,6 +48,7 @@ public:
 	void SetRandomVelocity(bool isRandom) { isRandomVelocity_ = isRandom; }
 	void SetRandomScale(bool isRandom) { isRandomScale_ = isRandom; }
 	void SetRandomColor(bool isRandom) { isRandomColor_ = isRandom; }
+	void SetRandomRotation(bool isRandom) { isRandomRotation_ = isRandom; }
 	void SetRandomVelocityRange(const AABB& range) { randomVelocityRange_ = range; }
 	void SetRandomScaleRange(const AABB& range) { randomScaleRange_ = range; }
 	void SetRandomColorRange(const Vector4& min, const Vector4& max)
@@ -53,6 +56,7 @@ public:
 		randomColormin_ = min;
 		randomColormax_ = max;
 	}
+	void SetRandomRotationRange(const AABB& range) { randomRotationRange_ = range; }
 
 private:
 	// パーティクルの生成
@@ -85,11 +89,14 @@ private:
 	Vector3 initialVelocity_ = { 0.0f, 0.0f, 0.0f };
 	Vector4 initialColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 	Vector3 initialScale_ = { 1.0f, 1.0f, 1.0f };
+	Vector3 initialRotation_ = { 0.0f, 0.0f, 0.0f }; // 初期回転
 	bool isRandomVelocity_ = false; // 初期速度をランダムにするかどうか
 	bool isRandomScale_ = false; // 初期スケールをランダムにするかどうか
 	bool isRandomColor_ = false; // 初期色をランダムにするかどうか
+	bool isRandomRotation_ = false; // 初期回転をランダムにするかどうか
 	AABB randomVelocityRange_ = { Vector3{ -1.0f, -1.0f, -1.0f }, Vector3{ 1.0f,1.0f,1.0f } };
 	AABB randomScaleRange_ = { Vector3{ 0.5f, 0.5f, 0.5f }, Vector3{ 1.5f, 1.5f, 1.5f } };
+	AABB randomRotationRange_ = { Vector3{ -1.0f, -1.0f, -1.0f }, Vector3{ 1.0f, 1.0f, 1.0f } }; // ランダム回転の範囲
 	Vector4 randomColormin_ = { 0.0f, 0.0f, 0.0f, 1.0f }; // ランダム色の最小値
 	Vector4 randomColormax_ = { 1.0f, 1.0f, 1.0f, 1.0f }; // ランダム色の最大値
 };

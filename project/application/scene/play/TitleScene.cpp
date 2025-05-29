@@ -29,9 +29,10 @@
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
 
-static Vector3 fallHeartPos = Vector3{ 0.0f, 2.0f, 0.0f };
+static Vector3 fallHeartPos = Vector3{ 2.0f, 2.0f, 0.0f };
 static Vector3 glitchPos = Vector3{ 0.0f, 2.0f, 0.0f };
 static Vector3 startPos = Vector3{ 0.0f, 2.0f, 0.0f };
+static Vector3 mordeVFXPos = Vector3{ 0.0f, 0.0f, 0.0f };
 
 void TitleScene::Initialize()
 {
@@ -161,96 +162,96 @@ void TitleScene::Initialize()
 	//emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Yellow));
 
 	//---- geminiからもらったパーティクルの案を追加
-	#pragma region "gemini_particle_suggestion 1"
-	//// エミッターの初期化（前回の設定をベースに調整）
-	//emitter_ = std::make_unique<ParticleEmitter>();
-	//emitter_->Initialize("test", "./Resources/circle2.png");
-	//emitter_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
-	//emitter_->Start(
-	//	&startPos, // 発生位置
-	//	30,   // 30個のパーティクルを一度に生成（バースト）
-	//	0.1f, // 0.1秒かけて全パーティクルを放出
-	//	false // ループさせない（一回きりのバースト）
-	//);
-	//emitter_->SetEmitRate(0.0f); // 定期的な放出はなし
-	//emitter_->SetInitialLifeTime(8.0f); // 長めの寿命
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
-	//emitter_->SetBillborad(true); // カメラ常に正面を向く
+#pragma region "gemini_particle_suggestion 1"
+//// エミッターの初期化（前回の設定をベースに調整）
+//emitter_ = std::make_unique<ParticleEmitter>();
+//emitter_->Initialize("test", "./Resources/circle2.png");
+//emitter_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
+//emitter_->Start(
+//	&startPos, // 発生位置
+//	30,   // 30個のパーティクルを一度に生成（バースト）
+//	0.1f, // 0.1秒かけて全パーティクルを放出
+//	false // ループさせない（一回きりのバースト）
+//);
+//emitter_->SetEmitRate(0.0f); // 定期的な放出はなし
+//emitter_->SetInitialLifeTime(8.0f); // 長めの寿命
+//emitter_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
+//emitter_->SetBillborad(true); // カメラ常に正面を向く
 
-	////======コンポーネントの追加=========================
-	//// 初期速度ランダム化 (発生時にランダムに拡散)
-	//emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
-	//	Vector3{ -2.0f, -2.0f, -2.0f }, Vector3{ 2.0f, 2.0f, 2.0f }));
+////======コンポーネントの追加=========================
+//// 初期速度ランダム化 (発生時にランダムに拡散)
+//emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
+//	Vector3{ -2.0f, -2.0f, -2.0f }, Vector3{ 2.0f, 2.0f, 2.0f }));
 
-	//// 重力なし（空間を漂う）
-	//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.0f, 0.0f }));
+//// 重力なし（空間を漂う）
+//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.0f, 0.0f }));
 
-	//// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
-	//// ※DragComponentの具体的な実装がないため、ここではコメントアウト。
-	////   もし実装があれば有効にしてください。
-	// emitter_->AddComponent(std::make_shared<DragComponent>(0.99f)); 
+//// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
+//// ※DragComponentの具体的な実装がないため、ここではコメントアウト。
+////   もし実装があれば有効にしてください。
+// emitter_->AddComponent(std::make_shared<DragComponent>(0.99f)); 
 
-	//// スケール変化コンポーネント (出現して最大になり、徐々に小さくなる)
-	//// 例: 0.0 -> 0.8 (最初の20%の時間) -> 0.0 (残りの80%の時間)
-	//// このコンポーネントだけでは複雑なカーブは表現しにくいので、Particleの寿命に基づいて
-	//// 動的にスケールを計算するロジックをParticleSystem側で追加するか、
-	//// より複雑なScaleOverLifetimeComponent（キーフレーム指定など）が必要です。
-	//// ここでは簡易的に最初から小さく、徐々に小さくするパターン。
-	//emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.3f, 0.0f));
+//// スケール変化コンポーネント (出現して最大になり、徐々に小さくなる)
+//// 例: 0.0 -> 0.8 (最初の20%の時間) -> 0.0 (残りの80%の時間)
+//// このコンポーネントだけでは複雑なカーブは表現しにくいので、Particleの寿命に基づいて
+//// 動的にスケールを計算するロジックをParticleSystem側で追加するか、
+//// より複雑なScaleOverLifetimeComponent（キーフレーム指定など）が必要です。
+//// ここでは簡易的に最初から小さく、徐々に小さくするパターン。
+//emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.3f, 0.0f));
 
-	//// 色フェードアウトコンポーネント (寿命後半で透明になる)
-	//emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+//// 色フェードアウトコンポーネント (寿命後半で透明になる)
+//emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 
-	//// 回転コンポーネント (ゆっくり回転)
-	//emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
-	//// 軌道コンポーネント (中心に収束する動き)
-	//// 注意: このOrbitComponentは「円軌道」なので、中心に「吸い込まれる」動きは
-	//// そのままでは表現できません。Particleの寿命の後半でこのコンポーネントの
-	//// centerに向かう力を強める、またはradiusを減少させるようなカスタムロジックが
-	//// 必要になります。ここでは「中心付近を漂いながら回転」として利用。
-	//// より正確な収束には、ForceComponent (特定点への引力) などが必要です。
-	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
-	//	Vector3{ 0.0f, 0.0f, 0.0f }, // 収束したい中心座標
-	//	0.5f,                       // 小さい半径で中心付近を漂う
-	//	0.05f                       // ゆっくり回転
-	//));
+//// 回転コンポーネント (ゆっくり回転)
+//emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
+//// 軌道コンポーネント (中心に収束する動き)
+//// 注意: このOrbitComponentは「円軌道」なので、中心に「吸い込まれる」動きは
+//// そのままでは表現できません。Particleの寿命の後半でこのコンポーネントの
+//// centerに向かう力を強める、またはradiusを減少させるようなカスタムロジックが
+//// 必要になります。ここでは「中心付近を漂いながら回転」として利用。
+//// より正確な収束には、ForceComponent (特定点への引力) などが必要です。
+//emitter_->AddComponent(std::make_shared<OrbitComponent>(
+//	Vector3{ 0.0f, 0.0f, 0.0f }, // 収束したい中心座標
+//	0.5f,                       // 小さい半径で中心付近を漂う
+//	0.05f                       // ゆっくり回転
+//));
 
-	//// マテリアル色変更コンポーネント (青系の光)
-	//emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
-	#pragma endregion
+//// マテリアル色変更コンポーネント (青系の光)
+//emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
+#pragma endregion
 
-	#pragma region "gemini_particle_suggestion 2"
-	// エミッターの初期化
+#pragma region "gemini_particle_suggestion 2"
+// エミッターの初期化
 	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test", "./Resources/circle2.png"); // 縦長の光のテクスチャ
+	emitter_->Initialize("test", "./Resources/gradationLine.png"); // 縦長の光のテクスチャ
 	emitter_->SetEmitRange({ -0.1f, 0.0f, -0.1f }, { 0.1f, 0.0f, 0.1f }); // 地面付近で発生
 	emitter_->Start(
 		&startPos,
 		3,    // 1個ずつ連続的に生成
-		10.0f, // 10秒間放出
+		1.0f, // 10秒間放出
 		true  // ループさせる（継続的に光が上昇）
 	);
-	emitter_->SetEmitRate(0.5f); // 0.5秒ごとに1個生成
-	emitter_->SetInitialLifeTime(3.0f); // 長めの寿命
-	emitter_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の柱感
-	emitter_->SetBillborad(false); // カメラに追従せず、常にY軸を上にする
+	emitter_->SetEmitRate(0.2f); // 0.5秒ごとに1個生成
+	emitter_->SetInitialLifeTime(2.0f); // 長めの寿命
+	emitter_->SetModelType(ParticleGroup::ParticleType::Ring);
+	emitter_->SetBillborad(false);
 
 	//======コンポーネントの追加=========================
 	// 重力なし
-	emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.0f, 0.0f }));
+	//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, -0.1f, 0.0f }));
 
 	// 加速度コンポーネント (上方向への加速)
 	// ※AccelerationComponentのUpdateで位置も更新されることを前提
-	emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
+	emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.001f, 0.0f }));
 
 	// 軌道コンポーネント (螺旋状の動き)
 	// 半径を時間で増やすロジックはParticleクラスに持たせるか、カスタムOrbitalComponentが必要
 	// ここでは半径固定で、中心からわずかにずれて回転することで螺旋に見せる
-	emitter_->AddComponent(std::make_shared<OrbitComponent>(
-		Vector3{ 0.0f, 0.0f, 0.0f }, // 回転の中心
-		0.5f,                       // 螺旋の半径
-		0.05f                       // ゆっくり回転
-	));
+	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
+	//	&startPos,
+	//	0.5f,                       // 螺旋の半径
+	//	0.05f                       // ゆっくり回転
+	//));
 
 	// スケール変化コンポーネント (小さく始まり、最大になり、消滅)
 	// ここでは簡易的に線形補間ですが、カーブで制御するとより美しい
@@ -261,13 +262,20 @@ void TitleScene::Initialize()
 	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 
 	// 回転コンポーネント (ゆっくりY軸回転)
-	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.02f, 0.0f }));
+	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.01f, 0.01f, 0.0f }));
+
+	//UV変換コンポーネント (テクスチャの動き)
+	emitter_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.1f, 0.0f, 0.0f })); // UVを毎フレーム大きくずらす
 
 	// マテリアル色変更コンポーネント (神秘的な光)
-	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Purple));
-	#pragma endregion
+	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Red));
+	emitter_->SetRandomVelocity(true);
+	emitter_->SetRandomVelocityRange(AABB{ Vector3{ -0.3f,-0.3f,-0.3f }, Vector3{ 0.3f,0.3f,0.3f } });
+	emitter_->SetRandomRotation(true);
+	emitter_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
+#pragma endregion
 
-	#pragma region "gemini_particle_suggestion 3"
+#pragma region "gemini_particle_suggestion 3"
 	// エミッターの初期化
 	glitch_ = std::make_unique<ParticleEmitter>();
 	glitch_->Initialize("glitch", "./Resources/circle2.png"); // グリッチのテクスチャ
@@ -312,12 +320,12 @@ void TitleScene::Initialize()
 	// マテリアル色変更コンポーネント (蛍光色系)
 	glitch_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Magenta));
 	// 複数のエミッターでCyan, Greenなども追加すると良い
-	#pragma endregion
+#pragma endregion
 
-	#pragma region "Fall Heart"
-	// エミッターの初期化
+#pragma region "Fall Heart"
+// エミッターの初期化
 	fallHeart_ = std::make_unique<ParticleEmitter>();
-	fallHeart_->Initialize("fallHeart", "./Resources/circle2.png"); // ハートのテクスチャ
+	fallHeart_->Initialize("fallHeart", "./Resources/star.png"); // ハートのテクスチャ
 	fallHeart_->SetEmitRange({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // 発生ポイントを固定
 	fallHeart_->Start(
 		&fallHeartPos,
@@ -356,7 +364,58 @@ void TitleScene::Initialize()
 
 	// マテリアル色変更コンポーネント (ピンク)
 	fallHeart_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Pink));
-	#pragma endregion
+#pragma endregion
+
+
+#pragma region モルデカイザーエフェクト
+	mordeVFXGround_ = std::make_unique<ParticleEmitter>();
+	mordeVFXGround_->Initialize("mordeVFXGround", "./Resources/gradationLine.png");
+	mordeVFXGround_->SetEmitRange({ -0.0f, 0.0f, -0.0f }, { 0.0f, 0.0f, 0.0f });
+	mordeVFXGround_->SetInitialLifeTime(0.02f);
+	mordeVFXGround_->SetInitialScale(Vector3{ 3.0f,3.0f,3.0f });
+	mordeVFXGround_->SetEmitRate(0.0f);
+	//　地面に倒す角度にする
+	mordeVFXGround_->SetInitialRotation(Vector3{ std::numbers::pi_v<float> * 0.5, 0.0f, 0.0f });
+	mordeVFXGround_->SetBillborad(false);
+	mordeVFXGround_->Start(
+		&player->GetPosition(),
+		1,
+		0.0f,
+		true
+	);
+	mordeVFXGround_->SetModelType(ParticleGroup::ParticleType::Ring);
+	//UV変換コンポーネント追加
+	mordeVFXGround_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ -0.2f, 0.0f, 0.0f })); // UVを毎フレーム大きくずらす
+	// マテリアル色変更コンポーネント追加
+	mordeVFXGround_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
+
+	// 回ってる欠片を再現
+	mordeVFXFragment_ = std::make_unique<ParticleEmitter>();
+	mordeVFXFragment_->Initialize("mordeVFXFragment", "./Resources/star.png");
+	mordeVFXFragment_->SetEmitRange({ -3.0f,0.0f,-3.0f }, { 3.0f,1.0f,3.0f });
+	mordeVFXFragment_->SetInitialLifeTime(1.0f);
+	mordeVFXFragment_->SetInitialScale(Vector3{ 0.7f,0.7f,0.7f });
+	mordeVFXFragment_->SetRandomRotation(true);
+	mordeVFXFragment_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
+	mordeVFXFragment_->SetEmitRate(0.2f);
+	mordeVFXFragment_->Start(
+		&mordeVFXGround_->GetPosition(),
+		6,
+		1.0f,
+		true
+	);
+	//軌道コンポーネントを追加
+	mordeVFXFragment_->AddComponent(std::make_shared<OrbitComponent>(
+		&mordeVFXFragment_->GetPosition(),
+		2.0f, // 半径
+		0.1f // 速度
+	));
+	//　回転コンポーネントを追加
+	mordeVFXFragment_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.1f, 0.1f, 0.0f }));
+	// マテリアル色変更コンポーネント追加
+	mordeVFXFragment_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
+
+#pragma endregion
 }
 
 void TitleScene::Finalize()
@@ -373,6 +432,7 @@ void TitleScene::Update()
 	ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
 	ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
 	ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
+	ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
 
 	ImGui::SeparatorText("PostProcess");
 	if (ImGui::CollapsingHeader("GrayScale"))
@@ -527,7 +587,7 @@ void TitleScene::Update()
 #pragma region Particle
 	if (ImGui::CollapsingHeader("Particle"))
 	{
-		
+
 	}
 #pragma endregion
 
