@@ -31,6 +31,8 @@ private: //メンバ変数
 	std::unique_ptr<Object3d> object3d_;
 	//デバック用オブジェクト地面
 	std::unique_ptr<Object3d> terrain_;
+	//スカイドーム
+	std::unique_ptr<Object3d> skydome_;
 	//キューブの座標
 	Vector3 cubePos1_ = { 0.0f,0.0f,0.0f };
 	Vector3 cubePos2_ = { 3.0f,0.0f,0.0f };
@@ -47,6 +49,7 @@ private: //メンバ変数
 	std::unique_ptr<GameObject> enemy;
 	//エミッター
 	std::unique_ptr<ParticleEmitter> emitter_;
+	std::unique_ptr<ParticleEmitter> redEffect_;
 	std::unique_ptr<ParticleEmitter> fallHeart_;
 	std::unique_ptr<ParticleEmitter> glitch_;
 	std::unique_ptr<ParticleEmitter> mordeVFXGround_;

@@ -84,7 +84,9 @@ void ParticleEmitter::Play()
 		position_ = *target_;
 	}
 	emitTime_ = 0.0f;
-	timeSinceLastEmit_ = 0.0f;
+	timeSinceLastEmit_ = emitRate_;
+	// 初回の発生を即座に行う
+	Emit();
 }
 
 void ParticleEmitter::Start(const Vector3& position, uint32_t count, float duration, bool isLoop)
@@ -94,9 +96,11 @@ void ParticleEmitter::Start(const Vector3& position, uint32_t count, float durat
 	position_ = position;
 	emitCount_ = count;
 	emitTime_ = 0.0f;
-	timeSinceLastEmit_ = 0.0f;
+	timeSinceLastEmit_ = emitRate_;
 	duration_ = duration;
 	isLoop_ = isLoop;
+	//初回の発生を即座に行う
+	Emit();
 }
 
 void ParticleEmitter::Start(const Vector3* target, uint32_t count, float duration, bool isLoop)
@@ -109,9 +113,11 @@ void ParticleEmitter::Start(const Vector3* target, uint32_t count, float duratio
 	isPlaying_ = true;
 	emitCount_ = count;
 	emitTime_ = 0.0f;
-	timeSinceLastEmit_ = 0.0f;
+	timeSinceLastEmit_ = emitRate_;
 	duration_ = duration;
 	isLoop_ = isLoop;
+	// 初回の発生を即座に行う
+	Emit();
 }
 
 void ParticleEmitter::StopEmit()

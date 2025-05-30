@@ -30,9 +30,10 @@
 #include "manager/TextureManager.h"
 
 static Vector3 fallHeartPos = Vector3{ 2.0f, 2.0f, 0.0f };
-static Vector3 glitchPos = Vector3{ 0.0f, 2.0f, 0.0f };
+static Vector3 glitchPos = Vector3{ -2.0f, 2.0f, 0.0f };
 static Vector3 startPos = Vector3{ 0.0f, 2.0f, 0.0f };
 static Vector3 mordeVFXPos = Vector3{ 0.0f, 0.0f, 0.0f };
+static Vector3 origin = Vector3{ 0.0f, 0.0f, 0.0f };
 
 void TitleScene::Initialize()
 {
@@ -48,6 +49,16 @@ void TitleScene::Initialize()
 	terrain_->SetDirectionalLightIntensity(0.0f);
 	terrain_->SetLightManager(sceneManager_->GetLightManager());	//パーティクルグループの作成
 
+	//スカイドームの生成
+	skydome_ = std::make_unique<Object3d>();
+	skydome_->Initialize(sceneManager_->GetObject3dCommon());
+	skydome_->SetModel("skydome.obj");
+	skydome_->SetLightManager(sceneManager_->GetLightManager());
+	skydome_->SetEnableLighting(true);
+	skydome_->SetDirectionalLightIntensity(1.0f);
+	//ディレクショナルライトを下から上に照らす
+	skydome_->SetDirectionalLightDirection({ 0.0f, 1.0f, 0.0f });
+
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
 
@@ -59,14 +70,13 @@ void TitleScene::Initialize()
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
 	//衝突判定コンポーネント
-	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
-
+	//player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
 
 	enemy = std::make_unique<GameObject>("enemy");
 	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
 	enemy->SetPosition({ 0.0f,1.0f,10.0f });
 	//衝突判定コンポーネント
-	enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
+	//enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
 
 
 	//オービットカメラワークの生成
@@ -163,116 +173,92 @@ void TitleScene::Initialize()
 
 	//---- geminiからもらったパーティクルの案を追加
 #pragma region "gemini_particle_suggestion 1"
-//// エミッターの初期化（前回の設定をベースに調整）
-//emitter_ = std::make_unique<ParticleEmitter>();
-//emitter_->Initialize("test", "./Resources/circle2.png");
-//emitter_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
-//emitter_->Start(
-//	&startPos, // 発生位置
-//	30,   // 30個のパーティクルを一度に生成（バースト）
-//	0.1f, // 0.1秒かけて全パーティクルを放出
-//	false // ループさせない（一回きりのバースト）
-//);
-//emitter_->SetEmitRate(0.0f); // 定期的な放出はなし
-//emitter_->SetInitialLifeTime(8.0f); // 長めの寿命
-//emitter_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
-//emitter_->SetBillborad(true); // カメラ常に正面を向く
+	// エミッターの初期化（前回の設定をベースに調整）
+	emitter_ = std::make_unique<ParticleEmitter>();
+	emitter_->Initialize("test", "./Resources/star.png");
+	emitter_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
+	emitter_->Start(
+		&origin, // 発生位置
+		30,   // 30個のパーティクルを一度に生成（バースト）
+		0.1f, // 0.1秒かけて全パーティクルを放出
+		true // ループさせない（一回きりのバースト）
+	);
+	emitter_->SetEmitRate(2.0f); // 定期的な放出はなし
+	emitter_->SetInitialLifeTime(4.0f); // 長めの寿命
+	emitter_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
+	emitter_->SetBillborad(true); // カメラ常に正面を向く
 
-////======コンポーネントの追加=========================
-//// 初期速度ランダム化 (発生時にランダムに拡散)
-//emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
-//	Vector3{ -2.0f, -2.0f, -2.0f }, Vector3{ 2.0f, 2.0f, 2.0f }));
+	//======コンポーネントの追加=========================
+	// 初期速度ランダム化 (発生時にランダムに拡散)
+	/*emitter_->SetRandomVelocity(true);
+	emitter_->SetRandomVelocityRange(
+		AABB{ Vector3{ -0.5f, -0.5f, -0.5f }, Vector3{ 0.5f, 0.5f, 0.5f } }
+	);*/
 
-//// 重力なし（空間を漂う）
-//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.0f, 0.0f }));
+	// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
+	 emitter_->AddComponent(std::make_shared<DragComponent>(0.99f)); 
 
-//// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
-//// ※DragComponentの具体的な実装がないため、ここではコメントアウト。
-////   もし実装があれば有効にしてください。
-// emitter_->AddComponent(std::make_shared<DragComponent>(0.99f)); 
+	emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
 
-//// スケール変化コンポーネント (出現して最大になり、徐々に小さくなる)
-//// 例: 0.0 -> 0.8 (最初の20%の時間) -> 0.0 (残りの80%の時間)
-//// このコンポーネントだけでは複雑なカーブは表現しにくいので、Particleの寿命に基づいて
-//// 動的にスケールを計算するロジックをParticleSystem側で追加するか、
-//// より複雑なScaleOverLifetimeComponent（キーフレーム指定など）が必要です。
-//// ここでは簡易的に最初から小さく、徐々に小さくするパターン。
-//emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.3f, 0.0f));
+	// 色フェードアウトコンポーネント (寿命後半で透明になる)
+	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 
-//// 色フェードアウトコンポーネント (寿命後半で透明になる)
-//emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+	// 回転コンポーネント (ゆっくり回転)
+	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
+	// 軌道コンポーネント (中心に収束する動き)
+	// 注意: このOrbitComponentは「円軌道」なので、中心に「吸い込まれる」動きは
+	// そのままでは表現できません。Particleの寿命の後半でこのコンポーネントの
+	// centerに向かう力を強める、またはradiusを減少させるようなカスタムロジックが
+	// 必要になります。ここでは「中心付近を漂いながら回転」として利用。
+	// より正確な収束には、ForceComponent (特定点への引力) などが必要です。
+	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
+	//	Vector3{ 0.0f, 0.0f, 0.0f }, // 収束したい中心座標
+	//	0.5f,                       // 小さい半径で中心付近を漂う
+	//	0.05f                       // ゆっくり回転
+	//));
 
-//// 回転コンポーネント (ゆっくり回転)
-//emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
-//// 軌道コンポーネント (中心に収束する動き)
-//// 注意: このOrbitComponentは「円軌道」なので、中心に「吸い込まれる」動きは
-//// そのままでは表現できません。Particleの寿命の後半でこのコンポーネントの
-//// centerに向かう力を強める、またはradiusを減少させるようなカスタムロジックが
-//// 必要になります。ここでは「中心付近を漂いながら回転」として利用。
-//// より正確な収束には、ForceComponent (特定点への引力) などが必要です。
-//emitter_->AddComponent(std::make_shared<OrbitComponent>(
-//	Vector3{ 0.0f, 0.0f, 0.0f }, // 収束したい中心座標
-//	0.5f,                       // 小さい半径で中心付近を漂う
-//	0.05f                       // ゆっくり回転
-//));
-
-//// マテリアル色変更コンポーネント (青系の光)
-//emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
+	// マテリアル色変更コンポーネント (青系の光)
+	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Gold));
 #pragma endregion
 
 #pragma region "gemini_particle_suggestion 2"
 // エミッターの初期化
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test", "./Resources/gradationLine.png"); // 縦長の光のテクスチャ
-	emitter_->SetEmitRange({ -0.1f, 0.0f, -0.1f }, { 0.1f, 0.0f, 0.1f }); // 地面付近で発生
-	emitter_->Start(
+	redEffect_ = std::make_unique<ParticleEmitter>();
+	redEffect_->Initialize("redEffect", "./Resources/gradationLine.png"); // 縦長の光のテクスチャ
+	redEffect_->SetEmitRange({ -0.1f, 0.0f, -0.1f }, { 0.1f, 0.0f, 0.1f }); // 地面付近で発生
+	redEffect_->Start(
 		&startPos,
 		3,    // 1個ずつ連続的に生成
 		1.0f, // 10秒間放出
 		true  // ループさせる（継続的に光が上昇）
 	);
-	emitter_->SetEmitRate(0.2f); // 0.5秒ごとに1個生成
-	emitter_->SetInitialLifeTime(2.0f); // 長めの寿命
-	emitter_->SetModelType(ParticleGroup::ParticleType::Ring);
-	emitter_->SetBillborad(false);
+	redEffect_->SetEmitRate(0.2f); // 0.5秒ごとに1個生成
+	redEffect_->SetInitialLifeTime(2.0f); // 長めの寿命
+	redEffect_->SetModelType(ParticleGroup::ParticleType::Ring);
+	redEffect_->SetBillborad(false);
 
 	//======コンポーネントの追加=========================
-	// 重力なし
-	//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, -0.1f, 0.0f }));
-
 	// 加速度コンポーネント (上方向への加速)
-	// ※AccelerationComponentのUpdateで位置も更新されることを前提
-	emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.001f, 0.0f }));
-
-	// 軌道コンポーネント (螺旋状の動き)
-	// 半径を時間で増やすロジックはParticleクラスに持たせるか、カスタムOrbitalComponentが必要
-	// ここでは半径固定で、中心からわずかにずれて回転することで螺旋に見せる
-	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
-	//	&startPos,
-	//	0.5f,                       // 螺旋の半径
-	//	0.05f                       // ゆっくり回転
-	//));
+	redEffect_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.001f, 0.0f }));
 
 	// スケール変化コンポーネント (小さく始まり、最大になり、消滅)
-	// ここでは簡易的に線形補間ですが、カーブで制御するとより美しい
-	emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.2f, 1.0f)); // 出現時は小さく、徐々に大きく。
-	// 最終的に小さくしたい場合は、寿命の後半で再度スケールを小さくする別のロジックが必要。
+	redEffect_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.2f, 1.0f)); // 出現時は小さく、徐々に大きく。
 
 	// 色フェードアウトコンポーネント (寿命後半でフェードアウト)
-	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+	redEffect_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 
 	// 回転コンポーネント (ゆっくりY軸回転)
-	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.01f, 0.01f, 0.0f }));
+	redEffect_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.01f, 0.01f, 0.0f }));
 
 	//UV変換コンポーネント (テクスチャの動き)
-	emitter_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.1f, 0.0f, 0.0f })); // UVを毎フレーム大きくずらす
+	redEffect_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.1f, 0.0f, 0.0f })); // UVを毎フレーム大きくずらす
 
 	// マテリアル色変更コンポーネント (神秘的な光)
-	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Red));
-	emitter_->SetRandomVelocity(true);
-	emitter_->SetRandomVelocityRange(AABB{ Vector3{ -0.3f,-0.3f,-0.3f }, Vector3{ 0.3f,0.3f,0.3f } });
-	emitter_->SetRandomRotation(true);
-	emitter_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
+	redEffect_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Red));
+	redEffect_->SetRandomVelocity(true);
+	redEffect_->SetRandomVelocityRange(AABB{ Vector3{ -0.3f,-0.3f,-0.3f }, Vector3{ 0.3f,0.3f,0.3f } });
+	redEffect_->SetRandomRotation(true);
+	redEffect_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
 #pragma endregion
 
 #pragma region "gemini_particle_suggestion 3"
@@ -284,10 +270,10 @@ void TitleScene::Initialize()
 		&glitchPos,
 		50,   // 50個のパーティクルを一度に生成
 		0.1f, // 非常に短い時間で放出（瞬時に大量発生）
-		false // ループさせない
+		true // ループさせない
 	);
-	glitch_->SetEmitRate(0.0f); // 定期的な放出はなし
-	glitch_->SetInitialLifeTime(3.f); // 非常に短い寿命
+	glitch_->SetEmitRate(4.0f); // 定期的な放出はなし
+	glitch_->SetInitialLifeTime(4.f); // 非常に短い寿命
 	glitch_->SetModelType(ParticleGroup::ParticleType::Plane); // デジタル感を出す
 	glitch_->SetBillborad(true); // カメラ常に正面を向く
 
@@ -378,7 +364,7 @@ void TitleScene::Initialize()
 	mordeVFXGround_->SetInitialRotation(Vector3{ std::numbers::pi_v<float> * 0.5, 0.0f, 0.0f });
 	mordeVFXGround_->SetBillborad(false);
 	mordeVFXGround_->Start(
-		&player->GetPosition(),
+		&mordeVFXPos,
 		1,
 		0.0f,
 		true
@@ -583,42 +569,12 @@ void TitleScene::Update()
 	}
 #pragma endregion
 
-
-#pragma region Particle
-	if (ImGui::CollapsingHeader("Particle"))
-	{
-
-	}
-#pragma endregion
-
 	ImGui::End();
 
 #endif
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE))
-	{
-		// 音声を停止
-		Audio::GetInstance()->StopWave("fanfare");
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_UP))
-	{
-		// 音量を上げる
-		Audio::GetInstance()->SetVolume("fanfare", 1.0f); // 最大音量
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_DOWN))
-	{
-		// 音量を下げる
-		Audio::GetInstance()->SetVolume("fanfare", 0.5f); // 50%の音量
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_LEFT))
-	{
-		// フェードイン
-		Audio::GetInstance()->FadeIn("fanfare", 2.0f); // 2秒かけてフェードイン
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_RIGHT))
-	{
-		// フェードアウト
-		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
-	}
+
+	// スカイドームの更新
+	skydome_->Update(sceneManager_->GetCameraManager());
 
 	// 地面の更新
 	terrain_->Update(sceneManager_->GetCameraManager());
@@ -634,12 +590,13 @@ void TitleScene::Update()
 
 void TitleScene::Draw3D()
 {
-	player->Draw(sceneManager_->GetCameraManager());
+	//player->Draw(sceneManager_->GetCameraManager());
 
-	enemy->Draw(sceneManager_->GetCameraManager());
+	//enemy->Draw(sceneManager_->GetCameraManager());
 
-	//スカイドームの描画
-	terrain_->Draw();
+	//terrain_->Draw();
+
+	skydome_->Draw();
 
 	// グリッドの描画
 	LineManager::GetInstance()->DrawGrid(
@@ -648,7 +605,7 @@ void TitleScene::Draw3D()
 		VectorColorCodes::White
 	);
 
-	splineCamera_->DrawSplineLine();
+	//splineCamera_->DrawSplineLine();
 }
 
 void TitleScene::Draw2D()
