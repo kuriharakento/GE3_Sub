@@ -54,6 +54,7 @@ void ParticleEmitter::Update(CameraManager* camera)
 
 void ParticleEmitter::Draw(DirectXCommon* dxCommon, SrvManager* srvManager)
 {
+#ifdef _DEBUG
 	// 発生ポイントを描画
 	LineManager::GetInstance()->DrawSphere(
 		position_,
@@ -66,6 +67,7 @@ void ParticleEmitter::Draw(DirectXCommon* dxCommon, SrvManager* srvManager)
 			position_ + emitRangeMax_),
 		VectorColorCodes::Green
 	);
+#endif
 
 	if (!particleGroup_) return;
 	particleGroup_->Draw(dxCommon, srvManager);

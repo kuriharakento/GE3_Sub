@@ -15,9 +15,18 @@ LightManager::LightManager()
 
 LightManager::~LightManager()
 {
-	if (lightCountResource_) lightCountResource_->Release();
-	if (pointLightResource_) pointLightResource_->Release();
-	if (spotLightResource_) spotLightResource_->Release();
+	if (lightCountResource_)
+	{
+		lightCountResource_->Unmap(0, nullptr);
+	}
+	if (pointLightResource_)
+	{
+		pointLightResource_->Unmap(0, nullptr);
+	}
+	if (spotLightResource_)
+	{
+		spotLightResource_->Unmap(0, nullptr);
+	}
 }
 
 void LightManager::Initialize(DirectXCommon* dxCommon)

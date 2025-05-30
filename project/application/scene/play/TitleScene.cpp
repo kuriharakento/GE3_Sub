@@ -33,13 +33,15 @@ static Vector3 fallHeartPos = Vector3{ 2.0f, 2.0f, 0.0f };
 static Vector3 glitchPos = Vector3{ -2.0f, 2.0f, 0.0f };
 static Vector3 startPos = Vector3{ 0.0f, 2.0f, 0.0f };
 static Vector3 mordeVFXPos = Vector3{ 0.0f, 0.0f, 0.0f };
-static Vector3 origin = Vector3{ 0.0f, 0.0f, 0.0f };
+static Vector3 origin = Vector3{ 0.0f, 3.0f, 0.0f };
 
 void TitleScene::Initialize()
 {
 	Audio::GetInstance()->LoadWave("fanfare", "game.wav", SoundGroup::BGM);
 	// 音声の再生
 	Audio::GetInstance()->PlayWave("fanfare", true);
+
+	sceneManager_->GetCameraManager()->GetActiveCamera()->SetTranslate(Vector3(0.0f, 1.5f, -15.0f));
 
 	//地面の生成
 	terrain_ = std::make_unique<Object3d>();
@@ -115,113 +117,35 @@ void TitleScene::Initialize()
 		&player->GetPosition()
 	);
 
-	////エミッターの初期化
-	//emitter_ = std::make_unique<ParticleEmitter>();
-	//emitter_->Initialize("test", "./Resources/circle2.png");
-	////emitter_->SetTexture("./Resources/uvChecker.png");
-	//emitter_->SetEmitRange({ -2.0f,-2.0f,-2.0f }, { 2.0f, 2.0f, 2.0f });
-	//
-	//emitter_->Start(
-	//	&startPos,
-	//	1,
-	//	10.0f,
-	//	true
-	//);
-	//emitter_->SetEmitRate(2.0f);
-	//emitter_->SetInitialLifeTime(3.0f);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Plane);
-	////emitter_->SetModelType(ParticleGroup::ParticleType::Cylinder);
-	////emitter_->SetModelType(ParticleGroup::ParticleType::Sphere);
-	////emitter_->SetModelType(ParticleGroup::ParticleType::Torus);
-	////emitter_->SetModelType(ParticleGroup::ParticleType::Star);
-	////emitter_->SetModelType(ParticleGroup::ParticleType::Heart);
-	////emitter_->SetModelType(ParticleGroup::ParticleType::Spiral);
-	////emitter_->SetModelType(ParticleGroup::ParticleType::Cone);
-	////emitter_->SetBillborad(true);
-	//emitter_->SetBillborad(false);
-	////======コンポーネントの追加=========================
-	//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, -0.2f, 0.0f }));
-	////// 空気抵抗コンポーネントを追加
-	////emitter_->AddComponent(std::make_shared<DragComponent>(0.98f));
-
-	//// スケール変化コンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(1.0f, 0.0f));
-
-	//// 色フェードアウトコンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
-
-	//// 初期速度ランダム化コンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
-	//	Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
-	//// 回転コンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.1f, 0.0f }));
-	////// 軌道コンポーネントを追加 (中心座標、半径、速度)
-	////emitter_->AddComponent(std::make_shared<OrbitComponent>(
-	////	Vector3{ 0.0f, 0.0f, 0.0f }, 5.0f, 0.05f));
-	////// 加速度コンポーネントを追加
-	////emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
-	//// バウンスコンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<BounceComponent>(0.0f, 0.5f, 0.05f)); // 地面の高さ、反発係数、最小速度
-
-	//// UV変換コンポーネント
-	////emitter_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.5f, 0.0f, 0.0f })); // UVをX方向に毎フレーム0.01移動
-	////emitter_->AddComponent(std::make_shared<UVRotateComponent>(Vector3{ 0.0f, 0.0f, 0.01f }));    // UVをZ軸周りに毎フレーム0.01ラジアン回転
-	////emitter_->AddComponent(std::make_shared<UVScaleComponent>(Vector3{ 0.005f, 0.005f, 0.0f }));   // UVを毎フレーム1.005倍に拡大
-
-	//// マテリアル色変更コンポーネント
-	//emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Yellow));
-
-	//---- geminiからもらったパーティクルの案を追加
-#pragma region "gemini_particle_suggestion 1"
+#pragma region dust effect
 	// エミッターの初期化（前回の設定をベースに調整）
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test", "./Resources/star.png");
-	emitter_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
-	emitter_->Start(
+	dust_ = std::make_unique<ParticleEmitter>();
+	dust_->Initialize("test", "./Resources/star.png");
+	dust_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
+	dust_->Start(
 		&origin, // 発生位置
 		30,   // 30個のパーティクルを一度に生成（バースト）
 		0.1f, // 0.1秒かけて全パーティクルを放出
 		true // ループさせない（一回きりのバースト）
 	);
-	emitter_->SetEmitRate(2.0f); // 定期的な放出はなし
-	emitter_->SetInitialLifeTime(4.0f); // 長めの寿命
-	emitter_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
-	emitter_->SetBillborad(true); // カメラ常に正面を向く
+	dust_->SetEmitRate(2.0f); // 定期的な放出はなし
+	dust_->SetInitialLifeTime(4.0f); // 長めの寿命
+	dust_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
+	dust_->SetBillborad(true); // カメラ常に正面を向く
 
 	//======コンポーネントの追加=========================
-	// 初期速度ランダム化 (発生時にランダムに拡散)
-	/*emitter_->SetRandomVelocity(true);
-	emitter_->SetRandomVelocityRange(
-		AABB{ Vector3{ -0.5f, -0.5f, -0.5f }, Vector3{ 0.5f, 0.5f, 0.5f } }
-	);*/
-
 	// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
-	 emitter_->AddComponent(std::make_shared<DragComponent>(0.99f)); 
-
-	emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
-
+	dust_->AddComponent(std::make_shared<DragComponent>(0.99f));
+	dust_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
 	// 色フェードアウトコンポーネント (寿命後半で透明になる)
-	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
-
+	dust_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 	// 回転コンポーネント (ゆっくり回転)
-	emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
-	// 軌道コンポーネント (中心に収束する動き)
-	// 注意: このOrbitComponentは「円軌道」なので、中心に「吸い込まれる」動きは
-	// そのままでは表現できません。Particleの寿命の後半でこのコンポーネントの
-	// centerに向かう力を強める、またはradiusを減少させるようなカスタムロジックが
-	// 必要になります。ここでは「中心付近を漂いながら回転」として利用。
-	// より正確な収束には、ForceComponent (特定点への引力) などが必要です。
-	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
-	//	Vector3{ 0.0f, 0.0f, 0.0f }, // 収束したい中心座標
-	//	0.5f,                       // 小さい半径で中心付近を漂う
-	//	0.05f                       // ゆっくり回転
-	//));
-
+	dust_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
 	// マテリアル色変更コンポーネント (青系の光)
-	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Gold));
+	dust_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Gold));
 #pragma endregion
 
-#pragma region "gemini_particle_suggestion 2"
+#pragma region red effect
 // エミッターの初期化
 	redEffect_ = std::make_unique<ParticleEmitter>();
 	redEffect_->Initialize("redEffect", "./Resources/gradationLine.png"); // 縦長の光のテクスチャ
@@ -240,19 +164,14 @@ void TitleScene::Initialize()
 	//======コンポーネントの追加=========================
 	// 加速度コンポーネント (上方向への加速)
 	redEffect_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.001f, 0.0f }));
-
 	// スケール変化コンポーネント (小さく始まり、最大になり、消滅)
 	redEffect_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.2f, 1.0f)); // 出現時は小さく、徐々に大きく。
-
 	// 色フェードアウトコンポーネント (寿命後半でフェードアウト)
 	redEffect_->AddComponent(std::make_shared<ColorFadeOutComponent>());
-
 	// 回転コンポーネント (ゆっくりY軸回転)
 	redEffect_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.01f, 0.01f, 0.0f }));
-
 	//UV変換コンポーネント (テクスチャの動き)
 	redEffect_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.1f, 0.0f, 0.0f })); // UVを毎フレーム大きくずらす
-
 	// マテリアル色変更コンポーネント (神秘的な光)
 	redEffect_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Red));
 	redEffect_->SetRandomVelocity(true);
@@ -261,7 +180,7 @@ void TitleScene::Initialize()
 	redEffect_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
 #pragma endregion
 
-#pragma region "gemini_particle_suggestion 3"
+#pragma region glitch effect
 	// エミッターの初期化
 	glitch_ = std::make_unique<ParticleEmitter>();
 	glitch_->Initialize("glitch", "./Resources/circle2.png"); // グリッチのテクスチャ
@@ -281,34 +200,18 @@ void TitleScene::Initialize()
 	// 初期速度ランダム化 (極端なランダム速度で瞬時に拡散)
 	glitch_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
 		Vector3{ -10.0f, -10.0f, -10.0f }, Vector3{ 10.0f, 10.0f, 10.0f }));
-
-	// 重力なし
-	glitch_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.0f, 0.0f }));
-
 	// スケール変化コンポーネント (一瞬で現れて消える)
-	glitch_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.0f, 1.0f)); // 0.0からスタートし、寿命の途中で最大になり、徐々に0.0へ
-	// ColorFadeOutComponentの後にScaleOverLifetimeComponentでスケールを0.0fにすると
-	// 見えなくなるので、最終的なスケールを0.0fにします。
-	// より自然なフェードイン・アウトには、寿命カーブを制御するカスタムコンポーネントが理想。
-
+	glitch_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.0f, 1.0f));
 	// 色フェードアウトコンポーネント (寿命後半で急激に透明になる)
 	glitch_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 
 	// 回転コンポーネント (高速でランダムな回転)
 	glitch_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.5f, 0.5f, 0.5f }));
-
-	// UV変換コンポーネント (テクスチャが歪んだり、チラついたりする効果)
-	// 極端な値を設定し、デジタルノイズ感を強調
-	//emitter_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.1f, 0.1f, 0.0f })); // UVを毎フレーム大きくずらす
-	//emitter_->AddComponent(std::make_shared<UVRotateComponent>(Vector3{ 0.0f, 0.0f, 0.5f }));   // UVをZ軸周りに毎フレーム0.5ラジアン回転 (高速回転)
-	//emitter_->AddComponent(std::make_shared<UVScaleComponent>(Vector3{ 0.1f, 0.1f, 0.0f }));     // UVを毎フレーム10%拡大 (急激な拡大)
-
 	// マテリアル色変更コンポーネント (蛍光色系)
 	glitch_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Magenta));
-	// 複数のエミッターでCyan, Greenなども追加すると良い
 #pragma endregion
 
-#pragma region "Fall Heart"
+#pragma region fall heart effect
 // エミッターの初期化
 	fallHeart_ = std::make_unique<ParticleEmitter>();
 	fallHeart_->Initialize("fallHeart", "./Resources/star.png"); // ハートのテクスチャ
@@ -329,31 +232,19 @@ void TitleScene::Initialize()
 	//======コンポーネントの追加=========================
 	// 重力コンポーネント (緩やかな重力で落下)
 	fallHeart_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, -0.1f, 0.0f }));
-
 	// スケール変化コンポーネント (出現してすぐ最大になり、徐々に小さく)
 	fallHeart_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
-	// ここでは0.0fから0.0fですが、内部で曲線的なスケール変化を実装している場合、
-	// 例: StartScale = 0.0f, EndScale = 0.0f で、寿命の20%時点でMaxSize = 1.0f、といった設定が必要です。
-	// もしScaleOverLifetimeComponentが線形補間のみなら、カスタムで実装を拡張してください。
-	// 仮に線形補間の場合、ここではシンプルに初期スケールと最終スケールを設定します。
-	// 例: emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f)); (0.5から0へ)
-
 	// 色フェードアウトコンポーネント (寿命後半でフェードアウト)
 	fallHeart_->AddComponent(std::make_shared<ColorFadeOutComponent>());
-
 	// 回転コンポーネント (可愛い回転)
 	fallHeart_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.0f, 0.1f }));
-
 	// バウンスコンポーネント (地面で優しく跳ねる)
-	// GroundHeight: 0.0f (地面の高さ), Restitution: 0.3f (反発係数), MinSpeed: 0.0f (跳ねるための最小速度)
 	fallHeart_->AddComponent(std::make_shared<BounceComponent>(0.0f, 0.3f, 0.0f));
-
 	// マテリアル色変更コンポーネント (ピンク)
 	fallHeart_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Pink));
 #pragma endregion
 
-
-#pragma region モルデカイザーエフェクト
+#pragma region mordeVFX
 	mordeVFXGround_ = std::make_unique<ParticleEmitter>();
 	mordeVFXGround_->Initialize("mordeVFXGround", "./Resources/gradationLine.png");
 	mordeVFXGround_->SetEmitRange({ -0.0f, 0.0f, -0.0f }, { 0.0f, 0.0f, 0.0f });
@@ -585,7 +476,6 @@ void TitleScene::Update()
 
 	//衝突判定開始
 	CollisionManager::GetInstance()->CheckCollisions();
-
 }
 
 void TitleScene::Draw3D()

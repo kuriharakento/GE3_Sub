@@ -48,7 +48,7 @@ private: //メンバ変数
 	std::unique_ptr<Player> player;
 	std::unique_ptr<GameObject> enemy;
 	//エミッター
-	std::unique_ptr<ParticleEmitter> emitter_;
+	std::unique_ptr<ParticleEmitter> dust_;
 	std::unique_ptr<ParticleEmitter> redEffect_;
 	std::unique_ptr<ParticleEmitter> fallHeart_;
 	std::unique_ptr<ParticleEmitter> glitch_;
