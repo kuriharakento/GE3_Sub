@@ -25,8 +25,16 @@
 #include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/collision/CollisionManager.h"
 #include "effects/component/single/MoveToTargetComponent.h"
+#include "effects/component/single/BounceComponent.h"
+#include "postprocess/PostProcessManager.h"
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
+
+static Vector3 fallHeartPos = Vector3{ 2.0f, 2.0f, 0.0f };
+static Vector3 glitchPos = Vector3{ -2.0f, 2.0f, 0.0f };
+static Vector3 startPos = Vector3{ 0.0f, 2.0f, 0.0f };
+static Vector3 mordeVFXPos = Vector3{ 0.0f, 0.0f, 0.0f };
+static Vector3 origin = Vector3{ 0.0f, 3.0f, 0.0f };
 
 void TitleScene::Initialize()
 {
@@ -34,12 +42,25 @@ void TitleScene::Initialize()
 	// 音声の再生
 	Audio::GetInstance()->PlayWave("fanfare", true);
 
+	sceneManager_->GetCameraManager()->GetActiveCamera()->SetTranslate(Vector3(0.0f, 1.5f, -15.0f));
+
+	//地面の生成
+	terrain_ = std::make_unique<Object3d>();
+	terrain_->Initialize(sceneManager_->GetObject3dCommon());
+	terrain_->SetModel("terrain.obj");
+	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
+	terrain_->SetDirectionalLightIntensity(0.0f);
+	terrain_->SetLightManager(sceneManager_->GetLightManager());	//パーティクルグループの作成
+
 	//スカイドームの生成
-	skydome_ = std::make_unique<Skydome>();
-	skydome_->Initialize(sceneManager_->GetObject3dCommon(), "skydome.obj");
-
-	//パーティクルグループの作成
-
+	skydome_ = std::make_unique<Object3d>();
+	skydome_->Initialize(sceneManager_->GetObject3dCommon());
+	skydome_->SetModel("skydome.obj");
+	skydome_->SetLightManager(sceneManager_->GetLightManager());
+	skydome_->SetEnableLighting(true);
+	skydome_->SetDirectionalLightIntensity(1.0f);
+	//ディレクショナルライトを下から上に照らす
+	skydome_->SetDirectionalLightDirection({ 0.0f, 1.0f, 0.0f });
 
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
@@ -51,16 +72,14 @@ void TitleScene::Initialize()
 	player = std::make_unique<Player>("player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
-	player->AddComponent("FireComponent", std::make_shared<FireComponent>(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager()));
 	//衝突判定コンポーネント
-	player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
-
+	//player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
 
 	enemy = std::make_unique<GameObject>("enemy");
 	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
 	enemy->SetPosition({ 0.0f,1.0f,10.0f });
 	//衝突判定コンポーネント
-	enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
+	//enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
 
 
 	//オービットカメラワークの生成
@@ -99,61 +118,181 @@ void TitleScene::Initialize()
 		&player->GetPosition()
 	);
 
-	//エミッターの初期化
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test", "./Resources/gradationLine.png");
-	//emitter_->SetTexture("./Resources/uvChecker.png");
-	//emitter_->SetTexture("./Resources/circle2.png");
-	emitter_->SetEmitRange({ -3.0f,-3.0f,-3.0f }, { 3.0f, 3.0f, 3.0f });
-	emitter_->Start(
-		&player->GetPosition(),
-		3,
-		10.0f,
+#pragma region dust effect
+	// エミッターの初期化（前回の設定をベースに調整）
+	dust_ = std::make_unique<ParticleEmitter>();
+	dust_->Initialize("test", "./Resources/star.png");
+	dust_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
+	dust_->Start(
+		&origin, // 発生位置
+		30,   // 30個のパーティクルを一度に生成（バースト）
+		0.1f, // 0.1秒かけて全パーティクルを放出
+		true // ループさせない（一回きりのバースト）
+	);
+	dust_->SetEmitRate(2.0f); // 定期的な放出はなし
+	dust_->SetInitialLifeTime(4.0f); // 長めの寿命
+	dust_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
+	dust_->SetBillborad(true); // カメラ常に正面を向く
+
+	//======コンポーネントの追加=========================
+	// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
+	dust_->AddComponent(std::make_shared<DragComponent>(0.99f));
+	dust_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
+	// 色フェードアウトコンポーネント (寿命後半で透明になる)
+	dust_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+	// 回転コンポーネント (ゆっくり回転)
+	dust_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
+	// マテリアル色変更コンポーネント (青系の光)
+	dust_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Gold));
+#pragma endregion
+
+#pragma region red effect
+// エミッターの初期化
+	redEffect_ = std::make_unique<ParticleEmitter>();
+	redEffect_->Initialize("redEffect", "./Resources/gradationLine.png"); // 縦長の光のテクスチャ
+	redEffect_->SetEmitRange({ -0.1f, 0.0f, -0.1f }, { 0.1f, 0.0f, 0.1f }); // 地面付近で発生
+	redEffect_->Start(
+		&startPos,
+		3,    // 1個ずつ連続的に生成
+		1.0f, // 10秒間放出
+		true  // ループさせる（継続的に光が上昇）
+	);
+	redEffect_->SetEmitRate(0.2f); // 0.5秒ごとに1個生成
+	redEffect_->SetInitialLifeTime(2.0f); // 長めの寿命
+	redEffect_->SetModelType(ParticleGroup::ParticleType::Ring);
+	redEffect_->SetBillborad(false);
+
+	//======コンポーネントの追加=========================
+	// 加速度コンポーネント (上方向への加速)
+	redEffect_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.001f, 0.0f }));
+	// スケール変化コンポーネント (小さく始まり、最大になり、消滅)
+	redEffect_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.2f, 1.0f)); // 出現時は小さく、徐々に大きく。
+	// 色フェードアウトコンポーネント (寿命後半でフェードアウト)
+	redEffect_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+	// 回転コンポーネント (ゆっくりY軸回転)
+	redEffect_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.01f, 0.01f, 0.0f }));
+	//UV変換コンポーネント (テクスチャの動き)
+	redEffect_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.1f, 0.0f, 0.0f })); // UVを毎フレーム大きくずらす
+	// マテリアル色変更コンポーネント (神秘的な光)
+	redEffect_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Red));
+	redEffect_->SetRandomVelocity(true);
+	redEffect_->SetRandomVelocityRange(AABB{ Vector3{ -0.3f,-0.3f,-0.3f }, Vector3{ 0.3f,0.3f,0.3f } });
+	redEffect_->SetRandomRotation(true);
+	redEffect_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
+#pragma endregion
+
+#pragma region glitch effect
+	// エミッターの初期化
+	glitch_ = std::make_unique<ParticleEmitter>();
+	glitch_->Initialize("glitch", "./Resources/circle2.png"); // グリッチのテクスチャ
+	glitch_->SetEmitRange({ -0.1f, -0.1f, -0.1f }, { 0.1f, 0.1f, 0.1f }); // 非常に狭く、オブジェクトの表面付近
+	glitch_->Start(
+		&glitchPos,
+		50,   // 50個のパーティクルを一度に生成
+		0.1f, // 非常に短い時間で放出（瞬時に大量発生）
+		true // ループさせない
+	);
+	glitch_->SetEmitRate(4.0f); // 定期的な放出はなし
+	glitch_->SetInitialLifeTime(4.f); // 非常に短い寿命
+	glitch_->SetModelType(ParticleGroup::ParticleType::Plane); // デジタル感を出す
+	glitch_->SetBillborad(true); // カメラ常に正面を向く
+
+	//======コンポーネントの追加=========================
+	// 初期速度ランダム化 (極端なランダム速度で瞬時に拡散)
+	glitch_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
+		Vector3{ -10.0f, -10.0f, -10.0f }, Vector3{ 10.0f, 10.0f, 10.0f }));
+	// スケール変化コンポーネント (一瞬で現れて消える)
+	glitch_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.0f, 1.0f));
+	// 色フェードアウトコンポーネント (寿命後半で急激に透明になる)
+	glitch_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+
+	// 回転コンポーネント (高速でランダムな回転)
+	glitch_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.5f, 0.5f, 0.5f }));
+	// マテリアル色変更コンポーネント (蛍光色系)
+	glitch_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Magenta));
+#pragma endregion
+
+#pragma region fall heart effect
+// エミッターの初期化
+	fallHeart_ = std::make_unique<ParticleEmitter>();
+	fallHeart_->Initialize("fallHeart", "./Resources/star.png"); // ハートのテクスチャ
+	fallHeart_->SetEmitRange({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // 発生ポイントを固定
+	fallHeart_->Start(
+		&fallHeartPos,
+		1,
+		0.0f,
+		true // ループさせない
+	);
+	fallHeart_->SetEmitRate(0.1f); // 定期的な放出なし
+	fallHeart_->SetInitialLifeTime(1.5f); // 短〜中程度の寿命
+	fallHeart_->SetModelType(ParticleGroup::ParticleType::Heart); // ハート型！
+	fallHeart_->SetBillborad(true); // カメラ常に正面を向く
+	fallHeart_->SetRandomVelocity(true); // ランダムな初期速度を有効にする
+	fallHeart_->SetRandomVelocityRange(AABB(Vector3{ -1.0f, 0.0f, -1.0f }, Vector3{ 1.0f, 3.0f, 1.0f }));
+
+	//======コンポーネントの追加=========================
+	// 重力コンポーネント (緩やかな重力で落下)
+	fallHeart_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, -0.1f, 0.0f }));
+	// スケール変化コンポーネント (出現してすぐ最大になり、徐々に小さく)
+	fallHeart_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
+	// 色フェードアウトコンポーネント (寿命後半でフェードアウト)
+	fallHeart_->AddComponent(std::make_shared<ColorFadeOutComponent>());
+	// 回転コンポーネント (可愛い回転)
+	fallHeart_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.0f, 0.1f }));
+	// バウンスコンポーネント (地面で優しく跳ねる)
+	fallHeart_->AddComponent(std::make_shared<BounceComponent>(0.0f, 0.3f, 0.0f));
+	// マテリアル色変更コンポーネント (ピンク)
+	fallHeart_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Pink));
+#pragma endregion
+
+#pragma region mordeVFX
+	mordeVFXGround_ = std::make_unique<ParticleEmitter>();
+	mordeVFXGround_->Initialize("mordeVFXGround", "./Resources/gradationLine.png");
+	mordeVFXGround_->SetEmitRange({ -0.0f, 0.0f, -0.0f }, { 0.0f, 0.0f, 0.0f });
+	mordeVFXGround_->SetInitialLifeTime(0.02f);
+	mordeVFXGround_->SetInitialScale(Vector3{ 3.0f,3.0f,3.0f });
+	mordeVFXGround_->SetEmitRate(0.0f);
+	//　地面に倒す角度にする
+	mordeVFXGround_->SetInitialRotation(Vector3{ std::numbers::pi_v<float> * 0.5, 0.0f, 0.0f });
+	mordeVFXGround_->SetBillborad(false);
+	mordeVFXGround_->Start(
+		&mordeVFXPos,
+		1,
+		0.0f,
 		true
 	);
-	emitter_->SetEmitRate(0.2f);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Plane);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Cylinder);
-	emitter_->SetModelType(ParticleGroup::ParticleType::Ring);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Sphere);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Torus);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Star);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Heart);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Spiral);
-	//emitter_->SetModelType(ParticleGroup::ParticleType::Cone);
-	emitter_->SetBillborad(true);
-	//emitter_->SetBillborad(false);
-	//======コンポーネントの追加=========================
-	//emitter_->AddComponent(std::make_shared<GravityComponent>(Vector3{ 0.0f, 0.2f, 0.0f }));
-	//// 空気抵抗コンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<DragComponent>(0.98f));
+	mordeVFXGround_->SetModelType(ParticleGroup::ParticleType::Ring);
+	//UV変換コンポーネント追加
+	mordeVFXGround_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ -0.2f, 0.0f, 0.0f })); // UVを毎フレーム大きくずらす
+	// マテリアル色変更コンポーネント追加
+	mordeVFXGround_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
 
-	// スケール変化コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(1.0f, 0.0f));
-
-	// 色フェードアウトコンポーネントを追加
-	emitter_->AddComponent(std::make_shared<ColorFadeOutComponent>());
-
-	// 初期速度ランダム化コンポーネントを追加
-	emitter_->AddComponent(std::make_shared<RandomInitialVelocityComponent>(
-		Vector3{ -1.0f, 2.0f, -1.0f }, Vector3{ 1.0f, 5.0f, 1.0f }));
-	//// 回転コンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.1f, 0.0f }));
-	//// 軌道コンポーネントを追加 (中心座標、半径、速度)
-	//emitter_->AddComponent(std::make_shared<OrbitComponent>(
-	//	Vector3{ 0.0f, 0.0f, 0.0f }, 5.0f, 0.05f));
-	//// 加速度コンポーネントを追加
-	//emitter_->AddComponent(std::make_shared<AccelerationComponent>(Vector3{ 0.0f, 0.01f, 0.0f }));
-	//
-	emitter_->AddComponent(std::make_shared<MoveToTargetComponent>(&player->GetPosition(),10.0f));
-
-	// UV変換コンポーネント
-	emitter_->AddComponent(std::make_shared<UVTranslateComponent>(Vector3{ 0.5f, 0.5f, 0.0f })); // UVをX方向に毎フレーム0.01移動
-	//emitter_->AddComponent(std::make_shared<UVRotateComponent>(Vector3{ 0.0f, 0.0f, 0.01f }));    // UVをZ軸周りに毎フレーム0.01ラジアン回転
-	//emitter_->AddComponent(std::make_shared<UVScaleComponent>(Vector3{ 0.005f, 0.005f, 0.0f }));   // UVを毎フレーム1.005倍に拡大
-
-	// マテリアル色変更コンポーネント
-	emitter_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
+	// 回ってる欠片を再現
+	mordeVFXFragment_ = std::make_unique<ParticleEmitter>();
+	mordeVFXFragment_->Initialize("mordeVFXFragment", "./Resources/star.png");
+	mordeVFXFragment_->SetEmitRange({ -3.0f,0.0f,-3.0f }, { 3.0f,1.0f,3.0f });
+	mordeVFXFragment_->SetInitialLifeTime(1.0f);
+	mordeVFXFragment_->SetInitialScale(Vector3{ 0.7f,0.7f,0.7f });
+	mordeVFXFragment_->SetRandomRotation(true);
+	mordeVFXFragment_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
+	mordeVFXFragment_->SetEmitRate(0.2f);
+	mordeVFXFragment_->Start(
+		&mordeVFXGround_->GetPosition(),
+		6,
+		1.0f,
+		true
+	);
+	//軌道コンポーネントを追加
+	mordeVFXFragment_->AddComponent(std::make_shared<OrbitComponent>(
+		&mordeVFXFragment_->GetPosition(),
+		2.0f, // 半径
+		0.1f // 速度
+	));
+	//　回転コンポーネントを追加
+	mordeVFXFragment_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.1f, 0.1f, 0.0f }));
+	// マテリアル色変更コンポーネント追加
+	mordeVFXFragment_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
+#pragma endregion
 
 }
 
@@ -166,21 +305,112 @@ void TitleScene::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
-	Vector3 uvtranslate = emitter_->GetUVTranslate();
-	ImGui::DragFloat3("UVTranslate", &uvtranslate.x, 0.01f);
-	emitter_->SetUVTranslate(uvtranslate);
-	Vector3 uvscale = emitter_->GetUVScale();
-	ImGui::DragFloat3("UVScale", &uvscale.x, 0.01f);
-	emitter_->SetUVScale(uvscale);
-	Vector3 uvrotate = emitter_->GetUVRotate();
-	ImGui::DragFloat3("UVRotate", &uvrotate.x, 0.01f);
-	emitter_->SetUVRotate(uvrotate);
+	ImGui::SeparatorText("Particle Emitter");
 
-	static bool isGrayScale = false;
-	if (ImGui::Checkbox("GrayScale", &isGrayScale))
+	ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
+	ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
+	ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
+	ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
+
+	ImGui::SeparatorText("PostProcess");
+	if (ImGui::CollapsingHeader("GrayScale"))
 	{
-		sceneManager_->GetPostProcessPass()->SetGrayscale(isGrayScale);
+		static bool isGrayScale = false;
+		if (ImGui::Checkbox("enable", &isGrayScale))
+		{
+			sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
+		ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
 	}
+	if (ImGui::CollapsingHeader("Vignette"))
+	{
+		static bool isVignette = false;
+		if (ImGui::Checkbox("enable", &isVignette))
+		{
+			sceneManager_->GetPostProcessManager()->vignetteEffect_->SetEnabled(isVignette);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetIntensity();
+		ImGui::DragFloat("Vignette Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetIntensity(intensity);
+		float radius = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetRadius();
+		ImGui::DragFloat("Vignette Radius", &radius, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetRadius(radius);
+		float softness = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetSoftness();
+		ImGui::DragFloat("Vignette Softness", &softness, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetSoftness(softness);
+		Vector3 color = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetColor();
+		ImGui::ColorEdit3("Vignette Color", &color.x);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetColor(color);
+	}
+	if (ImGui::CollapsingHeader("Noise"))
+	{
+		static bool isNoise = false;
+		if (ImGui::Checkbox("enable", &isNoise))
+		{
+			sceneManager_->GetPostProcessManager()->noiseEffect_->SetEnabled(isNoise);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->noiseEffect_->GetIntensity();
+		ImGui::DragFloat("Noise Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetIntensity(intensity);
+		float time = sceneManager_->GetPostProcessManager()->noiseEffect_->GetTime();
+		ImGui::DragFloat("Noise Time", &time, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetTime(time);
+		float grainSize = sceneManager_->GetPostProcessManager()->noiseEffect_->GetGrainSize();
+		ImGui::DragFloat("Noise Grain Size", &grainSize, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetGrainSize(grainSize);
+		float luminanceAffect = sceneManager_->GetPostProcessManager()->noiseEffect_->GetLuminanceAffect();
+		ImGui::DragFloat("Noise Luminance Affect", &luminanceAffect, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetLuminanceAffect(luminanceAffect);
+	}
+	if (ImGui::CollapsingHeader("CRT"))
+	{
+		static  bool isEnabled = false;
+		static bool isCrt = false; // CRTエフェクトの有効/無効
+		static bool isScanline = false;
+		static bool isDistortion = false;
+		static bool isChromAberration = false;
+
+		if (ImGui::Checkbox("enable", &isEnabled))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetEnabled(isEnabled);
+		}
+		if (ImGui::Checkbox("Crt", &isCrt))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetCrtEnabled(isCrt);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Scanline", &isScanline))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineEnabled(isScanline);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Distortion", &isDistortion))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionEnabled(isDistortion);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("ChromAberration", &isChromAberration))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationEnabled(isChromAberration);
+		}
+		float scanlineIntensity = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineIntensity();
+		ImGui::DragFloat("Scanline Intensity", &scanlineIntensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineIntensity(scanlineIntensity);
+		float scanlineCount = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineCount();
+		ImGui::DragFloat("Scanline Count", &scanlineCount, 0.01f, 0.0f, 100.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineCount(scanlineCount);
+		float distortionStrength = sceneManager_->GetPostProcessManager()->crtEffect_->GetDistortionStrength();
+		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionStrength(distortionStrength);
+		float chromAberrationOffset = sceneManager_->GetPostProcessManager()->crtEffect_->GetChromaticAberrationOffset();
+		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
+	}
+
+
+	ImGui::SeparatorText("camera work");
 
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
@@ -231,45 +461,15 @@ void TitleScene::Update()
 	}
 #pragma endregion
 
-
-#pragma region Particle
-	if (ImGui::CollapsingHeader("Particle"))
-	{
-		
-	}
-#pragma endregion
-
 	ImGui::End();
 
 #endif
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE))
-	{
-		// 音声を停止
-		Audio::GetInstance()->StopWave("fanfare");
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_UP))
-	{
-		// 音量を上げる
-		Audio::GetInstance()->SetVolume("fanfare", 1.0f); // 最大音量
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_DOWN))
-	{
-		// 音量を下げる
-		Audio::GetInstance()->SetVolume("fanfare", 0.5f); // 50%の音量
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_LEFT))
-	{
-		// フェードイン
-		Audio::GetInstance()->FadeIn("fanfare", 2.0f); // 2秒かけてフェードイン
-	}
-	if (Input::GetInstance()->TriggerKey(DIK_RIGHT))
-	{
-		// フェードアウト
-		Audio::GetInstance()->FadeOut("fanfare", 2.0f); // 2秒かけてフェードアウト
-	}
 
-	//スカイドームの更新
+	// スカイドームの更新
 	skydome_->Update(sceneManager_->GetCameraManager());
+
+	// 地面の更新
+	terrain_->Update(sceneManager_->GetCameraManager());
 
 	//キャラクターの更新
 	player->Update();
@@ -277,16 +477,16 @@ void TitleScene::Update()
 
 	//衝突判定開始
 	CollisionManager::GetInstance()->CheckCollisions();
-
 }
 
 void TitleScene::Draw3D()
 {
-	player->Draw(sceneManager_->GetCameraManager());
+	//player->Draw(sceneManager_->GetCameraManager());
 
-	enemy->Draw(sceneManager_->GetCameraManager());
+	//enemy->Draw(sceneManager_->GetCameraManager());
 
-	//スカイドームの描画
+	//terrain_->Draw();
+
 	skydome_->Draw();
 
 	// グリッドの描画
@@ -296,7 +496,7 @@ void TitleScene::Draw3D()
 		VectorColorCodes::White
 	);
 
-	splineCamera_->DrawSplineLine();
+	//splineCamera_->DrawSplineLine();
 }
 
 void TitleScene::Draw2D()

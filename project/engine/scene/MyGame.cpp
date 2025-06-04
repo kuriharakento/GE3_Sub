@@ -19,7 +19,7 @@ void MyGame::Initialize()
 		objectCommon_.get(),
 		cameraManager_.get(),
 		lightManager_.get(),
-		postProcessPass.get(),
+		postProcessManager_.get(),
 	};
 
 	// 処理開始時間を記録
@@ -123,7 +123,7 @@ void MyGame::Draw()
 
 	dxCommon_->PreDraw();
 
-	postProcessPass->Draw(renderTexture_->GetGPUHandle());
+	postProcessManager_->Draw(renderTexture_->GetGPUHandle());
 
 #ifdef _DEBUG
 	//ImGuiの描画
@@ -139,7 +139,10 @@ void MyGame::LoadTextures()
 	TextureManager::GetInstance()->LoadTexture("./Resources/black.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/testSprite.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/monsterBall.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/gradationLine.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/circle2.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/flowerfun.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/star.png");
 }
 
 void MyGame::LoadModels()
