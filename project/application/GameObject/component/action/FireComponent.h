@@ -24,5 +24,5 @@ private:
 
 	float fireCooldown_;  // 発射のクールダウン時間
 	float fireCooldownTimer_;  // 現在のクールダウンタイマー
-	std::vector<std::shared_ptr<Bullet>> bullets_;  // 発射された弾のリスト
+	std::vector<std::unique_ptr<Bullet>> bullets_;  // 発射された弾のリスト
 };

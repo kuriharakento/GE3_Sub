@@ -96,7 +96,7 @@ void FireComponent::Draw(CameraManager* camera)
 void FireComponent::FireBullet(GameObject* owner)
 {
 	// 弾の作成
-	auto bullet = std::make_shared<Bullet>("Bullet");
+	auto bullet = std::make_unique<Bullet>("Bullet");
 
 	// カメラ取得
 	Camera* camera = object3dCommon_->GetDefaultCamera();
@@ -146,9 +146,9 @@ void FireComponent::FireBullet(GameObject* owner)
 	bullet->SetRotation({ 0.0f, rotationY, 0.0f });
 
 	// BulletComponentを追加
-	auto bulletComp = std::make_shared<BulletComponent>();
+	auto bulletComp = std::make_unique<BulletComponent>();
 	bulletComp->Initialize(direction, 30.0f, 2.0f); // 速度: 10.0f, 寿命: 2.0f
-	bullet->AddComponent("Bullet", bulletComp);
+	bullet->AddComponent("Bullet", std::move(bulletComp));
 
 	// 衝突判定コンポーネントを追加
 	auto colliderComp = std::make_shared<OBBColliderComponent>(bullet.get());
@@ -206,5 +206,5 @@ void FireComponent::FireBullet(GameObject* owner, const Vector3& targetPosition)
 	bullet->AddComponent("OBBCollider", colliderComp);
 
 	// 弾を管理リストに追加
-	bullets_.push_back(bullet);
+	bullets_.push_back(std::move(bullet));
 }

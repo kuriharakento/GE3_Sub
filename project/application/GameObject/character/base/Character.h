@@ -13,7 +13,7 @@ public:
 	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager);
 	virtual void Update();
 	virtual void Draw(CameraManager* camera);
-	void AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp);
+	void AddComponent(const std::string& name, std::unique_ptr<IGameObjectComponent> comp);
 
 
 	// HP
