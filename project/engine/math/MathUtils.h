@@ -9,6 +9,7 @@ namespace MathUtils
 	// 範囲[min, max]のランダムfloatを返す関数
 	float RandomFloat(float min, float max);
 	Vector3 RandomVector3(Vector3 min, Vector3 max);
+	Vector4 RandomVector4(Vector4 min, Vector4 max);
 
 	//行列から成分を取得,設定する関数
 	Vector3 GetMatrixTranslate(const Matrix4x4& matrix);

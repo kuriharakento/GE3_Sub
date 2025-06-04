@@ -33,18 +33,15 @@ ParticleGroup::~ParticleGroup()
 		materialData_ = nullptr;
 	}
 	particles.clear();
-	delete modelData_;
-	modelData_ = nullptr;
 }
 
 void ParticleGroup::Initialize(const std::string& groupName, const std::string& textureFilePath)
 {
 	// 各種リソースの初期化
 	// テクスチャの読み込み
-	modelData_ = new MaterialData();
-	modelData_->textureFilePath = textureFilePath;
-	TextureManager::GetInstance()->LoadTexture(modelData_->textureFilePath);
-	modelData_->textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_->textureFilePath);
+	modelData_.textureFilePath = textureFilePath;
+	TextureManager::GetInstance()->LoadTexture(modelData_.textureFilePath);
+	modelData_.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.textureFilePath);
 
 	//マテリアルリソース
 	materialResource_ = ParticleManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(Material));
@@ -141,16 +138,17 @@ void ParticleGroup::Draw(DirectXCommon* dxCommon, SrvManager* srvManager)
 	dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 	dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvManager->GetGPUDescriptorHandle(instancingSrvIndex));
-	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, srvManager->GetGPUDescriptorHandle(modelData_->textureIndex));
+	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, srvManager->GetGPUDescriptorHandle(modelData_.textureIndex));
 	// インスタンシング描画
 	dxCommon->GetCommandList()->DrawInstanced(vertexCount, instanceCount, 0, 0);
 }
 
 void ParticleGroup::SetTexture(const std::string& textureFilePath)
 {
-	modelData_->textureFilePath = textureFilePath;
-	TextureManager::GetInstance()->LoadTexture(modelData_->textureFilePath);
-	modelData_->textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_->textureFilePath);
+	modelData_.textureFilePath = textureFilePath;
+	TextureManager::GetInstance()->LoadTexture(modelData_.textureFilePath);
+	modelData_.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData_.textureFilePath);
+
 }
 
 void ParticleGroup::SetModelType(ParticleType type)

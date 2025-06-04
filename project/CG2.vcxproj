@@ -104,6 +104,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\effects\component\single\BounceComponent.cpp" />
     <ClCompile Include="engine\postprocess\CRTEffect.cpp" />
     <ClCompile Include="engine\postprocess\BasePostEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\AccelerationComponent.cpp" />
@@ -159,6 +160,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
     <ClCompile Include="engine\effects\component\single\GravityComponent.cpp" />
     <ClCompile Include="engine\postprocess\GrayscaleEffect.cpp" />
+    <ClCompile Include="engine\effects\component\single\ForceFieldComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\effects\ParticleManager.cpp" />
@@ -190,6 +192,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
+    <ClInclude Include="engine\effects\component\single\BounceComponent.h" />
     <ClInclude Include="engine\postprocess\CRTEffect.h" />
     <ClInclude Include="engine\postprocess\BasePostEffect.h" />
     <ClInclude Include="engine\effects\component\single\AccelerationComponent.h" />
@@ -297,6 +300,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\postprocess\PostProcessManager.h" />
     <ClInclude Include="engine\postprocess\VignetteEffect.h" />
     <ClInclude Include="engine\postprocess\NoiseEffect.h" />
+    <ClInclude Include="engine\effects\component\single\ForceFieldComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

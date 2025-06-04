@@ -120,9 +120,6 @@ void Framework::Update()
 	//カメラの更新
 	cameraManager_->Update();
 
-	//パーティクルマネージャーの更新
-	ParticleManager::GetInstance()->Update(cameraManager_.get());
-
 	//オーディオの更新
 	Audio::GetInstance()->Update();
 
@@ -178,6 +175,7 @@ void Framework::Run()
 
 void Framework::ShowPerformanceInfo()
 {
+#ifdef _DEBUG
 	// ウィンドウの位置を左上に固定
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 	// ウィンドウのサイズを固定
@@ -189,4 +187,5 @@ void Framework::ShowPerformanceInfo()
 	GetProcessMemoryInfo(GetCurrentProcess(), &memInfo, sizeof(memInfo));
 	ImGui::Text("Memory Usage : %.2f MB", memInfo.WorkingSetSize / (1024.0f * 1024.0f));
 	ImGui::End();
+#endif
 }

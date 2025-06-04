@@ -20,6 +20,11 @@ namespace MathUtils
 		return Vector3(RandomFloat(min.x, max.x), RandomFloat(min.y, max.y), RandomFloat(min.z, max.z));
 	}
 
+	Vector4 RandomVector4(Vector4 min, Vector4 max)
+	{
+		return Vector4(RandomFloat(min.x, max.x), RandomFloat(min.y, max.y), RandomFloat(min.z, max.z), RandomFloat(min.w, max.w));
+	}
+
 	Vector3 GetMatrixTranslate(const Matrix4x4& matrix)
 	{
 		return Vector3(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
@@ -83,7 +88,7 @@ namespace MathUtils
 
 	Vector3 CalculateYawPitchFromDirection(const Vector3& direction)
 	{
-		if(direction.LengthSquared() == 0.0f)
+		if (direction.LengthSquared() == 0.0f)
 		{
 			//回転不要
 			return Vector3(0.0f, 0.0f, 0.0f);
@@ -124,8 +129,10 @@ namespace MathUtils
 	Matrix4x4 Transpose(const Matrix4x4& m)
 	{
 		Matrix4x4 result;
-		for (int i = 0; i < 4; ++i) {
-			for (int j = 0; j < 4; ++j) {
+		for (int i = 0; i < 4; ++i)
+		{
+			for (int j = 0; j < 4; ++j)
+			{
 				result.m[i][j] = m.m[j][i];
 			}
 		}
