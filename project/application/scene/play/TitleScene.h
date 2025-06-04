@@ -27,10 +27,6 @@ public:
 	void Draw2D() override;
 
 private: //メンバ変数
-	//デバック用オブジェクト
-	std::unique_ptr<Object3d> object3d_;
-	//デバック用オブジェクト地面
-	std::unique_ptr<Object3d> terrain_;
 	//スカイドーム
 	std::unique_ptr<Object3d> skydome_;
 	//キューブの座標

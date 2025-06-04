@@ -21,17 +21,12 @@ public:
 	void StopEmit();
 
 	void SetPosition(const Vector3& position) { position_ = position; }
-	Vector3 GetPosition() const { return position_; }
+	const Vector3& GetPosition() const { return position_; }
     void SetEmitRange(const Vector3& min, const Vector3& max);
     void SetEmitRate(float rate) { emitRate_ = rate; }
     void SetEmitCount(uint32_t count) { emitCount_ = count; }
     void SetLoop(bool loop) { isLoop_ = loop; }
-	void SetEmitRange(const Vector3& min, const Vector3& max);
-	void SetEmitRate(float rate) { emitRate_ = rate; }
-	void SetEmitCount(uint32_t count) { emitCount_ = count; }
-	void SetLoop(bool loop) { isLoop_ = loop; }
 	void SetBillborad(bool flag) { particleGroup_->SetBillboard(flag); }
-	const Vector3& GetPosition() const { return position_; }
 	void SetTexture(const std::string& textureFilePath) { particleGroup_->SetTexture(textureFilePath); }
 	void SetModelType(ParticleGroup::ParticleType type) { particleGroup_->SetModelType(type); }
 	Vector3 GetUVTranslate() const { return particleGroup_->GetUVTranslate(); }

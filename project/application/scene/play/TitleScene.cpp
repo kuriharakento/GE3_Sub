@@ -44,14 +44,6 @@ void TitleScene::Initialize()
 
 	sceneManager_->GetCameraManager()->GetActiveCamera()->SetTranslate(Vector3(0.0f, 1.5f, -15.0f));
 
-	//地面の生成
-	terrain_ = std::make_unique<Object3d>();
-	terrain_->Initialize(sceneManager_->GetObject3dCommon());
-	terrain_->SetModel("terrain.obj");
-	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
-	terrain_->SetDirectionalLightIntensity(0.0f);
-	terrain_->SetLightManager(sceneManager_->GetLightManager());	//パーティクルグループの作成
-
 	//スカイドームの生成
 	skydome_ = std::make_unique<Object3d>();
 	skydome_->Initialize(sceneManager_->GetObject3dCommon());
@@ -293,7 +285,12 @@ void TitleScene::Initialize()
 	// マテリアル色変更コンポーネント追加
 	mordeVFXFragment_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
 #pragma endregion
-
+	redEffect_->StopEmit();
+	dust_->StopEmit();
+	fallHeart_->StopEmit();
+	glitch_->StopEmit();
+	mordeVFXGround_->StopEmit();
+	mordeVFXFragment_->StopEmit();
 }
 
 void TitleScene::Finalize()
@@ -468,9 +465,6 @@ void TitleScene::Update()
 	// スカイドームの更新
 	skydome_->Update(sceneManager_->GetCameraManager());
 
-	// 地面の更新
-	terrain_->Update(sceneManager_->GetCameraManager());
-
 	//キャラクターの更新
 	player->Update();
 	enemy->Update();
@@ -481,11 +475,9 @@ void TitleScene::Update()
 
 void TitleScene::Draw3D()
 {
-	//player->Draw(sceneManager_->GetCameraManager());
+	player->Draw(sceneManager_->GetCameraManager());
 
-	//enemy->Draw(sceneManager_->GetCameraManager());
-
-	//terrain_->Draw();
+	enemy->Draw(sceneManager_->GetCameraManager());
 
 	skydome_->Draw();
 
@@ -496,7 +488,7 @@ void TitleScene::Draw3D()
 		VectorColorCodes::White
 	);
 
-	//splineCamera_->DrawSplineLine();
+	splineCamera_->DrawSplineLine();
 }
 
 void TitleScene::Draw2D()
