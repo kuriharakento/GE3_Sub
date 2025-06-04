@@ -3,6 +3,11 @@
 #include "application/GameObject/component/base/IActionComponent.h"
 #include "base/Logger.h"
 
+GameObject::~GameObject()
+{
+	components_.clear(); // コンポーネントのクリア
+}
+
 GameObject::GameObject(std::string tag)
 {
 	// タグの初期化

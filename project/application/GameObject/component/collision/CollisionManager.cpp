@@ -25,8 +25,6 @@ void CollisionManager::Register(ICollisionComponent* collider)
 
 void CollisionManager::Unregister(ICollisionComponent* collider)
 {
-	colliders_.erase(std::remove(colliders_.begin(), colliders_.end(), collider), colliders_.end());
-
 	// currentCollisions_ から該当コライダーを含むペアを削除
 	for (auto it = currentCollisions_.begin(); it != currentCollisions_.end(); )
 	{
@@ -39,6 +37,8 @@ void CollisionManager::Unregister(ICollisionComponent* collider)
 			++it;
 		}
 	}
+
+	colliders_.erase(std::remove(colliders_.begin(), colliders_.end(), collider), colliders_.end());	
 }
 
 void CollisionManager::CheckCollisions()
@@ -90,7 +90,7 @@ void CollisionManager::CheckCollisions()
 					a->CallOnEnter(b->GetOwner());
 					b->CallOnEnter(a->GetOwner());
 					//ログで確認できるように表示
-					LogCollision("Enter", a, b);
+					//LogCollision("Enter", a, b);
 				}
 				else
 				{
@@ -98,7 +98,7 @@ void CollisionManager::CheckCollisions()
 					a->CallOnStay(b->GetOwner());
 					b->CallOnStay(a->GetOwner());
 					//ログで確認できるように表示
-					LogCollision("Stay", a, b);
+					//LogCollision("Stay", a, b);
 				}
 			}
 		}
@@ -113,11 +113,21 @@ void CollisionManager::CheckCollisions()
 			pair.a->CallOnExit(pair.b->GetOwner());
 			pair.b->CallOnExit(pair.a->GetOwner());
 			//ログで確認できるように表示
-			LogCollision("Exit", pair.a, pair.b);
+			//LogCollision("Exit", pair.a, pair.b);
 		}
 	}
 
 	currentCollisions_ = std::move(newCollisions);
+
+	//現在登録されている数をログに出力
+	static float time = 0.0f;
+	time += 1.0f / 60.0f; // 60FPS想定
+
+	if (time >= 1.0f) // 1秒ごとにログ出力
+	{
+		Logger::Log("CollisionManager: Current colliders count: " + std::to_string(colliders_.size()) + "\n");
+		time = 0.0f; // リセット
+	}
 }
 
 bool CollisionManager::CheckCollision(const AABBColliderComponent* a, const AABBColliderComponent* b)

@@ -1,6 +1,9 @@
 #include "Player.h"
 
+#include "application/GameObject/component/action/FireComponent.h"
+#include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/base/ICollisionComponent.h"
+#include "application/GameObject/component/collision/OBBColliderComponent.h"
 #include "base/Logger.h"
 
 void Player::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager)
@@ -8,6 +11,14 @@ void Player::Initialize(Object3dCommon* object3dCommon, LightManager* lightManag
 	Character::Initialize(object3dCommon, lightManager);
 	//初期位置を設定
 	transform_.translate = { 0.0f, 1.0f, 0.0f };
+
+	// 移動コンポーネントを追加
+	AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f));
+	// 射撃コンポーネントを追加
+	AddComponent("FireComponent", std::make_shared<FireComponent>(object3dCommon, lightManager));
+	// 衝突判定コンポーネント
+	AddComponent("OBBCollider", std::make_shared<OBBColliderComponent>(this));
+
 }
 
 void Player::Update()

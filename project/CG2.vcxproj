@@ -162,6 +162,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\effects\component\single\GravityComponent.cpp" />
     <ClCompile Include="engine\postprocess\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\ForceFieldComponent.cpp" />
+    <ClCompile Include="GunEnemy.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\effects\ParticleManager.cpp" />
@@ -305,6 +306,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\postprocess\NoiseEffect.h" />
     <ClInclude Include="engine\effects\component\single\ForceFieldComponent.h" />
     <ClInclude Include="engine\effects\component\single\MoveToTargetComponent.h" />
+    <ClInclude Include="GunEnemy.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

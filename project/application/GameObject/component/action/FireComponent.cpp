@@ -3,6 +3,8 @@
 
 #include "BulletComponent.h"
 #include "3d/Object3dCommon.h"
+#include "application/GameObject/character/enemy/base/EnemyBase.h"
+#include "application/GameObject/character/player/Player.h"
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
 #include "base/Logger.h"
 
@@ -26,11 +28,34 @@ void FireComponent::Update(GameObject* owner)
 {
 	fireCooldownTimer_ -= 1.0f / 60.0f;  // クールダウンタイマーを減らす
 
-	// 発射ボタンが押され、クールダウンが終わったら弾を発射
-	if (Input::GetInstance()->IsMouseButtonTriggered(0) && fireCooldownTimer_ <= 0.0f)
+	// --- プレイヤー用処理 ---
+	if (auto player = dynamic_cast<Player*>(owner))
 	{
-		FireBullet(owner);
-		fireCooldownTimer_ = fireCooldown_; // クールダウンをリセット
+		// プレイヤーの入力で発射
+		if (Input::GetInstance()->IsMouseButtonTriggered(0) && fireCooldownTimer_ <= 0.0f)
+		{
+			// プレイヤーがマウスクリックで弾を発射
+			FireBullet(owner);
+			fireCooldownTimer_ = fireCooldown_;
+		}
+	}
+	// --- 敵用処理 ---
+	else if (auto enemy = dynamic_cast<EnemyBase*>(owner))
+	{
+		Player* player = dynamic_cast<Player*>(enemy->GetTarget());
+
+		if (player)
+		{
+			Vector3 myPos = enemy->GetPosition();
+			Vector3 playerPos = player->GetPosition();
+			float distance = (playerPos - myPos).Length();
+			if (distance < 30.0f && fireCooldownTimer_ <= 0.0f)
+			{
+				// 敵がプレイヤーに向かって弾を発射
+				FireBullet(owner, playerPos);
+				fireCooldownTimer_ = fireCooldown_;
+			}
+		}
 	}
 
 	// 弾の更新
@@ -127,6 +152,57 @@ void FireComponent::FireBullet(GameObject* owner)
 
 	// 衝突判定コンポーネントを追加
 	auto colliderComp = std::make_shared<OBBColliderComponent>(bullet.get());
+	colliderComp->SetOnEnter([bullet](GameObject* other) {
+		// 敵に当たった場合、弾を消す
+		if (other->GetTag() == "GunEnemy")
+		{
+			bullet->SetActive(false);
+		}
+							 });
+
+	bullet->AddComponent("OBBCollider", colliderComp);
+
+	// 弾を管理リストに追加
+	bullets_.push_back(bullet);
+}
+
+void FireComponent::FireBullet(GameObject* owner, const Vector3& targetPosition)
+{
+	// 弾の作成
+	auto bullet = std::make_shared<Bullet>("Bullet");
+
+	// 発射元の位置
+	Vector3 startPos = owner->GetPosition();
+
+	// 発射方向を計算
+	Vector3 direction = Vector3::Normalize(targetPosition - startPos);
+	direction.y = 0.0f; // 水平方向のみ撃ちたい場合はY成分を0に
+
+	// 水平方向の角度を計算
+	float rotationY = atan2f(direction.x, direction.z);
+
+	// 弾の初期化
+	bullet->Initialize(object3dCommon_, lightManager_, startPos);
+	bullet->SetModel("cube.obj");
+	bullet->SetRotation({ 0.0f, rotationY, 0.0f });
+
+	// BulletComponentを追加
+	auto bulletComp = std::make_shared<BulletComponent>();
+	bulletComp->Initialize(direction, 30.0f, 2.0f); // 速度: 30.0f, 寿命: 2.0f
+	bullet->AddComponent("Bullet", bulletComp);
+
+	// 衝突判定コンポーネントを追加
+	auto colliderComp = std::make_shared<OBBColliderComponent>(bullet.get());
+
+	// 衝突したときの処理を設定
+	colliderComp->SetOnEnter([bullet](GameObject* other) {
+		// 敵に当たった場合、弾を消す
+		if (other->GetTag() == "Player")
+		{
+			bullet->SetActive(false);
+		}
+							 });
+
 	bullet->AddComponent("OBBCollider", colliderComp);
 
 	// 弾を管理リストに追加

@@ -9,6 +9,7 @@
 class GameObject
 {
 public:
+	virtual ~GameObject();
 	explicit GameObject(std::string tag = "");	// コンストラクタ
 	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera = nullptr);		// 初期化
 	virtual void Update();

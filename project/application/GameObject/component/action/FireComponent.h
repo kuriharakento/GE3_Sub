@@ -18,6 +18,7 @@ public:
 
 private:
 	void FireBullet(GameObject* owner);
+	void FireBullet(GameObject* owner, const Vector3& targetPosition);
 	Object3dCommon* object3dCommon_ = nullptr;
 	LightManager* lightManager_ = nullptr;
 

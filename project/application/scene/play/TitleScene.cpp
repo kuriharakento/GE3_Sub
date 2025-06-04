@@ -12,8 +12,6 @@
 #include "effects/component/single/RandomInitialVelocityComponent.h"
 #include "effects/component/single/RotationComponent.h"
 #include "effects/component/single/ScaleOverLifetimeComponent.h"
-#include "effects/component/group/UVRotateComponent.h"
-#include "effects/component/group/UVScaleComponent.h"
 #include "effects/component/group/UVTranslateComponent.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
@@ -21,10 +19,7 @@
 #include "jsonEditor/JsonEditorManager.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
-#include "application/GameObject/component/collision/AABBColliderComponent.h"
-#include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/collision/CollisionManager.h"
-#include "effects/component/single/MoveToTargetComponent.h"
 #include "effects/component/single/BounceComponent.h"
 #include "postprocess/PostProcessManager.h"
 #include "engine/effects/ParticleManager.h"
@@ -61,17 +56,13 @@ void TitleScene::Initialize()
 	CollisionManager::GetInstance()->Initialize();
 
 	//ゲームオブジェクトの生成
-	player = std::make_unique<Player>("player");
+	player = std::make_unique<Player>("Player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
-	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
-	//衝突判定コンポーネント
-	//player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
 
-	enemy = std::make_unique<GameObject>("enemy");
-	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
-	enemy->SetPosition({ 0.0f,1.0f,10.0f });
+	gunEnemy = std::make_unique<GunEnemy>();
+	gunEnemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(),player.get());
+	gunEnemy->SetPosition({ 0.0f,1.0f,10.0f });
 	//衝突判定コンポーネント
-	//enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
 
 
 	//オービットカメラワークの生成
@@ -452,9 +443,9 @@ void TitleScene::Update()
 		ImGui::DragFloat3("Player Position", &playerPos.x, 0.1f);
 		player->SetPosition(playerPos);
 		ImGui::Text("Enemy");
-		Vector3 enemyPos = enemy->GetPosition();
+		Vector3 enemyPos = gunEnemy->GetPosition();
 		ImGui::DragFloat3("Enemy Position", &enemyPos.x, 0.1f);
-		enemy->SetPosition(enemyPos);
+		gunEnemy->SetPosition(enemyPos);
 	}
 #pragma endregion
 
@@ -467,7 +458,7 @@ void TitleScene::Update()
 
 	//キャラクターの更新
 	player->Update();
-	enemy->Update();
+	gunEnemy->Update();
 
 	//衝突判定開始
 	CollisionManager::GetInstance()->CheckCollisions();
@@ -477,7 +468,7 @@ void TitleScene::Draw3D()
 {
 	player->Draw(sceneManager_->GetCameraManager());
 
-	enemy->Draw(sceneManager_->GetCameraManager());
+	gunEnemy->Draw(sceneManager_->GetCameraManager());
 
 	skydome_->Draw();
 

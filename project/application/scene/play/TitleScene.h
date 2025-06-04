@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 
+#include "GunEnemy.h"
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
@@ -42,7 +43,7 @@ private: //メンバ変数
 	std::unique_ptr<TopDownCamera> topDownCamera_;
 	//ゲームオブジェクト
 	std::unique_ptr<Player> player;
-	std::unique_ptr<GameObject> enemy;
+	std::unique_ptr<GunEnemy> gunEnemy;
 	//エミッター
 	std::unique_ptr<ParticleEmitter> dust_;
 	std::unique_ptr<ParticleEmitter> redEffect_;
