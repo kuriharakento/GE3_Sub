@@ -57,7 +57,7 @@ void GameObject::Draw(CameraManager* camera)
 	}
 }
 
-void GameObject::AddComponent(const std::string& name, std::shared_ptr<IGameObjectComponent> comp)
+void GameObject::AddComponent(const std::string& name, std::unique_ptr<IGameObjectComponent> comp)
 {
 	//すでに同じ名前のコンポーネントが存在する場合はメッセージを出力
 	if (components_.find(name) != components_.end())

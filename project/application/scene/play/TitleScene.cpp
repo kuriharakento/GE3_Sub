@@ -70,15 +70,11 @@ void TitleScene::Initialize()
 	//ゲームオブジェクトの生成
 	player = std::make_unique<Player>("player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
-	player->AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f)); // 移動速度
-	//衝突判定コンポーネント
-	//player->AddComponent("AABBCollider", std::make_shared<OBBColliderComponent>(player.get()));
+	player->AddComponent("MoveComponent", std::make_unique<MoveComponent>(5.0f)); // 移動速度
 
 	enemy = std::make_unique<GameObject>("enemy");
 	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
 	enemy->SetPosition({ 0.0f,1.0f,10.0f });
-	//衝突判定コンポーネント
-	//enemy->AddComponent("AABBCollider", std::make_shared<AABBColliderComponent>(enemy.get()));
 
 
 	//オービットカメラワークの生成
