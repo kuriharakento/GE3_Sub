@@ -291,8 +291,8 @@ void TitleScene::Initialize()
 	mordeVFXFragment_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.1f, 0.1f, 0.0f }));
 	// マテリアル色変更コンポーネント追加
 	mordeVFXFragment_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
-
 #pragma endregion
+
 }
 
 void TitleScene::Finalize()
