@@ -59,7 +59,7 @@
     <ClCompile Include="engine\jsonEditor\JsonEditorManager.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonEditableBase.cpp" />
     <ClCompile Include="engine\camerawork\FollowCamera.cpp" />
-    <ClCompile Include="application\GameObject\component\action\FireComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\action\PistolComponent.cpp" />
     <ClCompile Include="engine\effects\component\single\GravityComponent.cpp" />
     <ClCompile Include="engine\postprocess\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\ForceFieldComponent.cpp" />
@@ -92,7 +92,12 @@
     <ClCompile Include="engine\postprocess\VignetteEffect.cpp" />
     <ClCompile Include="engine\postprocess\NoiseEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\MoveToTargetComponent.cpp" />
-    <ClCompile Include="GunEnemy.cpp" />
+    <ClCompile Include="application\GameObject\character\enemy\PistolEnemy.cpp" />
+    <ClCompile Include="application\GameObject\component\action\ShotgunComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\action\AssaultRifleComponent.cpp" />
+    <ClCompile Include="application\GameObject\character\enemy\AssaultEnemy.cpp" />
+    <ClCompile Include="application\GameObject\character\enemy\ShotgunEnemy.cpp" />
+    <ClCompile Include="EnemyManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -197,7 +202,7 @@
     <ClInclude Include="application\GameObject\component\action\MoveComponent.h" />
     <ClInclude Include="engine\camerawork\FollowCamera.h" />
     <ClInclude Include="application\GameObject\character\player\Player.h" />
-    <ClInclude Include="application\GameObject\component\action\FireComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\PistolComponent.h" />
     <ClInclude Include="application\GameObject\component\base\IActionComponent.h" />
     <ClInclude Include="application\GameObject\component\collision\OBBColliderComponent.h" />
     <ClInclude Include="engine\postprocess\IPostEffect.h" />
@@ -207,7 +212,12 @@
     <ClInclude Include="engine\postprocess\NoiseEffect.h" />
     <ClInclude Include="engine\effects\component\single\ForceFieldComponent.h" />
     <ClInclude Include="engine\effects\component\single\MoveToTargetComponent.h" />
-    <ClInclude Include="GunEnemy.h" />
+    <ClInclude Include="application\GameObject\character\enemy\PistolEnemy.h" />
+    <ClInclude Include="application\GameObject\component\action\ShotgunComponent.h" />
+    <ClInclude Include="application\GameObject\component\action\AssaultRifleComponent.h" />
+    <ClInclude Include="application\GameObject\character\enemy\AssaultEnemy.h" />
+    <ClInclude Include="application\GameObject\character\enemy\ShotgunEnemy.h" />
+    <ClInclude Include="EnemyManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

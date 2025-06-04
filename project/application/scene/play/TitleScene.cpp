@@ -1,6 +1,6 @@
 #include "TitleScene.h"
 
-#include "application/GameObject/component/action/FireComponent.h"
+#include "application/GameObject/component/action/PistolComponent.h"
 #include "audio/Audio.h"
 #include "base/PostProcessPass.h"
 #include "effects/component/single/AccelerationComponent.h"
@@ -59,11 +59,12 @@ void TitleScene::Initialize()
 	player = std::make_unique<Player>("Player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 
-	gunEnemy = std::make_unique<GunEnemy>();
-	gunEnemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(),player.get());
-	gunEnemy->SetPosition({ 0.0f,1.0f,10.0f });
-	//衝突判定コンポーネント
-
+	//敵マネージャーの生成
+	enemyManager_ = std::make_unique<EnemyManager>();
+	enemyManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(),player.get());
+	enemyManager_->AddPistolEnemy(1);
+	enemyManager_->AddAssaultEnemy(1);
+	enemyManager_->AddShotgunEnemy(1);
 
 	//オービットカメラワークの生成
 	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
@@ -442,10 +443,6 @@ void TitleScene::Update()
 		Vector3 playerPos = player->GetPosition();
 		ImGui::DragFloat3("Player Position", &playerPos.x, 0.1f);
 		player->SetPosition(playerPos);
-		ImGui::Text("Enemy");
-		Vector3 enemyPos = gunEnemy->GetPosition();
-		ImGui::DragFloat3("Enemy Position", &enemyPos.x, 0.1f);
-		gunEnemy->SetPosition(enemyPos);
 	}
 #pragma endregion
 
@@ -458,7 +455,7 @@ void TitleScene::Update()
 
 	//キャラクターの更新
 	player->Update();
-	gunEnemy->Update();
+	enemyManager_->Update();
 
 	//衝突判定開始
 	CollisionManager::GetInstance()->CheckCollisions();
@@ -468,7 +465,7 @@ void TitleScene::Draw3D()
 {
 	player->Draw(sceneManager_->GetCameraManager());
 
-	gunEnemy->Draw(sceneManager_->GetCameraManager());
+	enemyManager_->Draw(sceneManager_->GetCameraManager());
 
 	skydome_->Draw();
 

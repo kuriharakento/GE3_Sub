@@ -1,6 +1,7 @@
 #include "Player.h"
 
-#include "application/GameObject/component/action/FireComponent.h"
+#include "application/GameObject/component/action/AssaultRifleComponent.h"
+#include "application/GameObject/component/action/PistolComponent.h"
 #include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/base/ICollisionComponent.h"
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
@@ -13,11 +14,11 @@ void Player::Initialize(Object3dCommon* object3dCommon, LightManager* lightManag
 	transform_.translate = { 0.0f, 1.0f, 0.0f };
 
 	// 移動コンポーネントを追加
-	AddComponent("MoveComponent", std::make_shared<MoveComponent>(5.0f));
+	AddComponent("MoveComponent", std::make_unique<MoveComponent>(5.0f));
 	// 射撃コンポーネントを追加
-	AddComponent("FireComponent", std::make_shared<FireComponent>(object3dCommon, lightManager));
+	AddComponent("PistolComponent", std::make_unique<AssaultRifleComponent>(object3dCommon, lightManager));
 	// 衝突判定コンポーネント
-	AddComponent("OBBCollider", std::make_shared<OBBColliderComponent>(this));
+	AddComponent("OBBCollider", std::make_unique<OBBColliderComponent>(this));
 
 }
 
