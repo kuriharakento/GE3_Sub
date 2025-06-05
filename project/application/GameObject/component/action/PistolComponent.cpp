@@ -143,7 +143,7 @@ void PistolComponent::FireBullet(GameObject* owner)
 	bullet->Initialize(object3dCommon_, lightManager_, playerPos);
 	bullet->SetModel("cube.obj");
 	bullet->SetRotation({ 0.0f, rotationY, 0.0f });
-	bullet->SetScale(Vector3(0.5f, 0.5f, 1.0f));
+	bullet->SetScale(Vector3(0.3f, 0.3f, 1.0f));
 
 	// BulletComponentを追加
 	auto bulletComp = std::make_unique<BulletComponent>();
@@ -185,6 +185,7 @@ void PistolComponent::FireBullet(GameObject* owner, const Vector3& targetPositio
 	bullet->Initialize(object3dCommon_, lightManager_, startPos);
 	bullet->SetModel("cube.obj");
 	bullet->SetRotation({ 0.0f, rotationY, 0.0f });
+	bullet->SetScale(Vector3(0.3f, 0.3f, 1.0f));
 
 	// BulletComponentを追加
 	auto bulletComp = std::make_unique<BulletComponent>();
