@@ -97,7 +97,7 @@
     <ClCompile Include="application\GameObject\component\action\AssaultRifleComponent.cpp" />
     <ClCompile Include="application\GameObject\character\enemy\AssaultEnemy.cpp" />
     <ClCompile Include="application\GameObject\character\enemy\ShotgunEnemy.cpp" />
-    <ClCompile Include="EnemyManager.cpp" />
+    <ClCompile Include="application\GameObject\character\enemy\EnemyManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -217,7 +217,7 @@
     <ClInclude Include="application\GameObject\component\action\AssaultRifleComponent.h" />
     <ClInclude Include="application\GameObject\character\enemy\AssaultEnemy.h" />
     <ClInclude Include="application\GameObject\character\enemy\ShotgunEnemy.h" />
-    <ClInclude Include="EnemyManager.h" />
+    <ClInclude Include="application\GameObject\character\enemy\EnemyManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

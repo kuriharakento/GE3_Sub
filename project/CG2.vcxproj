@@ -106,7 +106,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="application\GameObject\component\action\AssaultRifleComponent.cpp" />
     <ClCompile Include="application\GameObject\character\enemy\AssaultEnemy.cpp" />
-    <ClCompile Include="EnemyManager.cpp" />
+    <ClCompile Include="application\GameObject\character\enemy\EnemyManager.cpp" />
     <ClCompile Include="engine\effects\component\single\BounceComponent.cpp" />
     <ClCompile Include="engine\postprocess\CRTEffect.cpp" />
     <ClCompile Include="engine\postprocess\BasePostEffect.cpp" />
@@ -202,7 +202,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
     <ClInclude Include="application\GameObject\component\action\AssaultRifleComponent.h" />
     <ClInclude Include="application\GameObject\character\enemy\AssaultEnemy.h" />
-    <ClInclude Include="EnemyManager.h" />
+    <ClInclude Include="application\GameObject\character\enemy\EnemyManager.h" />
     <ClInclude Include="engine\effects\component\single\BounceComponent.h" />
     <ClInclude Include="engine\postprocess\CRTEffect.h" />
     <ClInclude Include="engine\postprocess\BasePostEffect.h" />

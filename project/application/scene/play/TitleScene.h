@@ -1,12 +1,12 @@
 #pragma once
 #include <memory>
 
-#include "EnemyManager.h"
 #include "application/GameObject/character/enemy/PistolEnemy.h"
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
 #include "application/GameObject/base/GameObject.h"
+#include "application/GameObject/character/enemy/EnemyManager.h"
 #include "application/GameObject/character/player/Player.h"
 #include "camerawork/FollowCamera.h"
 #include "camerawork/OrbitCameraWork.h"

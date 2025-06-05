@@ -144,7 +144,7 @@ void ShotgunComponent::FireBullets(GameObject* owner)
 
         auto colliderComp = std::make_unique<OBBColliderComponent>(bullet.get());
         colliderComp->SetOnEnter([ptr = bullet.get()](GameObject* other) {
-            if (other->GetTag() == "GunEnemy")
+            if (other->GetTag() == "PistolEnemy" || other->GetTag() == "AssaultEnemy" || other->GetTag() == "ShotgunEnemy")
                 ptr->SetActive(false);
                                  });
         bullet->AddComponent("OBBCollider", std::move(colliderComp));

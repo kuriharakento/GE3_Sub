@@ -144,7 +144,7 @@ void AssaultRifleComponent::FireBullet(GameObject* owner)
 	auto colliderComp = std::make_unique<OBBColliderComponent>(bullet.get());
 	colliderComp->SetOnEnter([ptr = bullet.get()](GameObject* other) {
 		// 敵に当たった場合、弾を消す
-		if (other->GetTag() == "PistolEnemy")
+		if (other->GetTag() == "PistolEnemy" || other->GetTag() == "AssaultEnemy" || other->GetTag() == "ShotgunEnemy")
 		{
 			ptr->SetActive(false);
 		}
