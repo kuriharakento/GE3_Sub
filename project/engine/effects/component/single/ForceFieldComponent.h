@@ -15,6 +15,12 @@ public:
     explicit ForceFieldComponent(const Vector3& center, float strength, float maxDistance, ForceType type = ForceType::Attract);
     void Update(Particle& particle) override;
 
+	// パーティクルエディタ用
+	std::string GetComponentType() const override { return "ForceFieldComponent"; }
+    nlohmann::json SerializeToJson() const override;
+	void DeserializeFromJson(const nlohmann::json& json) override;
+	void DrawImGui() override;
+
 private:
     Vector3 forceCenter;
     float strength;    // 力の強さ

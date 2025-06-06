@@ -39,3 +39,47 @@ void OrbitComponent::Update(Particle& particle)
 
     particle.transform.translate = center_ + offset;
 }
+
+nlohmann::json OrbitComponent::SerializeToJson() const
+{
+	nlohmann::json json;
+	json["type"] = GetComponentType();
+	json["center"] = {
+		{"x", center_.x},
+		{"y", center_.y},
+		{"z", center_.z}
+	};
+	json["radius"] = radius_;
+	json["angularSpeed"] = angularSpeed_;
+	return json;
+}
+
+void OrbitComponent::DeserializeFromJson(const nlohmann::json& json)
+{
+	if (json.contains("center"))
+	{
+		center_ = Vector3(
+			json["center"]["x"].get<float>(),
+			json["center"]["y"].get<float>(),
+			json["center"]["z"].get<float>()
+		);
+	}
+	if (json.contains("radius"))
+	{
+		radius_ = json["radius"].get<float>();
+	}
+	if (json.contains("angularSpeed"))
+	{
+		angularSpeed_ = json["angularSpeed"].get<float>();
+	}
+}
+
+void OrbitComponent::DrawImGui()
+{
+#ifdef _DEBUG
+	ImGui::Text("Orbit Component");
+	ImGui::DragFloat3("Center", &center_.x, 0.01f);
+	ImGui::DragFloat("Radius", &radius_, 0.01f);
+	ImGui::DragFloat("Angular Speed", &angularSpeed_, 0.01f);
+#endif
+}

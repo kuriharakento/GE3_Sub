@@ -32,3 +32,60 @@ void ForceFieldComponent::Update(Particle& particle)
         particle.velocity += direction * forceMagnitude;
     }
 }
+
+nlohmann::json ForceFieldComponent::SerializeToJson() const
+{
+	nlohmann::json json;
+	json["type"] = GetComponentType();
+    json["forceCenter"] = {
+        {"x", forceCenter.x},
+        {"y", forceCenter.y},
+        {"z", forceCenter.z}
+    };
+	json["strength"] = strength;
+	json["maxDistance"] = maxDistance;
+	json["forceType"] = (type == ForceType::Attract) ? "Attract" : "Repel";
+	return json;
+}
+
+void ForceFieldComponent::DeserializeFromJson(const nlohmann::json& json)
+{
+	if (json.contains("forceCenter"))
+	{
+		forceCenter = Vector3(
+			json["forceCenter"]["x"].get<float>(),
+			json["forceCenter"]["y"].get<float>(),
+			json["forceCenter"]["z"].get<float>()
+		);
+	}
+	if (json.contains("strength"))
+	{
+		strength = json["strength"].get<float>();
+	}
+	if (json.contains("maxDistance"))
+	{
+		maxDistance = json["maxDistance"].get<float>();
+	}
+	if (json.contains("forceType"))
+	{
+		std::string typeStr = json["forceType"].get<std::string>();
+		type = (typeStr == "Attract") ? ForceType::Attract : ForceType::Repel;
+	}
+}
+
+void ForceFieldComponent::DrawImGui()
+{
+#ifdef _DEBUG
+	ImGui::Text("Force Field Component");
+	ImGui::DragFloat3("Force Center", &forceCenter.x, 0.01f);
+	ImGui::DragFloat("Strength", &strength, 0.01f);
+	ImGui::DragFloat("Max Distance", &maxDistance, 0.01f);
+	const char* forceTypeStr = (type == ForceType::Attract) ? "Attract" : "Repel";
+	if (ImGui::BeginCombo("Force Type", forceTypeStr))
+	{
+		if (ImGui::Selectable("Attract")) type = ForceType::Attract;
+		if (ImGui::Selectable("Repel")) type = ForceType::Repel;
+		ImGui::EndCombo();
+	}
+#endif
+}

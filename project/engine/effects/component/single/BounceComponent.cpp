@@ -17,3 +17,39 @@ void BounceComponent::Update(Particle& particle)
 	}
 }
 
+nlohmann::json BounceComponent::SerializeToJson() const
+{
+	nlohmann::json json;
+	json["type"] = GetComponentType();
+	json["groundHeight"] = groundHeight_;
+	json["restitution"] = restitution_;
+	json["minVelocity"] = minVelocity_;
+	return json;
+}
+
+void BounceComponent::DeserializeFromJson(const nlohmann::json& json)
+{
+	if (json.contains("groundHeight"))
+	{
+		groundHeight_ = json["groundHeight"].get<float>();
+	}
+	if (json.contains("restitution"))
+	{
+		restitution_ = json["restitution"].get<float>();
+	}
+	if (json.contains("minVelocity"))
+	{
+		minVelocity_ = json["minVelocity"].get<float>();
+	}
+}
+
+void BounceComponent::DrawImGui()
+{
+#ifdef _DEBUG
+	ImGui::Text("Bounce Component");
+	ImGui::DragFloat("Ground Height", &groundHeight_, 0.01f);
+	ImGui::DragFloat("Restitution", &restitution_, 0.01f);
+	ImGui::DragFloat("Min Velocity", &minVelocity_, 0.01f);
+#endif
+}
+
