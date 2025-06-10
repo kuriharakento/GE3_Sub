@@ -18,3 +18,9 @@ void UVTranslateComponent::Update(ParticleGroup& group)
 
     group.SetUVTranslate(currentTranslate);
 }
+
+nlohmann::json UVTranslateComponent::SerializeToJson() const
+{
+	nlohmann::json json;
+
+}

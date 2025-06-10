@@ -10,6 +10,11 @@ public:
 
     void Update(ParticleGroup& group) override;
 
+	std::string GetComponentType() const override { return "UVTranslateComponent"; }
+    nlohmann::json SerializeToJson() const override;;
+	void DeserializeFromJson(const nlohmann::json& json) override;
+	void DrawImGui() override;
+
 private:
     Vector3 translate_;
 };
