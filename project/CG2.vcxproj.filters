@@ -262,6 +262,9 @@
     <ClCompile Include="application\animation\Slide.cpp">
       <Filter>application\animation</Filter>
     </ClCompile>
+    <ClCompile Include="engine\lighting\ShadowMapPipeline.cpp" />
+    <ClCompile Include="engine\lighting\ShadowMapManager.cpp" />
+    <ClCompile Include="engine\scene\interface\BaseScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\2d\Sprite.h">
@@ -594,6 +597,8 @@
     <ClInclude Include="application\animation\Slide.h">
       <Filter>application\animation</Filter>
     </ClInclude>
+    <ClInclude Include="engine\lighting\ShadowMapPipeline.h" />
+    <ClInclude Include="engine\lighting\ShadowMapManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli">

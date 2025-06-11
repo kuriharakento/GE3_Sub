@@ -60,6 +60,9 @@ public: //アクセッサ
 	//モデルデータ
 	ModelData& GetModelData() { return modelData_; }
 
+	// 頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() { return vertexBufferView_; }
+
 private: //メンバ関数
 	/**
 	 * \brief 頂点データの生成

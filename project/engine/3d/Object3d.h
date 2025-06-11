@@ -38,6 +38,8 @@ public:	/*========[ メンバ関数 ]========*/
 	 */
 	void UpdateMatrix(Camera* camera = nullptr);
 
+	void DrawForShadow(const DirectX::XMMATRIX& lightViewProjection);
+
 public: /*========[ ゲッター ]========*/
 	//Transform
 	const Vector3& GetScale() const { return transform_.scale; }
@@ -61,6 +63,9 @@ public: /*========[ ゲッター ]========*/
 
 	//反射強度
 	float GetShininess() const { return model_->GetShininess(); }
+
+	// シャドウキャストが有効かどうか
+	bool IsCastShadow() const { return castShadow_; }
 
 public: /*========[ セッター ]========*/
 	//モデルの設定
@@ -100,6 +105,9 @@ public: /*========[ セッター ]========*/
 	void SetDirectionalLight(const DirectionalLight& light) { *directionalLightData_ = light; }
 
 	void SetLightManager(LightManager* lightManager) { lightManager_ = lightManager; }
+
+	// シャドウキャストの有効無効
+	void SetCastShadow(bool castShadow) { castShadow_ = castShadow; }
 
 private: /*========[ プライベートメンバ関数(このクラス内でしか使わない関数)  ]========*/
 
@@ -152,5 +160,7 @@ private: /*========[ メンバ変数 ]========*/
 	//座標変換行列
 	Transform transform_;
 
+	// シャドウキャストするか
+	bool castShadow_ = true;
 };
 

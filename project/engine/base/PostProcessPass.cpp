@@ -30,8 +30,8 @@ void PostProcessPass::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager
     D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &sigBlob, &errBlob);
     dxCommon_->GetDevice()->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
 
-    auto vs = dxCommon_->CompileSharder(vsPath, L"vs_6_0");
-    auto ps = dxCommon_->CompileSharder(psPath, L"ps_6_0");
+    auto vs = dxCommon_->CompileShader(vsPath, L"vs_6_0");
+    auto ps = dxCommon_->CompileShader(psPath, L"ps_6_0");
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
     psoDesc.VS = { vs->GetBufferPointer(), vs->GetBufferSize() };

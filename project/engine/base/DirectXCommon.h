@@ -44,7 +44,7 @@ public: //メンバ関数
 	/// \param filePath 
 	/// \param profile 
 	/// \return 
-	Microsoft::WRL::ComPtr<IDxcBlob> CompileSharder(const std::wstring& filePath, const wchar_t* profile);
+	Microsoft::WRL::ComPtr<IDxcBlob> CompileShader(const std::wstring& filePath, const wchar_t* profile);
 
 	/**
 	 * \brief ディスクリプタヒープの生成

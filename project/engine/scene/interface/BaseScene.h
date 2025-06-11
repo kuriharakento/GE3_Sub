@@ -1,5 +1,8 @@
 #pragma once
+#include <DirectXMath.h>
 class SceneManager;
+
+class Object3d;
 
 class BaseScene
 {
@@ -20,6 +23,9 @@ public: //メンバ関数
 
 	//シーンマネージャーのセット
 	void SetSceneManager(SceneManager* sceneManager) { sceneManager_ = sceneManager; }
+
+	//シャドウマップ描画用の描画メソッド
+	virtual void DrawForShadow(const DirectX::XMMATRIX& lightViewProjection) = 0;
 
 protected:
 	SceneManager* sceneManager_ = nullptr;

@@ -112,6 +112,46 @@ void Object3d::UpdateMatrix(Camera* camera)
 	transformationMatrixData_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 
+void Object3d::DrawForShadow(const DirectX::XMMATRIX& lightViewProjection)
+{
+	// シャドウキャストしない場合は何もしない
+	if (!castShadow_)
+	{
+		return; 
+	}
+
+	//　ワールド行列
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+
+	// ライト視点でのワールドビュープロジェクション行列を計算
+	Matrix4x4 shadowWVP = model_->GetModelData().rootNode.localMatrix * worldMatrix * lightViewProjection;
+
+	// シャドウマップ用のワールド行列をセット（一時的に上書き）
+	Matrix4x4 originalWVP = transformationMatrixData_->WVP;
+	transformationMatrixData_->WVP = shadowWVP;
+
+	// 定数バッファをシャドウマップパイプラインのスロットにセット
+	object3dCommon_->GetDXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(
+		0, // シャドウマップパイプラインでのレジスタ番号
+		wvpResource_->GetGPUVirtualAddress()
+	);
+
+	// モデルの頂点/インデックスバッファをセットして描画
+	ID3D12GraphicsCommandList* cmdList = object3dCommon_->GetDXCommon()->GetCommandList();
+
+	// 頂点バッファとインデックスバッファの設定
+	cmdList->IASetVertexBuffers(0, 1, &model_->GetVertexBufferView());
+	
+	// 描画コマンドの発行
+	cmdList->DrawIndexedInstanced(
+		static_cast<UINT>(model_->GetModelData().vertices.size()),
+		1, 0, 0, 0
+	);
+
+	// 元のWVP行列に戻す
+	transformationMatrixData_->WVP = originalWVP;
+}
+
 void Object3d::CreateWvpData()
 {
 	/*--------------[ 座標変換行列リソースを作る ]-----------------*/
