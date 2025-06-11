@@ -23,4 +23,11 @@ nlohmann::json UVTranslateComponent::SerializeToJson() const
 {
 	nlohmann::json json;
 
+	json["type"] = "UVTranslateComponent";
+	json["translate"] = {
+		{"x", translate_.x},
+		{"y", translate_.y},
+		{"z", translate_.z}
+	};
+
 }
