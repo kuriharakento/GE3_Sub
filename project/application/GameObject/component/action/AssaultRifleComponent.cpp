@@ -14,6 +14,8 @@ AssaultRifleComponent::AssaultRifleComponent(Object3dCommon* object3dCommon, Lig
 {
     object3dCommon_ = object3dCommon;
     lightManager_ = lightManager;
+	hitEffect_ = std::make_unique<AssaultRifleHitEffect>();
+	hitEffect_->Initialize();
 }
 
 AssaultRifleComponent::~AssaultRifleComponent()
@@ -72,7 +74,11 @@ void AssaultRifleComponent::Update(GameObject* owner)
         if (bullet->IsAlive()) bullet->Update(1.0f / 60.0f);
 
     for (auto it = bullets_.begin(); it != bullets_.end();)
-        if (!(*it)->IsAlive()) it = bullets_.erase(it);
+		if (!(*it)->IsAlive())
+		{
+			hitEffect_->Play((*it)->GetPosition());
+			it = bullets_.erase(it);
+		}
         else ++it;
 }
 

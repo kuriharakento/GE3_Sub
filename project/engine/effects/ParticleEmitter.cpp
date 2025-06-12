@@ -88,7 +88,7 @@ void ParticleEmitter::Play()
 	emitTime_ = 0.0f;
 	timeSinceLastEmit_ = emitRate_;
 	// 初回の発生を即座に行う
-	Emit();
+	EmitFirst();
 }
 
 void ParticleEmitter::Start(const Vector3& position, uint32_t count, float duration, bool isLoop)
@@ -102,7 +102,7 @@ void ParticleEmitter::Start(const Vector3& position, uint32_t count, float durat
 	duration_ = duration;
 	isLoop_ = isLoop;
 	//初回の発生を即座に行う
-	Emit();
+	EmitFirst();
 }
 
 void ParticleEmitter::Start(const Vector3* target, uint32_t count, float duration, bool isLoop)
@@ -119,7 +119,7 @@ void ParticleEmitter::Start(const Vector3* target, uint32_t count, float duratio
 	duration_ = duration;
 	isLoop_ = isLoop;
 	// 初回の発生を即座に行う
-	Emit();
+	EmitFirst();
 }
 
 void ParticleEmitter::StopEmit()
@@ -174,6 +174,26 @@ void ParticleEmitter::Emit()
 			particleGroup_->AddParticle(newParticle);
 		}
 		timeSinceLastEmit_ = 0.0f;
+	}
+}
+
+void ParticleEmitter::EmitFirst()
+{
+	if (!isPlaying_) return;
+	// 初回の発生を即座に行う
+	for (uint32_t i = 0; i < emitCount_; ++i)
+	{
+		RandomizeInitialParameters();
+		Particle newParticle;
+		Vector3 randomOffset = MathUtils::RandomVector3(emitRangeMin_, emitRangeMax_);
+		newParticle.transform.translate = position_ + randomOffset;
+		newParticle.transform.scale = initialScale_;
+		newParticle.transform.rotate = initialRotation_;
+		newParticle.velocity = initialVelocity_;
+		newParticle.color = initialColor_;
+		newParticle.lifeTime = initialLifeTime_;
+		newParticle.currentTime = 0.0f;
+		particleGroup_->AddParticle(newParticle);
 	}
 }
 

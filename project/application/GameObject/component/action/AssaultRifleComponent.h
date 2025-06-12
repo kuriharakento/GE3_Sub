@@ -1,4 +1,5 @@
 #pragma once
+#include "application/effect/AssaultRifleHitEffect.h"
 #include "application/GameObject/component/base/IActionComponent.h"
 #include "application/GameObject/weapon/Bullet.h"
 
@@ -30,4 +31,7 @@ private:
     bool isReloading_ = false;
     float reloadTime_ = 2.0f;
     float reloadTimer_ = 0.0f;
+
+    //ヒットエフェクト
+	std::unique_ptr<AssaultRifleHitEffect> hitEffect_;
 };

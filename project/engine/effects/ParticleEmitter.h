@@ -63,6 +63,8 @@ public:
 private:
 	// パーティクルの生成
 	void Emit();
+	//　初回の発生を即座に行う
+	void EmitFirst();
 	// 追従対象の位置に合わせてエミット位置を更新
 	void UpdateEmitPosition();
 	// 初期パラメータをランダム化
