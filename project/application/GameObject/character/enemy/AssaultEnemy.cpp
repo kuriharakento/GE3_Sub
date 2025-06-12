@@ -1,5 +1,6 @@
 #include "AssaultEnemy.h"
 
+#include "application/GameObject/component/action/AssaultEnemyBehavior.h"
 #include "application/GameObject/component/action/AssaultRifleComponent.h"
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
 
@@ -8,6 +9,8 @@ void AssaultEnemy::Initialize(Object3dCommon* object3dCommon, LightManager* ligh
 	EnemyBase::Initialize(object3dCommon, lightManager, target);
 	// AssaultRifleのコンポーネントを追加
 	AddComponent("AssaultRifleComponent", std::make_unique<AssaultRifleComponent>(object3dCommon, lightManager));
+	// ビヘイビアコンポーネントを追加
+	AddComponent("AssaultEnemyBehavior", std::make_unique<AssaultEnemyBehavior>(target_));
 	// 衝突判定コンポーネントを追加
 	AddComponent("OBBCollider", std::make_unique<OBBColliderComponent>(this));
 }

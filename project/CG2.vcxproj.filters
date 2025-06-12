@@ -99,6 +99,7 @@
     <ClCompile Include="application\GameObject\component\action\ShotgunComponent.cpp" />
     <ClCompile Include="application\GameObject\character\enemy\ShotgunEnemy.cpp" />
     <ClCompile Include="application\effect\AssaultRifleHitEffect.cpp" />
+    <ClCompile Include="application\GameObject\component\action\AssaultEnemyBehavior.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -220,6 +221,7 @@
     <ClInclude Include="application\GameObject\component\action\ShotgunComponent.h" />
     <ClInclude Include="application\GameObject\character\enemy\ShotgunEnemy.h" />
     <ClInclude Include="application\effect\AssaultRifleHitEffect.h" />
+    <ClInclude Include="application\GameObject\component\action\AssaultEnemyBehavior.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

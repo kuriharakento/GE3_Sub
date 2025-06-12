@@ -142,14 +142,14 @@ void LineManager::DrawGrid(float gridSize, float gridSpacing, const Vector4& col
     for (float z = -halfSize; z <= halfSize; z += gridSpacing) {
         Vector3 start = { -halfSize, 0.0f, z };
         Vector3 end = { halfSize, 0.0f, z };
-        Drawline(start, end, color);
+        DrawLine(start, end, color);
     }
 
     // Z軸方向の線を描画
     for (float x = -halfSize; x <= halfSize; x += gridSpacing) {
         Vector3 start = { x, 0.0f, -halfSize };
         Vector3 end = { x, 0.0f, halfSize };
-        Drawline(start, end, color);
+        DrawLine(start, end, color);
     }
 }
 
@@ -159,7 +159,7 @@ void LineManager::DrawArrow(const Vector3& start, const Vector3& direction, floa
     Vector3 end = start + dir;
 
     // メインの矢印線
-    Drawline(start, end, color);
+    DrawLine(start, end, color);
 
     // 矢じり（左右に 45 度開いた線を描画）
     Vector3 up = { 0, 1, 0 };
@@ -174,18 +174,18 @@ void LineManager::DrawArrow(const Vector3& start, const Vector3& direction, floa
     Vector3 leftWing = Vector3::Rotate(-dir, up, 0.4f) * headLength;
     Vector3 rightWing = Vector3::Rotate(-dir, up, -0.4f) * headLength;
 
-    Drawline(end, end + leftWing, color);
-    Drawline(end, end + rightWing, color);
+    DrawLine(end, end + leftWing, color);
+    DrawLine(end, end + rightWing, color);
 }
 
 void LineManager::DrawAxis(const Vector3& position, float scale)
 {
     // X軸（赤）
-    Drawline(position, position + Vector3{ scale, 0, 0 }, VectorColorCodes::Red);
+    DrawLine(position, position + Vector3{ scale, 0, 0 }, VectorColorCodes::Red);
     // Y軸（緑）
-    Drawline(position, position + Vector3{ 0, scale, 0 }, VectorColorCodes::Green);
+    DrawLine(position, position + Vector3{ 0, scale, 0 }, VectorColorCodes::Green);
     // Z軸（青）
-    Drawline(position, position + Vector3{ 0, 0, scale }, VectorColorCodes::Blue);
+    DrawLine(position, position + Vector3{ 0, 0, scale }, VectorColorCodes::Blue);
 }
 
 void LineManager::DrawAABB(const AABB& aabb, const Vector4& color)
@@ -203,14 +203,14 @@ void LineManager::DrawAABB(const AABB& aabb, const Vector4& color)
     };
 
     // 12本のエッジを線で描画
-    Drawline(v[0], v[1], color); Drawline(v[1], v[2], color);
-    Drawline(v[2], v[3], color); Drawline(v[3], v[0], color);
+    DrawLine(v[0], v[1], color); DrawLine(v[1], v[2], color);
+    DrawLine(v[2], v[3], color); DrawLine(v[3], v[0], color);
 
-    Drawline(v[4], v[5], color); Drawline(v[5], v[6], color);
-    Drawline(v[6], v[7], color); Drawline(v[7], v[4], color);
+    DrawLine(v[4], v[5], color); DrawLine(v[5], v[6], color);
+    DrawLine(v[6], v[7], color); DrawLine(v[7], v[4], color);
 
-    Drawline(v[0], v[4], color); Drawline(v[1], v[5], color);
-    Drawline(v[2], v[6], color); Drawline(v[3], v[7], color);
+    DrawLine(v[0], v[4], color); DrawLine(v[1], v[5], color);
+    DrawLine(v[2], v[6], color); DrawLine(v[3], v[7], color);
 }
 
 void LineManager::DrawOBB(const OBB& obb, const Vector4& color)
@@ -242,11 +242,11 @@ void LineManager::DrawOBB(const OBB& obb, const Vector4& color)
         {0,4},{1,5},{2,6},{3,7},
     };
     for (int i = 0; i < 12; ++i) {
-        Drawline(worldPoints[indices[i][0]], worldPoints[indices[i][1]], color);
+        DrawLine(worldPoints[indices[i][0]], worldPoints[indices[i][1]], color);
     }
 }
 
-void LineManager::Drawline(const Vector3& start, const Vector3& end, const Vector4& color)
+void LineManager::DrawLine(const Vector3& start, const Vector3& end, const Vector4& color)
 {
 	line_->AddLine(start, end, color);
 }

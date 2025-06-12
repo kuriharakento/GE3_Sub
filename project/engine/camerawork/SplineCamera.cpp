@@ -129,7 +129,7 @@ void SplineCamera::DrawSplineLine()
             );
 
             // 線を描画
-            LineManager::GetInstance()->Drawline(prevPoint, currentPoint, { 1.0f, 0.0f, 0.0f, 1.0f }); // 赤色の線
+            LineManager::GetInstance()->DrawLine(prevPoint, currentPoint, { 1.0f, 0.0f, 0.0f, 1.0f }); // 赤色の線
             prevPoint = currentPoint; // 現在の点を次の始点に設定
         }
     }
