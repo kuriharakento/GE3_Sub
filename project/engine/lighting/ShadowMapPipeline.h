@@ -9,6 +9,8 @@ class ShadowMapPipeline
 public:
 	void Initialize(DirectXCommon* dxCommon);
 
+	ID3D12PipelineState* GetPipelineState() const { return pipelineState_.Get(); }
+	ID3D12RootSignature* GetRootSignature() const { return rootSignature_.Get(); }
 
 private:
 	void CreateRootSignature();

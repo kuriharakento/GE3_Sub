@@ -28,6 +28,8 @@ public: //メンバ関数
 	void ChangeScene(const std::string& sceneName);
 
 public: //アクセッサ
+	//現在のシーンの取得
+	BaseScene* GetCurrentScene() const { return currentScene_.get(); }
 	//カメラマネージャーの取得
 	CameraManager* GetCameraManager() const { return context_.cameraManager; }
 	//スプライト共通部の取得

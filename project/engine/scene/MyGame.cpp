@@ -93,7 +93,7 @@ void MyGame::Draw()
 
 	// ---------- 3D描画 ---------
 
-	
+	// シャドウマップのレンダリング
 
 	//3D描画用設定
 	Framework::Draw3DSetting();

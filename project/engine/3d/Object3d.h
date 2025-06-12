@@ -7,6 +7,7 @@
 #include "3d/Model.h"
 #include "3d/ModelManager.h"
 #include "lighting/DirectionalLight.h"
+#include "lighting/ShadowMapConstant.h"
 #include "manager/CameraManager.h"
 
 class LightManager;
@@ -39,6 +40,10 @@ public:	/*========[ メンバ関数 ]========*/
 	void UpdateMatrix(Camera* camera = nullptr);
 
 	void DrawForShadow(const DirectX::XMMATRIX& lightViewProjection);
+
+	void AddShadowMap(uint32_t srvIndex, const Matrix4x4& lightViewProj, ShadowMapType type, const std::string& lightName, float bias = 0.005f);
+	void ClearShadowMaps() { activeShadowMapCount_ = 0; }
+	int GetActiveShadowMapCount() const { return activeShadowMapCount_; }
 
 public: /*========[ ゲッター ]========*/
 	//Transform
@@ -130,7 +135,8 @@ private: /*========[ プライベートメンバ関数(このクラス内でし�
 	 * \brief 描画設定の初期化
 	 */
 	void InitializeRenderingSettings();
-	
+
+	void CreateShadowMapData();
 
 private: /*========[ 描画用変数 ]========*/
 	//オブジェクトのコマンド
@@ -145,6 +151,22 @@ private: /*========[ 描画用変数 ]========*/
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	DirectionalLight* directionalLightData_ = nullptr;
 	CameraForGPU* cameraData_ = nullptr;
+
+	//シャドウマップ用変数
+	struct ShadowMapEntry
+	{
+		Microsoft::WRL::ComPtr<ID3D12Resource> constantBuffer;
+		ShadowMapConstants* constantData = nullptr;
+		uint32_t srvIndex = 0;
+		bool enabled = false;
+		ShadowMapType type;
+		std::string lightName;
+	};
+
+	// 複数のシャドウマップをサポート
+	static const int MAX_SHADOW_MAPS = 10;
+	ShadowMapEntry shadowMaps_[MAX_SHADOW_MAPS];
+	int activeShadowMapCount_ = 0;
 
 
 private: /*========[ メンバ変数 ]========*/

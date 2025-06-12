@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <DirectXMath.h>
 
 #include "Vector3.h"
 #include "Vector4.h"
@@ -306,4 +307,47 @@ inline Matrix4x4 MakeViewportMatrix(float left, float top, float width, float he
 		left + (width / 2),top + (height / 2),minDepth,1
 	};
 	return m;
+}
+
+// 右手座標系のLookAt行列
+inline Matrix4x4 MakeLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up)
+{
+	Vector3 zaxis = (target - eye).Normalize();         // 前方向
+	Vector3 xaxis = Vector3::Cross(up, zaxis).Normalize(); // 右方向
+	Vector3 yaxis = Vector3::Cross(zaxis, xaxis);       // 上方向
+
+	Matrix4x4 result{};
+	result.m[0][0] = xaxis.x;
+	result.m[0][1] = yaxis.x;
+	result.m[0][2] = zaxis.x;
+	result.m[0][3] = 0.0f;
+
+	result.m[1][0] = xaxis.y;
+	result.m[1][1] = yaxis.y;
+	result.m[1][2] = zaxis.y;
+	result.m[1][3] = 0.0f;
+
+	result.m[2][0] = xaxis.z;
+	result.m[2][1] = yaxis.z;
+	result.m[2][2] = zaxis.z;
+	result.m[2][3] = 0.0f;
+
+	result.m[3][0] = -Vector3::Dot(xaxis, eye);
+	result.m[3][1] = -Vector3::Dot(yaxis, eye);
+	result.m[3][2] = -Vector3::Dot(zaxis, eye);
+	result.m[3][3] = 1.0f;
+
+	return result;
+}
+
+// Matrix4x4 → DirectX::XMMATRIX 変換
+inline DirectX::XMMATRIX ToXMMATRIX(const Matrix4x4& m)
+{
+	// m.m[行][列] で float[4][4] だと仮定
+	return DirectX::XMMATRIX(
+		m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3],
+		m.m[1][0], m.m[1][1], m.m[1][2], m.m[1][3],
+		m.m[2][0], m.m[2][1], m.m[2][2], m.m[2][3],
+		m.m[3][0], m.m[3][1], m.m[3][2], m.m[3][3]
+	);
 }

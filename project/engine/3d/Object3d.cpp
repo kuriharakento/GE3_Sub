@@ -3,6 +3,7 @@
 #include "3d/Object3dCommon.h"
 #include "math/MathUtils.h"
 #include "lighting/LightManager.h"
+#include "lighting/ShadowMapManager.h"
 
 ///////////////////////////////////////////////////////////////////////
 ///						>>>基本的な処理<<<							///
@@ -152,6 +153,33 @@ void Object3d::DrawForShadow(const DirectX::XMMATRIX& lightViewProjection)
 	transformationMatrixData_->WVP = originalWVP;
 }
 
+void Object3d::AddShadowMap(uint32_t srvIndex, const Matrix4x4& lightViewProj, ShadowMapType type, const std::string& lightName, float bias)
+{
+	if (activeShadowMapCount_ >= MAX_SHADOW_MAPS) {
+        Logger::Log("Maximum shadow maps reached for object");
+        return;
+    }
+    
+    auto& entry = shadowMaps_[activeShadowMapCount_];
+    entry.srvIndex = srvIndex;
+    entry.enabled = true;
+    entry.type = type;
+    entry.lightName = lightName;
+    
+    // 定数バッファを作成（まだなければ）
+    if (!entry.constantBuffer) {
+        entry.constantBuffer = object3dCommon_->GetDirectXCommon()->CreateBufferResource(sizeof(ShadowMapConstants));
+        entry.constantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&entry.constantData));
+    }
+    
+    // シャドウマップデータを更新
+    entry.constantData->lightViewProjection = lightViewProj;
+    entry.constantData->shadowBias = bias;
+    entry.constantData->shadowMapSize = static_cast<float>(ShadowMapData::kShadowMapSize);
+    
+    activeShadowMapCount_++;
+}
+
 void Object3d::CreateWvpData()
 {
 	/*--------------[ 座標変換行列リソースを作る ]-----------------*/
@@ -219,4 +247,9 @@ void Object3d::InitializeRenderingSettings()
 
 	//カメラデータの生成
 	CreateCameraData();
+}
+
+void Object3d::CreateShadowMapData()
+{
+
 }

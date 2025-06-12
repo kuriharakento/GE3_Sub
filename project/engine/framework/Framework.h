@@ -9,6 +9,7 @@
 #include "base/RenderTexture.h"
 #include "base/WinApp.h"
 #include "lighting/LightManager.h"
+#include "lighting/ShadowMapManager.h"
 #include "line/LineManager.h"
 #include "manager/CameraManager.h"
 #include "manager/ImGuiManager.h"

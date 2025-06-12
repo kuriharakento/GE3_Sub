@@ -8,7 +8,11 @@
 #include <wrl.h>
 
 #include "ShadowMapPipeline.h"
+#include "math/MatrixFunc.h"
 
+class LightManager;
+class SceneManager;
+class BaseScene;
 class SrvManager;
 class DirectXCommon;
 
@@ -54,36 +58,37 @@ class ShadowMapManager
 public:
     static ShadowMapManager* GetInstance();
 
-    void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager);
+	void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, SceneManager* sceneManager, LightManager* lightManager);
     void Finalize();
 
-    // 各ライトタイプ用のシャドウマップ作成
-    void CreateSpotLightShadowMap(const std::string& name, uint32_t size = ShadowMapData::kShadowMapSize);
-    void CreatePointLightShadowMap(const std::string& name, uint32_t size = ShadowMapData::kShadowMapSize);
-    void CreateDirectionalLightShadowMap(const std::string& name, uint32_t size = ShadowMapData::kShadowMapSize);
+    // シャドウマップ生成
+    void CreateSpotLightShadowMap(const std::string& name);
+	void CreatePointLightShadowMap(const std::string& name);
+	void CreateDirectionalLightShadowMap(const std::string& name, const std::array<float, ShadowMapData::kCascadeCount>& cascadeDistances);
 
-    // シャドウマップ描画の開始/終了
+    // シャドウマップ描画開始
+    void BeginSpotLightShadowPass(const std::string& name);
+    void BeginPointLightShadowPass(const std::string& name, uint32_t faceIndex);
+    void BeginDirectionalLightShadowPass(const std::string& name, uint32_t cascadeIndex);
+    void EndShadowPass();
+
+    // シャドウマップ描画
     void RenderAllShadowMaps();
 
-    void RenderAllSpotLightShadowMap();
-	void RenderAllPointLightShadowMaps();
-	void RenderAllDirectionalLightShadowMaps();
+    // シャドウマップ用のビュープロジェクション行列計算
+    Matrix4x4 CalculateSpotLightViewProjection(const std::string& name);
+    Matrix4x4 CalculatePointLightViewProjection(const std::string& name, uint32_t faceIndex);
+    Matrix4x4 CalculateDirectionalLightViewProjection(const std::string& name, uint32_t cascadeIndex);
 
-    // シャドウマップの取得
-    uint32_t GetSpotLightSRVIndex(const std::string& name);
-    std::array<uint32_t, 6> GetPointLightSRVIndices(const std::string& name); // 6面分のSRVインデックス
-    std::array<uint32_t, 4> GetDirectionalLightSRVIndices(const std::string& name); // 4カスケード分
+    // シャドウマップSRVの取得
+    uint32_t GetSpotLightShadowMapSrvIndex(const std::string& name) const;
+    uint32_t GetPointLightShadowMapSrvIndex(const std::string& name, uint32_t faceIndex = 0) const;
+    uint32_t GetDirectionalLightShadowMapSrvIndex(const std::string& name, uint32_t cascadeIndex = 0) const;
 
     // シャドウマップの削除
-    void RemoveShadowMap(const std::string& name);
-    void ClearAllShadowMaps();
-
-    // ライトタイプの取得
-    ShadowMapType GetShadowMapType(const std::string& name);
-
-    // デバッグ用
-    bool HasShadowMap(const std::string& name) const;
-    void LogAllShadowMaps() const;
+    void RemoveSpotLightShadowMap(const std::string& name);
+    void RemovePointLightShadowMap(const std::string& name);
+    void RemoveDirectionalLightShadowMap(const std::string& name);
 
 private:
     ShadowMapManager() = default;
@@ -91,10 +96,19 @@ private:
     ShadowMapManager(const ShadowMapManager&) = delete;
     ShadowMapManager& operator=(const ShadowMapManager&) = delete;
 
+	// シャドウマップリソースを生成
+	ShadowMapData CreateShadowMapResource();
+
 private:
     DirectXCommon* dxCommon_ = nullptr;
     SrvManager* srvManager_ = nullptr;
+	SceneManager* sceneManager_ = nullptr;
+	LightManager* lightManager_ = nullptr;
 	std::unique_ptr<ShadowMapPipeline> shadowMapPipeline_;
+
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> shadowSamplerHeap_; // シャドウマップ用サンプラーヒープ
+	D3D12_CPU_DESCRIPTOR_HANDLE shadowSamplerHandle_; // サンプラーハンドル
+	D3D12_GPU_DESCRIPTOR_HANDLE shadowSamplerGpuHandle_; // GPU用サンプラーハンドル
 
     // 各タイプのシャドウマップ
     std::unordered_map<std::string, std::unique_ptr<ShadowMapData>> spotLightShadowMaps_;

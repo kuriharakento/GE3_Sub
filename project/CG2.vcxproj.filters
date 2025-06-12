@@ -7,6 +7,8 @@
     <FxCompile Include="Resources\shaders\Object3d.Vs.hlsl">
       <Filter>Resource\shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\shaders\ShadowMap.VS.hlsl" />
+    <FxCompile Include="Resources\shaders\ShadowMap.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -599,6 +601,7 @@
     </ClInclude>
     <ClInclude Include="engine\lighting\ShadowMapPipeline.h" />
     <ClInclude Include="engine\lighting\ShadowMapManager.h" />
+    <ClInclude Include="engine\lighting\ShadowMapConstant.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli">

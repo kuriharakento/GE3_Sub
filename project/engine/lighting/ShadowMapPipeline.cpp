@@ -48,8 +48,7 @@ void ShadowMapPipeline::CreateRootSignature()
 void ShadowMapPipeline::CreatePipelineState()
 {
     // シェーダーのコンパイル
-        Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"Resources/shaders/ShadowMap.VS.hlsl", L"vs_6_0");
-    Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"Resources/shaders/ShadowMap.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"Resources/shaders/ShadowMap.VS.hlsl", L"vs_6_0");
 
     // 入力レイアウトの設定
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
@@ -60,7 +59,7 @@ void ShadowMapPipeline::CreatePipelineState()
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc = {};
     pipelineStateDesc.pRootSignature = rootSignature_.Get();
     pipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
-    pipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
+    pipelineStateDesc.PS = {};
     pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 
