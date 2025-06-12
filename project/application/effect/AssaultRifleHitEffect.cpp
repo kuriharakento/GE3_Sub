@@ -13,7 +13,8 @@ void AssaultRifleHitEffect::Initialize()
 	effectCount++;
 	emitter_->SetEmitRange({}, {});
 	emitter_->SetInitialLifeTime(1.0f);
-	emitter_->SetRandomRotation(true);
+	emitter_->SetBillborad(true);
+	//emitter_->SetRandomRotation(true);
 	emitter_->SetRandomRotationRange(AABB{ Vector3{ -3.14f, 3.14f, 0.0f }, Vector3{ 3.14f, 3.14f, 0.0f } });
 	emitter_->SetModelType(ParticleGroup::ParticleType::Ring); // 円環状のパーティクル
 
