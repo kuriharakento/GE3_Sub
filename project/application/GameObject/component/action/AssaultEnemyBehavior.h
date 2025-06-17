@@ -45,10 +45,10 @@ private:
 
     // パラメーター
     float stateTimer_ = 0.0f;                 // 状態タイマー
-    float moveSpeed_ = 5.0f;                  // 移動速度
+    float moveSpeed_ = 3.0f;                  // 移動速度
     float attackRange_ = 15.0f;               // 攻撃範囲
     float detectionRange_ = 25.0f;            // 検出範囲
-    float maxDistance_ = 50.0f;               // プレイヤーとの最大許容距離
+    float maxDistance_ = 20.0f;               // プレイヤーとの最大許容距離
     float strafeRadius_ = 8.0f;               // 横移動半径
     float strafeAngle_ = 0.0f;                // 横移動角度
     float burstCooldown_ = 0.0f;              // バースト攻撃クールダウン

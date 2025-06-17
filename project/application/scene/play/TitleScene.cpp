@@ -404,7 +404,7 @@ void TitleScene::Update()
 	static bool splineCameraUpdate = false;
 	static bool orbitCameraUpdate = false;
 	static bool followCameraUpdate = false;
-	static bool topDownCameraUpdate = false;
+	static bool topDownCameraUpdate = true;
 
 	//カメラワークの更新
 	ImGui::Checkbox("orbitCamera Update", &orbitCameraUpdate);

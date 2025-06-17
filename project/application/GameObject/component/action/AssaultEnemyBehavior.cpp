@@ -1,6 +1,7 @@
 #include "AssaultEnemyBehavior.h"
 #include "AssaultRifleComponent.h"
 #include "application/GameObject/base/GameObject.h"
+#include "imgui/imgui.h"
 #include "math/MathUtils.h"
 #include "input/Input.h"
 #include "line/LineManager.h"
@@ -29,6 +30,16 @@ AssaultEnemyBehavior::AssaultEnemyBehavior(GameObject* target) : target_(target)
 
 void AssaultEnemyBehavior::Update(GameObject* owner)
 {
+
+#ifdef _DEBUG
+	ImGui::Begin("AssaultEnemyBehavior");
+    Vector3 targetPos = target_->GetPosition();
+    Vector3 direction = targetPos - owner->GetPosition();
+    float distance = direction.Length();
+	ImGui::Text("Distance to Target: %.2f", distance);
+    ImGui::End();
+#endif
+
     // クールダウン更新
     if (burstCooldown_ > 0)
     {
@@ -237,12 +248,12 @@ void AssaultEnemyBehavior::StrafeBehavior(GameObject* owner)
     Vector3 right = Vector3(forward.z, 0, -forward.x); // 直交ベクトル
 
     // サイン波で揺らす横移動
-    strafeAngle_ += 0.05f;
+    strafeAngle_ += 0.02f;
     float strafeValue = sin(strafeAngle_);
     Vector3 strafeDir = right * strafeValue;
 
     // 横移動を適用（距離に応じて移動量を制限）
-    float moveDistance = moveSpeed_ * 0.8f * (1.0f / 60.0f);
+    float moveDistance = moveSpeed_ * 0.6f * (1.0f / 60.0f);
     owner->SetPosition(owner->GetPosition() + strafeDir * moveDistance);
 
     // プレイヤーの方向を向き続ける
@@ -320,7 +331,6 @@ void AssaultEnemyBehavior::CoverBehavior(GameObject* owner)
     }
 }
 
-// 新規追加：プレイヤー付近に戻る動作（テレポート防止用）
 void AssaultEnemyBehavior::ReturnBehavior(GameObject* owner)
 {
     if (!target_)
@@ -333,12 +343,22 @@ void AssaultEnemyBehavior::ReturnBehavior(GameObject* owner)
     Vector3 direction = targetPos - owner->GetPosition();
     float distance = direction.Length();
 
-    // 徐々に近づく（テレポートではなくスムーズな移動）
+    // ====== 徹底的に速度を抑制 ======
     Vector3 normalizedDir = direction;
     normalizedDir.Normalize();
 
-    // 速度と距離に応じた移動量調整
-    float moveDistance = std::min(moveSpeed_ * 1.5f * (1.0f / 60.0f), distance * 0.05f);
+    // 移動速度を大幅に抑制（元の5分の1程度の速さに）
+    float baseSpeed = moveSpeed_ * 0.2f;
+
+    // 距離に比例する係数も大幅に小さくする
+    float distanceFactor = 0.005f;  // 元の0.05fから10分の1に
+
+    // 特に重要: 移動距離計算を抑制
+    float moveDistance = std::min(baseSpeed * (1.0f / 60.0f), distance * distanceFactor);
+
+    // さらに、経過時間によって徐々に速度を上げるのではなく、常に一定のゆっくりした速度を維持
+    // 最大でも通常の移動速度の30%を超えないようにする
+    moveDistance = std::min(moveDistance, moveSpeed_ * 0.3f * (1.0f / 60.0f));
 
     // 移動
     owner->SetPosition(owner->GetPosition() + normalizedDir * moveDistance);
@@ -347,20 +367,37 @@ void AssaultEnemyBehavior::ReturnBehavior(GameObject* owner)
     float angle = atan2(normalizedDir.x, normalizedDir.z);
     owner->SetRotation(Vector3(0, angle, 0));
 
-    // プレイヤーとの距離が適正になったら戦闘モードに戻る
-    if (distance < attackRange_ * 1.2f)
+    // 距離判定も緩やかに - 十分に近づいた場合のみ状態を変更
+    // かつ、最低でも3秒は徐々に近づく動作を維持
+    if (distance < attackRange_ * 1.0f && stateTimer_ > 3.0f)
     {
-        currentState_ = State::Engage;
+        // 戦闘モードではなく、まず位置調整モードに移行し、そこからさらに徐々に接近
+        currentState_ = State::Reposition;
         stateTimer_ = 0.0f;
     }
 
-    // 長時間プレイヤーに近づけない場合は最後の有効位置に移動
-    if (stateTimer_ > 5.0f)
+    // 最後の有効位置への移動も、同様に徐々に行う（テレポートではなく）
+    // タイマーの条件は維持するが、移動自体は常にゆっくり
+    if (stateTimer_ > 8.0f)
     {
-        // 前回記録した有効な位置へ移動
-        owner->SetPosition(lastValidPosition_);
-        currentState_ = State::Engage;
-        stateTimer_ = 0.0f;
+        Vector3 toLastValid = lastValidPosition_ - owner->GetPosition();
+        float distToLastValid = toLastValid.Length();
+
+        if (distToLastValid > 1.0f)
+        {
+            Vector3 dirToLastValid = toLastValid;
+            dirToLastValid.Normalize();
+
+            // 非常にゆっくり最後の有効位置に近づける
+            float lastValidMoveDistance = std::min(moveSpeed_ * 0.15f * (1.0f / 60.0f), distToLastValid * 0.03f);
+            owner->SetPosition(owner->GetPosition() + dirToLastValid * lastValidMoveDistance);
+        }
+        else
+        {
+            // 最後の有効位置に十分近づいたら位置調整モードに移行
+            currentState_ = State::Reposition;
+            stateTimer_ = 0.0f;
+        }
     }
 }
 
