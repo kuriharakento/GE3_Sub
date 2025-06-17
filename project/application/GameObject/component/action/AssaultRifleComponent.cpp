@@ -54,20 +54,8 @@ void AssaultRifleComponent::Update(GameObject* owner)
     }
 	else if (auto enemy = dynamic_cast<EnemyBase*>(owner))
 	{
-		Player* player = dynamic_cast<Player*>(enemy->GetTarget());
-		if (player)
-		{
-			Vector3 myPos = enemy->GetPosition();
-			Vector3 playerPos = player->GetPosition();
-			float distance = (playerPos - myPos).Length();
-			if (distance < 40.0f && fireCooldownTimer_ <= 0.0f && currentAmmo_ > 0 && !isReloading_)
-			{
-				FireBullet(owner, playerPos);
-				fireCooldownTimer_ = fireCooldown_;
-				currentAmmo_--;
-				if (currentAmmo_ <= 0) StartReload();
-			}
-		}
+		// 敵が任意のタイミングで発射するために敵のポインタを保持
+		enemy_ = enemy;
 	}
 
     for (const auto& bullet : bullets_)
@@ -86,6 +74,20 @@ void AssaultRifleComponent::Draw(CameraManager* camera)
 {
     for (const auto& bullet : bullets_)
         if (bullet->IsAlive()) bullet->Draw(camera);
+}
+
+void AssaultRifleComponent::Fire()
+{
+	Vector3 myPos = enemy_->GetPosition();
+	Vector3 playerPos = enemy_->GetTarget()->GetPosition();
+	float distance = (playerPos - myPos).Length();
+	if (distance < 40.0f && fireCooldownTimer_ <= 0.0f && currentAmmo_ > 0 && !isReloading_)
+	{
+		FireBullet(enemy_, playerPos);
+		fireCooldownTimer_ = fireCooldown_;
+		currentAmmo_--;
+		if (currentAmmo_ <= 0) StartReload();
+	}
 }
 
 void AssaultRifleComponent::FireBullet(GameObject* owner)

@@ -3,6 +3,8 @@
 #include "application/GameObject/component/base/IActionComponent.h"
 #include "application/GameObject/weapon/Bullet.h"
 
+class EnemyBase;
+
 class AssaultRifleComponent : public IActionComponent
 {
 public:
@@ -12,7 +14,12 @@ public:
     void Update(GameObject* owner) override;
     void Draw(CameraManager* camera) override;
 
+	// 敵クラスから呼び出すためのメソッド
+	void Fire();
+
 private:
+	
+	//　自クラスでの弾発射処理
     void FireBullet(GameObject* owner);
     void FireBullet(GameObject* owner, const Vector3& targetPosition);
     void StartReload();
@@ -20,6 +27,8 @@ private:
 
     Object3dCommon* object3dCommon_ = nullptr;
     LightManager* lightManager_ = nullptr;
+	//敵が任意のタイミングで発射するために敵のポインタを保持
+	EnemyBase* enemy_ = nullptr;
 
     float fireCooldown_;
     float fireCooldownTimer_;

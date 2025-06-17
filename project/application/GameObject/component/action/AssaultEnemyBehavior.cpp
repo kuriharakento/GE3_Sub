@@ -6,6 +6,7 @@
 #include "input/Input.h"
 #include "line/LineManager.h"
 #include "lighting/VectorColorCodes.h"
+#include "application/GameObject/component/action/AssaultRifleComponent.h"
 
 AssaultEnemyBehavior::AssaultEnemyBehavior(GameObject* target) : target_(target)
 {
@@ -403,8 +404,7 @@ void AssaultEnemyBehavior::ReturnBehavior(GameObject* owner)
 
 void AssaultEnemyBehavior::FireWeapon(GameObject* owner)
 {
-    // 実際の発射処理はここでAssaultRifleComponentを呼び出す
-    // 例：owner->GetComponent<AssaultRifleComponent>("weapon")->Fire();
+	owner->GetComponent<AssaultRifleComponent>()->Fire();
 
     // デバッグ表示用
 #ifdef _DEBUG
