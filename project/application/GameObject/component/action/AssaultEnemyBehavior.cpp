@@ -101,6 +101,11 @@ void AssaultEnemyBehavior::Update(GameObject* owner)
 
     // 状態タイマー更新
     stateTimer_ += 1.0f / 60.0f;
+
+	if (currentState_ == State::Engage || currentState_ == State::Strafe || currentState_ == State::Reposition)
+	{
+        FireWeapon(owner);
+	}
 }
 
 void AssaultEnemyBehavior::PatrolBehavior(GameObject* owner)

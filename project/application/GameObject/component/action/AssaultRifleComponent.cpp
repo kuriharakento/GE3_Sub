@@ -56,6 +56,11 @@ void AssaultRifleComponent::Update(GameObject* owner)
 	{
 		// 敵が任意のタイミングで発射するために敵のポインタを保持
 		enemy_ = enemy;
+
+		if (currentAmmo_ <= 0 && !isReloading_)
+		{
+			StartReload();
+		}
 	}
 
     for (const auto& bullet : bullets_)
