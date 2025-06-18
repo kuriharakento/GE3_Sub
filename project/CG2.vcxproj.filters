@@ -100,7 +100,7 @@
     <ClCompile Include="application\GameObject\character\enemy\ShotgunEnemy.cpp" />
     <ClCompile Include="application\effect\AssaultRifleHitEffect.cpp" />
     <ClCompile Include="application\GameObject\component\action\AssaultEnemyBehavior.cpp" />
-    <ClCompile Include="application\effect\DodgeEffect.cpp" />
+    <ClCompile Include="application\effect\DodgeEffectParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -223,7 +223,7 @@
     <ClInclude Include="application\GameObject\character\enemy\ShotgunEnemy.h" />
     <ClInclude Include="application\effect\AssaultRifleHitEffect.h" />
     <ClInclude Include="application\GameObject\component\action\AssaultEnemyBehavior.h" />
-    <ClInclude Include="application\effect\DodgeEffect.h" />
+    <ClInclude Include="application\effect\DodgeEffectParticle.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

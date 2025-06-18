@@ -7,6 +7,9 @@
 
 MoveComponent::MoveComponent()
 {
+    // 回避エフェクトの初期化
+	dodgeEffect_ = std::make_unique<DodgeEffectParticle>();
+	dodgeEffect_->Initialize();
 }
 
 void MoveComponent::Update(GameObject* owner)
@@ -54,8 +57,12 @@ void MoveComponent::Update(GameObject* owner)
         // 回避終了
         if (dodgeTimer_ <= 0.0f)
         {
+            // 回避終了時のエフェクト
+            dodgeEffect_->PlayFadeOutEffect(owner->GetPosition());
+
             dodgeTimer_ = 0.0f;
             isDodging_ = false;
+            wasEffectPlayed_ = false; // リセット
             dodgeCooldownTimer_ = dodgeCooldown_;
         }
     }
@@ -69,7 +76,8 @@ void MoveComponent::Update(GameObject* owner)
             invincibleTimer_ = 0.0f;
         }
     }
-	// 入力処理（回避中は処理しない）
+
+    // 入力処理（回避中は処理しない）
     if (!isDodging_)
     {
         ProcessDodge(owner);  // 回避を最優先
@@ -137,7 +145,7 @@ void MoveComponent::ProcessMovement(GameObject* owner)
 void MoveComponent::ProcessDodge(GameObject* owner)
 {
     // すでに回避中なら処理しない
-    if (isDodging_) return;
+	if (isDodging_) return;
 
     // スペースキーで回避
     if (Input::GetInstance()->TriggerKey(DIK_SPACE) && dodgeCooldownTimer_ <= 0.0f)
@@ -165,29 +173,32 @@ void MoveComponent::ProcessDodge(GameObject* owner)
 
         // 回避開始
         isDodging_ = true;
+        isFirstDodgeFrame_ = true;    // 最初のフレームを示すフラグ
+        wasEffectPlayed_ = false;     // エフェクト未再生
         dodgeTimer_ = dodgeDuration_;
         invincibleTimer_ = dodgeInvincibleTime_;
         effectTimer_ = 0.0f; // 即座にエフェクト開始
 
-        // 回避開始エフェクトやサウンド
+        // 回避開始エフェクト
         PlayDodgeEffect(owner);
+    }
+    else
+    {
+        isFirstDodgeFrame_ = false;  // 回避開始フレームでない
     }
 }
 
 void MoveComponent::PlayDodgeEffect(GameObject* owner)
 {
-    // ここに回避エフェクトの生成コードを記述
-    // 例: 残像、ブラー、オーラエフェクトなど
+    // 回避の始まりで一度だけ実行されるエフェクト
+    if (isFirstDodgeFrame_ && !wasEffectPlayed_)
+    {
+        dodgeEffect_->PlayEffect(owner->GetPosition(), dodgeDirection_);
+        wasEffectPlayed_ = true;
+    }
 
-    // 例（擬似コード）:
-    // 現在位置に残像エフェクトを生成
-    // auto afterImage = new AfterImageEffect(owner->GetPosition(), owner->GetRotation(), owner->GetModel());
-    // effectManager->AddEffect(afterImage);
-
-    // もしくは他のコンポーネントに通知して処理させる
-    // if (auto effectComp = owner->GetComponent<EffectComponent>("effect")) {
-    //     effectComp->CreateDodgeEffect();
-    // }
+    // 残像エフェクトを生成
+    dodgeEffect_->CreateAfterImage(owner->GetPosition(), owner->GetRotation());
 }
 
 Vector3 MoveComponent::GetMovementDirection() const

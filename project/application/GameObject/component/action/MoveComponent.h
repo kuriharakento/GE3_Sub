@@ -1,4 +1,5 @@
 #pragma once
+#include "application/effect/DodgeEffectParticle.h"
 #include "application/GameObject/component/base/IGameObjectComponent.h"
 #include "math/Vector3.h"
 #include "input/Input.h"
@@ -60,4 +61,8 @@ private:
     // エフェクト関連
     float effectTimer_ = 0.0f;              // エフェクトタイマー
     float effectInterval_ = 0.03f;          // 残像間隔
+
+    std::unique_ptr<DodgeEffectParticle> dodgeEffect_;
+    bool isFirstDodgeFrame_ = false;        // 回避の最初のフレームか
+    bool wasEffectPlayed_ = false;          // エフェクト再生済みか
 };
