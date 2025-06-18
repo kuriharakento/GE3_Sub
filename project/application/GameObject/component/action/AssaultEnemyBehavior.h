@@ -1,66 +1,104 @@
 #pragma once
-#include <vector>
-
 #include "application/GameObject/component/base/IGameObjectComponent.h"
 #include "math/Vector3.h"
+#include <vector>
+#include <random>
 
 class GameObject;
 
 class AssaultEnemyBehavior : public IGameObjectComponent
 {
 public:
+    // コンストラクタ
     AssaultEnemyBehavior(GameObject* target);
+
+    // 基本インターフェース
     void Update(GameObject* owner) override;
 
-    // 設定メソッド
+    // パラメータ設定
     void SetTarget(GameObject* target) { target_ = target; }
     void SetMoveSpeed(float speed) { moveSpeed_ = speed; }
     void SetAttackRange(float range) { attackRange_ = range; }
-    void SetDetectionRange(float range) { detectionRange_ = range; }
 
 private:
     enum class State
     {
-        Patrol,     // 巡回
-        Engage,     // 戦闘態勢
-        Strafe,     // 横移動
+        Idle,       // 待機状態
+        Combat,     // 戦闘状態
+        Patrol,     // 巡回状態
         Reposition, // 位置調整
-        Cover,      // 掩蓋
-        Return      // プレイヤーの元へ戻る（テレポート防止用）
+        Strafe,     // 横移動
+        Retreat     // 後退
     };
 
-    void PatrolBehavior(GameObject* owner);   // 巡回行動
-    void EngageBehavior(GameObject* owner);   // 攻撃態勢行動
-    void StrafeBehavior(GameObject* owner);   // 横移動行動
-    void RepositionBehavior(GameObject* owner); // 移動行動
-    void CoverBehavior(GameObject* owner);    // 掩蓋行動
-    void ReturnBehavior(GameObject* owner);   // 帰還行動（新規追加）
+    // 各状態の行動
+    void IdleBehavior(GameObject* owner);
+    void CombatBehavior(GameObject* owner);
+    void PatrolBehavior(GameObject* owner);
+    void RepositionBehavior(GameObject* owner);
+    void StrafeBehavior(GameObject* owner);
+    void RetreatBehavior(GameObject* owner);
 
-    bool IsPlayerVisible(GameObject* owner);  // プレイヤーが視界に入っているか
-    void FireWeapon(GameObject* owner);       // 武器発射
-    Vector3 GetForwardVector(GameObject* owner); // 前方向ベクトル取得
+    // 補助メソッド
+    void AimAtTarget(GameObject* owner);
+    void FireWeapon(GameObject* owner);
+    bool IsTargetVisible(GameObject* owner);
+    bool IsInAttackRange(GameObject* owner);
+    bool IsInExtendedAttackRange(GameObject* owner);
+    Vector3 GetRandomStrafeDirection(GameObject* owner);
+    void InitializePatrolPoints(const Vector3& centerPoint, float radius);
 
-    State currentState_ = State::Patrol;
-    GameObject* target_ = nullptr;            // 追跡対象（プレイヤー）
+    // 移動計算用のヘルパー
+    Vector3 CalculateSmoothMovement(const Vector3& currentPos, const Vector3& targetPos, float maxDistance);
+    float LimitMovementSpeed(float baseSpeed, float dt);
+    void ForceMovement(GameObject* owner); // 動きが止まった時の強制移動用
 
-    // パラメーター
-    float stateTimer_ = 0.0f;                 // 状態タイマー
-    float moveSpeed_ = 3.0f;                  // 移動速度
-    float attackRange_ = 15.0f;               // 攻撃範囲
-    float detectionRange_ = 25.0f;            // 検出範囲
-    float maxDistance_ = 20.0f;               // プレイヤーとの最大許容距離
-    float strafeRadius_ = 8.0f;               // 横移動半径
-    float strafeAngle_ = 0.0f;                // 横移動角度
-    float burstCooldown_ = 0.0f;              // バースト攻撃クールダウン
-    int burstCount_ = 0;                      // バースト弾数カウント
-    int maxBurstCount_ = 5;                   // 最大バースト弾数
+    // 動きの停止検出
+    bool IsStuck(GameObject* owner);
 
-    // 巡回ポイント
+    // メンバ変数
+    State currentState_ = State::Idle;
+    GameObject* target_ = nullptr;
+
+    // タイマー
+    float stateTimer_ = 0.0f;
+    float strafeTimer_ = 0.0f;
+    float actionCooldown_ = 0.0f;
+    float positionCheckTimer_ = 0.0f;
+
+    // 動き停止検出用
+    Vector3 lastPosition_;
+    float stuckTimer_ = 0.0f;
+    float stuckThreshold_ = 1.0f; // 1秒間動きがなければ停止と判断
+    bool potentiallyStuck_ = false;
+
+    // 移動パラメータ
+    float moveSpeed_ = 2.0f;
+    float maxMoveDistancePerFrame_ = 0.3f;
+    float attackRange_ = 18.0f;      // 最適射撃距離
+    float minRange_ = 10.0f;         // 最小距離
+    float maxRange_ = 25.0f;         // 最大距離
+    float extendedMinRange_ = 8.0f;  // 拡張最小
+    float extendedMaxRange_ = 25.0f; // 拡張最大
+    float detectionRange_ = 35.0f;   // 検知範囲
+
+    // 横移動用
+    Vector3 strafeDirection_;
+    float strafeChangeInterval_ = 1.5f;
+    float strafeTendencyFactor_ = 0.5f;
+
+    // 位置調整用
+    Vector3 lastValidPosition_;
+    float repositionSpeed_ = 0.0f;
+	float maxRepositionSpeed_ = 1.0f; // 最大リポジション速度
+
+    // 巡回用
     std::vector<Vector3> patrolPoints_;
     int currentPatrolIndex_ = 0;
-    bool patrolReverse_ = false;              // 巡回方向反転
+    float patrolRadius_ = 20.0f;
+    bool patrolInitialized_ = false;
+    float patrolSpeed_ = 0.6f;
 
-    // 移動関連
-    Vector3 lastValidPosition_;               // 最後の有効な位置
-    float positionUpdateTimer_ = 0.0f;        // 位置更新タイマー
+    // 乱数生成
+    std::mt19937 rng_;
 };

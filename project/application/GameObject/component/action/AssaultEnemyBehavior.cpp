@@ -1,289 +1,249 @@
 #include "AssaultEnemyBehavior.h"
 #include "AssaultRifleComponent.h"
 #include "application/GameObject/base/GameObject.h"
-#include "imgui/imgui.h"
 #include "math/MathUtils.h"
-#include "input/Input.h"
-#include "line/LineManager.h"
-#include "lighting/VectorColorCodes.h"
-#include "application/GameObject/component/action/AssaultRifleComponent.h"
+#include <cmath>
+#include <algorithm>
+#include <random>
 
 AssaultEnemyBehavior::AssaultEnemyBehavior(GameObject* target) : target_(target)
 {
-    // 初期パトロールポイントの設定
-    patrolPoints_ = {
-        Vector3(10.0f, 0.0f, 10.0f),
-        Vector3(-10.0f, 0.0f, 10.0f),
-        Vector3(-10.0f, 0.0f, -10.0f),
-        Vector3(10.0f, 0.0f, -10.0f)
-    };
+    // 乱数生成器の初期化
+    std::random_device rd;
+    rng_ = std::mt19937(rd());
 
-    // 初期状態設定
-    if (target)
+    // ターゲットがある場合は戦闘状態からスタート
+    if (target_)
     {
-        currentState_ = State::Engage;
+        currentState_ = State::Combat;
     }
-    else
-    {
-        currentState_ = State::Patrol;
-    }
+
+    // 初期位置を有効な位置として保存
+    lastValidPosition_ = Vector3(0, 0, 0);
+    lastPosition_ = Vector3(0, 0, 0);
 }
 
 void AssaultEnemyBehavior::Update(GameObject* owner)
 {
+    // タイマー更新
+    stateTimer_ += 1.0f / 60.0f;
+    positionCheckTimer_ += 1.0f / 60.0f;
 
-#ifdef _DEBUG
-	ImGui::Begin("AssaultEnemyBehavior");
-    Vector3 targetPos = target_->GetPosition();
-    Vector3 direction = targetPos - owner->GetPosition();
-    float distance = direction.Length();
-	ImGui::Text("Distance to Target: %.2f", distance);
-    ImGui::End();
-#endif
-
-    // クールダウン更新
-    if (burstCooldown_ > 0)
+    if (actionCooldown_ > 0)
     {
-        burstCooldown_ -= 1.0f / 60.0f;
+        actionCooldown_ -= 1.0f / 60.0f;
     }
 
-    // 位置記録更新タイマー
-    positionUpdateTimer_ += 1.0f / 60.0f;
-    if (positionUpdateTimer_ >= 1.0f)
-    {  // 1秒ごとに有効な位置を記録
+    // 動き停止の検出
+    if (IsStuck(owner))
+    {
+        ForceMovement(owner);
+    }
+
+    // 最後の位置を更新
+    lastPosition_ = owner->GetPosition();
+
+    // 一定間隔で現在位置を有効な位置として保存
+    if (positionCheckTimer_ > 2.0f && IsInExtendedAttackRange(owner))
+    {
         lastValidPosition_ = owner->GetPosition();
-        positionUpdateTimer_ = 0.0f;
+        positionCheckTimer_ = 0.0f;
     }
 
-    // ターゲットが設定されていなければ巡回モードに設定
-    if (!target_ && currentState_ != State::Patrol)
+    // ターゲットがなくなった場合はIdle状態へ
+    if (!target_ && currentState_ != State::Idle)
+    {
+        currentState_ = State::Idle;
+        stateTimer_ = 0.0f;
+    }
+
+    // ターゲットがあるが、検知範囲外の場合は巡回状態へ
+    if (target_ && !IsTargetVisible(owner) &&
+        currentState_ != State::Patrol && currentState_ != State::Idle)
     {
         currentState_ = State::Patrol;
-    }
 
-    // ターゲットとの距離チェック（テレポート防止）
-    if (target_)
-    {
-        Vector3 targetPos = target_->GetPosition();
-        Vector3 direction = targetPos - owner->GetPosition();
-        float distance = direction.Length();
-
-        // 最大距離を超えたら帰還モードに切り替え
-        if (distance > maxDistance_ && currentState_ != State::Return)
+        // 初回のみパトロールポイントを初期化
+        if (!patrolInitialized_)
         {
-            currentState_ = State::Return;
-            stateTimer_ = 0.0f;
+            InitializePatrolPoints(owner->GetPosition(), patrolRadius_);
+            patrolInitialized_ = true;
         }
+        stateTimer_ = 0.0f;
     }
 
     // ステートマシン
     switch (currentState_)
     {
+    case State::Idle:
+        IdleBehavior(owner);
+        break;
+    case State::Combat:
+        CombatBehavior(owner);
+        break;
     case State::Patrol:
         PatrolBehavior(owner);
-        break;
-    case State::Engage:
-        EngageBehavior(owner);
-        break;
-    case State::Strafe:
-        StrafeBehavior(owner);
         break;
     case State::Reposition:
         RepositionBehavior(owner);
         break;
-    case State::Cover:
-        CoverBehavior(owner);
+    case State::Strafe:
+        StrafeBehavior(owner);
         break;
-    case State::Return:
-        ReturnBehavior(owner);
+    case State::Retreat:
+        RetreatBehavior(owner);
         break;
     }
 
-    // 状態タイマー更新
-    stateTimer_ += 1.0f / 60.0f;
-
-	if (currentState_ == State::Engage || currentState_ == State::Strafe || currentState_ == State::Reposition)
-	{
-        FireWeapon(owner);
-	}
+    // 戦闘中かつターゲットが見えている場合は常にターゲットの方を向く
+    if (target_ && (currentState_ == State::Combat ||
+                    currentState_ == State::Reposition ||
+                    currentState_ == State::Strafe ||
+                    currentState_ == State::Retreat))
+    {
+        AimAtTarget(owner);
+    }
 }
 
-void AssaultEnemyBehavior::PatrolBehavior(GameObject* owner)
+void AssaultEnemyBehavior::IdleBehavior(GameObject* owner)
 {
-    // ターゲットが視界内にいれば戦闘モードへ
-    if (target_ && IsPlayerVisible(owner))
+    // 待機状態 - ターゲットを見つけたら戦闘状態へ
+    if (target_ && IsTargetVisible(owner))
     {
-        currentState_ = State::Engage;
+        currentState_ = State::Combat;
         stateTimer_ = 0.0f;
-        return;
-    }
-
-    // パトロールポイントに向かって移動
-    if (!patrolPoints_.empty())
-    {
-        Vector3 targetPoint = patrolPoints_[currentPatrolIndex_];
-        Vector3 direction = targetPoint - owner->GetPosition();
-
-        // 到着したら次のポイントへ
-        if (direction.Length() < 1.0f)
-        {
-            if (patrolReverse_)
-            {
-                currentPatrolIndex_--;
-                if (currentPatrolIndex_ < 0)
-                {
-                    currentPatrolIndex_ = 1;
-                    patrolReverse_ = false;
-                }
-            }
-            else
-            {
-                currentPatrolIndex_++;
-                if (currentPatrolIndex_ >= patrolPoints_.size())
-                {
-                    currentPatrolIndex_ = patrolPoints_.size() - 2;
-                    patrolReverse_ = true;
-                }
-            }
-            return;
-        }
-
-        // 移動処理
-        Vector3 normalizedDir = direction;  // ベクトルをコピー
-        normalizedDir.Normalize();  // 正規化
-
-        // 距離と速度に応じた移動（急激な位置変更を防止）
-        float moveDistance = std::min(moveSpeed_ * 0.5f * (1.0f / 60.0f), direction.Length());
-        owner->SetPosition(owner->GetPosition() + normalizedDir * moveDistance);
-
-        // 移動方向に向かせる
-        float angle = atan2(normalizedDir.x, normalizedDir.z);
-        owner->SetRotation(Vector3(0, angle, 0));
     }
 }
 
-void AssaultEnemyBehavior::EngageBehavior(GameObject* owner)
+void AssaultEnemyBehavior::CombatBehavior(GameObject* owner)
 {
     if (!target_)
     {
-        currentState_ = State::Patrol;
+        currentState_ = State::Idle;
         return;
     }
 
+    // ターゲットとの距離を計算
     Vector3 targetPos = target_->GetPosition();
     Vector3 direction = targetPos - owner->GetPosition();
     float distance = direction.Length();
 
-    // プレイヤーとの距離に応じて行動を変える
-    if (distance > attackRange_ * 1.5f)
+    // ターゲットが検知範囲外なら巡回へ
+    if (distance > detectionRange_)
     {
-        // プレイヤーが遠い場合は近づく
-        currentState_ = State::Reposition;
+        currentState_ = State::Patrol;
+        if (!patrolInitialized_)
+        {
+            InitializePatrolPoints(owner->GetPosition(), patrolRadius_);
+            patrolInitialized_ = true;
+        }
+        stateTimer_ = 0.0f;
+        return;
+    }
+
+    // 距離による行動分岐
+    if (distance < extendedMinRange_)
+    {
+        // 近すぎる場合は後退
+        currentState_ = State::Retreat;
         stateTimer_ = 0.0f;
     }
-    else if (distance < attackRange_ * 0.5f)
+    else if (distance > extendedMaxRange_)
     {
-        // プレイヤーが近すぎる場合は距離を取る
-        Vector3 normalizedDir = direction;  // ベクトルをコピー
-        normalizedDir.Normalize();  // 正規化
-        Vector3 retreatDir = -normalizedDir;  // 反転して後退ベクトルを作成
+        // 遠すぎる場合は接近
+        currentState_ = State::Reposition;
+        stateTimer_ = 0.0f;
+        repositionSpeed_ = 0.0f;
+    }
+    else if (IsInAttackRange(owner))
+    {
+        // 攻撃範囲内なら攻撃
+        FireWeapon(owner);
 
-        // 速度制限をかけて移動（テレポート防止）
-        float moveDistance = std::min(moveSpeed_ * (1.0f / 60.0f), distance * 0.1f);
-        owner->SetPosition(owner->GetPosition() + retreatDir * moveDistance);
+        // 一定時間経過後に横移動へ
+        if (stateTimer_ > 1.5f + (std::uniform_real_distribution<float>(0, 1)(rng_) * 1.0f))
+        {
+            currentState_ = State::Strafe;
+            strafeDirection_ = GetRandomStrafeDirection(owner);
+            stateTimer_ = 0.0f;
+            strafeTimer_ = 0.0f;
+        }
+    }
+    else if (!IsInExtendedAttackRange(owner))
+    {
+        // 拡張範囲外なら位置調整
+        currentState_ = State::Reposition;
+        stateTimer_ = 0.0f;
+        repositionSpeed_ = 0.0f;
     }
     else
     {
-        // 最適距離ならバースト攻撃
-        if (burstCooldown_ <= 0.0f)
+        // 拡張範囲内だが攻撃範囲外の場合、確率で横移動か位置調整へ
+        if (stateTimer_ > 1.5f)
         {
-            FireWeapon(owner);
-            burstCount_++;
-
-            if (burstCount_ >= maxBurstCount_)
+            if (std::uniform_real_distribution<float>(0, 1)(rng_) < 0.7f)
             {
-                burstCount_ = 0;
-                burstCooldown_ = 1.5f;
-
-                // バースト後は横移動へ
                 currentState_ = State::Strafe;
-                stateTimer_ = 0.0f;
-                strafeAngle_ = (rand() % 2 == 0) ? 0.0f : 3.14159f; // 左右ランダム
+                strafeDirection_ = GetRandomStrafeDirection(owner);
             }
+            else
+            {
+                currentState_ = State::Reposition;
+                repositionSpeed_ = 0.0f;
+            }
+            stateTimer_ = 0.0f;
+            strafeTimer_ = 0.0f;
         }
-    }
-
-    // プレイヤーの方向に向ける
-    Vector3 normalizedDir = direction;
-    normalizedDir.Normalize();
-    float angle = atan2(normalizedDir.x, normalizedDir.z);
-    owner->SetRotation(Vector3(0, angle, 0));
-
-    // 一定時間経過で横移動に変更
-    if (stateTimer_ > 3.0f)
-    {
-        currentState_ = State::Strafe;
-        stateTimer_ = 0.0f;
-        strafeAngle_ = (rand() % 2 == 0) ? 0.0f : 3.14159f; // 左右ランダム
     }
 }
 
-void AssaultEnemyBehavior::StrafeBehavior(GameObject* owner)
+void AssaultEnemyBehavior::PatrolBehavior(GameObject* owner)
 {
-    if (!target_)
+    // パトロールポイントがなければ初期化
+    if (patrolPoints_.empty())
     {
-        currentState_ = State::Patrol;
-        return;
+        InitializePatrolPoints(owner->GetPosition(), patrolRadius_);
     }
 
-    Vector3 targetPos = target_->GetPosition();
-    Vector3 toTarget = targetPos - owner->GetPosition();
-    float distance = toTarget.Length();
-
-    // 距離が適正範囲外なら位置調整
-    if (distance < attackRange_ * 0.5f || distance > attackRange_ * 1.5f)
+    // ターゲットが検知範囲内に入ったら戦闘状態へ
+    if (target_ && IsTargetVisible(owner))
     {
-        currentState_ = State::Reposition;
+        currentState_ = State::Combat;
         stateTimer_ = 0.0f;
         return;
     }
 
-    // 横移動ベクトルの計算
-    Vector3 forward = toTarget;
-    forward.Normalize();
-    Vector3 right = Vector3(forward.z, 0, -forward.x); // 直交ベクトル
+    // 現在のパトロールポイントへ移動
+    Vector3 targetPoint = patrolPoints_[currentPatrolIndex_];
+    Vector3 direction = targetPoint - owner->GetPosition();
+    float distance = direction.Length();
 
-    // サイン波で揺らす横移動
-    strafeAngle_ += 0.02f;
-    float strafeValue = sin(strafeAngle_);
-    Vector3 strafeDir = right * strafeValue;
+    // パトロールポイントに到着したら次のポイントへ
+    if (distance < 1.5f)
+    {
+        currentPatrolIndex_ = (currentPatrolIndex_ + 1) % patrolPoints_.size();
+        return;
+    }
 
-    // 横移動を適用（距離に応じて移動量を制限）
-    float moveDistance = moveSpeed_ * 0.6f * (1.0f / 60.0f);
-    owner->SetPosition(owner->GetPosition() + strafeDir * moveDistance);
+    // 移動
+    direction.Normalize();
+    float moveDistance = LimitMovementSpeed(moveSpeed_ * patrolSpeed_, 1.0f / 60.0f);
+    owner->SetPosition(owner->GetPosition() + direction * moveDistance);
 
-    // プレイヤーの方向を向き続ける
-    float angle = atan2(forward.x, forward.z);
+    // 移動方向を向く
+    float angle = atan2(direction.x, direction.z);
     owner->SetRotation(Vector3(0, angle, 0));
 
-    // ときどき攻撃
-    if (burstCooldown_ <= 0.0f && stateTimer_ > 0.5f)
+    // 一定時間ごとにターゲットの位置を確認
+    if (stateTimer_ > 3.0f)
     {
-        FireWeapon(owner);
-        burstCount_++;
-
-        if (burstCount_ >= 3)
-        { // 短いバースト
-            burstCount_ = 0;
-            burstCooldown_ = 1.0f;
-        }
-    }
-
-    // 横移動終了条件
-    if (stateTimer_ > 2.5f)
-    {
-        currentState_ = State::Engage;
         stateTimer_ = 0.0f;
+
+        // ターゲットが存在し、検知範囲内なら戦闘状態へ
+        if (target_ && IsTargetVisible(owner))
+        {
+            currentState_ = State::Combat;
+        }
     }
 }
 
@@ -291,137 +251,205 @@ void AssaultEnemyBehavior::RepositionBehavior(GameObject* owner)
 {
     if (!target_)
     {
-        currentState_ = State::Patrol;
+        currentState_ = State::Idle;
         return;
     }
 
+    // ターゲット方向を計算
     Vector3 targetPos = target_->GetPosition();
     Vector3 direction = targetPos - owner->GetPosition();
     float distance = direction.Length();
 
-    // 最適な射撃距離に調整
-    float optimalDistance = attackRange_ * 0.8f;
+    // 検知範囲外なら巡回へ
+    if (distance > detectionRange_)
+    {
+        currentState_ = State::Patrol;
+        stateTimer_ = 0.0f;
+        return;
+    }
 
+    // 最適な攻撃距離を目指す
+    float optimalDistance = (attackRange_ + minRange_) / 2.0f;
+
+    // 徐々に加速（滑らかな動きのため）
+    repositionSpeed_ = std::min(repositionSpeed_ + 0.05f, maxRepositionSpeed_);
+
+    // 遠すぎる場合は位置復帰
+    if (distance > extendedMaxRange_ * 1.5f)
+    {
+        // 範囲が大きすぎる場合は最後の有効位置に戻る
+        if (lastValidPosition_ != Vector3(0, 0, 0))
+        {
+            Vector3 toLastValid = lastValidPosition_ - owner->GetPosition();
+            float lastValidDist = toLastValid.Length();
+
+            if (lastValidDist > 0.5f)
+            {
+                toLastValid.Normalize();
+                float moveDistance = LimitMovementSpeed(moveSpeed_ * 1.2f, 1.0f / 60.0f);
+                owner->SetPosition(owner->GetPosition() + toLastValid * moveDistance * repositionSpeed_);
+                return;
+            }
+        }
+    }
+
+    // 最適距離に到達したら戦闘状態へ
+    if (std::abs(distance - optimalDistance) < 2.0f)
+    {
+        currentState_ = State::Combat;
+        stateTimer_ = 0.0f;
+        return;
+    }
+
+    // ターゲットへの移動ベクトル
+    direction.Normalize();
+    float moveDistance = LimitMovementSpeed(moveSpeed_, 1.0f / 60.0f);
+
+    // 最適距離より遠い場合は接近、近い場合は後退
     if (distance > optimalDistance)
     {
-        // 接近（距離に応じて移動量を調整）
-        Vector3 normalizedDir = direction;
-        normalizedDir.Normalize();
-
-        // 移動距離制限（テレポート防止）
-        float moveDistance = std::min(moveSpeed_ * 1.2f * (1.0f / 60.0f), distance * 0.05f);
-        owner->SetPosition(owner->GetPosition() + normalizedDir * moveDistance);
+        owner->SetPosition(owner->GetPosition() + direction * moveDistance * repositionSpeed_);
     }
     else
     {
-        // 最適距離に達したら戦闘モードに
-        currentState_ = State::Engage;
-        stateTimer_ = 0.0f;
+        owner->SetPosition(owner->GetPosition() - direction * moveDistance * repositionSpeed_);
     }
 
-    // プレイヤーの方向に向ける
-    Vector3 normalizedDir = direction;
-    normalizedDir.Normalize();
-    float angle = atan2(normalizedDir.x, normalizedDir.z);
-    owner->SetRotation(Vector3(0, angle, 0));
-}
-
-void AssaultEnemyBehavior::CoverBehavior(GameObject* owner)
-{
-    // 掩蓋行動（実装は環境依存）
-    // 一定時間後に戦闘状態に戻る
-    if (stateTimer_ > 3.0f)
+    // 一定時間経過でストレイフへ切り替え
+    if (stateTimer_ > 2.0f)
     {
-        currentState_ = State::Engage;
+        currentState_ = State::Strafe;
+        strafeDirection_ = GetRandomStrafeDirection(owner);
         stateTimer_ = 0.0f;
+        strafeTimer_ = 0.0f;
     }
 }
 
-void AssaultEnemyBehavior::ReturnBehavior(GameObject* owner)
+void AssaultEnemyBehavior::StrafeBehavior(GameObject* owner)
 {
     if (!target_)
     {
-        currentState_ = State::Patrol;
+        currentState_ = State::Idle;
         return;
     }
 
+    strafeTimer_ += 1.0f / 60.0f;
+
+    // ターゲットとの距離を計算
     Vector3 targetPos = target_->GetPosition();
     Vector3 direction = targetPos - owner->GetPosition();
     float distance = direction.Length();
 
-    // ====== 徹底的に速度を抑制 ======
-    Vector3 normalizedDir = direction;
-    normalizedDir.Normalize();
-
-    // 移動速度を大幅に抑制（元の5分の1程度の速さに）
-    float baseSpeed = moveSpeed_ * 0.2f;
-
-    // 距離に比例する係数も大幅に小さくする
-    float distanceFactor = 0.005f;  // 元の0.05fから10分の1に
-
-    // 特に重要: 移動距離計算を抑制
-    float moveDistance = std::min(baseSpeed * (1.0f / 60.0f), distance * distanceFactor);
-
-    // さらに、経過時間によって徐々に速度を上げるのではなく、常に一定のゆっくりした速度を維持
-    // 最大でも通常の移動速度の30%を超えないようにする
-    moveDistance = std::min(moveDistance, moveSpeed_ * 0.3f * (1.0f / 60.0f));
-
-    // 移動
-    owner->SetPosition(owner->GetPosition() + normalizedDir * moveDistance);
-
-    // プレイヤーの方向を向く
-    float angle = atan2(normalizedDir.x, normalizedDir.z);
-    owner->SetRotation(Vector3(0, angle, 0));
-
-    // 距離判定も緩やかに - 十分に近づいた場合のみ状態を変更
-    // かつ、最低でも3秒は徐々に近づく動作を維持
-    if (distance < attackRange_ * 1.0f && stateTimer_ > 3.0f)
+    // 検知範囲外なら巡回へ
+    if (distance > detectionRange_)
     {
-        // 戦闘モードではなく、まず位置調整モードに移行し、そこからさらに徐々に接近
-        currentState_ = State::Reposition;
+        currentState_ = State::Patrol;
+        stateTimer_ = 0.0f;
+        return;
+    }
+
+    // 一定時間ごとに横移動方向を変更
+    if (strafeTimer_ > strafeChangeInterval_)
+    {
+        strafeDirection_ = GetRandomStrafeDirection(owner);
+        strafeTimer_ = 0.0f;
+    }
+
+    // 横移動を適用
+    float moveDistance = LimitMovementSpeed(moveSpeed_ * 0.6f, 1.0f / 60.0f);
+    owner->SetPosition(owner->GetPosition() + strafeDirection_ * moveDistance);
+
+    // 攻撃可能なら攻撃
+    if (IsInAttackRange(owner))
+    {
+        FireWeapon(owner);
+    }
+
+    // 一定時間経過で戦闘状態へ戻る
+    if (stateTimer_ > 2.0f)
+    {
+        currentState_ = State::Combat;
         stateTimer_ = 0.0f;
     }
 
-    // 最後の有効位置への移動も、同様に徐々に行う（テレポートではなく）
-    // タイマーの条件は維持するが、移動自体は常にゆっくり
-    if (stateTimer_ > 8.0f)
+    // 範囲外に大きく外れたら位置調整
+    if (distance < extendedMinRange_ * 0.7f || distance > extendedMaxRange_ * 1.3f)
     {
-        Vector3 toLastValid = lastValidPosition_ - owner->GetPosition();
-        float distToLastValid = toLastValid.Length();
-
-        if (distToLastValid > 1.0f)
-        {
-            Vector3 dirToLastValid = toLastValid;
-            dirToLastValid.Normalize();
-
-            // 非常にゆっくり最後の有効位置に近づける
-            float lastValidMoveDistance = std::min(moveSpeed_ * 0.15f * (1.0f / 60.0f), distToLastValid * 0.03f);
-            owner->SetPosition(owner->GetPosition() + dirToLastValid * lastValidMoveDistance);
-        }
-        else
-        {
-            // 最後の有効位置に十分近づいたら位置調整モードに移行
-            currentState_ = State::Reposition;
-            stateTimer_ = 0.0f;
-        }
+        currentState_ = State::Reposition;
+        stateTimer_ = 0.0f;
+        repositionSpeed_ = 0.0f;
     }
+}
+
+void AssaultEnemyBehavior::RetreatBehavior(GameObject* owner)
+{
+    if (!target_)
+    {
+        currentState_ = State::Idle;
+        return;
+    }
+
+    // ターゲットとの距離を計算
+    Vector3 targetPos = target_->GetPosition();
+    Vector3 direction = targetPos - owner->GetPosition();
+    float distance = direction.Length();
+
+    // 検知範囲外なら巡回へ
+    if (distance > detectionRange_)
+    {
+        currentState_ = State::Patrol;
+        stateTimer_ = 0.0f;
+        return;
+    }
+
+    // ターゲットから離れる方向を計算
+    direction.Normalize();
+    Vector3 retreatDirection = -direction;
+
+    // 後退移動
+    float moveDistance = LimitMovementSpeed(moveSpeed_ * 1.2f, 1.0f / 60.0f);
+    owner->SetPosition(owner->GetPosition() + retreatDirection * moveDistance);
+
+    // 十分な距離が確保できたら戦闘状態へ
+    if (distance >= minRange_ * 1.2f)
+    {
+        currentState_ = State::Combat;
+        stateTimer_ = 0.0f;
+    }
+
+    // 一定時間経過でも横移動へ
+    if (stateTimer_ > 1.0f)
+    {
+        currentState_ = State::Strafe;
+        strafeDirection_ = GetRandomStrafeDirection(owner);
+        stateTimer_ = 0.0f;
+        strafeTimer_ = 0.0f;
+    }
+}
+
+void AssaultEnemyBehavior::AimAtTarget(GameObject* owner)
+{
+    // ターゲット方向を向く
+    if (!target_) return;
+
+    Vector3 targetPos = target_->GetPosition();
+    Vector3 direction = targetPos - owner->GetPosition();
+    direction.Normalize();
+
+    float angle = atan2(direction.x, direction.z);
+    owner->SetRotation(Vector3(0, angle, 0));
 }
 
 void AssaultEnemyBehavior::FireWeapon(GameObject* owner)
 {
-	owner->GetComponent<AssaultRifleComponent>()->Fire();
-
-    // デバッグ表示用
-#ifdef _DEBUG
-    // 発射方向に線を描画
-    Vector3 forward = GetForwardVector(owner);
-    Vector3 start = owner->GetPosition();
-    Vector3 end = start + forward * 10.0f;
-	LineManager::GetInstance()->DrawLine(start, end, VectorColorCodes::Red);
-#endif
+    // アサルトライフルコンポーネントのFire()メソッドを呼び出す
+    if (auto weapon = owner->GetComponent<AssaultRifleComponent>())
+    {
+        weapon->Fire();
+    }
 }
 
-bool AssaultEnemyBehavior::IsPlayerVisible(GameObject* owner)
+bool AssaultEnemyBehavior::IsTargetVisible(GameObject* owner)
 {
     if (!target_) return false;
 
@@ -430,27 +458,162 @@ bool AssaultEnemyBehavior::IsPlayerVisible(GameObject* owner)
     float distance = direction.Length();
 
     // 距離チェック
-    if (distance > detectionRange_)
-    {
-        return false;
-    }
-
-    // 視線チェック（環境によって実装が異なる）
-    // ここでは単純に距離だけでチェック
-    return true;
+    return (distance <= detectionRange_);
 }
 
-Vector3 AssaultEnemyBehavior::GetForwardVector(GameObject* owner)
+bool AssaultEnemyBehavior::IsInAttackRange(GameObject* owner)
 {
-    // オブジェクトの回転から前方ベクトルを計算
-    Vector3 rotation = owner->GetRotation();
-    float angleY = rotation.y;
+    if (!target_) return false;
 
-    // Y軸回転から前方向ベクトルを計算
-    Vector3 forward;
-    forward.x = sin(angleY);
-    forward.y = 0.0f;
-    forward.z = cos(angleY);
+    Vector3 targetPos = target_->GetPosition();
+    Vector3 direction = targetPos - owner->GetPosition();
+    float distance = direction.Length();
 
-    return forward;
+    // 最適攻撃距離の範囲内にいるか
+    return (distance >= minRange_ && distance <= maxRange_);
+}
+
+bool AssaultEnemyBehavior::IsInExtendedAttackRange(GameObject* owner)
+{
+    if (!target_) return false;
+
+    Vector3 targetPos = target_->GetPosition();
+    Vector3 direction = targetPos - owner->GetPosition();
+    float distance = direction.Length();
+
+    // 拡張された攻撃範囲
+    return (distance >= extendedMinRange_ && distance <= extendedMaxRange_);
+}
+
+Vector3 AssaultEnemyBehavior::GetRandomStrafeDirection(GameObject* owner)
+{
+    if (!target_) return Vector3(1.0f, 0, 0);
+
+    // ターゲットへの方向
+    Vector3 toTarget = target_->GetPosition() - owner->GetPosition();
+    float distanceToTarget = toTarget.Length();
+    toTarget.Normalize();
+
+    // 横方向ベクトル
+    Vector3 right(toTarget.z, 0, -toTarget.x);
+
+    // ランダム要素
+    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+    float randomValue = dist(rng_);
+
+    // ターゲットとの距離に応じて円運動を調整
+    float optimalDistance = (attackRange_ + minRange_) / 2.0f;
+    float distanceFactor = std::min(1.0f, std::abs(distanceToTarget - optimalDistance) / (maxRange_ - minRange_));
+
+    // 横方向と前後方向を混ぜる
+    Vector3 strafeDir;
+
+    if (distanceToTarget > optimalDistance)
+    {
+        // 遠い場合は接近しながら横移動
+        strafeDir = right * randomValue * strafeTendencyFactor_ + toTarget * (1.0f - strafeTendencyFactor_ + distanceFactor * 0.3f);
+    }
+    else
+    {
+        // 近い場合は離れながら横移動
+        strafeDir = right * randomValue * strafeTendencyFactor_ - toTarget * (1.0f - strafeTendencyFactor_ + distanceFactor * 0.3f);
+    }
+
+    strafeDir.Normalize();
+    return strafeDir;
+}
+
+void AssaultEnemyBehavior::InitializePatrolPoints(const Vector3& centerPoint, float radius)
+{
+    patrolPoints_.clear();
+
+    // 8点の巡回ポイントを生成
+    const int numPoints = 8;
+    for (int i = 0; i < numPoints; i++)
+    {
+        float angle = (i * 2.0f * 3.14159f) / numPoints;
+        float x = centerPoint.x + radius * std::cos(angle);
+        float z = centerPoint.z + radius * std::sin(angle);
+        patrolPoints_.push_back(Vector3(x, centerPoint.y, z));
+    }
+
+    // ランダムな開始位置
+    currentPatrolIndex_ = std::uniform_int_distribution<int>(0, numPoints - 1)(rng_);
+}
+
+Vector3 AssaultEnemyBehavior::CalculateSmoothMovement(const Vector3& currentPos, const Vector3& targetPos, float maxDistance)
+{
+    Vector3 direction = targetPos - currentPos;
+    float distance = direction.Length();
+
+    if (distance <= maxDistance)
+    {
+        return targetPos;
+    }
+
+    direction.Normalize();
+    return currentPos + direction * maxDistance;
+}
+
+float AssaultEnemyBehavior::LimitMovementSpeed(float baseSpeed, float dt)
+{
+    // 1フレームあたりの移動距離に上限を設定
+    return std::min(baseSpeed * dt, maxMoveDistancePerFrame_);
+}
+
+bool AssaultEnemyBehavior::IsStuck(GameObject* owner)
+{
+    // 前回の位置と現在の位置を比較
+    Vector3 currentPos = owner->GetPosition();
+    float movement = (currentPos - lastPosition_).Length();
+
+    // 動きがほぼない場合
+    if (movement < 0.01f)
+    {
+        stuckTimer_ += 1.0f / 60.0f;
+
+        // 一定時間動いていなければスタック状態と判定
+        if (stuckTimer_ > stuckThreshold_)
+        {
+            stuckTimer_ = 0.0f;
+            return true;
+        }
+    }
+    else
+    {
+        // 動いていればリセット
+        stuckTimer_ = 0.0f;
+    }
+
+    return false;
+}
+
+void AssaultEnemyBehavior::ForceMovement(GameObject* owner)
+{
+    // スタック状態を解消するための緊急移動
+
+    // 現在の状態を変更
+    if (currentState_ == State::Combat || currentState_ == State::Reposition)
+    {
+        // 横移動に変更
+        currentState_ = State::Strafe;
+        strafeDirection_ = GetRandomStrafeDirection(owner);
+        stateTimer_ = 0.0f;
+        strafeTimer_ = 0.0f;
+    }
+    else if (currentState_ == State::Strafe)
+    {
+        // 方向を変える
+        strafeDirection_ = GetRandomStrafeDirection(owner);
+        strafeTimer_ = 0.0f;
+    }
+
+    // 強制的に少し動かす
+    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+    Vector3 randomDir(dist(rng_), 0, dist(rng_));
+    randomDir.Normalize();
+
+    // ランダムな方向に少し移動
+    float forceMove = moveSpeed_ * 0.5f * (1.0f / 60.0f);
+    owner->SetPosition(owner->GetPosition() + randomDir * forceMove);
 }
