@@ -24,6 +24,19 @@ void EnemyManager::Update()
 	{
 		enemy->Update(); // 各敵キャラクターの更新
 	}
+
+	// 敵キャラクターのリストから死亡した敵を削除
+	for (auto it = enemies_.begin(); it != enemies_.end();)
+	{
+		if (!(*it)->IsAlive())
+		{
+			it = enemies_.erase(it); // 死亡した敵を削除
+		}
+		else
+		{
+			++it; // 次の敵へ
+		}
+	}
 }
 
 void EnemyManager::Draw(CameraManager* camera)

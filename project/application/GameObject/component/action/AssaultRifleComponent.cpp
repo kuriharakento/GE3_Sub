@@ -98,7 +98,7 @@ void AssaultRifleComponent::Fire()
 void AssaultRifleComponent::FireBullet(GameObject* owner)
 {
 	// 弾の作成
-	auto bullet = std::make_unique<Bullet>("Bullet");
+	auto bullet = std::make_unique<Bullet>("PlayerBullet");
 
 	// カメラ取得
 	Camera* camera = object3dCommon_->GetDefaultCamera();
@@ -172,7 +172,7 @@ void AssaultRifleComponent::FireBullet(GameObject* owner)
 void AssaultRifleComponent::FireBullet(GameObject* owner, const Vector3& targetPosition)
 {
 	// 弾の作成
-	auto bullet = std::make_unique<Bullet>("Bullet");
+	auto bullet = std::make_unique<Bullet>("EnemyBullet");
 
 	// 発射元の位置
 	Vector3 startPos = owner->GetPosition();

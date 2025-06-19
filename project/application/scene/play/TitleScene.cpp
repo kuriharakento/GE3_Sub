@@ -63,7 +63,7 @@ void TitleScene::Initialize()
 	enemyManager_ = std::make_unique<EnemyManager>();
 	enemyManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(),player.get());
 	//enemyManager_->AddPistolEnemy(1);
-	enemyManager_->AddAssaultEnemy(1);
+	enemyManager_->AddAssaultEnemy(3);
 	//enemyManager_->AddShotgunEnemy(1);
 
 	//オービットカメラワークの生成
