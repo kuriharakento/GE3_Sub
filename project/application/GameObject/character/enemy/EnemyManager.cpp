@@ -16,6 +16,10 @@ void EnemyManager::Initialize(Object3dCommon* object3dCommon, LightManager* ligh
 		{ -10.0f, 1.0f, -10.0f }, // 最小座標
 		{ 10.0f, 1.0f, 10.0f }   // 最大座標
 	};
+
+	// エフェクトの初期化
+	deathEffect_ = std::make_unique<EnemyDeathEffect>();
+	deathEffect_->Initialize();
 }
 
 void EnemyManager::Update()
@@ -30,6 +34,7 @@ void EnemyManager::Update()
 	{
 		if (!(*it)->IsAlive())
 		{
+			deathEffect_->PlayDeathEffect((*it)->GetPosition(),EnemyDeathEffect::EffectType::Electric); // 死亡エフェクトを再生
 			it = enemies_.erase(it); // 死亡した敵を削除
 		}
 		else

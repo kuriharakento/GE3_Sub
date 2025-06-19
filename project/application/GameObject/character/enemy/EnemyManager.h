@@ -1,4 +1,5 @@
 #pragma once
+#include "application/effect/EnemyDeathEffect.h"
 #include "application/GameObject/character/enemy/base/EnemyBase.h"
 #include "math/AABB.h"
 
@@ -24,5 +25,8 @@ private:
 	AABB emitRange_ = {};
 
 	std::vector<std::unique_ptr<EnemyBase>> enemies_;
+
+	//エフェクト
+	std::unique_ptr<EnemyDeathEffect> deathEffect_;
 };
 
