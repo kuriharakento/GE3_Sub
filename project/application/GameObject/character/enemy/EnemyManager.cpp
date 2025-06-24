@@ -3,6 +3,7 @@
 #include "application/GameObject/character/enemy/AssaultEnemy.h"
 #include "application/GameObject/character/enemy/PistolEnemy.h"
 #include "application/GameObject/character/enemy/ShotgunEnemy.h"
+#include "ImGui/imgui_internal.h"
 #include "math/MathUtils.h"
 
 void EnemyManager::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, GameObject* target)
@@ -24,6 +25,25 @@ void EnemyManager::Initialize(Object3dCommon* object3dCommon, LightManager* ligh
 
 void EnemyManager::Update()
 {
+#ifdef _DEBUG
+	ImGui::Begin("Enemy Manager");
+	ImGui::Text("Enemy Count: %d", static_cast<int>(enemies_.size()));
+	if (ImGui::Button("Add Pistol Enemy"))
+	{
+		AddPistolEnemy(1); // ピストル敵を1体追加
+	}
+	if (ImGui::Button("Add Assault Enemy"))
+	{
+		AddAssaultEnemy(1); // アサルト敵を1体追加
+	}
+	if (ImGui::Button("Add Shotgun Enemy"))
+	{
+		AddShotgunEnemy(1); // ショットガン敵を1体追加
+	}
+	ImGui::End();
+
+#endif
+
 	for (auto& enemy : enemies_)
 	{
 		enemy->Update(); // 各敵キャラクターの更新

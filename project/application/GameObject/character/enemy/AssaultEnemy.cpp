@@ -18,7 +18,7 @@ void AssaultEnemy::Initialize(Object3dCommon* object3dCommon, LightManager* ligh
 		{
 			isAlive_ = false; // プレイヤーの弾に当たったら死亡
 		}
-						 });
+						});
 	collider->SetOnStay([this](GameObject* other) {
 		// 衝突中の処理をここに記述
 						});
