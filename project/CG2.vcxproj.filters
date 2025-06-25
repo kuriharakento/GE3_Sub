@@ -102,6 +102,8 @@
     <ClCompile Include="application\GameObject\component\action\AssaultEnemyBehavior.cpp" />
     <ClCompile Include="application\effect\DodgeEffectParticle.cpp" />
     <ClCompile Include="application\effect\EnemyDeathEffect.cpp" />
+    <ClCompile Include="application\GameObject\obstacle\Obstacle.cpp" />
+    <ClCompile Include="application\GameObject\obstacle\ObstacleManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -226,6 +228,8 @@
     <ClInclude Include="application\GameObject\component\action\AssaultEnemyBehavior.h" />
     <ClInclude Include="application\effect\DodgeEffectParticle.h" />
     <ClInclude Include="application\effect\EnemyDeathEffect.h" />
+    <ClInclude Include="application\GameObject\obstacle\Obstacle.h" />
+    <ClInclude Include="application\GameObject\obstacle\ObstacleManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

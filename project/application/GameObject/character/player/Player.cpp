@@ -19,7 +19,6 @@ void Player::Initialize(Object3dCommon* object3dCommon, LightManager* lightManag
 	AddComponent("PistolComponent", std::make_unique<AssaultRifleComponent>(object3dCommon, lightManager));
 	// 衝突判定コンポーネント
 	AddComponent("OBBCollider", std::make_unique<OBBColliderComponent>(this));
-
 }
 
 void Player::Update()

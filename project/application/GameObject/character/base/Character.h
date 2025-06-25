@@ -44,7 +44,6 @@ protected:
 	// 基本ステータス
 	float hp_ = 100.0f;
 	float maxHp_ = 100.0f;
-	float speed_ = 5.0f;
 
 	// 状態管理
 	bool isAlive_ = true;

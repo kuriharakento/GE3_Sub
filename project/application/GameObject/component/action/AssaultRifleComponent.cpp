@@ -69,7 +69,6 @@ void AssaultRifleComponent::Update(GameObject* owner)
     for (auto it = bullets_.begin(); it != bullets_.end();)
 		if (!(*it)->IsAlive())
 		{
-			hitEffect_->Play((*it)->GetPosition());
 			it = bullets_.erase(it);
 		}
         else ++it;
@@ -155,10 +154,11 @@ void AssaultRifleComponent::FireBullet(GameObject* owner)
 
 	// 衝突判定コンポーネントを追加
 	auto colliderComp = std::make_unique<OBBColliderComponent>(bullet.get());
-	colliderComp->SetOnEnter([ptr = bullet.get()](GameObject* other) {
+	colliderComp->SetOnEnter([ptr = bullet.get() ,hitEffect = hitEffect_.get()](GameObject* other) {
 		// 敵に当たった場合、弾を消す
 		if (other->GetTag() == "PistolEnemy" || other->GetTag() == "AssaultEnemy" || other->GetTag() == "ShotgunEnemy")
 		{
+			hitEffect->Play(ptr->GetPosition());
 			ptr->SetActive(false);
 		}
 							 });
@@ -199,10 +199,11 @@ void AssaultRifleComponent::FireBullet(GameObject* owner, const Vector3& targetP
 	auto colliderComp = std::make_unique<OBBColliderComponent>(bullet.get());
 
 	// 衝突したときの処理を設定
-	colliderComp->SetOnEnter([ptr = bullet.get()](GameObject* other) {
+	colliderComp->SetOnEnter([ptr = bullet.get() , hitEffect = hitEffect_.get()](GameObject* other) {
 		// 敵に当たった場合、弾を消す
 		if (other->GetTag() == "Player")
 		{
+			hitEffect->Play(other->GetPosition());
 			ptr->SetActive(false);
 		}
 							 });

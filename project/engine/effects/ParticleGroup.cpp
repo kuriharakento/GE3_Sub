@@ -265,6 +265,13 @@ void ParticleGroup::UpdateTranslate(std::list<Particle>::iterator& itr)
 
 void ParticleGroup::UpdateVertexBuffer(const std::vector<VertexData>& vertices)
 {
+	// 古いリソースを明示的に解放
+	if (vertexResource)
+	{
+		vertexResource.Reset();
+		vertexData = nullptr;
+	}
+
 	// 頂点データをGPUへ転送
 	vertexResource = ParticleManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * vertices.size());
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));

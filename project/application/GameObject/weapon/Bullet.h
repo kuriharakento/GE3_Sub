@@ -17,7 +17,10 @@ public:
 
 	void SetActive(bool active) { isAlive_ = active; }
 	bool IsAlive() const { return isAlive_; }
+	void SetAttackPower(float power) { attackPower_ = power; }
+	float GetAttackPower() const { return attackPower_; }
 
 private:
 	bool isAlive_;       // 生死状態
+	float attackPower_ = 10.0f; // 攻撃力
 };

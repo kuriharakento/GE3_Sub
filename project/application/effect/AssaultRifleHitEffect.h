@@ -10,6 +10,6 @@ public:
 
 private:
 	// エミッター
-	std::unique_ptr<ParticleEmitter> emitter_;
+	std::unique_ptr<ParticleEmitter> impactEmitter_;
 };
 

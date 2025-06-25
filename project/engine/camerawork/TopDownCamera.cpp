@@ -1,6 +1,7 @@
 #include "TopDownCamera.h"
 
 #include "base/Camera.h"
+#include "imgui/imgui_internal.h"
 #include "math/MathUtils.h"
 
 void TopDownCamera::Initialize(Camera* camera)
@@ -10,6 +11,19 @@ void TopDownCamera::Initialize(Camera* camera)
 
 void TopDownCamera::Update()
 {
+#ifdef _DEBUG
+	Vector3 cameraPos = camera_->GetTranslate();
+	ImGui::DragFloat3("Camera Position", &cameraPos.x, 0.1f);
+	camera_->SetTranslate(cameraPos);
+	Vector3 cameraRotate = camera_->GetRotate();
+	ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.1f);
+	camera_->SetRotate(cameraRotate);
+	ImGui::DragFloat("Camera Height", &height_, 0.1f);
+	ImGui::DragFloat("Camera Pitch", &pitch_, 0.1f);
+	ImGui::DragFloat("Camera Yaw", &yaw_, 0.1f);
+	ImGui::DragFloat3("Camera Offset", &offset_.x, 0.1f);
+#endif
+
     if (!camera_ || !target_ || !isActive_) return;
 
     // ターゲットの位置を基準にカメラの位置を計算

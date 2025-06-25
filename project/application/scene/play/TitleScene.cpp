@@ -301,6 +301,7 @@ void TitleScene::Update()
 	ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
 	ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
 
+	#pragma region PostProcess
 	ImGui::SeparatorText("PostProcess");
 	if (ImGui::CollapsingHeader("GrayScale"))
 	{
@@ -397,8 +398,9 @@ void TitleScene::Update()
 		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
 	}
+	#pragma endregion
 
-
+	#pragma region
 	ImGui::SeparatorText("camera work");
 
 	static bool splineCameraUpdate = false;
@@ -432,6 +434,7 @@ void TitleScene::Update()
 	{
 		topDownCamera_->Update();
 	}
+	#pragma endregion
 
 	//Jsonエディタの表示
 	JsonEditorManager::GetInstance()->RenderEditUI();

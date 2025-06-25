@@ -16,7 +16,8 @@ void AssaultEnemy::Initialize(Object3dCommon* object3dCommon, LightManager* ligh
 	collider->SetOnEnter([this](GameObject* other) {
 		if (other->GetTag() == "PlayerBullet")
 		{
-			isAlive_ = false; // プレイヤーの弾に当たったら死亡
+			// 体力を減らす
+			hp_ -= 10.0f; //
 		}
 						});
 	collider->SetOnStay([this](GameObject* other) {
