@@ -1,11 +1,13 @@
 #include "GameObject.h"
 
+#include "GameObjectManager.h"
 #include "application/GameObject/component/base/IActionComponent.h"
 #include "base/Logger.h"
 
 GameObject::~GameObject()
 {
 	components_.clear(); // コンポーネントのクリア
+	GameObjectManager::GetInstance()->Unregister(this); // GameObjectManagerからの登録解除
 }
 
 GameObject::GameObject(std::string tag)
@@ -13,6 +15,8 @@ GameObject::GameObject(std::string tag)
 	// タグの初期化
 	assert(!tag.empty() && "ERROR: GameObject::GameObject() - Tag should not be empty. Ensure that you provide a valid tag.");
 	tag_ = tag;
+	// GameObjectManagerに登録
+	GameObjectManager::GetInstance()->Register(this);
 }
 
 void GameObject::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera)
@@ -31,6 +35,7 @@ void GameObject::Initialize(Object3dCommon* object3dCommon, LightManager* lightM
 	};
 	// コンポーネントの初期化
 	components_.clear();
+	// GameObjectManagerに登録
 }
 
 void GameObject::Update()

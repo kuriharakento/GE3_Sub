@@ -14,7 +14,7 @@ void Bullet::Update(float deltaTime)
 
 void Bullet::Draw(CameraManager* camera)
 {
-	// 弾の描画処理（GameObjectの描画機能を使用）
+	// 弾の描画処理
 	if (!isAlive_) return;
 	GameObject::Draw(camera);
 }

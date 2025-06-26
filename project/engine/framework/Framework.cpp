@@ -8,6 +8,8 @@
 #include "manager/TextureManager.h"
 #include <Psapi.h>
 
+#include "application/GameObject/base/GameObjectManager.h"
+
 void Framework::Initialize()
 {
 	//ウィンドウアプリケーションの初期化
@@ -79,28 +81,32 @@ void Framework::Initialize()
 	//ポストプロセスマネージャーの初期化
 	postProcessManager_ = std::make_unique<PostProcessManager>();
 	postProcessManager_->Initialize(dxCommon_.get(), srvManager_.get(), L"Resources/shaders/PostEffect.VS.hlsl", L"Resources/shaders/PostEffect.PS.hlsl");
+
+	// GameObjectManagerの初期化
+	GameObjectManager::GetInstance()->Initialize();
 }
 
 void Framework::Finalize()
 {
 	//NOTE:ここは基本的に触らない
-	sceneManager_.reset();							//シーンマネージャーの解放
-	winApp_->Finalize();							//ウィンドウアプリケーションの終了処理
-	winApp_.reset();									//ウィンドウアプリケーションの解放
-	imguiManager_->Finalize();						//ImGuiManagerの終了処理
-	imguiManager_.reset();							//ImGuiManagerの解放
-	TextureManager::GetInstance()->Finalize();		//テクスチャマネージャーの終了処理
-	dxCommon_.reset();								//DirectXCommonの解放
-	spriteCommon_.reset();							//スプライト共通部の解放
-	objectCommon_.reset();							//3Dオブジェクト共通部の解放
-	ModelManager::GetInstance()->Finalize();		//3Dモデルマネージャーの終了処理
-	ParticleManager::GetInstance()->Finalize();		//パーティクルマネージャーの終了処理
-	Input::GetInstance()->Finalize();				//入力の解放
-	Audio::GetInstance()->Finalize();				//オーディオの解放
-	lightManager_.reset();							//ライトマネージャーの解放
-	LineManager::GetInstance()->Finalize();			//ラインマネージャーの解放
-	renderTexture_.reset();							//レンダーテクスチャの解放
-	postProcessManager_.reset();					//ポストプロセスマネージャーの解放
+	sceneManager_.reset();							// シーンマネージャーの解放
+	winApp_->Finalize();							// ウィンドウアプリケーションの終了処理
+	winApp_.reset();								// ウィンドウアプリケーションの解放
+	imguiManager_->Finalize();						// ImGuiManagerの終了処理
+	imguiManager_.reset();							// ImGuiManagerの解放
+	TextureManager::GetInstance()->Finalize();		// テクスチャマネージャーの終了処理
+	dxCommon_.reset();								// DirectXCommonの解放
+	spriteCommon_.reset();							// スプライト共通部の解放
+	objectCommon_.reset();							// 3Dオブジェクト共通部の解放
+	ModelManager::GetInstance()->Finalize();		// 3Dモデルマネージャーの終了処理
+	ParticleManager::GetInstance()->Finalize();		// パーティクルマネージャーの終了処理
+	Input::GetInstance()->Finalize();				// 入力の解放
+	Audio::GetInstance()->Finalize();				// オーディオの解放
+	lightManager_.reset();							// ライトマネージャーの解放
+	LineManager::GetInstance()->Finalize();			// ラインマネージャーの解放
+	renderTexture_.reset();							// レンダーテクスチャの解放
+	postProcessManager_.reset();					// ポストプロセスマネージャーの解放
+	GameObjectManager::GetInstance()->Finalize();	// GameObjectManagerの終了処理
 }
 
 void Framework::Update()

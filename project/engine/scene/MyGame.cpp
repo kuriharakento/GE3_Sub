@@ -3,6 +3,7 @@
 #include <future>
 #include <chrono>
 #include "3d/ModelManager.h"
+#include "application/GameObject/base/GameObjectManager.h"
 #include "base/Logger.h"
 #include "engine/effects/ParticleManager.h"
 #include "manager/TextureManager.h"
@@ -74,7 +75,10 @@ void MyGame::Update()
 	//ゲームの更新処理
 	sceneManager_->Update();
 
-	//パーティクルマネージャーの更新
+	// GameObjectManagerの更新
+	GameObjectManager::GetInstance()->Update();
+
+	// パーティクルマネージャーの更新
 	ParticleManager::GetInstance()->Update(cameraManager_.get());
 
 	//フレームワークの更新後処理
