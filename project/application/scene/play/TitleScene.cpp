@@ -466,9 +466,9 @@ void TitleScene::Update()
 
 void TitleScene::Draw3D()
 {
-	player->Draw(sceneManager_->GetCameraManager());
+	/*player->Draw(sceneManager_->GetCameraManager());
 
-	enemyManager_->Draw(sceneManager_->GetCameraManager());
+	enemyManager_->Draw(sceneManager_->GetCameraManager());*/
 
 	skydome_->Draw();
 

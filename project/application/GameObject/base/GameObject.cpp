@@ -7,15 +7,17 @@
 GameObject::~GameObject()
 {
 	components_.clear(); // コンポーネントのクリア
-	GameObjectManager::GetInstance()->Unregister(this); // GameObjectManagerからの登録解除
+	isActive_ = false;    // 非アクティブ状態に設定
 }
 
 GameObject::GameObject(std::string tag)
 {
+	// アクティブ状態
+	isActive_ = true;
 	// タグの初期化
 	assert(!tag.empty() && "ERROR: GameObject::GameObject() - Tag should not be empty. Ensure that you provide a valid tag.");
 	tag_ = tag;
-	// GameObjectManagerに登録
+	// GameObjectにポインタを登録
 	GameObjectManager::GetInstance()->Register(this);
 }
 

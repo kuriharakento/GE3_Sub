@@ -17,11 +17,13 @@ public:
 	void Draw(CameraManager* camera);
 	// GameObjectのポインタを登録する
 	void Register(GameObject* gameObject);
-	// GameObjectのポインタをリストから削除する
+	// GameObjectのポインタを削除する
 	void Unregister(GameObject* gameObject);
-
+	
 private:
 	// GameObjectのリスト
 	std::vector<GameObject*> gameObjects_;
+	// 削除予定のGameObjectリスト
+	std::vector<GameObject*> pendingRemoval_;
 };
 

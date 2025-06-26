@@ -29,43 +29,58 @@ void GameObjectManager::Finalize()
 
 void GameObjectManager::Update()
 {
-	for (GameObject* gameObject : gameObjects_)
+	// 削除予定のGameObjectを削除
+	for (auto* gameObject : pendingRemoval_)
 	{
-		if (gameObject)
+		auto it = std::find(gameObjects_.begin(), gameObjects_.end(), gameObject);
+		if (it != gameObjects_.end())
 		{
-			gameObject->Update();
+			gameObjects_.erase(it);
+		}
+	}
+	pendingRemoval_.clear();
+
+	// 全てのGameObjectを更新
+	for (const auto& gameObject : gameObjects_)
+	{
+		if (gameObject && gameObject->IsActive()) // アクティブなGameObjectのみ更新
+		{
+			gameObject->Update(); // 各GameObjectの更新
 		}
 	}
 }
 
 void GameObjectManager::Draw(CameraManager* camera)
 {
-	for (GameObject* gameObject : gameObjects_)
+	for (const auto& gameObject : gameObjects_)
 	{
-		if (gameObject)
+		if (gameObject && gameObject->IsActive()) // アクティブなGameObjectのみ描画
 		{
-			gameObject->Draw(camera);
+			gameObject->Draw(camera); // 各GameObjectの描画
 		}
 	}
 }
 
 void GameObjectManager::Register(GameObject* gameObject)
 {
-	if(gameObject)
-	{
-		// ポインタがnullptrでないことを確認
-		gameObjects_.push_back(gameObject);
-	}
+	if (gameObject == nullptr) return;
+
+	// 既に登録されているかチェック
+	auto it = std::find(gameObjects_.begin(), gameObjects_.end(), gameObject);
+	if (it != gameObjects_.end()) return;
+
+	// GameObjectを登録
+	gameObjects_.push_back(gameObject);
 }
 
 void GameObjectManager::Unregister(GameObject* gameObject)
 {
-	// ポインタをリストから削除
-	auto it = std::remove(gameObjects_.begin(), gameObjects_.end(), gameObject);
-	if (it != gameObjects_.end())
+	if (gameObject == nullptr) return;
+
+	// 削除予定リストに追加（Update/Draw処理中の安全な削除のため）
+	auto it = std::find(pendingRemoval_.begin(), pendingRemoval_.end(), gameObject);
+	if (it == pendingRemoval_.end())
 	{
-		gameObjects_.erase(it, gameObjects_.end());
+		pendingRemoval_.push_back(gameObject);
 	}
 }
-
-

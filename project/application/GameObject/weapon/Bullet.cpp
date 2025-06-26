@@ -9,7 +9,7 @@ void Bullet::Initialize(Object3dCommon* object3dCommon, LightManager* lightManag
 
 void Bullet::Update(float deltaTime)
 {
-	GameObject::Update(); // GameObjectの更新
+	//GameObject::Update(); // GameObjectの更新
 }
 
 void Bullet::Draw(CameraManager* camera)

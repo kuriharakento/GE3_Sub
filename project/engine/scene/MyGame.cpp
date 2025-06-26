@@ -105,6 +105,9 @@ void MyGame::Draw()
 	//3Dオブジェクトの描画
 	sceneManager_->Draw3D();
 
+	//GameObjectManagerの描画
+	GameObjectManager::GetInstance()->Draw(cameraManager_.get());
+
 	//ラインの描画
 	LineManager::GetInstance()->RenderLines();
 

@@ -32,6 +32,8 @@ public: //アクセッサ
 	//タグ
 	std::string GetTag() const { return tag_; }	// タグの取得
 	void SetTag(const std::string& tag) { tag_ = tag; }	// タグの設定
+	//アクティブ状態
+	bool IsActive() const { return isActive_; }	// アクティブ状態の取得
 
 protected:
 	Transform transform_;																	// Transform情報
@@ -43,6 +45,7 @@ private:
 private:
 	std::unordered_map<std::string, std::shared_ptr<IGameObjectComponent>> components_;		// コンポーネントのリスト
 	std::string tag_; 																		// オブジェクトのタグ
+	bool isActive_;																			// アクティブ状態
 };
 
 template <typename T>
