@@ -29,36 +29,36 @@ void GameObjectManager::Finalize()
 
 void GameObjectManager::Update()
 {
-	// 削除予定のGameObjectを削除
-	for (auto* gameObject : pendingRemoval_)
-	{
-		auto it = std::find(gameObjects_.begin(), gameObjects_.end(), gameObject);
-		if (it != gameObjects_.end())
-		{
-			gameObjects_.erase(it);
-		}
-	}
-	pendingRemoval_.clear();
+	//// 削除予定のGameObjectを削除
+	//for (auto* gameObject : pendingRemoval_)
+	//{
+	//	auto it = std::find(gameObjects_.begin(), gameObjects_.end(), gameObject);
+	//	if (it != gameObjects_.end())
+	//	{
+	//		gameObjects_.erase(it);
+	//	}
+	//}
+	//pendingRemoval_.clear();
 
-	// 全てのGameObjectを更新
-	for (const auto& gameObject : gameObjects_)
-	{
-		if (gameObject && gameObject->IsActive()) // アクティブなGameObjectのみ更新
-		{
-			gameObject->Update(); // 各GameObjectの更新
-		}
-	}
+	//// 全てのGameObjectを更新
+	//for (const auto& gameObject : gameObjects_)
+	//{
+	//	if (gameObject && gameObject->IsActive()) // アクティブなGameObjectのみ更新
+	//	{
+	//		gameObject->Update(); // 各GameObjectの更新
+	//	}
+	//}
 }
 
 void GameObjectManager::Draw(CameraManager* camera)
 {
-	for (const auto& gameObject : gameObjects_)
-	{
-		if (gameObject && gameObject->IsActive()) // アクティブなGameObjectのみ描画
-		{
-			gameObject->Draw(camera); // 各GameObjectの描画
-		}
-	}
+	//for (const auto& gameObject : gameObjects_)
+	//{
+	//	if (gameObject && gameObject->IsActive()) // アクティブなGameObjectのみ描画
+	//	{
+	//		gameObject->Draw(camera); // 各GameObjectの描画
+	//	}
+	//}
 }
 
 void GameObjectManager::Register(GameObject* gameObject)

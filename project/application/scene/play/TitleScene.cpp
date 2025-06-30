@@ -400,42 +400,6 @@ void TitleScene::Update()
 	}
 	#pragma endregion
 
-	#pragma region
-	ImGui::SeparatorText("camera work");
-
-	static bool splineCameraUpdate = false;
-	static bool orbitCameraUpdate = false;
-	static bool followCameraUpdate = false;
-	static bool topDownCameraUpdate = true;
-
-	//カメラワークの更新
-	ImGui::Checkbox("orbitCamera Update", &orbitCameraUpdate);
-	ImGui::Checkbox("splineCamera Update", &splineCameraUpdate);
-	ImGui::Checkbox("followCamera Update", &followCameraUpdate);
-	ImGui::Checkbox("topDownCamera Update", &topDownCameraUpdate);
-	if (Input::GetInstance()->TriggerKey(DIK_F))
-	{
-		followCameraUpdate = !followCameraUpdate;
-	}
-	// カメラワークの更新
-	if (orbitCameraUpdate)
-	{
-		orbitCameraWork_->Update();
-	}
-	if (splineCameraUpdate)
-	{
-		splineCamera_->Update();
-	}
-	if (followCameraUpdate)
-	{
-		followCamera_->Update();
-	}
-	if (topDownCameraUpdate)
-	{
-		topDownCamera_->Update();
-	}
-	#pragma endregion
-
 	//Jsonエディタの表示
 	JsonEditorManager::GetInstance()->RenderEditUI();
 
@@ -452,6 +416,8 @@ void TitleScene::Update()
 	ImGui::End();
 
 #endif
+	//カメラの更新
+	topDownCamera_->Update();
 
 	// スカイドームの更新
 	skydome_->Update(sceneManager_->GetCameraManager());
@@ -466,9 +432,9 @@ void TitleScene::Update()
 
 void TitleScene::Draw3D()
 {
-	/*player->Draw(sceneManager_->GetCameraManager());
+	player->Draw(sceneManager_->GetCameraManager());
 
-	enemyManager_->Draw(sceneManager_->GetCameraManager());*/
+	enemyManager_->Draw(sceneManager_->GetCameraManager());
 
 	skydome_->Draw();
 
