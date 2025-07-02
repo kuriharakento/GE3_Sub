@@ -16,6 +16,8 @@ public:
     const std::vector<Vector3>& GetScales() const { return scales; }
     void DrawImGui() override;
 
+	uint32_t GetObstacleCount() const { return static_cast<uint32_t>(positions.size() + rotations.size() + scales.size()) / 3; }
+
 private:
     std::vector<Vector3> positions;  // 障害物の位置
     std::vector<Vector3> rotations;  // 障害物の回転

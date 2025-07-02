@@ -19,6 +19,57 @@ void ObstacleManager::Initialize(Object3dCommon* object3dCommon, LightManager* l
 
 void ObstacleManager::Update()
 {
+#ifdef _DEBUG
+	ImGui::Begin("Obstacle Manager");
+	ImGui::SeparatorText("Json options");
+	if (ImGui::Button("Create Obstacles"))
+	{
+		CreateObstacles("cube.obj");
+	}
+	if (ImGui::Button("Load Obstacle Data"))
+	{
+		LoadObstacleData("obstacles.json");
+
+	}
+
+	ImGui::SeparatorText("Obstacle Options");
+	if (ImGui::CollapsingHeader("Obstacle Data"))
+	{
+		if(ImGui::CollapsingHeader("obstacle posirions"))
+		{
+			for (auto position : obstacleData_->GetPositions())
+			{
+				ImGui::DragFloat3("Position: %.2f, %.2f, %.2f", &position.x);
+			}
+		}
+		if (ImGui::CollapsingHeader("obstacle rotations"))
+		{
+			for (auto rotation : obstacleData_->GetRotations())
+			{
+				ImGui::DragFloat3("Rotation: %.2f, %.2f, %.2f", &rotation.x);
+			}
+		}
+		if (ImGui::CollapsingHeader("obstacle scales"))
+		{
+			for (auto scale : obstacleData_->GetScales())
+			{
+				ImGui::DragFloat3("Scale: %.2f, %.2f, %.2f", &scale.x);
+			}
+		}
+	}
+	if (ImGui::Button("Save Obstacle Data"))
+	{
+		
+	}
+	ImGui::End();
+#endif
+	if(obstacleData_->GetObstacleCount() != obstacles_.size())
+	{
+		// 障害物の数が異なる場合は再生成
+		CreateObstacles("cube.obj");
+	}
+	
+
 	for (auto& obstacle : obstacles_)
 	{
 		if (obstacle)
@@ -41,7 +92,6 @@ void ObstacleManager::Draw(CameraManager* camera)
 
 void ObstacleManager::LoadObstacleData(const std::string& jsonName)
 {
-	obstacleData_ = std::make_unique<ObstacleData>();
 	obstacleData_->Initialize(jsonName);
 }
 
