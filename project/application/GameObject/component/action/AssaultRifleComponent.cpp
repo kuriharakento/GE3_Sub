@@ -8,9 +8,10 @@
 #include "base/Logger.h"
 #include "input/Input.h"
 #include "math/MathUtils.h"
+#include <random>
 
 AssaultRifleComponent::AssaultRifleComponent(Object3dCommon* object3dCommon, LightManager* lightManager)
-    : fireCooldown_(0.1f), fireCooldownTimer_(0.0f)
+    : fireCooldown_(1.5f), fireCooldownTimer_(0.0f)
 {
     object3dCommon_ = object3dCommon;
     lightManager_ = lightManager;
@@ -180,6 +181,18 @@ void AssaultRifleComponent::FireBullet(GameObject* owner, const Vector3& targetP
 	// 発射方向を計算
 	Vector3 direction = Vector3::Normalize(targetPosition - startPos);
 	direction.y = 0.0f; // 水平方向のみ撃ちたい場合はY成分を0に
+
+	// 照準精度を下げるためのランダム要素を追加（±10度）
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dis(-10.0f, 10.0f);
+	float randomAngle = dis(gen) * (3.14159f / 180.0f); // 度をラジアンに変換
+	
+	// ランダムな角度を現在の方向に適用
+	float currentAngle = atan2f(direction.x, direction.z);
+	float newAngle = currentAngle + randomAngle;
+	direction.x = sinf(newAngle);
+	direction.z = cosf(newAngle);
 
 	// 水平方向の角度を計算
 	float rotationY = atan2f(direction.x, direction.z);

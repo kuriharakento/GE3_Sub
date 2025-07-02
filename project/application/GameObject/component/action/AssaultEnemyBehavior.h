@@ -65,6 +65,14 @@ private:
     float strafeTimer_ = 0.0f;
     float actionCooldown_ = 0.0f;
     float positionCheckTimer_ = 0.0f;
+    
+    // 攻撃タイミング制御
+    float preAttackDelayTimer_ = 0.0f;
+    float postAttackRecoveryTimer_ = 0.0f;
+    bool isPreparingAttack_ = false;
+    bool isRecoveringFromAttack_ = false;
+    float preAttackDelay_ = 0.75f;      // 攻撃前の予備動作時間（0.5-1.0秒の中間）
+    float postAttackRecovery_ = 1.25f;  // 攻撃後のリカバリー時間（1.0-1.5秒の中間）
 
     // 動き停止検出用
     Vector3 lastPosition_;

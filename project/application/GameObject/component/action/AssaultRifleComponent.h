@@ -40,7 +40,7 @@ private:
     bool isReloading_ = false;
     float reloadTime_ = 2.0f;
     float reloadTimer_ = 0.0f;
-	float speed_ = 50.0f; // 弾の速度
+	float speed_ = 15.0f; // 弾の速度
 	float lifetime_ = 2.0f; // 弾の寿命
 
     //ヒットエフェクト

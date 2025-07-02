@@ -33,6 +33,27 @@ void AssaultEnemyBehavior::Update(GameObject* owner)
     {
         actionCooldown_ -= 1.0f / 60.0f;
     }
+    
+    // 攻撃タイミング制御のタイマー更新
+    if (isPreparingAttack_)
+    {
+        preAttackDelayTimer_ += 1.0f / 60.0f;
+        if (preAttackDelayTimer_ >= preAttackDelay_)
+        {
+            isPreparingAttack_ = false;
+            preAttackDelayTimer_ = 0.0f;
+        }
+    }
+    
+    if (isRecoveringFromAttack_)
+    {
+        postAttackRecoveryTimer_ += 1.0f / 60.0f;
+        if (postAttackRecoveryTimer_ >= postAttackRecovery_)
+        {
+            isRecoveringFromAttack_ = false;
+            postAttackRecoveryTimer_ = 0.0f;
+        }
+    }
 
     // 動き停止の検出
     if (IsStuck(owner))
@@ -442,10 +463,34 @@ void AssaultEnemyBehavior::AimAtTarget(GameObject* owner)
 
 void AssaultEnemyBehavior::FireWeapon(GameObject* owner)
 {
-    // アサルトライフルコンポーネントのFire()メソッドを呼び出す
-    if (auto weapon = owner->GetComponent<AssaultRifleComponent>())
+    // リカバリー中は攻撃しない
+    if (isRecoveringFromAttack_)
     {
-        weapon->Fire();
+        return;
+    }
+    
+    // 攻撃準備中でない場合、攻撃準備を開始
+    if (!isPreparingAttack_)
+    {
+        isPreparingAttack_ = true;
+        preAttackDelayTimer_ = 0.0f;
+        return; // この呼び出しでは攻撃せず、準備だけ開始
+    }
+    
+    // 攻撃準備が完了した場合のみ実際に攻撃
+    if (isPreparingAttack_ && preAttackDelayTimer_ >= preAttackDelay_)
+    {
+        // アサルトライフルコンポーネントのFire()メソッドを呼び出す
+        if (auto weapon = owner->GetComponent<AssaultRifleComponent>())
+        {
+            weapon->Fire();
+            
+            // 攻撃後のリカバリー開始
+            isRecoveringFromAttack_ = true;
+            postAttackRecoveryTimer_ = 0.0f;
+            isPreparingAttack_ = false;
+            preAttackDelayTimer_ = 0.0f;
+        }
     }
 }
 
