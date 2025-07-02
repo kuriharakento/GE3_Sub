@@ -66,6 +66,12 @@ void TitleScene::Initialize()
 	enemyManager_->AddAssaultEnemy(3);
 	//enemyManager_->AddShotgunEnemy(1);
 
+	// 障害物マネージャーの生成
+	obstacleManager_ = std::make_unique<ObstacleManager>();
+	obstacleManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
+	obstacleManager_->LoadObstacleData("obstacles.json");
+	obstacleManager_->CreateObstacles("cube.obj");
+
 	//オービットカメラワークの生成
 	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
 	orbitCameraWork_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
@@ -425,6 +431,7 @@ void TitleScene::Update()
 	//キャラクターの更新
 	player->Update();
 	enemyManager_->Update();
+	obstacleManager_->Update();
 
 	//衝突判定開始
 	CollisionManager::GetInstance()->CheckCollisions();
@@ -435,6 +442,8 @@ void TitleScene::Draw3D()
 	player->Draw(sceneManager_->GetCameraManager());
 
 	enemyManager_->Draw(sceneManager_->GetCameraManager());
+
+	obstacleManager_->Draw(sceneManager_->GetCameraManager());
 
 	skydome_->Draw();
 

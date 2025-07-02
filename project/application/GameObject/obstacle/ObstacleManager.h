@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "Obstacle.h"
+#include "ObstacleData.h"
 class CameraManager;
 class LightManager;
 class Object3dCommon;
@@ -16,10 +17,13 @@ public:
 	// 描画
 	void Draw(CameraManager* camera);
 
-private:
+	void LoadObstacleData(const std::string& jsonName);
+	void CreateObstacles(const std::string& modelName);
+private:    
 	Object3dCommon* object3dCommon_ = nullptr; // 3Dオブジェクト共通情報
 	LightManager* lightManager_ = nullptr; // ライトマネージャー
 
+	std::shared_ptr<ObstacleData> obstacleData_;
 	// 障害物リスト
 	std::vector<std::unique_ptr<Obstacle>> obstacles_;
 };

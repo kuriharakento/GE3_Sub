@@ -8,6 +8,7 @@
 #include "application/GameObject/base/GameObject.h"
 #include "application/GameObject/character/enemy/EnemyManager.h"
 #include "application/GameObject/character/player/Player.h"
+#include "application/GameObject/obstacle/ObstacleManager.h"
 #include "camerawork/FollowCamera.h"
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
@@ -45,6 +46,7 @@ private: //メンバ変数
 	//ゲームオブジェクト
 	std::unique_ptr<Player> player;
 	std::unique_ptr<EnemyManager> enemyManager_;
+	std::unique_ptr<ObstacleManager> obstacleManager_;
 	//エミッター
 	std::unique_ptr<ParticleEmitter> dust_;
 	std::unique_ptr<ParticleEmitter> redEffect_;

@@ -105,6 +105,7 @@
     <ClCompile Include="application\GameObject\obstacle\Obstacle.cpp" />
     <ClCompile Include="application\GameObject\obstacle\ObstacleManager.cpp" />
     <ClCompile Include="application\GameObject\base\GameObjectManager.cpp" />
+    <ClCompile Include="application\GameObject\obstacle\ObstacleData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -232,6 +233,7 @@
     <ClInclude Include="application\GameObject\obstacle\Obstacle.h" />
     <ClInclude Include="application\GameObject\obstacle\ObstacleManager.h" />
     <ClInclude Include="application\GameObject\base\GameObjectManager.h" />
+    <ClInclude Include="application\GameObject\obstacle\ObstacleData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

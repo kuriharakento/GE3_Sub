@@ -1,5 +1,7 @@
 #pragma once
 #include "application/GameObject/base/GameObject.h"
+#include "application/GameObject/component/base/ICollisionComponent.h"
+#include "math/OBB.h"
 
 class Obstacle : public GameObject
 {
@@ -17,8 +19,10 @@ public:
 	void SetPosition(const Vector3& position) { transform_.translate = position; }
 	void SetRotation(const Vector3& rotation) { transform_.rotate = rotation; }
 	void SetScale(const Vector3& scale) { transform_.scale = scale; }
+	void AddComponent(const std::string& name, std::unique_ptr<IGameObjectComponent> comp);
 
 protected:
-
+	void CollisionSettings(ICollisionComponent* collider);
+	void ResolvePenetration(GameObject* other);
 };
 
