@@ -20,6 +20,7 @@ void MyGame::Initialize()
 		cameraManager_.get(),
 		lightManager_.get(),
 		postProcessManager_.get(),
+		skybox_.get(),
 	};
 
 	// 処理開始時間を記録
@@ -53,6 +54,9 @@ void MyGame::Initialize()
 
 	//ゲームの初期化処理
 	sceneManager_->Initialize(context);
+
+	// Skyboxの初期化
+	skybox_->Initialize(dxCommon_.get(), "./Resources/rostock_laage_airport_4k.dds");
 }
 
 void MyGame::Finalize()
@@ -93,8 +97,6 @@ void MyGame::Draw()
 
 	// ---------- 3D描画 ---------
 
-	
-
 	//3D描画用設定
 	Framework::Draw3DSetting();
 
@@ -106,6 +108,9 @@ void MyGame::Draw()
 
 	//パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
+
+	// Skyboxの描画
+	skybox_->Draw();
 	
 	// ---------- 2D描画 ---------
 
@@ -143,6 +148,7 @@ void MyGame::LoadTextures()
 	TextureManager::GetInstance()->LoadTexture("./Resources/circle2.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/flowerfun.png");
 	TextureManager::GetInstance()->LoadTexture("./Resources/star.png");
+	TextureManager::GetInstance()->LoadTexture("./Resources/rostock_laage_airport_4k.dds");
 }
 
 void MyGame::LoadModels()

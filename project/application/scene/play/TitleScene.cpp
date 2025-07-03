@@ -461,7 +461,7 @@ void TitleScene::Update()
 #endif
 
 	// スカイドームの更新
-	skydome_->Update(sceneManager_->GetCameraManager());
+	//skydome_->Update(sceneManager_->GetCameraManager());
 
 	// 地面の更新
 	terrain_->Update(sceneManager_->GetCameraManager());

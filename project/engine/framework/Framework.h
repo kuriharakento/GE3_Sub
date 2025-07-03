@@ -1,6 +1,7 @@
 #pragma once
 #include "2d/SpriteCommon.h"
 #include "3d/Object3dCommon.h"
+#include "3d/Skybox.h"
 #include "base/PostProcessPass.h"
 #include "engine/scene/factory/SceneFactory.h"
 #include "engine/scene/manager/SceneManager.h"
@@ -67,5 +68,7 @@ protected: //メンバ変数
 	std::unique_ptr<RenderTexture> renderTexture_;
 	//
 	std::unique_ptr<PostProcessManager> postProcessManager_;
+	// Skybox
+	std::unique_ptr<Skybox> skybox_;
 };
 

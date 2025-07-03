@@ -7,6 +7,8 @@
     <FxCompile Include="Resources\shaders\Object3d.Vs.hlsl">
       <Filter>Resource\shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\shaders\Skybox.VS.hlsl" />
+    <FxCompile Include="Resources\shaders\Skybox.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -610,6 +612,7 @@
     <None Include="Resources\shaders\Sprite.hlsli">
       <Filter>Resource\shaders</Filter>
     </None>
+    <None Include="Resources\shaders\Skybox.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="engine">
