@@ -189,6 +189,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\postprocess\PostProcessManager.cpp" />
     <ClCompile Include="engine\postprocess\VignetteEffect.cpp" />
     <ClCompile Include="engine\postprocess\NoiseEffect.cpp" />
+    <ClCompile Include="engine\3d\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -301,6 +302,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\postprocess\VignetteEffect.h" />
     <ClInclude Include="engine\postprocess\NoiseEffect.h" />
     <ClInclude Include="engine\effects\component\single\ForceFieldComponent.h" />
+    <ClInclude Include="engine\3d\Skybox.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

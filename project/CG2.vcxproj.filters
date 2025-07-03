@@ -262,6 +262,7 @@
     <ClCompile Include="application\animation\Slide.cpp">
       <Filter>application\animation</Filter>
     </ClCompile>
+    <ClCompile Include="engine\3d\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\2d\Sprite.h">
@@ -594,6 +595,7 @@
     <ClInclude Include="application\animation\Slide.h">
       <Filter>application\animation</Filter>
     </ClInclude>
+    <ClInclude Include="engine\3d\Skybox.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli">
