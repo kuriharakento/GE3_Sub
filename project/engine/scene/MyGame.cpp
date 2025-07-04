@@ -106,12 +106,12 @@ void MyGame::Draw()
 	//ラインの描画
 	LineManager::GetInstance()->RenderLines();
 
-	//パーティクルの描画
-	ParticleManager::GetInstance()->Draw();
-
 	// Skyboxの描画
 	skybox_->Draw();
-	
+
+	//パーティクルの描画
+	ParticleManager::GetInstance()->Draw();
+		
 	// ---------- 2D描画 ---------
 
 	//2D描画用設定

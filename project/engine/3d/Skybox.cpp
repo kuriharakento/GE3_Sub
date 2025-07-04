@@ -47,6 +47,8 @@ void Skybox::Initialize(DirectXCommon* dxCommon, const std::string& textureFileP
 
 	// パイプライン作成
 	CreatePipelineState();
+
+	transform_.scale = { 10.0f, 10.0f, 10.0f };
 }
 
 void Skybox::Update(Camera* camera)
@@ -57,17 +59,27 @@ void Skybox::Update(Camera* camera)
 	ImGui::DragFloat3("Translate", &transform_.translate.x, 0.01f);
 	ImGui::End();
 
+	// スカイボックスのワールド行列を計算
 	Matrix4x4 worldMatrix = MakeAffineMatrix(
 		transform_.scale,
 		transform_.rotate,
 		transform_.translate
 	);
-	Matrix4x4 worldViewProjectionMatrix = camera->GetViewProjectionMatrix() * worldMatrix;
-	Matrix4x4 worldInverseTransposeMatrix = MathUtils::Transpose(Inverse(worldMatrix));
+
+	// ビュー行列を取得し、位置情報をクリア
+	Matrix4x4 viewMatrix = camera->GetViewMatrix();
+	viewMatrix.m[3][0] = 0.0f;  // 位置をリセット
+	viewMatrix.m[3][1] = 0.0f;
+	viewMatrix.m[3][2] = 0.0f;
+
+	//  座標変換行列を計算
+	Matrix4x4 projectionMatrix = camera->GetProjectionMatrix();
+	Matrix4x4 viewProjectionMatrix = Multiply(viewMatrix, projectionMatrix);
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, viewProjectionMatrix);
 
 	wvpData_->WVP = worldViewProjectionMatrix;
 	wvpData_->World = worldMatrix;
-	wvpData_->WorldInverseTranspose = worldInverseTransposeMatrix;
+	wvpData_->WorldInverseTranspose = MathUtils::Transpose(Inverse(worldMatrix));
 }
 
 void Skybox::Draw()
@@ -76,6 +88,8 @@ void Skybox::Draw()
 	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature_.Get());
 	// パイプラインステートの設定
 	dxCommon_->GetCommandList()->SetPipelineState(pipelineState_.Get());
+	// トポロジの設定
+	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// 頂点バッファの設定
 	dxCommon_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	// CBufferの設定
@@ -111,73 +125,67 @@ void Skybox::CreateModeldata(const std::string& textureFilePath)
 
 void Skybox::CreateVertexData()
 {
-	// 頂点データを箱の形に設定 - 各面6頂点ずつ（三角形2つ）
+	// 頂点データを箱の形に設定 - 各面は2つの三角形（6頂点）で構成
 	std::vector<VertexData> vertices(36); // 6面 × 6頂点 = 36頂点
 
-	// サイズ（一辺の長さの半分） - 原点を中心とした幅と高さが2の箱
-	const float size = 1.0f;  // 半分のサイズを指定（原点から各方向に1ずつ）
+	// サイズ（一辺の長さの半分）
+	const float size = 1.0f;
 
 	int index = 0;
 
-	// 前面 (z+) - 6頂点
-	// 三角形1
-	vertices[index++] = { {-size, -size, size, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f} }; // 左下
-	vertices[index++] = { {-size, size, size, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };  // 左上
-	vertices[index++] = { {size, -size, size, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} };  // 右下
-	// 三角形2
-	vertices[index++] = { {size, -size, size, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} };  // 右下
-	vertices[index++] = { {-size, size, size, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };  // 左上
-	vertices[index++] = { {size, size, size, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f} };   // 右上
+	// 前面 (z+) - 時計回り（内側から見て）
+	vertices[index++] = { {-size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }; // 左下
+	vertices[index++] = { {-size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左上
+	vertices[index++] = { {size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 右下
 
-	// 背面 (z-) - 6頂点
-	// 三角形1
-	vertices[index++] = { {size, -size, -size, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f} };  // 左下
-	vertices[index++] = { {size, size, -size, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f} };   // 左上
-	vertices[index++] = { {-size, -size, -size, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f} }; // 右下
-	// 三角形2
-	vertices[index++] = { {-size, -size, -size, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f} }; // 右下
-	vertices[index++] = { {size, size, -size, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f} };   // 左上
-	vertices[index++] = { {-size, size, -size, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f} };  // 右上
+	vertices[index++] = { {size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 右下
+	vertices[index++] = { {-size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左上
+	vertices[index++] = { {size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 右上
 
-	// 右面 (x+) - 6頂点
-	// 三角形1
-	vertices[index++] = { {size, -size, size, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f} };   // 左下
-	vertices[index++] = { {size, size, size, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f} };    // 左上
-	vertices[index++] = { {size, -size, -size, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f} };  // 右下
-	// 三角形2
-	vertices[index++] = { {size, -size, -size, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f} };  // 右下
-	vertices[index++] = { {size, size, size, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f} };    // 左上
-	vertices[index++] = { {size, size, -size, 1.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f} };   // 右上
+	// 後面 (z-) - 時計回り（内側から見て）
+	vertices[index++] = { {size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 右下
+	vertices[index++] = { {size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 右上
+	vertices[index++] = { {-size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }; // 左下
 
-	// 左面 (x-) - 6頂点
-	// 三角形1
-	vertices[index++] = { {-size, -size, -size, 1.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f} }; // 左下
-	vertices[index++] = { {-size, size, -size, 1.0f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f} };  // 左上
-	vertices[index++] = { {-size, -size, size, 1.0f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f} };  // 右下
-	// 三角形2
-	vertices[index++] = { {-size, -size, size, 1.0f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f} };  // 右下
-	vertices[index++] = { {-size, size, -size, 1.0f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f} };  // 左上
-	vertices[index++] = { {-size, size, size, 1.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f} };   // 右上
+	vertices[index++] = { {-size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }; // 左下
+	vertices[index++] = { {size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 右上
+	vertices[index++] = { {-size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左上
 
-	// 上面 (y+) - 6頂点
-	// 三角形1
-	vertices[index++] = { {-size, size, size, 1.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f} };   // 左下
-	vertices[index++] = { {-size, size, -size, 1.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };  // 左上
-	vertices[index++] = { {size, size, size, 1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} };    // 右下
-	// 三角形2
-	vertices[index++] = { {size, size, size, 1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} };    // 右下
-	vertices[index++] = { {-size, size, -size, 1.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };  // 左上
-	vertices[index++] = { {size, size, -size, 1.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };   // 右上
+	// 右面 (x+) - 時計回り（内側から見て）
+	vertices[index++] = { {size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 右下前
+	vertices[index++] = { {size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };    // 右上前
+	vertices[index++] = { {size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 右下奥
 
-	// 下面 (y-) - 6頂点
-	// 三角形1
-	vertices[index++] = { {-size, -size, -size, 1.0f}, {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f} }; // 左下
-	vertices[index++] = { {-size, -size, size, 1.0f}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };  // 左上
-	vertices[index++] = { {size, -size, -size, 1.0f}, {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f} };  // 右下
-	// 三角形2
-	vertices[index++] = { {size, -size, -size, 1.0f}, {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f} };  // 右下
-	vertices[index++] = { {-size, -size, size, 1.0f}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };  // 左上
-	vertices[index++] = { {size, -size, size, 1.0f}, {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };   // 右上
+	vertices[index++] = { {size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 右下奥
+	vertices[index++] = { {size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };    // 右上前
+	vertices[index++] = { {size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 右上奥
+
+	// 左面 (x-) - 時計回り（内側から見て）
+	vertices[index++] = { {-size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }; // 左下奥
+	vertices[index++] = { {-size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左上奥
+	vertices[index++] = { {-size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左下前
+
+	vertices[index++] = { {-size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左下前
+	vertices[index++] = { {-size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左上奥
+	vertices[index++] = { {-size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 左上前
+
+	// 上面 (y+) - 時計回り（内側から見て）
+	vertices[index++] = { {-size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 左上前
+	vertices[index++] = { {-size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左上奥
+	vertices[index++] = { {size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };    // 右上前
+
+	vertices[index++] = { {size, size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };    // 右上前
+	vertices[index++] = { {-size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左上奥
+	vertices[index++] = { {size, size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 右上奥
+
+	// 下面 (y-) - 時計回り（内側から見て）
+	vertices[index++] = { {-size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }; // 左下奥
+	vertices[index++] = { {-size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左下前
+	vertices[index++] = { {size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 右下奥
+
+	vertices[index++] = { {size, -size, -size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 右下奥
+	vertices[index++] = { {-size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };  // 左下前
+	vertices[index++] = { {size, -size, size, 1.0f}, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };   // 右下前
 
 	// 頂点リソースの作成
 	vertexBuffer_ = dxCommon_->CreateBufferResource(sizeof(VertexData) * vertices.size());
@@ -338,7 +346,7 @@ void Skybox::CreatePipelineState()
 	//RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	//裏面(時計回り)を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 	//三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
