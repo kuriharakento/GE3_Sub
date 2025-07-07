@@ -90,6 +90,7 @@
     <ClCompile Include="engine\effects\component\group\MaterialColorComponent.cpp" />
     <ClCompile Include="engine\effects\ParticleMath.cpp" />
     <ClCompile Include="application\GameObject\component\action\MoveComponent.cpp" />
+    <ClCompile Include="application\GameObject\component\physics\GravityComponent.cpp" />
     <ClCompile Include="application\GameObject\character\player\Player.cpp" />
     <ClCompile Include="application\GameObject\component\collision\OBBColliderComponent.cpp" />
     <ClCompile Include="engine\postprocess\PostProcessManager.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="engine\effects\component\group\MaterialColorComponent.h" />
     <ClInclude Include="engine\effects\ParticleMath.h" />
     <ClInclude Include="application\GameObject\component\action\MoveComponent.h" />
+    <ClInclude Include="application\GameObject\component\physics\GravityComponent.h" />
     <ClInclude Include="engine\camerawork\FollowCamera.h" />
     <ClInclude Include="application\GameObject\character\player\Player.h" />
     <ClInclude Include="application\GameObject\component\action\PistolComponent.h" />
