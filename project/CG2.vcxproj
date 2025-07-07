@@ -171,6 +171,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\effects\component\single\ForceFieldComponent.cpp" />
     <ClCompile Include="application\GameObject\character\enemy\PistolEnemy.cpp" />
     <ClCompile Include="application\GameObject\base\GameObjectManager.cpp" />
+    <ClCompile Include="application\GameObject\component\action\GravityPhysicsComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\manager\SrvManager.cpp" />
     <ClCompile Include="engine\effects\ParticleManager.cpp" />
@@ -333,6 +334,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\obstacle\ObstacleManager.h" />
     <ClInclude Include="application\GameObject\base\GameObjectManager.h" />
     <ClInclude Include="application\GameObject\obstacle\ObstacleData.h" />
+    <ClInclude Include="application\GameObject\component\action\GravityPhysicsComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

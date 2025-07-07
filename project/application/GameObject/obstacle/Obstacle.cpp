@@ -4,6 +4,13 @@
 #include "base/Logger.h"
 #include "math/OBB.h"
 
+struct CollisionInfo
+{
+    bool    isColliding = false;
+    Vector3 mtvAxis{ 0, 1, 0 };
+    float   mtvDepth = FLT_MAX;
+};
+
 void Obstacle::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager)
 {
 	// ゲームオブジェクトの初期化
@@ -35,89 +42,90 @@ void Obstacle::AddComponent(const std::string& name, std::unique_ptr<IGameObject
 
 void Obstacle::CollisionSettings(ICollisionComponent* collider)
 {
-	// 衝突開始時
-	collider->SetOnEnter([this](GameObject* other) {
-		if (other->GetTag() == "Player" || other->GetTag() == "Enemy")
-		{
-			ResolvePenetration(other);
-		}
-						 });
-
-	// 衝突継続中
-	collider->SetOnStay([this](GameObject* other) {
-		// プレイヤーか敵の場合のみ処理
-		if (other->GetTag() == "Player" || other->GetTag() == "Enemy")
-		{
-			ResolvePenetration(other);
-		}
-						});
-
-	// 衝突終了時
-	collider->SetOnExit([this](GameObject* other) {
-
-						});
+    auto onResolve = [this](GameObject* other) {
+        ResolvePenetration(other);
+        };
+    collider->SetOnEnter(onResolve);
+    collider->SetOnStay(onResolve);
 }
 
-// 修正しためり込み解決処理
+bool Obstacle::CheckOBBvsOBBMTV(const OBB& obbA, const OBB& obbB, Vector3& mtv) const
+{
+    // 各 OBB のワールド軸ベクトルを取得
+    Matrix4x4 rotA = obbA.rotate;
+    Matrix4x4 rotB = obbB.rotate;
+    Vector3 axesA[3] = {
+        Vector3::Normalize({rotA.m[0][0], rotA.m[0][1], rotA.m[0][2]}),
+        Vector3::Normalize({rotA.m[1][0], rotA.m[1][1], rotA.m[1][2]}),
+        Vector3::Normalize({rotA.m[2][0], rotA.m[2][1], rotA.m[2][2]})
+    };
+    Vector3 axesB[3] = {
+        Vector3::Normalize({rotB.m[0][0], rotB.m[0][1], rotB.m[0][2]}),
+        Vector3::Normalize({rotB.m[1][0], rotB.m[1][1], rotB.m[1][2]}),
+        Vector3::Normalize({rotB.m[2][0], rotB.m[2][1], rotB.m[2][2]})
+    };
+
+    // 分離軸リスト（Aの軸、Bの軸、クロス積軸）
+    std::vector<Vector3> testAxes;
+    testAxes.reserve(15);
+    for (int i = 0; i < 3; ++i) testAxes.push_back(axesA[i]);
+    for (int i = 0; i < 3; ++i) testAxes.push_back(axesB[i]);
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j)
+            testAxes.push_back(Vector3::Normalize(Vector3::Cross(axesA[i], axesB[j])));
+
+    Vector3 toCenter = obbB.center - obbA.center;
+    CollisionInfo info;
+
+    for (auto& axis : testAxes)
+    {
+        if (axis.LengthSquared() < 1e-6f) continue;
+
+        float projA = std::abs(Vector3::Dot(axesA[0] * obbA.size.x, axis))
+            + std::abs(Vector3::Dot(axesA[1] * obbA.size.y, axis))
+            + std::abs(Vector3::Dot(axesA[2] * obbA.size.z, axis));
+        float projB = std::abs(Vector3::Dot(axesB[0] * obbB.size.x, axis))
+            + std::abs(Vector3::Dot(axesB[1] * obbB.size.y, axis))
+            + std::abs(Vector3::Dot(axesB[2] * obbB.size.z, axis));
+        float dist = std::abs(Vector3::Dot(toCenter, axis));
+        float overlap = (projA + projB) - dist;
+
+        if (overlap < 0)
+        {
+            return false;
+        }
+        if (overlap < info.mtvDepth)
+        {
+            info.isColliding = true;
+            info.mtvDepth = overlap;
+            info.mtvAxis = axis;
+        }
+    }
+
+    // 衝突時に MTV を算出
+    if (info.isColliding)
+    {
+        if (Vector3::Dot(info.mtvAxis, toCenter) < 0.0f)
+            info.mtvAxis = info.mtvAxis * -1.0f;
+        mtv = info.mtvAxis * info.mtvDepth;
+    }
+    return info.isColliding;
+}
+
 void Obstacle::ResolvePenetration(GameObject* other)
 {
-	// タグチェック
-	if (other->GetTag() != "Player" && other->GetTag() != "Enemy")
-		return;
+    if (other->GetTag() != "Player" && other->GetTag() != "Enemy") return;
 
-	// コライダーの取得（GetComponentの使用方法を修正）
-	auto obstacleCollider = GetComponent<OBBColliderComponent>();
-	auto otherCollider = other->GetComponent<OBBColliderComponent>();
+    auto obstacleColl = GetComponent<OBBColliderComponent>();
+    auto otherColl = other->GetComponent<OBBColliderComponent>();
+    if (!obstacleColl || !otherColl) return;
 
-	if (!obstacleCollider || !otherCollider)
-	{
-		return;
-	}
+    const OBB& obbA = obstacleColl->GetOBB();
+    const OBB& obbB = otherColl->GetOBB();
 
-	// OBBの取得
-	const OBB& obstacleOBB = obstacleCollider->GetOBB();
-	const OBB& otherOBB = otherCollider->GetOBB();
-
-	// 両方のOBBの中心位置を取得
-	Vector3 obstacleCenter = obstacleOBB.center; // 障害物の中心位置
-	Vector3 otherCenter = otherOBB.center; // 相手の中心位置
-
-	// 障害物から相手への方向ベクトル
-	Vector3 direction = otherCenter - obstacleCenter;
-	float distance = direction.Length();
-
-	// 方向ベクトルを正規化
-	Vector3 normalizedDir;
-	if (distance > 0.001f) // ゼロ除算防止
-	{
-		normalizedDir = direction * (1.0f / distance);
-	}
-	else
-	{
-		normalizedDir = Vector3(0, 1, 0); // デフォルト方向
-	}
-
-	// 両方のOBBのサイズを取得
-	Vector3 obstacleExtent = obstacleOBB.size;
-	Vector3 otherExtent = otherOBB.size;
-
-	// OBBの合計サイズを方向に投影
-	float totalExtent =
-		std::abs(obstacleExtent.x * normalizedDir.x) +
-		std::abs(obstacleExtent.y * normalizedDir.y) +
-		std::abs(obstacleExtent.z * normalizedDir.z) +
-		std::abs(otherExtent.x * normalizedDir.x) +
-		std::abs(otherExtent.y * normalizedDir.y) +
-		std::abs(otherExtent.z * normalizedDir.z);
-
-	// めり込んでいるかチェック
-	if (distance < totalExtent)
-	{
-		// めり込み量を計算
-		float penetration = totalExtent - distance;
-
-		// 相手を押し出す
-		Vector3 pushVector = normalizedDir * (penetration); // 少し余分に押し出す
-		other->SetPosition(otherCenter + pushVector);
-	}
+    Vector3 mtv;
+    if (CheckOBBvsOBBMTV(obbA, obbB, mtv))
+    {
+        other->SetPosition(obbB.center + mtv);
+    }
 }

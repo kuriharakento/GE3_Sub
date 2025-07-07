@@ -126,3 +126,17 @@ void ObstacleManager::CreateObstacles(const std::string& modelName)
     }
 }
 
+void ObstacleManager::ApplyObstacleData()
+{
+	// 障害物の位置、回転、スケールをデータから適用
+	for (size_t i = 0; i < obstacles_.size(); ++i)
+	{
+		if (i < obstacleData_->GetObstacleCount())
+		{
+			obstacles_[i]->SetPosition(obstacleData_->GetPositions()[i]);
+			obstacles_[i]->SetRotation(obstacleData_->GetRotations()[i]);
+			obstacles_[i]->SetScale(obstacleData_->GetScales()[i]);
+		}
+	}
+}
+

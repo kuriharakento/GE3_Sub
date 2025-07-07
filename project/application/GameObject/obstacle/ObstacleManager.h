@@ -19,6 +19,7 @@ public:
 
 	void LoadObstacleData(const std::string& jsonName);
 	void CreateObstacles(const std::string& modelName);
+	void ApplyObstacleData();
 private:    
 	Object3dCommon* object3dCommon_ = nullptr; // 3Dオブジェクト共通情報
 	LightManager* lightManager_ = nullptr; // ライトマネージャー
