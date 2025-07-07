@@ -217,6 +217,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\effect\DodgeEffectParticle.h" />
     <ClInclude Include="application\effect\EnemyDeathEffect.h" />
     <ClInclude Include="engine\effects\component\single\BounceComponent.h" />
+    <ClInclude Include="engine\jsonEditor\TransformSerialization.h" />
+    <ClInclude Include="engine\jsonEditor\Vector3Serialization.h" />
     <ClInclude Include="engine\postprocess\CRTEffect.h" />
     <ClInclude Include="engine\postprocess\BasePostEffect.h" />
     <ClInclude Include="application\GameObject\character\enemy\base\EnemyBase.h" />

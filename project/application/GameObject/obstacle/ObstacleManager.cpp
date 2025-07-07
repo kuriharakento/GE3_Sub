@@ -21,46 +21,7 @@ void ObstacleManager::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("Obstacle Manager");
-	ImGui::SeparatorText("Json options");
-	if (ImGui::Button("Create Obstacles"))
-	{
-		CreateObstacles("cube.obj");
-	}
-	if (ImGui::Button("Load Obstacle Data"))
-	{
-		LoadObstacleData("obstacles.json");
-
-	}
-
-	ImGui::SeparatorText("Obstacle Options");
-	if (ImGui::CollapsingHeader("Obstacle Data"))
-	{
-		if(ImGui::CollapsingHeader("obstacle posirions"))
-		{
-			for (auto position : obstacleData_->GetPositions())
-			{
-				ImGui::DragFloat3("Position: %.2f, %.2f, %.2f", &position.x);
-			}
-		}
-		if (ImGui::CollapsingHeader("obstacle rotations"))
-		{
-			for (auto rotation : obstacleData_->GetRotations())
-			{
-				ImGui::DragFloat3("Rotation: %.2f, %.2f, %.2f", &rotation.x);
-			}
-		}
-		if (ImGui::CollapsingHeader("obstacle scales"))
-		{
-			for (auto scale : obstacleData_->GetScales())
-			{
-				ImGui::DragFloat3("Scale: %.2f, %.2f, %.2f", &scale.x);
-			}
-		}
-	}
-	if (ImGui::Button("Save Obstacle Data"))
-	{
-		
-	}
+	
 	ImGui::End();
 #endif
 	if(obstacleData_->GetObstacleCount() != obstacles_.size())
@@ -101,24 +62,18 @@ void ObstacleManager::CreateObstacles(const std::string& modelName)
     obstacles_.clear();
 
     // 位置、回転、スケールの情報を取得
-    const auto& positions = obstacleData_->GetPositions();
-    const auto& rotations = obstacleData_->GetRotations();
-    const auto& scales = obstacleData_->GetScales();
+	auto& transforms = obstacleData_->GetObstacles();
 
-    // 最小サイズを取得（配列のサイズに不一致がある場合のために）
-    size_t count = positions.size();
-    count = std::min(count, rotations.size());
-    count = std::min(count, scales.size());
 
     // 障害物を生成
-    for (size_t i = 0; i < count; ++i)
+	for (uint32_t i = 0; i < obstacleData_->GetObstacleCount(); ++i)
     {
         auto obstacle = std::make_unique<Obstacle>("obstacle");
         obstacle->Initialize(object3dCommon_,lightManager_);
         obstacle->SetModel(modelName);
-		obstacle->SetPosition(positions[i]);
-		obstacle->SetRotation(rotations[i]);
-		obstacle->SetScale(scales[i]);
+		obstacle->SetPosition(transforms[i].translate);
+		obstacle->SetRotation(transforms[i].rotate);
+		obstacle->SetScale(transforms[i].scale);
 
 		// 衝突判定コンポーネントを追加
 		obstacle->AddComponent("OBBCollider", std::make_unique<OBBColliderComponent>(obstacle.get()));
@@ -131,12 +86,7 @@ void ObstacleManager::ApplyObstacleData()
 	// 障害物の位置、回転、スケールをデータから適用
 	for (size_t i = 0; i < obstacles_.size(); ++i)
 	{
-		if (i < obstacleData_->GetObstacleCount())
-		{
-			obstacles_[i]->SetPosition(obstacleData_->GetPositions()[i]);
-			obstacles_[i]->SetRotation(obstacleData_->GetRotations()[i]);
-			obstacles_[i]->SetScale(obstacleData_->GetScales()[i]);
-		}
+		
 	}
 }
 

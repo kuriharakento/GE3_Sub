@@ -236,6 +236,8 @@
     <ClInclude Include="application\GameObject\base\GameObjectManager.h" />
     <ClInclude Include="application\GameObject\obstacle\ObstacleData.h" />
     <ClInclude Include="application\GameObject\component\action\GravityPhysicsComponent.h" />
+    <ClInclude Include="engine\jsonEditor\TransformSerialization.h" />
+    <ClInclude Include="engine\jsonEditor\Vector3Serialization.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />
