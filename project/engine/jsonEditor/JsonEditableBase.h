@@ -6,12 +6,10 @@
 #include "imgui/imgui.h"
 #include <fstream>
 #include "math/Vector3.h"
-#include "JsonUtils.h"
 #include <type_traits>
 #include <vector>
 #include "base/GraphicsTypes.h"
-#include "TransformSerialization.h"
-#include "Vector3Serialization.h"
+#include "JsonSerialization.h"
 
 class JsonEditableBase : public IJsonEditable
 {
@@ -45,45 +43,13 @@ void JsonEditableBase::Register(const std::string& name, T* value)
 {
 	if (getters_.count(name)) return;
 
-	// --- JSON シリアライズ / デシリアライズ ---
-	if constexpr (is_std_vector<T>::value)
-	{
-		// std::vector<U> 用
-		using U = typename T::value_type;
-		getters_[name] = [value]() {
-			nlohmann::json arr = nlohmann::json::array();
-			for (auto& e : *value)
-			{
-				nlohmann::json je;
-				// U に対して to_json/free 関数が必要
-				nlohmann::adl_serializer<U>::to_json(je, e);
-				arr.push_back(je);
-			}
-			return arr;
-			};
-		setters_[name] = [value](auto const& arr) {
-			auto& vec = *value;
-			vec.clear();
-			for (auto& je : arr)
-			{
-				U e{};
-				nlohmann::adl_serializer<U>::from_json(je, e);
-				vec.push_back(e);
-			}
-			};
-	}
-	else
-	{
-		// それ以外は汎用 ADL シリアライザ
-		getters_[name] = [value]() {
-			nlohmann::json j;
-			nlohmann::adl_serializer<T>::to_json(j, *value);
-			return j;
-			};
-		setters_[name] = [value](auto const& j) {
-			nlohmann::adl_serializer<T>::from_json(j, *value);
-			};
-	}
+	// シンプルに全体型に対して to_json/from_json を丸投げ
+	getters_[name] = [value]() {
+		return nlohmann::json(*value);
+		};
+	setters_[name] = [value](const nlohmann::json& j) {
+		j.get_to(*value);
+		};
 
 	// --- ImGui 描画関数登録 ---
 	drawers_[name] = [value, name]() {
