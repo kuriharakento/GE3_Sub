@@ -77,6 +77,55 @@ void JsonEditableBase::Register(const std::string& name, T* value)
 				// &v.x を渡すことで float[3] にキャスト可
 				ImGui::DragFloat3("##val", &value->x, 0.1f);
 			}
+			// Transform - 追加！
+			else if constexpr (std::is_same_v<T, Transform>)
+			{
+				ImGui::Text("Transform");
+				ImGui::DragFloat3("Translate", &value->translate.x, 0.1f);
+				ImGui::DragFloat3("Rotate", &value->rotate.x, 0.01f);
+				ImGui::DragFloat3("Scale", &value->scale.x, 0.1f);
+				
+			}
+			// std::vector<Transform> - 追加！
+			else if constexpr (std::is_same_v<T, std::vector<Transform>>)
+			{
+				for (size_t i = 0; i < value->size(); ++i)
+				{
+					std::string headerLabel = "Transform[" + std::to_string(i) + "]";
+					ImGui::PushID(static_cast<int>(i));
+
+					if (ImGui::TreeNode(headerLabel.c_str()))
+					{
+						ImGui::DragFloat3("Translate", &(*value)[i].translate.x, 0.1f);
+						ImGui::DragFloat3("Rotate", &(*value)[i].rotate.x, 0.01f);
+						ImGui::DragFloat3("Scale", &(*value)[i].scale.x, 0.1f);
+						ImGui::TreePop();
+					}
+
+					ImGui::PopID();
+				}
+
+				// 配列の操作ボタン
+				ImGui::Separator();
+				if (ImGui::Button("Add Transform"))
+				{
+					value->push_back(Transform{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Remove Last") && !value->empty())
+				{
+					value->pop_back();
+				}
+			}
+			// std::vector<Vector3> - 追加！
+			else if constexpr (std::is_same_v<T, std::vector<Vector3>>)
+			{
+				for (size_t i = 0; i < value->size(); ++i)
+				{
+					std::string label = "Element[" + std::to_string(i) + "]";
+					ImGui::DragFloat3(label.c_str(), &(*value)[i].x, 0.1f);
+				}
+			}
 			// std::string
 			else if constexpr (std::is_same_v<T, std::string>)
 			{
@@ -88,7 +137,21 @@ void JsonEditableBase::Register(const std::string& name, T* value)
 					*value = buf;
 				}
 			}
-			// その他（Transform も含む）は raw JSON マルチラインで編集
+			// std::vector<std::string> - 追加！
+			else if constexpr (std::is_same_v<T, std::vector<std::string>>)
+			{
+				for (size_t i = 0; i < value->size(); ++i)
+				{
+					std::string label = "Element[" + std::to_string(i) + "]";
+					char buf[256];
+					strncpy_s(buf, sizeof(buf), (*value)[i].c_str(), _TRUNCATE);
+					if (ImGui::InputText(label.c_str(), buf, sizeof(buf)))
+					{
+						(*value)[i] = buf;
+					}
+				}
+			}
+			// その他は raw JSON マルチラインで編集
 			else
 			{
 				std::string s = nlohmann::json(*value).dump(2);

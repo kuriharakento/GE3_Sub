@@ -40,7 +40,17 @@ bool JsonEditableBase::LoadJson(const std::string& path)
                 }
                 Register(key, vector3List.get());
             }
-            // 他の型にも対応する場合はここに追加
+            // Vector3オブジェクトを検出する条件を追加
+            else if (value.is_object() && value.contains("x") && value.contains("y") && value.contains("z"))
+            {
+                auto vector3Val = std::make_shared<Vector3>(value.get<Vector3>());
+                Register(key, vector3Val.get());
+            }
+            else if (value.is_object() && value.contains("translate") && value.contains("rotate") && value.contains("scale"))
+            {
+                auto transformVal = std::make_shared<Transform>(value.get<Transform>());
+                Register(key, transformVal.get());
+            }
             else {
                 Logger::Log("Unsupported type for key: " + key);
             }
