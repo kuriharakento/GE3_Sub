@@ -8,6 +8,7 @@
 #include "math/Vector3.h"
 #include <type_traits>
 #include <vector>
+#include <cstring>
 #include "base/GraphicsTypes.h"
 #include "JsonSerialization.h"
 
@@ -81,14 +82,23 @@ void JsonEditableBase::Register(const std::string& name, T* value)
 			else if constexpr (std::is_same_v<T, std::string>)
 			{
 				char buf[256];
-				// 安全版 strncpy_s
-				strncpy_s(buf, sizeof(buf), value->c_str(), _TRUNCATE);
+				// 安全版 strncpy (portable version)
+				strncpy(buf, value->c_str(), sizeof(buf) - 1);
+				buf[sizeof(buf) - 1] = '\0';
 				if (ImGui::InputText("##val", buf, sizeof(buf)))
 				{
 					*value = buf;
 				}
 			}
-			// その他（Transform も含む）は raw JSON マルチラインで編集
+			// Transform
+			else if constexpr (std::is_same_v<T, Transform>)
+			{
+				ImGui::Text("Transform");
+				ImGui::DragFloat3("Scale", &value->scale.x, 0.1f);
+				ImGui::DragFloat3("Rotate", &value->rotate.x, 0.01f);
+				ImGui::DragFloat3("Translate", &value->translate.x, 0.1f);
+			}
+			// その他は raw JSON マルチラインで編集
 			else
 			{
 				std::string s = nlohmann::json(*value).dump(2);

@@ -31,6 +31,11 @@ bool JsonEditableBase::LoadJson(const std::string& path)
                 auto stringVal = std::make_shared<std::string>(value.get<std::string>());
                 Register(key, stringVal.get());
             }
+            else if (value.is_object() && value.contains("translate") && value.contains("rotate") && value.contains("scale")) {
+                // Transform構造体を検出
+                auto transformVal = std::make_shared<Transform>(value.get<Transform>());
+                Register(key, transformVal.get());
+            }
             else if (value.is_array() && value.size() > 0 && value[0].is_object()) {
                 // 例えば Vector3 の配列を想定している場合
                 auto vector3List = std::make_shared<std::vector<Vector3>>();
