@@ -1,7 +1,6 @@
 #pragma once
-#pragma once
 #include <nlohmann/json.hpp>
-#include "math/Vector3.h"
+#include "Vector3.h"
 
 inline void to_json(nlohmann::json& j, Vector3 const& v)
 {

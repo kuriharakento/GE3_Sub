@@ -11,7 +11,7 @@
 #include <vector>
 #include "base/GraphicsTypes.h"
 #include "TransformSerialization.h"
-#include "Vector3Serialization.h"
+#include "math/Vector3Serialization.h"
 
 class JsonEditableBase : public IJsonEditable
 {
