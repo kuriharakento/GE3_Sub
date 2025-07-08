@@ -24,19 +24,24 @@ void ObstacleManager::Update()
 	
 	ImGui::End();
 #endif
-	if(obstacleData_->GetObstacleCount() != obstacles_.size())
+	// 削除処理
+	auto& transforms = obstacleData_->GetObstacles();
+	while (transforms.size() < obstacles_.size())
+	{
+		// 障害物の数が減っている場合は削除
+		obstacles_.pop_back();
+	}
+
+	// 障害物の数が変わったかチェック
+	if (obstacleData_->GetObstacleCount() != obstacles_.size())
 	{
 		// 障害物の数が異なる場合は再生成
 		CreateObstacles("cube.obj");
 	}
-	
-
-	for (auto& obstacle : obstacles_)
+	else
 	{
-		if (obstacle)
-		{
-			obstacle->Update();
-		}
+		// 同じ数ならTransformだけ反映
+		ApplyObstacleData();
 	}
 }
 
@@ -84,9 +89,13 @@ void ObstacleManager::CreateObstacles(const std::string& modelName)
 void ObstacleManager::ApplyObstacleData()
 {
 	// 障害物の位置、回転、スケールをデータから適用
-	for (size_t i = 0; i < obstacles_.size(); ++i)
+	auto& transforms = obstacleData_->GetObstacles();
+	for (size_t i = 0; i < obstacles_.size() && i < transforms.size(); ++i)
 	{
-		
+		obstacles_[i]->SetPosition(transforms[i].translate);
+		obstacles_[i]->SetRotation(transforms[i].rotate);
+		obstacles_[i]->SetScale(transforms[i].scale);
+		obstacles_[i]->Update(); // 更新を呼び出して反映
 	}
 }
 
