@@ -4,12 +4,12 @@
 #include <nlohmann/json.hpp>
 #include "IJsonEditable.h"
 #include "imgui/imgui.h"
-#include <fstream>
 #include "math/Vector3.h"
 #include <type_traits>
 #include <vector>
 #include "base/GraphicsTypes.h"
 #include "JsonSerialization.h"
+#include "JsonEditorImGuiUtils.h"
 
 class JsonEditableBase : public IJsonEditable
 {
@@ -22,7 +22,8 @@ public:
 
 protected:
 	template<typename T>
-	// NOTE: ここでは変数名と同じキー名で登録する必要がある
+	// NOTE: 必ず変数は登録すること!! しないとエラーが出る。
+	// NOTE: ここでは変数名と同じキー名で登録する必要がある。
 	void Register(const std::string& name, T* value);
 
 private:
@@ -34,7 +35,10 @@ private:
 	std::string fileName;
 };
 
-// type-trait to detect std::vector<...>
+// メンバ変数登録の自動化マクロ
+#define REGISTER_MEMBER(var) Register(#var, &var)
+
+// 型チェックのためのヘルパー
 template<typename> struct is_std_vector : std::false_type {};
 template<typename U, typename A> struct is_std_vector<std::vector<U, A>> : std::true_type {};
 
@@ -56,121 +60,27 @@ void JsonEditableBase::Register(const std::string& name, T* value)
 		ImGui::PushID(name.c_str());
 		if (ImGui::CollapsingHeader(name.c_str()))
 		{
-			// float
+			// 型ごとの描画関数に委譲
 			if constexpr (std::is_same_v<T, float>)
-			{
-				ImGui::DragFloat("##val", value, 0.1f);
-			}
-			// int
+				DrawImGuiForFloat("##val", value);
 			else if constexpr (std::is_same_v<T, int>)
-			{
-				ImGui::DragInt("##val", value);
-			}
-			// bool
+				DrawImGuiForInt("##val", value);
 			else if constexpr (std::is_same_v<T, bool>)
-			{
-				ImGui::Checkbox("##val", value);
-			}
-			// Vector3
+				DrawImGuiForBool("##val", value);
 			else if constexpr (std::is_same_v<T, Vector3>)
-			{
-				// &v.x を渡すことで float[3] にキャスト可
-				ImGui::DragFloat3("##val", &value->x, 0.1f);
-			}
-			// Transform - 追加！
+				DrawImGuiForVector3("##val", value);
 			else if constexpr (std::is_same_v<T, Transform>)
-			{
-				ImGui::Text("Transform");
-				ImGui::DragFloat3("Translate", &value->translate.x, 0.1f);
-				ImGui::DragFloat3("Rotate", &value->rotate.x, 0.01f);
-				ImGui::DragFloat3("Scale", &value->scale.x, 0.1f);
-				
-			}
-			// std::vector<Transform> - 追加！
+				DrawImGuiForTransform("##val", value);
 			else if constexpr (std::is_same_v<T, std::vector<Transform>>)
-			{
-				for (size_t i = 0; i < value->size(); ++i)
-				{
-					std::string headerLabel = "Transform[" + std::to_string(i) + "]";
-					ImGui::PushID(static_cast<int>(i));
-
-					if (ImGui::TreeNode(headerLabel.c_str()))
-					{
-						ImGui::DragFloat3("Translate", &(*value)[i].translate.x, 0.1f);
-						ImGui::DragFloat3("Rotate", &(*value)[i].rotate.x, 0.01f);
-						ImGui::DragFloat3("Scale", &(*value)[i].scale.x, 0.1f);
-						ImGui::TreePop();
-					}
-
-					ImGui::PopID();
-				}
-
-				// 配列の操作ボタン
-				ImGui::Separator();
-				if (ImGui::Button("Add Transform"))
-				{
-					value->push_back(Transform{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("Remove Last") && !value->empty())
-				{
-					value->pop_back();
-				}
-			}
-			// std::vector<Vector3> - 追加！
+				DrawImGuiForTransformVector("##val", value);
 			else if constexpr (std::is_same_v<T, std::vector<Vector3>>)
-			{
-				for (size_t i = 0; i < value->size(); ++i)
-				{
-					std::string label = "Element[" + std::to_string(i) + "]";
-					ImGui::DragFloat3(label.c_str(), &(*value)[i].x, 0.1f);
-				}
-			}
-			// std::string
+				DrawImGuiForVector3Vector("##val", value);
 			else if constexpr (std::is_same_v<T, std::string>)
-			{
-				char buf[256];
-				// 安全版 strncpy_s
-				strncpy_s(buf, sizeof(buf), value->c_str(), _TRUNCATE);
-				if (ImGui::InputText("##val", buf, sizeof(buf)))
-				{
-					*value = buf;
-				}
-			}
-			// std::vector<std::string> - 追加！
+				DrawImGuiForString("##val", value);
 			else if constexpr (std::is_same_v<T, std::vector<std::string>>)
-			{
-				for (size_t i = 0; i < value->size(); ++i)
-				{
-					std::string label = "Element[" + std::to_string(i) + "]";
-					char buf[256];
-					strncpy_s(buf, sizeof(buf), (*value)[i].c_str(), _TRUNCATE);
-					if (ImGui::InputText(label.c_str(), buf, sizeof(buf)))
-					{
-						(*value)[i] = buf;
-					}
-				}
-			}
-			// その他は raw JSON マルチラインで編集
+				DrawImGuiForStringVector("##val", value);
 			else
-			{
-				std::string s = nlohmann::json(*value).dump(2);
-				char* buf = (char*)alloca(s.size() + 1);
-				memcpy(buf, s.c_str(), s.size() + 1);
-				if (ImGui::InputTextMultiline(
-					"##val", buf, s.size() + 1,
-					ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
-					ImGuiInputTextFlags_AllowTabInput |
-					ImGuiInputTextFlags_AlwaysOverwrite))
-				{
-					try
-					{
-						auto jj = nlohmann::json::parse(buf);
-						*value = jj.get<T>();
-					}
-					catch (...) {}
-				}
-			}
+				DrawImGuiForRawJson<T>("##val", value);
 		}
 		ImGui::PopID();
 		};

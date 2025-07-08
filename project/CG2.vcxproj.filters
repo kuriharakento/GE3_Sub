@@ -108,6 +108,7 @@
     <ClCompile Include="application\GameObject\obstacle\ObstacleData.cpp" />
     <ClCompile Include="application\GameObject\component\action\GravityPhysicsComponent.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonSerialization.cpp" />
+    <ClCompile Include="engine\jsonEditor\JsonEditorImGuiUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\GameObject\component\collision\AABBColliderComponent.h" />
@@ -237,6 +238,7 @@
     <ClInclude Include="application\GameObject\obstacle\ObstacleData.h" />
     <ClInclude Include="application\GameObject\component\action\GravityPhysicsComponent.h" />
     <ClInclude Include="engine\jsonEditor\JsonSerialization.h" />
+    <ClInclude Include="engine\jsonEditor\JsonEditorImGuiUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Line.hlsli" />

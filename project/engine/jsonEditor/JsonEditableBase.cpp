@@ -1,6 +1,8 @@
 #include "JsonEditableBase.h"
 
 #include "base/Logger.h"
+#include <fstream>
+
 
 bool JsonEditableBase::LoadJson(const std::string& path)
 {

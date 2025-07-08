@@ -3,7 +3,7 @@
 
 ObstacleData::ObstacleData()
 {
-    Register("obstacles", &obstacles);
+	REGISTER_MEMBER(obstacles); // 障害物のTransform情報を登録
 }
 
 void ObstacleData::Initialize(const std::string& name)
@@ -18,9 +18,6 @@ void ObstacleData::AddObstacle(const Vector3& position, const Vector3& rotation,
 
 void ObstacleData::DrawImGui()
 {
-    // オプション
-    //ImGui::SameLine();
-
     // 情報表示
     JsonEditableBase::DrawImGui();
 }
