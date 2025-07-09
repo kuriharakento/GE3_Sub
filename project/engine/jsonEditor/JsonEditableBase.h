@@ -62,25 +62,25 @@ void JsonEditableBase::Register(const std::string& name, T* value)
 		{
 			// 型ごとの描画関数に委譲
 			if constexpr (std::is_same_v<T, float>)
-				DrawImGuiForFloat("##val", value);
+				DrawImGuiForFloat(name, value);
 			else if constexpr (std::is_same_v<T, int>)
-				DrawImGuiForInt("##val", value);
+				DrawImGuiForInt(name, value);
 			else if constexpr (std::is_same_v<T, bool>)
-				DrawImGuiForBool("##val", value);
+				DrawImGuiForBool(name, value);
 			else if constexpr (std::is_same_v<T, Vector3>)
-				DrawImGuiForVector3("##val", value);
+				DrawImGuiForVector3(name, value);
 			else if constexpr (std::is_same_v<T, Transform>)
-				DrawImGuiForTransform("##val", value);
+				DrawImGuiForTransform(name, value);
 			else if constexpr (std::is_same_v<T, std::vector<Transform>>)
-				DrawImGuiForTransformVector("##val", value);
+				DrawImGuiForTransformVector(name, value);
 			else if constexpr (std::is_same_v<T, std::vector<Vector3>>)
-				DrawImGuiForVector3Vector("##val", value);
+				DrawImGuiForVector3Vector(name, value);
 			else if constexpr (std::is_same_v<T, std::string>)
-				DrawImGuiForString("##val", value);
+				DrawImGuiForString(name, value);
 			else if constexpr (std::is_same_v<T, std::vector<std::string>>)
-				DrawImGuiForStringVector("##val", value);
+				DrawImGuiForStringVector(name, value);
 			else
-				DrawImGuiForRawJson<T>("##val", value);
+				DrawImGuiForRawJson<T>(name, value);
 		}
 		ImGui::PopID();
 		};
