@@ -102,6 +102,53 @@ void RenderTexture::EndRender() {
     }
 }
 
+void RenderTexture::PreDrawForImGui()
+{
+    if (currentState_ != D3D12_RESOURCE_STATE_RENDER_TARGET)
+    {
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            texture_.Get(),
+            currentState_,
+            D3D12_RESOURCE_STATE_RENDER_TARGET);
+        dxCommon_->GetCommandList()->ResourceBarrier(1, &barrier);
+        currentState_ = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    }
+
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxCommon_->GetDSVHandle();
+    dxCommon_->GetCommandList()->OMSetRenderTargets(1, &rtvHandle_, FALSE, &dsvHandle);
+
+    // ビューポートとシザー設定
+    D3D12_VIEWPORT viewport{};
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.Width = static_cast<float>(width_);
+    viewport.Height = static_cast<float>(height_);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+
+    D3D12_RECT scissorRect{};
+    scissorRect.left = 0;
+    scissorRect.top = 0;
+    scissorRect.right = static_cast<LONG>(width_);
+    scissorRect.bottom = static_cast<LONG>(height_);
+
+    dxCommon_->GetCommandList()->RSSetViewports(1, &viewport);
+    dxCommon_->GetCommandList()->RSSetScissorRects(1, &scissorRect);
+}
+
+void RenderTexture::PostDrawForImGui()
+{
+    if (currentState_ != D3D12_RESOURCE_STATE_RENDER_TARGET)
+    {
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            texture_.Get(),
+            currentState_,
+            D3D12_RESOURCE_STATE_RENDER_TARGET);
+        dxCommon_->GetCommandList()->ResourceBarrier(1, &barrier);
+        currentState_ = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    }
+}
+
 D3D12_GPU_DESCRIPTOR_HANDLE RenderTexture::GetGPUHandle() const {
     return srvManager_->GetGPUDescriptorHandle(srvIndex_);
 }

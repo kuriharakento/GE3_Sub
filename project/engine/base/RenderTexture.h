@@ -14,6 +14,8 @@ public:
     void Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor);
     void BeginRender();
     void EndRender();
+	void PreDrawForImGui();
+	void PostDrawForImGui();
 
 
 public: // ゲッター

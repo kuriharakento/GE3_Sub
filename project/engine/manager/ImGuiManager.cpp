@@ -36,6 +36,10 @@ void ImGuiManager::Initialize([[maybe_unused]] WinApp* winApp, [[maybe_unused]] 
 		srvManager_->GetCPUDescriptorHandle(srvIndex),
 		srvManager_->GetGPUDescriptorHandle(srvIndex)
 	);
+
+	// ドッキングを有効にする
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 #endif
 }
 

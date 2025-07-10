@@ -12,6 +12,7 @@ void TopDownCamera::Initialize(Camera* camera)
 void TopDownCamera::Update()
 {
 #ifdef _DEBUG
+	ImGui::Begin("TopDownCamera Settings");
 	Vector3 cameraPos = camera_->GetTranslate();
 	ImGui::DragFloat3("Camera Position", &cameraPos.x, 0.1f);
 	camera_->SetTranslate(cameraPos);
@@ -22,6 +23,7 @@ void TopDownCamera::Update()
 	ImGui::DragFloat("Camera Pitch", &pitch_, 0.1f);
 	ImGui::DragFloat("Camera Yaw", &yaw_, 0.1f);
 	ImGui::DragFloat3("Camera Offset", &offset_.x, 0.1f);
+	ImGui::End();
 #endif
 
     if (!camera_ || !target_ || !isActive_) return;

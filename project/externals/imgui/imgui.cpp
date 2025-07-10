@@ -7337,7 +7337,8 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
     if (window_just_created)
         window = CreateNewWindow(name, flags);
 
-    // [DEBUG] Debug break requested by user
+    // [
+    // ] Debug break requested by user
     if (g.DebugBreakInWindow == window->ID)
         IM_DEBUG_BREAK();
 

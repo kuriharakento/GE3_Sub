@@ -6,6 +6,7 @@
 #include "application/GameObject/base/GameObjectManager.h"
 #include "base/Logger.h"
 #include "engine/effects/ParticleManager.h"
+#include "ImGui/imgui_internal.h"
 #include "manager/TextureManager.h"
 
 void MyGame::Initialize()
@@ -80,9 +81,6 @@ void MyGame::Update()
 
 	// パーティクルマネージャーの更新
 	ParticleManager::GetInstance()->Update(cameraManager_.get());
-
-	//フレームワークの更新後処理
-	Framework::PostUpdate();
 }
 
 void MyGame::Draw()
@@ -96,8 +94,6 @@ void MyGame::Draw()
 	/////////////////< 描画ここから >////////////////////
 
 	// ---------- 3D描画 ---------
-
-	
 
 	//3D描画用設定
 	Framework::Draw3DSetting();
@@ -126,18 +122,46 @@ void MyGame::Draw()
 
 	renderTexture_->EndRender();
 
-	/*----[ スワップチェインの描画 ]----*/
-
+#ifdef _DEBUG
 	dxCommon_->PreDraw();
-
 	postProcessManager_->Draw(renderTexture_->GetGPUHandle());
 
-#ifdef _DEBUG
-	//ImGuiの描画
-	imguiManager_->Draw();
-#endif
+	// --- ゲーム画面ウィンドウ（中央） ---
+	ImGui::Begin("Game View");
+	ImTextureID gameTexture = (ImTextureID)(renderTexture_->GetGPUHandle().ptr);
+	ImVec2 imageSize = ImVec2(640, 360); // 必要に応じてサイズ調整
+	ImGui::Image(gameTexture, imageSize);
+	ImGui::End();
 
-	dxCommon_->PostDraw();	
+	ImGui::Begin("Hierarchy");
+	ImGui::Text("ここにHierarchy");
+	ImGui::End();
+
+	ImGui::Begin("Inspector");
+	ImGui::Text("ここにInspector");
+	ImGui::End();
+
+	ImGui::Begin("Project");
+	ImGui::Text("ここにProjectウィンドウ");
+	ImGui::End();
+
+	ImGui::Begin("Console");
+	ImGui::Text("ここにConsoleウィンドウ");
+	ImGui::End();
+	
+	
+	imguiManager_->End();
+	imguiManager_->Draw();
+	dxCommon_->PostDraw();
+#else
+	// オフスクリーン描画の終了
+	renderTexture_->EndRender();
+	//スワップチェインの描画
+	dxCommon_->PreDraw();
+	//ポストプロセスの描画
+	postProcessManager_->Draw(renderTexture_->GetGPUHandle());
+	dxCommon_->PostDraw();
+#endif	
 }
 
 void MyGame::LoadTextures()
