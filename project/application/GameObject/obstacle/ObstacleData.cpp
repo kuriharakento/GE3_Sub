@@ -3,7 +3,7 @@
 
 ObstacleData::ObstacleData()
 {
-	REGISTER_MEMBER(obstacles); // 障害物のTransform情報を登録
+	Register("objects", &obstacles);
 }
 
 void ObstacleData::Initialize(const std::string& name)

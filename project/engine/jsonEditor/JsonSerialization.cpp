@@ -11,6 +11,7 @@ void to_json(nlohmann::json& j, Transform const& t)
 
 void from_json(nlohmann::json const& j, Transform& t)
 {
+	// 名前を変換
     if (j.contains("translate"))
     {
         j.at("translate").get_to(t.translate);
@@ -19,8 +20,30 @@ void from_json(nlohmann::json const& j, Transform& t)
     {
         j.at("position").get_to(t.translate);
     }
-    j.at("rotate").get_to(t.rotate);
-    j.at("scale").get_to(t.scale);
+	else if (j.contains("translation"))
+	{
+		j.at("translation").get_to(t.translate);
+	}
+
+    //
+	if (j.contains("rotate"))
+	{
+		j.at("rotate").get_to(t.rotate);
+	}
+	else if (j.contains("rotation"))
+	{
+		j.at("rotation").get_to(t.rotate);
+	}
+
+    // 
+	if (j.contains("scale"))
+	{
+		j.at("scale").get_to(t.scale);
+	}
+	else if (j.contains("scaling"))
+	{
+		j.at("scaling").get_to(t.scale);
+	}
 }
 
 void to_json(nlohmann::json& j, Vector3 const& v)
@@ -30,7 +53,19 @@ void to_json(nlohmann::json& j, Vector3 const& v)
 
 void from_json(nlohmann::json const& j, Vector3& v)
 {
-    j.at("x").get_to(v.x);
-    j.at("y").get_to(v.y);
-    j.at("z").get_to(v.z);
+    if (j.is_object())
+    {
+        if (j.contains("x") && j.contains("y") && j.contains("z"))
+        {
+            v.x = j.at("x").get<float>();
+            v.y = j.at("y").get<float>();
+            v.z = j.at("z").get<float>();
+        }
+    }
+    else if (j.is_array() && j.size() == 3)
+    {
+        v.x = j[0].get<float>();
+        v.y = j[1].get<float>();
+        v.z = j[2].get<float>();
+    }
 }

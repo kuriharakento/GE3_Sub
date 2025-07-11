@@ -69,7 +69,7 @@ void TitleScene::Initialize()
 	// 障害物マネージャーの生成
 	obstacleManager_ = std::make_unique<ObstacleManager>();
 	obstacleManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
-	obstacleManager_->LoadObstacleData("obstacles.json");
+	obstacleManager_->LoadObstacleData("object.json");
 	obstacleManager_->CreateObstacles("cube.obj");
 
 	//オービットカメラワークの生成

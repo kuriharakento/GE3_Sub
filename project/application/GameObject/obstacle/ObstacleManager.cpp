@@ -67,7 +67,7 @@ void ObstacleManager::CreateObstacles(const std::string& modelName)
     obstacles_.clear();
 
     // 位置、回転、スケールの情報を取得
-	auto& transforms = obstacleData_->GetObstacles();
+	auto& obstacleInfo = obstacleData_->GetObstacles();
 
 
     // 障害物を生成
@@ -76,9 +76,9 @@ void ObstacleManager::CreateObstacles(const std::string& modelName)
         auto obstacle = std::make_unique<Obstacle>("obstacle");
         obstacle->Initialize(object3dCommon_,lightManager_);
         obstacle->SetModel(modelName);
-		obstacle->SetPosition(transforms[i].translate);
-		obstacle->SetRotation(transforms[i].rotate);
-		obstacle->SetScale(transforms[i].scale);
+		obstacle->SetPosition(obstacleInfo[i].transform.translate);
+		obstacle->SetRotation(obstacleInfo[i].transform.rotate);
+		obstacle->SetScale(obstacleInfo[i].transform.scale);
 
 		// 衝突判定コンポーネントを追加
 		obstacle->AddComponent("OBBCollider", std::make_unique<OBBColliderComponent>(obstacle.get()));
@@ -89,12 +89,12 @@ void ObstacleManager::CreateObstacles(const std::string& modelName)
 void ObstacleManager::ApplyObstacleData()
 {
 	// 障害物の位置、回転、スケールをデータから適用
-	auto& transforms = obstacleData_->GetObstacles();
-	for (size_t i = 0; i < obstacles_.size() && i < transforms.size(); ++i)
+	auto& obstacleInfo = obstacleData_->GetObstacles();
+	for (size_t i = 0; i < obstacles_.size() && i < obstacleInfo.size(); ++i)
 	{
-		obstacles_[i]->SetPosition(transforms[i].translate);
-		obstacles_[i]->SetRotation(transforms[i].rotate);
-		obstacles_[i]->SetScale(transforms[i].scale);
+		obstacles_[i]->SetPosition(obstacleInfo[i].transform.translate);
+		obstacles_[i]->SetRotation(obstacleInfo[i].transform.rotate);
+		obstacles_[i]->SetScale(obstacleInfo[i].transform.scale);
 		obstacles_[i]->Update(); // 更新を呼び出して反映
 	}
 }

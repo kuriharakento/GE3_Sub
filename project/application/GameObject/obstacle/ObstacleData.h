@@ -6,6 +6,14 @@
 
 using json = nlohmann::json;
 
+struct ObstacleInfo
+{
+	std::string type; // 障害物の種類
+	std::string name; // 障害物の名前
+	Transform transform; // 障害物のTransform情報
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ObstacleInfo, type, name, transform)
+
 class ObstacleData : public JsonEditableBase
 {
 public:
@@ -13,9 +21,9 @@ public:
     void Initialize(const std::string& name);
     void AddObstacle(const Vector3& position, const Vector3& rotation, const Vector3& scale);
     void DrawImGui() override;
-	std::vector<Transform>& GetObstacles() { return obstacles; } // 障害物のTransform情報を取得
+	std::vector<ObstacleInfo>& GetObstacles() { return obstacles; } // 障害物のTransform情報を取得
 	uint32_t GetObstacleCount() const { return static_cast<uint32_t>(obstacles.size()); } // 障害物の数を取得
 
 private:
-	std::vector<Transform> obstacles; // 障害物のTransform情報
+	std::vector<ObstacleInfo> obstacles; // 障害物のTransform情報
 };

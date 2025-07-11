@@ -10,6 +10,7 @@
 #include "base/GraphicsTypes.h"
 #include "JsonSerialization.h"
 #include "JsonEditorImGuiUtils.h"
+#include "base/Logger.h"
 
 class JsonEditableBase : public IJsonEditable
 {
@@ -19,6 +20,8 @@ public:
 	bool SaveJson(const std::string& path) const override;
 	void DrawImGui() override;
 	virtual void DrawOptions();
+
+	void SetValue(const std::string& key, const nlohmann::json& value);
 
 protected:
 	template<typename T>
@@ -31,6 +34,7 @@ private:
 	std::unordered_map<std::string, std::function<void(const nlohmann::json&)>> setters_;
 	std::unordered_map<std::string, std::function<void()>> drawers_;
 
+	std::vector<std::shared_ptr<void>> registeredMembers_; // 登録されたメンバ変数のポインタを保持
 	const std::string dirPath = "Resources/json/";
 	std::string fileName;
 };
@@ -46,6 +50,9 @@ template<typename T>
 void JsonEditableBase::Register(const std::string& name, T* value)
 {
 	if (getters_.count(name)) return;
+
+	// 型名を出力
+	Logger::Log("Register: " + name + " type: " + std::string(typeid(T).name()) + "\n");
 
 	// シンプルに全体型に対して to_json/from_json を丸投げ
 	getters_[name] = [value]() {
