@@ -121,47 +121,12 @@ void MyGame::Draw()
 	/////////////////< 描画ここまで >////////////////////
 
 	renderTexture_->EndRender();
-
-#ifdef _DEBUG
 	dxCommon_->PreDraw();
 	postProcessManager_->Draw(renderTexture_->GetGPUHandle());
-
-	// --- ゲーム画面ウィンドウ（中央） ---
-	ImGui::Begin("Game View");
-	ImTextureID gameTexture = (ImTextureID)(renderTexture_->GetGPUHandle().ptr);
-	ImVec2 imageSize = ImVec2(640, 360); // 必要に応じてサイズ調整
-	ImGui::Image(gameTexture, imageSize);
-	ImGui::End();
-
-	ImGui::Begin("Hierarchy");
-	ImGui::Text("ここにHierarchy");
-	ImGui::End();
-
-	ImGui::Begin("Inspector");
-	ImGui::Text("ここにInspector");
-	ImGui::End();
-
-	ImGui::Begin("Project");
-	ImGui::Text("ここにProjectウィンドウ");
-	ImGui::End();
-
-	ImGui::Begin("Console");
-	ImGui::Text("ここにConsoleウィンドウ");
-	ImGui::End();
-	
-	
 	imguiManager_->End();
 	imguiManager_->Draw();
 	dxCommon_->PostDraw();
-#else
-	// オフスクリーン描画の終了
-	renderTexture_->EndRender();
-	//スワップチェインの描画
-	dxCommon_->PreDraw();
-	//ポストプロセスの描画
-	postProcessManager_->Draw(renderTexture_->GetGPUHandle());
-	dxCommon_->PostDraw();
-#endif	
+
 }
 
 void MyGame::LoadTextures()

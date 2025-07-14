@@ -123,9 +123,6 @@ void Framework::Update()
 	//フレームの先頭でImGuiに、ここからフレームが始まる旨を告げる
 	imguiManager_->Begin();
 
-	// ImGuiのドッキングスペースを表示
-	ImguiDockingSpace();
-
 	//入力の更新
 	Input::GetInstance()->Update();
 
@@ -177,61 +174,6 @@ void Framework::Run()
 
 	//終了処理
 	Finalize();
-}
-
-void Framework::ImguiDockingSpace()
-{
-#ifdef _DEBUG
-	// DockSpace用メインウィンドウ
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
-
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_MenuBar;
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-	ImGui::Begin("MainDockSpace", nullptr, window_flags);
-	ImGui::PopStyleVar(3);
-
-	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-
-	// 3. 初期レイアウトを自動分割
-	static bool dock_built = false;
-	if (!dock_built && !ImGui::GetIO().IniFilename)
-	{
-		ImGui::DockBuilderRemoveNode(dockspace_id); // 初期化
-		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
-
-		ImGuiID dock_main = dockspace_id;
-		ImGuiID dock_left = ImGui::DockBuilderSplitNode(dock_main, ImGuiDir_Left, 0.2f, nullptr, &dock_main);
-		ImGuiID dock_right = ImGui::DockBuilderSplitNode(dock_main, ImGuiDir_Right, 0.2f, nullptr, &dock_main);
-		ImGuiID dock_down = ImGui::DockBuilderSplitNode(dock_main, ImGuiDir_Down, 0.25f, nullptr, &dock_main);
-
-		// 名前を付けてウィンドウをドッキング
-		// 左
-		ImGui::DockBuilderDockWindow("Hierarchy", dock_left);
-
-		//　右
-		ImGui::DockBuilderDockWindow("Inspector", dock_right);
-
-		// 下
-		ImGui::DockBuilderDockWindow("Project", dock_down);
-
-		// 中央（基本的にはシーンの描画のみ）
-		ImGui::DockBuilderDockWindow("Game View", dock_main);
-
-		ImGui::DockBuilderFinish(dockspace_id);
-		dock_built = true;
-	}
-
-	ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_None);
-	ImGui::End();
-#endif
 }
 
 void Framework::ShowPerformanceInfo()

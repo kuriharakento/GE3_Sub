@@ -87,7 +87,7 @@ void JsonEditableBase::Register(const std::string& name, T* value)
 			else if constexpr (std::is_same_v<T, std::vector<std::string>>)
 				DrawImGuiForStringVector(name, value);
 			else
-				DrawImGuiForRawJson<T>(name, value);
+				Logger::Log("Unsupported type for ImGui drawing: " + std::string(typeid(T).name()) + "\n");
 		}
 		ImGui::PopID();
 		};

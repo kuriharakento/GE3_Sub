@@ -37,8 +37,6 @@ public: //メンバ関数
 	virtual bool IsEndRequest() { return endRequest_; }
 	//実行
 	void Run();
-	// ImGuiドッキングスペースの表示
-	void ImguiDockingSpace();
 
 protected: //メンバ変数
 	//終了リクエスト
