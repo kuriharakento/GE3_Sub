@@ -19,7 +19,7 @@ void ObstacleData::AddObstacle(const Vector3& position, const Vector3& rotation,
 void ObstacleData::DrawImGui()
 {
     // 情報表示
-    JsonEditableBase::DrawImGui();
+    //JsonEditableBase::DrawImGui();
 
 	// ImGuiでの編集UIを描画
 	ImGui::SeparatorText("Obstacle Settings");

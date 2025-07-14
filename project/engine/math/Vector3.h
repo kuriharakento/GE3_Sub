@@ -173,6 +173,15 @@ struct Vector3
 	{
 		return vec * scalar;
 	}
-
+	
+	// --- 最小・最大 ---
+	static Vector3 Min(const Vector3& a, const Vector3& b)
+	{
+		return Vector3{ std::fmin(a.x, b.x), std::fmin(a.y, b.y), std::fmin(a.z, b.z) };
+	}
+	static Vector3 Max(const Vector3& a, const Vector3& b)
+	{
+		return Vector3{ std::fmax(a.x, b.x), std::fmax(a.y, b.y), std::fmax(a.z, b.z) };
+	}
 
 };

@@ -38,7 +38,7 @@ void CollisionManager::Unregister(ICollisionComponent* collider)
 		}
 	}
 
-	colliders_.erase(std::remove(colliders_.begin(), colliders_.end(), collider), colliders_.end());	
+	colliders_.erase(std::remove(colliders_.begin(), colliders_.end(), collider), colliders_.end());
 }
 
 void CollisionManager::CheckCollisions()
@@ -62,21 +62,49 @@ void CollisionManager::CheckCollisions()
 			/* AABB vs AABB */
 			if (typeA == ColliderType::AABB && typeB == ColliderType::AABB)
 			{
-				isHit = CheckCollision(static_cast<AABBColliderComponent*>(a), static_cast<AABBColliderComponent*>(b));
+				if (a->UseSweep() || b->UseSweep())
+				{
+					isHit = CheckSweepCollision(static_cast<AABBColliderComponent*>(a), static_cast<AABBColliderComponent*>(b));
+				}
+				else
+				{
+					isHit = CheckCollision(static_cast<AABBColliderComponent*>(a), static_cast<AABBColliderComponent*>(b));
+				}
 			}
 			/* OBB vs OBB */
 			else if (typeA == ColliderType::OBB && typeB == ColliderType::OBB)
 			{
-				isHit = CheckCollision(static_cast<OBBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+				if (a->UseSweep() || b->UseSweep())
+				{
+					isHit = CheckSweepCollision(static_cast<OBBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+				}
+				else
+				{
+					isHit = CheckCollision(static_cast<OBBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+				}
 			}
 			/* AABB vs OBB */
 			else if (typeA == ColliderType::AABB && typeB == ColliderType::OBB)
 			{
-				isHit = CheckCollision(static_cast<AABBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+				if (a->UseSweep() || b->UseSweep())
+				{
+					isHit = CheckSweepCollision(static_cast<AABBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+				}
+				else
+				{
+					isHit = CheckCollision(static_cast<AABBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+				}
 			}
 			else if (typeA == ColliderType::OBB && typeB == ColliderType::AABB)
 			{
-				isHit = CheckCollision(static_cast<AABBColliderComponent*>(b), static_cast<OBBColliderComponent*>(a));
+				if (a->UseSweep() || b->UseSweep())
+				{
+					isHit = CheckSweepCollision(static_cast<AABBColliderComponent*>(b), static_cast<OBBColliderComponent*>(a));
+				}
+				else
+				{
+					isHit = CheckCollision(static_cast<AABBColliderComponent*>(b), static_cast<OBBColliderComponent*>(a));
+				}
 			}
 
 			// 衝突している場合
@@ -127,6 +155,17 @@ void CollisionManager::CheckCollisions()
 	{
 		Logger::Log("CollisionManager: Current colliders count: " + std::to_string(colliders_.size()) + "\n");
 		time = 0.0f; // リセット
+	}
+}
+
+void CollisionManager::UpdatePreviousPositions()
+{
+	for (auto& collider : colliders_)
+	{
+		if (collider)
+		{
+			collider->SetPreviousPosition(collider->GetOwner()->GetPosition());
+		}
 	}
 }
 
@@ -271,6 +310,217 @@ bool CollisionManager::CheckCollision(const AABBColliderComponent* a, const OBBC
 	}
 
 	// 衝突している
+	return true;
+}
+
+bool CollisionManager::CheckSweepCollision(const AABBColliderComponent* a, const AABBColliderComponent* b)
+{
+	const Vector3& start = a->GetPreviousPosition();
+	const Vector3& end = a->GetOwner()->GetPosition();
+	const AABB& aBox = a->GetAABB();
+	const AABB& bBox = b->GetAABB();
+
+	// 静的判定（今フレームすでに重なってればOK）
+	if (CheckCollision(a, b)) return true;
+
+	Vector3 aHalf = aBox.GetHalfSize();
+
+	// bBoxをaBoxの半サイズ分膨張
+	AABB expandedBox(
+		bBox.min_ - aHalf,
+		bBox.max_ + aHalf
+	);
+
+	Vector3 dir = end - start;
+	float tmin = 0.0f, tmax = 1.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		float dirComp, startComp, minComp, maxComp;
+		switch (i)
+		{
+		case 0:
+			dirComp = dir.x; startComp = start.x; minComp = expandedBox.min_.x; maxComp = expandedBox.max_.x;
+			break;
+		case 1:
+			dirComp = dir.y; startComp = start.y; minComp = expandedBox.min_.y; maxComp = expandedBox.max_.y;
+			break;
+		case 2:
+			dirComp = dir.z; startComp = start.z; minComp = expandedBox.min_.z; maxComp = expandedBox.max_.z;
+			break;
+		default:
+			continue;
+		}
+
+		if (std::abs(dirComp) < 1e-8f)
+		{
+			// 動きがない軸
+			if (startComp < minComp || startComp > maxComp) return false;
+		}
+		else
+		{
+			float ood = 1.0f / dirComp;
+			float t1 = (minComp - startComp) * ood;
+			float t2 = (maxComp - startComp) * ood;
+			if (t1 > t2) std::swap(t1, t2);
+			tmin = (std::max)(tmin, t1);
+			tmax = std::min(tmax, t2);
+			if (tmin > tmax) return false;
+		}
+	}
+	return true;
+}
+
+bool CollisionManager::CheckSweepCollision(const OBBColliderComponent* a, const OBBColliderComponent* b)
+{
+	// aの中心の移動線分 vs bのOBBの外接AABB（aのOBBサイズ分膨張）で判定
+	Vector3 start = a->GetPreviousPosition();
+	Vector3 end = a->GetOwner()->GetPosition();
+	OBB obb = b->GetOBB();
+	OBB aObb = a->GetOBB();
+
+	// OBBの外接AABBを計算
+	Vector3 corners[8];
+	int idx = 0;
+	for (int x = -1; x <= 1; x += 2)
+	{
+		for (int y = -1; y <= 1; y += 2)
+		{
+			for (int z = -1; z <= 1; z += 2)
+			{
+				Vector3 local = Vector3((float)x, (float)y, (float)z) * obb.size;
+				Vector4 local4(local.x, local.y, local.z, 1.0f);
+				Vector4 rotated4 = obb.rotate * local4;
+				Vector3 rotated(rotated4.x, rotated4.y, rotated4.z);
+				Vector3 corner = obb.center + rotated;
+				corners[idx++] = corner;
+			}
+		}
+	}
+
+	Vector3 minV = corners[0], maxV = corners[0];
+	for (int i = 1; i < 8; ++i)
+	{
+		minV = Vector3::Min(minV, corners[i]);
+		maxV = Vector3::Max(maxV, corners[i]);
+	}
+	// aのOBBサイズ分膨張
+	Vector3 aHalf = aObb.size;
+	AABB extAABB(minV - aHalf, maxV + aHalf);
+
+	// 静的判定
+	if (CheckCollision(a, b)) return true;
+
+	Vector3 dir = end - start;
+	float tmin = 0.0f, tmax = 1.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		float dirComp, startComp, minComp, maxComp;
+		switch (i)
+		{
+		case 0:
+			dirComp = dir.x; startComp = start.x; minComp = extAABB.min_.x; maxComp = extAABB.max_.x;
+			break;
+		case 1:
+			dirComp = dir.y; startComp = start.y; minComp = extAABB.min_.y; maxComp = extAABB.max_.y;
+			break;
+		case 2:
+			dirComp = dir.z; startComp = start.z; minComp = extAABB.min_.z; maxComp = extAABB.max_.z;
+			break;
+		default:
+			continue;
+		}
+
+		if (std::abs(dirComp) < 1e-8f)
+		{
+			if (startComp < minComp || startComp > maxComp) return false;
+		}
+		else
+		{
+			float ood = 1.0f / dirComp;
+			float t1 = (minComp - startComp) * ood;
+			float t2 = (maxComp - startComp) * ood;
+			if (t1 > t2) std::swap(t1, t2);
+			tmin = (std::max)(tmin, t1);
+			tmax = std::min(tmax, t2);
+			if (tmin > tmax) return false;
+		}
+	}
+	return true;
+}
+
+bool CollisionManager::CheckSweepCollision(const AABBColliderComponent* a, const OBBColliderComponent* b)
+{
+	// aの移動線分 vs bのOBBの外接AABB（aのAABBサイズ分膨張）で判定
+	Vector3 start = a->GetPreviousPosition();
+	Vector3 end = a->GetOwner()->GetPosition();
+	OBB obb = b->GetOBB();
+	const AABB& aBox = a->GetAABB();
+
+	// OBBの外接AABBを計算
+	Vector3 corners[8];
+	int idx = 0;
+	for (int x = -1; x <= 1; x += 2)
+	{
+		for (int y = -1; y <= 1; y += 2)
+		{
+			for (int z = -1; z <= 1; z += 2)
+			{
+				Vector3 local = Vector3((float)x, (float)y, (float)z) * obb.size;
+				Vector4 local4(local.x, local.y, local.z, 1.0f);
+				Vector4 rotated4 = obb.rotate * local4;
+				Vector3 rotated(rotated4.x, rotated4.y, rotated4.z);
+				Vector3 corner = obb.center + rotated;
+				corners[idx++] = corner;
+			}
+		}
+	}
+	Vector3 minV = corners[0], maxV = corners[0];
+	for (int i = 1; i < 8; ++i)
+	{
+		minV = Vector3::Min(minV, corners[i]);
+		maxV = Vector3::Max(maxV, corners[i]);
+	}
+	Vector3 aHalf = aBox.GetHalfSize();
+	AABB extAABB(minV - aHalf, maxV + aHalf);
+
+	// 静的判定
+	if (CheckCollision(a, b)) return true;
+
+	Vector3 dir = end - start;
+	float tmin = 0.0f, tmax = 1.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		float dirComp, startComp, minComp, maxComp;
+		switch (i)
+		{
+		case 0:
+			dirComp = dir.x; startComp = start.x; minComp = extAABB.min_.x; maxComp = extAABB.max_.x;
+			break;
+		case 1:
+			dirComp = dir.y; startComp = start.y; minComp = extAABB.min_.y; maxComp = extAABB.max_.y;
+			break;
+		case 2:
+			dirComp = dir.z; startComp = start.z; minComp = extAABB.min_.z; maxComp = extAABB.max_.z;
+			break;
+		default:
+			continue;
+		}
+
+		if (std::abs(dirComp) < 1e-8f)
+		{
+			if (startComp < minComp || startComp > maxComp) return false;
+		}
+		else
+		{
+			float ood = 1.0f / dirComp;
+			float t1 = (minComp - startComp) * ood;
+			float t2 = (maxComp - startComp) * ood;
+			if (t1 > t2) std::swap(t1, t2);
+			tmin = (std::max)(tmin, t1);
+			tmax = std::min(tmax, t2);
+			if (tmin > tmax) return false;
+		}
+	}
 	return true;
 }
 

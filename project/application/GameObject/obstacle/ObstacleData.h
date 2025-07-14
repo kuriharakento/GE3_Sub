@@ -12,6 +12,7 @@ struct ObstacleInfo
 	std::string name; // 障害物の名前
 	Transform transform; // 障害物のTransform情報
 };
+// JSONシリアライズ用のマクロ
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ObstacleInfo, type, name, transform)
 
 class ObstacleData : public JsonEditableBase

@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "IGameObjectComponent.h"
+#include "math/Vector3.h"
 
 class CollisionManager;
 
@@ -18,6 +19,14 @@ class ICollisionComponent : public virtual IGameObjectComponent
 public:
 	virtual ~ICollisionComponent();
 	ICollisionComponent(GameObject* owner);
+
+	// 前フレームの位置を設定。フレームの最初に行う
+	void SetPreviousPosition(const Vector3& position) { previousPosition_ = position; }
+	Vector3 GetPreviousPosition() const { return previousPosition_; }
+
+	// スイープ判定を使用するかどうか
+	void SetUseSweep(bool use) { useSweep_ = use; }
+	bool UseSweep() const { return useSweep_; }
 
 	using CollisionCallback = std::function<void(GameObject* other)>;
 
@@ -36,7 +45,12 @@ public:
 	GameObject* GetOwner() const { return owner_; }
 
 protected:
+	// オーナーのポインタ
 	GameObject* owner_ = nullptr;
+	// 前フレームの位置
+	Vector3 previousPosition_ = {};
+	// スイープ判定を行うか
+	bool useSweep_ = false;
 
 private:
 	CollisionCallback onEnter_ = nullptr;

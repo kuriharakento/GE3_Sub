@@ -422,6 +422,9 @@ void TitleScene::Update()
 	ImGui::End();
 
 #endif
+	// 前フレームの位置を更新
+	CollisionManager::GetInstance()->UpdatePreviousPositions();
+
 	//カメラの更新
 	topDownCamera_->Update();
 
