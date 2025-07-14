@@ -45,9 +45,9 @@ void TitleScene::Initialize()
 	skydome_->SetModel("skydome.obj");
 	skydome_->SetLightManager(sceneManager_->GetLightManager());
 	skydome_->SetEnableLighting(true);
-	skydome_->SetDirectionalLightIntensity(1.0f);
+	skydome_->SetDirectionalLightIntensity(0.5f);
 	//ディレクショナルライトを下から上に照らす
-	skydome_->SetDirectionalLightDirection({ 0.0f, 1.0f, 0.0f });
+	skydome_->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
 
 	//Jsonエディタ
 	JsonEditorManager::GetInstance()->Initialize();
