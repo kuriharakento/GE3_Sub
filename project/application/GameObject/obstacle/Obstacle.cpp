@@ -1,15 +1,9 @@
 #include "Obstacle.h"
 
+#include "application/GameObject/component/collision/CollisionUtils.h"
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
 #include "base/Logger.h"
 #include "math/OBB.h"
-
-struct CollisionInfo
-{
-    bool    isColliding = false;
-    Vector3 mtvAxis{ 0, 1, 0 };
-    float   mtvDepth = FLT_MAX;
-};
 
 void Obstacle::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager)
 {
@@ -126,6 +120,6 @@ void Obstacle::ResolvePenetration(GameObject* other)
     Vector3 mtv;
     if (CheckOBBvsOBBMTV(obbA, obbB, mtv))
     {
-        other->SetPosition(obbB.center + mtv);
+    	other->SetPosition(obbB.center + mtv);
     }
 }

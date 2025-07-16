@@ -5,6 +5,7 @@
 #include "application/GameObject/component/action/PistolComponent.h"
 #include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/base/ICollisionComponent.h"
+#include "application/GameObject/component/collision/CollisionUtils.h"
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
 #include "base/Logger.h"
 
@@ -21,9 +22,7 @@ void Player::Initialize(Object3dCommon* object3dCommon, LightManager* lightManag
 	// 射撃コンポーネントを追加
 	AddComponent("PistolComponent", std::make_unique<AssaultRifleComponent>(object3dCommon, lightManager));
 	// 衝突判定コンポーネント
-	auto collider = std::make_unique<OBBColliderComponent>(this);
-	collider->SetUseSweep(true); // スイープ衝突判定を有効にする
-	AddComponent("OBBColliderComponent", std::move(collider));
+	AddComponent("OBBColliderComponent", std::make_unique<OBBColliderComponent>(this));
 }
 
 void Player::Update()
@@ -38,15 +37,26 @@ void Player::Draw(CameraManager* camera)
 
 void Player::CollisionSettings(ICollisionComponent* collider)
 {
+	// スイープ判定を仕様
+	collider->SetUseSweep(true);
+
 	// 衝突時の処理を設定
 	collider->SetOnEnter([this](GameObject* other) {
-
+		// 衝突した瞬間の処理
+		/*if (other->GetTag() == "Obstacle")
+		{
+			CollisionUtils::ResolvePenetration(this, other);
+		}*/
 						 });
-
 	collider->SetOnStay([this](GameObject* other) {
-
+		// 衝突中の処理
+		/*if (other->GetTag() == "Obstacle")
+		{
+			CollisionUtils::ResolvePenetration(this, other);
+		}*/
 						});
 	collider->SetOnExit([this](GameObject* other) {
+		// 衝突が離れた時の処理
 
 						});
 }

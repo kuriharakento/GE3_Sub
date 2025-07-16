@@ -6,6 +6,7 @@
 #include "application/GameObject/component/base/ICollisionComponent.h"
 #include "application/GameObject/base/GameObject.h"
 #include "base/Logger.h"
+#include "math/MathUtils.h"
 
 CollisionManager* CollisionManager::instance_ = nullptr; // シングルトンインスタンス
 
@@ -323,129 +324,67 @@ bool CollisionManager::CheckSweepCollision(const AABBColliderComponent* a, const
 	// 静的判定（今フレームすでに重なってればOK）
 	if (CheckCollision(a, b)) return true;
 
-	Vector3 aHalf = aBox.GetHalfSize();
+	Vector3 delta = end - start;
+	float maxStep = 1.0f; // 1ステップあたりの最大移動量（調整可）
+	int steps = (std::max)(1, static_cast<int>(delta.Length() / maxStep));
 
-	// bBoxをaBoxの半サイズ分膨張
-	AABB expandedBox(
-		bBox.min_ - aHalf,
-		bBox.max_ + aHalf
-	);
-
-	Vector3 dir = end - start;
-	float tmin = 0.0f, tmax = 1.0f;
-	for (int i = 0; i < 3; ++i)
+	for (int i = 1; i <= steps; ++i)
 	{
-		float dirComp, startComp, minComp, maxComp;
-		switch (i)
-		{
-		case 0:
-			dirComp = dir.x; startComp = start.x; minComp = expandedBox.min_.x; maxComp = expandedBox.max_.x;
-			break;
-		case 1:
-			dirComp = dir.y; startComp = start.y; minComp = expandedBox.min_.y; maxComp = expandedBox.max_.y;
-			break;
-		case 2:
-			dirComp = dir.z; startComp = start.z; minComp = expandedBox.min_.z; maxComp = expandedBox.max_.z;
-			break;
-		default:
-			continue;
-		}
+		float t = static_cast<float>(i) / steps;
+		Vector3 interpPos = MathUtils::Lerp(start, end, t);
 
-		if (std::abs(dirComp) < 1e-8f)
+		// 仮のAABBを移動後位置に作る
+		AABB movedAABB(
+			interpPos - aBox.GetHalfSize(),
+			interpPos + aBox.GetHalfSize()
+		);
+
+		// bBoxをaBoxの半サイズ分膨張
+		AABB expandedBox(
+			bBox.min_ - aBox.GetHalfSize(),
+			bBox.max_ + aBox.GetHalfSize()
+		);
+
+		// 判定
+		if ((movedAABB.max_.x >= expandedBox.min_.x && movedAABB.min_.x <= expandedBox.max_.x) &&
+			(movedAABB.max_.y >= expandedBox.min_.y && movedAABB.min_.y <= expandedBox.max_.y) &&
+			(movedAABB.max_.z >= expandedBox.min_.z && movedAABB.min_.z <= expandedBox.max_.z))
 		{
-			// 動きがない軸
-			if (startComp < minComp || startComp > maxComp) return false;
-		}
-		else
-		{
-			float ood = 1.0f / dirComp;
-			float t1 = (minComp - startComp) * ood;
-			float t2 = (maxComp - startComp) * ood;
-			if (t1 > t2) std::swap(t1, t2);
-			tmin = (std::max)(tmin, t1);
-			tmax = std::min(tmax, t2);
-			if (tmin > tmax) return false;
+			return true;
 		}
 	}
-	return true;
+
+	return false;
 }
 
 bool CollisionManager::CheckSweepCollision(const OBBColliderComponent* a, const OBBColliderComponent* b)
 {
-	// aの中心の移動線分 vs bのOBBの外接AABB（aのOBBサイズ分膨張）で判定
+	constexpr float MAX_STEP_DISTANCE = 1.0f; // 1サブステップあたり最大移動量（調整可）
 	Vector3 start = a->GetPreviousPosition();
 	Vector3 end = a->GetOwner()->GetPosition();
-	OBB obb = b->GetOBB();
 	OBB aObb = a->GetOBB();
 
-	// OBBの外接AABBを計算
-	Vector3 corners[8];
-	int idx = 0;
-	for (int x = -1; x <= 1; x += 2)
+	// サブステップ数を動的に決定
+	float distance = (end - start).Length();
+	int subStepCount = (std::max)(1, static_cast<int>(std::ceil(distance / MAX_STEP_DISTANCE)));
+
+	for (int step = 0; step < subStepCount; ++step)
 	{
-		for (int y = -1; y <= 1; y += 2)
+		float t = static_cast<float>(step + 1) / subStepCount;
+		Vector3 subPos = start + (end - start) * t;
+
+		// aObbをサブステップ位置に仮想移動
+		OBB movedOBB = aObb;
+		movedOBB.center = subPos;
+
+		OBBColliderComponent tempA(nullptr);
+		tempA.SetOBB(movedOBB);
+		if (CheckCollision(&tempA, b))
 		{
-			for (int z = -1; z <= 1; z += 2)
-			{
-				Vector3 local = Vector3((float)x, (float)y, (float)z) * obb.size;
-				Vector4 local4(local.x, local.y, local.z, 1.0f);
-				Vector4 rotated4 = obb.rotate * local4;
-				Vector3 rotated(rotated4.x, rotated4.y, rotated4.z);
-				Vector3 corner = obb.center + rotated;
-				corners[idx++] = corner;
-			}
+			return true;
 		}
 	}
-
-	Vector3 minV = corners[0], maxV = corners[0];
-	for (int i = 1; i < 8; ++i)
-	{
-		minV = Vector3::Min(minV, corners[i]);
-		maxV = Vector3::Max(maxV, corners[i]);
-	}
-	// aのOBBサイズ分膨張
-	Vector3 aHalf = aObb.size;
-	AABB extAABB(minV - aHalf, maxV + aHalf);
-
-	// 静的判定
-	if (CheckCollision(a, b)) return true;
-
-	Vector3 dir = end - start;
-	float tmin = 0.0f, tmax = 1.0f;
-	for (int i = 0; i < 3; ++i)
-	{
-		float dirComp, startComp, minComp, maxComp;
-		switch (i)
-		{
-		case 0:
-			dirComp = dir.x; startComp = start.x; minComp = extAABB.min_.x; maxComp = extAABB.max_.x;
-			break;
-		case 1:
-			dirComp = dir.y; startComp = start.y; minComp = extAABB.min_.y; maxComp = extAABB.max_.y;
-			break;
-		case 2:
-			dirComp = dir.z; startComp = start.z; minComp = extAABB.min_.z; maxComp = extAABB.max_.z;
-			break;
-		default:
-			continue;
-		}
-
-		if (std::abs(dirComp) < 1e-8f)
-		{
-			if (startComp < minComp || startComp > maxComp) return false;
-		}
-		else
-		{
-			float ood = 1.0f / dirComp;
-			float t1 = (minComp - startComp) * ood;
-			float t2 = (maxComp - startComp) * ood;
-			if (t1 > t2) std::swap(t1, t2);
-			tmin = (std::max)(tmin, t1);
-			tmax = std::min(tmax, t2);
-			if (tmin > tmax) return false;
-		}
-	}
-	return true;
+	return false;
 }
 
 bool CollisionManager::CheckSweepCollision(const AABBColliderComponent* a, const OBBColliderComponent* b)

@@ -5,6 +5,12 @@
 
 OBBColliderComponent::OBBColliderComponent(GameObject* owner) : ICollisionComponent(owner)
 {
+	// オーナーがセットされていない場合は何もしない
+	if(!owner)
+	{
+		return;
+	}
+
 	// OBBの初期化
 	obb_.center = owner->GetPosition();
 	obb_.rotate = MakeRotateMatrix(owner->GetRotation());

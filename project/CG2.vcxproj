@@ -111,6 +111,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\component\action\AssaultEnemyBehavior.cpp" />
     <ClCompile Include="application\effect\DodgeEffectParticle.cpp" />
     <ClCompile Include="application\effect\EnemyDeathEffect.cpp" />
+    <ClCompile Include="application\GameObject\component\collision\CollisionUtils.cpp" />
     <ClCompile Include="engine\effects\component\single\BounceComponent.cpp" />
     <ClCompile Include="engine\postprocess\CRTEffect.cpp" />
     <ClCompile Include="engine\postprocess\BasePostEffect.cpp" />
@@ -218,6 +219,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\component\action\AssaultEnemyBehavior.h" />
     <ClInclude Include="application\effect\DodgeEffectParticle.h" />
     <ClInclude Include="application\effect\EnemyDeathEffect.h" />
+    <ClInclude Include="application\GameObject\component\collision\CollisionUtils.h" />
     <ClInclude Include="engine\effects\component\single\BounceComponent.h" />
     <ClInclude Include="engine\postprocess\CRTEffect.h" />
     <ClInclude Include="engine\postprocess\BasePostEffect.h" />
