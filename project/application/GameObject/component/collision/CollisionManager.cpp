@@ -65,7 +65,7 @@ void CollisionManager::CheckCollisions()
 			{
 				if (a->UseSweep() || b->UseSweep())
 				{
-					isHit = CheckSweepCollision(static_cast<AABBColliderComponent*>(a), static_cast<AABBColliderComponent*>(b));
+					isHit = CheckSubstepCollision(static_cast<AABBColliderComponent*>(a), static_cast<AABBColliderComponent*>(b));
 				}
 				else
 				{
@@ -77,7 +77,7 @@ void CollisionManager::CheckCollisions()
 			{
 				if (a->UseSweep() || b->UseSweep())
 				{
-					isHit = CheckSweepCollision(static_cast<OBBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+					isHit = CheckSubstepCollision(static_cast<OBBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
 				}
 				else
 				{
@@ -89,7 +89,7 @@ void CollisionManager::CheckCollisions()
 			{
 				if (a->UseSweep() || b->UseSweep())
 				{
-					isHit = CheckSweepCollision(static_cast<AABBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
+					isHit = CheckSubstepCollision(static_cast<AABBColliderComponent*>(a), static_cast<OBBColliderComponent*>(b));
 				}
 				else
 				{
@@ -100,7 +100,7 @@ void CollisionManager::CheckCollisions()
 			{
 				if (a->UseSweep() || b->UseSweep())
 				{
-					isHit = CheckSweepCollision(static_cast<AABBColliderComponent*>(b), static_cast<OBBColliderComponent*>(a));
+					isHit = CheckSubstepCollision(static_cast<AABBColliderComponent*>(b), static_cast<OBBColliderComponent*>(a));
 				}
 				else
 				{
@@ -314,7 +314,7 @@ bool CollisionManager::CheckCollision(const AABBColliderComponent* a, const OBBC
 	return true;
 }
 
-bool CollisionManager::CheckSweepCollision(const AABBColliderComponent* a, const AABBColliderComponent* b)
+bool CollisionManager::CheckSubstepCollision(const AABBColliderComponent* a, const AABBColliderComponent* b)
 {
 	const Vector3& start = a->GetPreviousPosition();
 	const Vector3& end = a->GetOwner()->GetPosition();
@@ -357,7 +357,7 @@ bool CollisionManager::CheckSweepCollision(const AABBColliderComponent* a, const
 	return false;
 }
 
-bool CollisionManager::CheckSweepCollision(const OBBColliderComponent* a, const OBBColliderComponent* b)
+bool CollisionManager::CheckSubstepCollision(const OBBColliderComponent* a, const OBBColliderComponent* b)
 {
 	constexpr float MAX_STEP_DISTANCE = 1.0f; // 1サブステップあたり最大移動量（調整可）
 	Vector3 start = a->GetPreviousPosition();
@@ -367,6 +367,11 @@ bool CollisionManager::CheckSweepCollision(const OBBColliderComponent* a, const 
 	// サブステップ数を動的に決定
 	float distance = (end - start).Length();
 	int subStepCount = (std::max)(1, static_cast<int>(std::ceil(distance / MAX_STEP_DISTANCE)));
+
+	// constを外して操作を行えるようにする
+	OBBColliderComponent* aNonConst = const_cast<OBBColliderComponent*>(a);
+	OBBColliderComponent* bNonConst = const_cast<OBBColliderComponent*>(b);
+
 
 	for (int step = 0; step < subStepCount; ++step)
 	{
@@ -381,13 +386,16 @@ bool CollisionManager::CheckSweepCollision(const OBBColliderComponent* a, const 
 		tempA.SetOBB(movedOBB);
 		if (CheckCollision(&tempA, b))
 		{
+			// 衝突が検出された場合、サブステップ位置を記録
+			aNonConst->SetCollisionPosition(subPos);
+			bNonConst->SetCollisionPosition(subPos);
 			return true;
 		}
 	}
 	return false;
 }
 
-bool CollisionManager::CheckSweepCollision(const AABBColliderComponent* a, const OBBColliderComponent* b)
+bool CollisionManager::CheckSubstepCollision(const AABBColliderComponent* a, const OBBColliderComponent* b)
 {
 	// aの移動線分 vs bのOBBの外接AABB（aのAABBサイズ分膨張）で判定
 	Vector3 start = a->GetPreviousPosition();

@@ -35,7 +35,7 @@ void OBBColliderComponent::Update(GameObject* owner)
 	// OBBを可視化する
 	LineManager::GetInstance()->DrawOBB(obb_, VectorColorCodes::Cyan);
 
-	if (useSweep_)
+	if (useSubstep_)
 	{
 		OBB previousObb = obb_;
 		obb_.center = previousPosition_;

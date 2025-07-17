@@ -113,13 +113,18 @@ void Obstacle::ResolvePenetration(GameObject* other)
     auto obstacleColl = GetComponent<OBBColliderComponent>();
     auto otherColl = other->GetComponent<OBBColliderComponent>();
     if (!obstacleColl || !otherColl) return;
+    // 衝突した位置を取得
+    Vector3 collisionPos = otherColl->GetCollisionPosition();
 
-    const OBB& obbA = obstacleColl->GetOBB();
-    const OBB& obbB = otherColl->GetOBB();
+    // MTV計算用にOBBのcenterを衝突位置に変更
+    OBB obbA = obstacleColl->GetOBB();
+    OBB obbB = otherColl->GetOBB();
+    obbB.center = collisionPos;
 
     Vector3 mtv;
     if (CheckOBBvsOBBMTV(obbA, obbB, mtv))
     {
+        
     	other->SetPosition(obbB.center + mtv);
     }
 }

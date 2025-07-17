@@ -25,8 +25,12 @@ public:
 	Vector3 GetPreviousPosition() const { return previousPosition_; }
 
 	// スイープ判定を使用するかどうか
-	void SetUseSweep(bool use) { useSweep_ = use; }
-	bool UseSweep() const { return useSweep_; }
+	void SetUseSweep(bool use) { useSubstep_ = use; }
+	bool UseSweep() const { return useSubstep_; }
+
+	// 衝突した位置を設定。衝突が発生した時に呼ばれる
+	void SetCollisionPosition(const Vector3& position) { collisionPosition_ = position; }
+	Vector3 GetCollisionPosition() const { return collisionPosition_; }
 
 	using CollisionCallback = std::function<void(GameObject* other)>;
 
@@ -49,8 +53,10 @@ protected:
 	GameObject* owner_ = nullptr;
 	// 前フレームの位置
 	Vector3 previousPosition_ = {};
-	// スイープ判定を行うか
-	bool useSweep_ = false;
+	// 衝突した位置
+	Vector3 collisionPosition_ = {};
+	// サブステップ判定を行うか
+	bool useSubstep_ = false;
 
 private:
 	CollisionCallback onEnter_ = nullptr;

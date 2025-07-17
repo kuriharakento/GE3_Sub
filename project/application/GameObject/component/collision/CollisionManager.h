@@ -30,10 +30,10 @@ private:
 	bool CheckCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);				// OBB同士の衝突判定
 	bool CheckCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);				// AABBとOBBの衝突判定
 
-	// 衝突判定関数（スイープ用）
-	bool CheckSweepCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);
-	bool CheckSweepCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);
-	bool CheckSweepCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);
+	// 衝突判定関数（サブステップ）
+	bool CheckSubstepCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);
+	bool CheckSubstepCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);
+	bool CheckSubstepCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);
 
 	//コライダータイプから文字列を取得
 	std::string GetColliderTypeString(ColliderType type) const;
