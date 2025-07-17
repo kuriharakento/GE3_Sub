@@ -1,5 +1,6 @@
 #include "GravityPhysicsComponent.h"
 #include "application/GameObject/base/GameObject.h"
+#include "application/GameObject/character/base/Character.h"
 
 GravityPhysicsComponent::GravityPhysicsComponent(float gravity)
     : gravity_(gravity)
@@ -9,6 +10,12 @@ GravityPhysicsComponent::GravityPhysicsComponent(float gravity)
 
 void GravityPhysicsComponent::Update(GameObject* owner)
 {
+	auto character = dynamic_cast<Character*>(owner);
+	if (character && character->IsGrounded())
+	{
+		return;
+	}
+
     // 60FPS 想定
     const float deltaTime = 1.0f / 60.0f;
 

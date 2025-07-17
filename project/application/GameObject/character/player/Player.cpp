@@ -43,17 +43,11 @@ void Player::CollisionSettings(ICollisionComponent* collider)
 	// 衝突時の処理を設定
 	collider->SetOnEnter([this](GameObject* other) {
 		// 衝突した瞬間の処理
-		/*if (other->GetTag() == "Obstacle")
-		{
-			CollisionUtils::ResolvePenetration(this, other);
-		}*/
+		
 						 });
 	collider->SetOnStay([this](GameObject* other) {
 		// 衝突中の処理
-		/*if (other->GetTag() == "Obstacle")
-		{
-			CollisionUtils::ResolvePenetration(this, other);
-		}*/
+		
 						});
 	collider->SetOnExit([this](GameObject* other) {
 		// 衝突が離れた時の処理

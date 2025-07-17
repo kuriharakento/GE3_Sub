@@ -19,6 +19,11 @@ void JsonEditorManager::Initialize()
 	editors_.clear();
 }
 
+void JsonEditorManager::Finalize()
+{
+	editors_.clear();
+}
+
 void JsonEditorManager::Register(const std::string& name, std::shared_ptr<JsonEditableBase> editor)
 {
 	editors_[name] = editor;

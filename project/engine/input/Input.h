@@ -102,6 +102,12 @@ public:
 	float GetMouseX() const;
 	float GetMouseY() const;
 
+    // マウスの固定状態を設定
+	void SetMouseLockEnabled(bool enabled) { isMouseLockEnabled_ = enabled; }
+
+	// マウスの表示状態を設定
+	void SetMouseVisible(bool visible) { isMouseVisible_ = visible; }
+
 private:
     // コンストラクタとデストラクタ
     Input();
@@ -139,6 +145,11 @@ private:
     int lastMouseX_ = 0;       // 前フレームのマウスX座標
     int lastMouseY_ = 0;       // 前フレームのマウスY座標
 	POINT mousePos_;         // マウスの現在の座標
+	// マウス固定
+    bool isMouseLockEnabled_ = false;
+    // マウスの表示
+	bool isMouseVisible_ = true;
+	bool preMouseVisible_ = true; // 前フレームのマウス表示状態
 
     // マウスボタンの状態
     BYTE mouseButtons_[3] = {};     // 現在のマウスボタンの状態（左:0, 中:1, 右:2）

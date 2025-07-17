@@ -40,6 +40,10 @@ public:
 	void SetControllable(bool controllable) { isControllable_ = controllable; }
 	bool IsControllable() const { return isControllable_; }
 
+	// 地面に接地しているか
+	void SetIsGrounded(bool grounded) { isGrounded_ = grounded; }
+	bool IsGrounded() const { return isGrounded_; }
+
 protected:
 	// 基本ステータス
 	float hp_ = 100.0f;
@@ -50,6 +54,7 @@ protected:
 	bool isInvincible_ = false;
 	float invincibleTimer_ = 0.0f; // 無敵時間の残り
 	bool isControllable_ = true;   // 操作可能フラグ
+	bool isGrounded_ = false; // 地面に接地しているか
 
 private:
 	//　当たり判定コンポーネントを追加した際の処理

@@ -12,9 +12,6 @@
 // シングルトンのインスタンス初期化
 Input* Input::instance_ = nullptr;
 
-// トグル用のフラグを追加
-bool isMouseLockEnabled_ = false; // 初期状態はマウス固定有効
-
 // シングルトンの取得
 Input* Input::GetInstance()
 {
@@ -157,6 +154,13 @@ void Input::Update() {
         else {
             mouseDeltaX_ = 0.0f;
             mouseDeltaY_ = 0.0f;
+        }
+
+        // マウスの表示
+        if(preMouseVisible_ != isMouseVisible_)
+        {
+            ShowCursor(isMouseVisible_);
+			preMouseVisible_ = isMouseVisible_;
         }
     }
 

@@ -49,9 +49,6 @@ void TitleScene::Initialize()
 	//ディレクショナルライトを下から上に照らす
 	skydome_->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
 
-	//Jsonエディタ
-	JsonEditorManager::GetInstance()->Initialize();
-
 	//当たり判定マネージャーの初期化
 	CollisionManager::GetInstance()->Initialize();
 
@@ -406,9 +403,6 @@ void TitleScene::Update()
 	}
 	#pragma endregion
 
-	//Jsonエディタの表示
-	JsonEditorManager::GetInstance()->RenderEditUI();
-
 #pragma region GameObject
 	if (ImGui::CollapsingHeader("GameObject"))
 	{
@@ -453,7 +447,7 @@ void TitleScene::Draw3D()
 	// グリッドの描画
 	LineManager::GetInstance()->DrawGrid(
 		300.0f,
-		5.0f,
+		3.0f,
 		VectorColorCodes::White
 	);
 

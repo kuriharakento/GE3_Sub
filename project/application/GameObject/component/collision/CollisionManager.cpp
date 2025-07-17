@@ -246,6 +246,12 @@ bool CollisionManager::CheckCollision(const OBBColliderComponent* a, const OBBCo
 			return false;
 		}
 	}
+	// 衝突している場合、衝突した位置を設定
+	ICollisionComponent* aNonConst = const_cast<OBBColliderComponent*>(a);
+	ICollisionComponent* bNonConst = const_cast<OBBColliderComponent*>(b);
+	aNonConst->SetCollisionPosition(obbA.center);
+	bNonConst->SetCollisionPosition(obbB.center);
+
 	// 衝突
 	return true;
 }
@@ -309,6 +315,12 @@ bool CollisionManager::CheckCollision(const AABBColliderComponent* a, const OBBC
 			return false;
 		}
 	}
+
+	// 衝突している場合、衝突した位置を設定
+	ICollisionComponent* aNonConst = const_cast<AABBColliderComponent*>(a);
+	ICollisionComponent* bNonConst = const_cast<OBBColliderComponent*>(b);
+	aNonConst->SetCollisionPosition(aBox.GetCenter());
+	aNonConst->SetCollisionPosition(obb.center);
 
 	// 衝突している
 	return true;

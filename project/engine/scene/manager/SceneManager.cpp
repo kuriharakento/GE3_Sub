@@ -40,6 +40,10 @@ void SceneManager::Update()
 	{
 		ChangeScene("GAMEPLAY");
 	}
+	if(ImGui::Button("StageEdit"))
+	{
+		ChangeScene("STAGEEDIT");
+	}
 	ImGui::End();
 #endif
 

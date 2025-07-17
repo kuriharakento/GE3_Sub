@@ -155,10 +155,15 @@ void AssaultRifleComponent::FireBullet(GameObject* owner)
 	// 衝突判定コンポーネントを追加
 	auto colliderComp = std::make_unique<OBBColliderComponent>(bullet.get());
 	colliderComp->SetOnEnter([ptr = bullet.get() ,hitEffect = hitEffect_.get()](GameObject* other) {
-		// 敵に当たった場合、弾を消す
+		// 敵に当たった場合、パーティクルを生成して弾を消す
 		if (other->GetTag() == "PistolEnemy" || other->GetTag() == "AssaultEnemy" || other->GetTag() == "ShotgunEnemy")
 		{
 			hitEffect->Play(ptr->GetPosition());
+			ptr->SetActive(false);
+		}
+		// 障害物に当たった場合、弾を消す
+		if (other->GetTag() == "Obstacle")
+		{
 			ptr->SetActive(false);
 		}
 							 });
@@ -200,10 +205,15 @@ void AssaultRifleComponent::FireBullet(GameObject* owner, const Vector3& targetP
 
 	// 衝突したときの処理を設定
 	colliderComp->SetOnEnter([ptr = bullet.get() , hitEffect = hitEffect_.get()](GameObject* other) {
-		// 敵に当たった場合、弾を消す
+		// 敵に当たった場合、パーティクルを生成して弾を消す
 		if (other->GetTag() == "Player")
 		{
 			hitEffect->Play(other->GetPosition());
+			ptr->SetActive(false);
+		}
+		// 障害物に当たった場合、弾を消す
+		if (other->GetTag() == "Obstacle")
+		{
 			ptr->SetActive(false);
 		}
 							 });

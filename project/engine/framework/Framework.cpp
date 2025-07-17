@@ -9,6 +9,7 @@
 #include <Psapi.h>
 
 #include "application/GameObject/base/GameObjectManager.h"
+#include "jsonEditor/JsonEditorManager.h"
 #ifdef _DEBUG
 #include "ImGui/imgui_internal.h"
 #endif
@@ -87,6 +88,9 @@ void Framework::Initialize()
 
 	// GameObjectManagerの初期化
 	GameObjectManager::GetInstance()->Initialize();
+
+	// JSONエディターの初期化
+	JsonEditorManager::GetInstance()->Initialize();
 }
 
 void Framework::Finalize()
@@ -110,6 +114,7 @@ void Framework::Finalize()
 	renderTexture_.reset();							// レンダーテクスチャの解放
 	postProcessManager_.reset();					// ポストプロセスマネージャーの解放
 	GameObjectManager::GetInstance()->Finalize();	// GameObjectManagerの終了処理
+	JsonEditorManager::GetInstance()->Finalize();	// JSONエディターの終了処理
 }
 
 void Framework::Update()
@@ -134,6 +139,9 @@ void Framework::Update()
 
 	//ライトマネージャーの更新
 	lightManager_->Update();
+
+	// JSONエディターの更新
+	JsonEditorManager::GetInstance()->RenderEditUI();
 }
 
 void Framework::Draw3DSetting()

@@ -2,6 +2,7 @@
 
 #include "application/GameObject/component/action/AssaultEnemyBehavior.h"
 #include "application/GameObject/component/action/AssaultRifleComponent.h"
+#include "application/GameObject/component/action/GravityPhysicsComponent.h"
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
 
 void AssaultEnemy::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, GameObject* target)
@@ -11,8 +12,11 @@ void AssaultEnemy::Initialize(Object3dCommon* object3dCommon, LightManager* ligh
 	AddComponent("AssaultRifleComponent", std::make_unique<AssaultRifleComponent>(object3dCommon, lightManager));
 	// ビヘイビアコンポーネントを追加
 	AddComponent("AssaultEnemyBehavior", std::make_unique<AssaultEnemyBehavior>(target_));
+	// 重力演算コンポーネントを追加
+	AddComponent("GravityPhysicsComponent", std::make_unique<GravityPhysicsComponent>());
 	// 衝突判定コンポーネントを追加
 	std::unique_ptr<OBBColliderComponent> collider = std::make_unique<OBBColliderComponent>(this);
+	//collider->SetUseSweep(true); // スイープ判定を使用する
 	collider->SetOnEnter([this](GameObject* other) {
 		if (other->GetTag() == "PlayerBullet")
 		{
