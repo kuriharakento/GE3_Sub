@@ -8,6 +8,8 @@ GameObject::~GameObject()
 {
 	components_.clear(); // コンポーネントのクリア
 	isActive_ = false;    // 非アクティブ状態に設定
+	object3d_.reset(); // Object3Dのリセット
+	GameObjectManager::GetInstance()->Unregister(this); // GameObjectManagerから削除
 }
 
 GameObject::GameObject(std::string tag)

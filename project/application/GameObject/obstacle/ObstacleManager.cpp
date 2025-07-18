@@ -51,7 +51,12 @@ void ObstacleManager::Draw(CameraManager* camera)
 	{
 		if (obstacle)
 		{
-			obstacle->Draw(camera);
+			auto cameraPos = camera->GetActiveCamera()->GetTranslate();
+			float distance = (obstacle->GetPosition() - cameraPos).Length();
+			if (distance < 150.0f) // カメラからの距離が1000未満なら描画
+			{
+				obstacle->Draw(camera);
+			}
 		}
 	}
 }
