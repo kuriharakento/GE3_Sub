@@ -24,8 +24,8 @@ private:
     Camera* camera_ = nullptr;
     const Vector3* target_ = nullptr;                   // 追従するターゲット
     float height_ = 10.0f;                              // カメラの高さ
-	float pitch_ = std::numbers::pi_v<float>;           // X軸角度(デフォルトで真下を向く)
+    float pitch_ = std::numbers::pi_v<float> / 2.0f;    // X軸角度(デフォルトで真下を向く)
 	float yaw_ = 0.0f;                                  // Y軸角度
-	Vector3 offset_ = {};                            // カメラの位置オフセット
+	Vector3 offset_ = {};                               // カメラの位置オフセット
     bool isActive_ = false;
 };
