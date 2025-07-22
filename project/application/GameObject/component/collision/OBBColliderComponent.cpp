@@ -32,8 +32,11 @@ void OBBColliderComponent::Update(GameObject* owner)
 	obb_.center = pos;
 	obb_.rotate = MakeRotateMatrix(rotate);
 	obb_.size = size;
+	
+#ifdef _DEBUG
 	// OBBを可視化する
 	LineManager::GetInstance()->DrawOBB(obb_, VectorColorCodes::Cyan);
+#endif
 
 	if (useSubstep_)
 	{

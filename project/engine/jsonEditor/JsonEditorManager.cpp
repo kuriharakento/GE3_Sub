@@ -32,6 +32,7 @@ void JsonEditorManager::Register(const std::string& name, std::shared_ptr<JsonEd
 
 void JsonEditorManager::RenderEditUI()
 {
+#ifdef _DEBUG
     ImGui::Begin("JSON Editor");
 
   //  static char filePath[256] = ""; // 入力用バッファ
@@ -79,6 +80,7 @@ void JsonEditorManager::RenderEditUI()
         ImGui::EndTabBar();
     }
     ImGui::End();
+#endif
 }
 
 void JsonEditorManager::SaveAll()

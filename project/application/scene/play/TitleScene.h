@@ -29,15 +29,17 @@ public:
 	void Draw3D() override;
 	void Draw2D() override;
 
+private:
+	// パーティクルエミッターの初期化
+	void InitializeParticleEmitters();
+
 private: //メンバ変数
 	//スカイドーム
 	std::unique_ptr<Object3d> skydome_;
 	//地面
 	std::unique_ptr<Object3d> ground_;
 	//カメラワーク
-	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
 	std::unique_ptr<SplineCamera> splineCamera_;
-	std::unique_ptr<FollowCamera> followCamera_;
 	std::unique_ptr<TopDownCamera> topDownCamera_;
 	//ゲームオブジェクト
 	std::unique_ptr<Player> player;
