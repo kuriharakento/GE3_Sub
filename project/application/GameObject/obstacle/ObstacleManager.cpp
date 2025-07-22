@@ -21,7 +21,7 @@ void ObstacleManager::Update()
 {
 #ifdef _DEBUG
 	ImGui::Begin("Obstacle Manager");
-	
+
 	ImGui::End();
 #endif
 	// 削除処理
@@ -36,7 +36,7 @@ void ObstacleManager::Update()
 	if (obstacleData_->GetObstacleCount() != obstacles_.size())
 	{
 		// 障害物の数が異なる場合は再生成
-		CreateObstacles("cube.obj");
+		CreateObstacles("wall.obj");
 	}
 	else
 	{
@@ -84,10 +84,14 @@ void ObstacleManager::CreateObstacles(const std::string& modelName)
 		obstacle->SetPosition(obstacleInfo[i].transform.translate);
 		obstacle->SetRotation(obstacleInfo[i].transform.rotate);
 		obstacle->SetScale(obstacleInfo[i].transform.scale);
-
 		// 衝突判定コンポーネントを追加
 		obstacle->AddComponent("OBBCollider", std::make_unique<OBBColliderComponent>(obstacle.get()));
-        obstacles_.push_back(std::move(obstacle));
+        if (i == 0)
+		{
+			obstacle->GetModel()->SetUVScale(Vector3(10.0f, 10.0f, 1.0f));
+		}
+		obstacles_.push_back(std::move(obstacle));
+		
     }
 }
 

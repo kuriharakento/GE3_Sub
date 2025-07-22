@@ -28,6 +28,7 @@ public: //アクセッサ
 
 	//オブジェクト3D
 	void SetModel(const std::string& modelName) { object3d_->SetModel(modelName); }	// モデルの設定
+	Model* GetModel() const { return object3d_ ? object3d_->GetModel() : nullptr; }	// モデルの取得
 
 	//タグ
 	std::string GetTag() const { return tag_; }	// タグの取得

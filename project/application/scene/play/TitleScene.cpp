@@ -49,6 +49,14 @@ void TitleScene::Initialize()
 	//ディレクショナルライトを下から上に照らす
 	skydome_->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
 
+	// 地面の生成
+	ground_ = std::make_unique<Object3d>();
+	ground_->Initialize(sceneManager_->GetObject3dCommon());
+	ground_->SetModel("terrain2.obj");
+	ground_->SetLightManager(sceneManager_->GetLightManager());
+	ground_->SetEnableLighting(true);
+	ground_->GetModel()->SetUVScale(Vector3(10.0f, 10.0f, 1.0f));
+
 	//当たり判定マネージャーの初期化
 	CollisionManager::GetInstance()->Initialize();
 
@@ -67,7 +75,6 @@ void TitleScene::Initialize()
 	obstacleManager_ = std::make_unique<ObstacleManager>();
 	obstacleManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	obstacleManager_->LoadObstacleData("object.json");
-	obstacleManager_->CreateObstacles("cube.obj");
 
 	//オービットカメラワークの生成
 	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
@@ -424,24 +431,34 @@ void TitleScene::Update()
 	// スカイドームの更新
 	skydome_->Update(sceneManager_->GetCameraManager());
 
-	//キャラクターの更新
+	// 地面の更新
+	ground_->Update(sceneManager_->GetCameraManager());
+
+	// キャラクターの更新
 	player->Update();
 	enemyManager_->Update();
 	obstacleManager_->Update();
 
-	//衝突判定開始
+	// 衝突判定開始
 	CollisionManager::GetInstance()->CheckCollisions();
 }
 
 void TitleScene::Draw3D()
 {
+	// スカイドームの描画
+	skydome_->Draw();
+
+	// 地面の描画
+	ground_->Draw();
+
+	// プレイヤーの描画
 	player->Draw(sceneManager_->GetCameraManager());
 
+	// 敵の描画
 	enemyManager_->Draw(sceneManager_->GetCameraManager());
 
+	// 障害物の描画
 	obstacleManager_->Draw(sceneManager_->GetCameraManager());
-
-	skydome_->Draw();
 
 	// グリッドの描画
 	LineManager::GetInstance()->DrawGrid(

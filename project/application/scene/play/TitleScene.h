@@ -32,6 +32,8 @@ public:
 private: //メンバ変数
 	//スカイドーム
 	std::unique_ptr<Object3d> skydome_;
+	//地面
+	std::unique_ptr<Object3d> ground_;
 	//カメラワーク
 	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
 	std::unique_ptr<SplineCamera> splineCamera_;

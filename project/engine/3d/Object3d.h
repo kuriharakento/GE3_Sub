@@ -66,6 +66,7 @@ public: /*========[ セッター ]========*/
 	//モデルの設定
 	void SetModel(Model* model) { model_ = model; }
 	void SetModel(const std::string& filePath) { model_ = ModelManager::GetInstance()->FindModel(filePath); }
+	Model* GetModel() const { return model_; }
 
 	//カメラの設定
 	void SetCamera(Camera* camera) { camera_ = camera; }
