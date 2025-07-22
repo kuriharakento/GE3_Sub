@@ -35,6 +35,7 @@ void SplineCamera::Update()
             time_ = 1.0f;  // 最後まで進んだ場合、時間を1.0に設定
             segment = numSegments - 1;  // 最後のセグメント
             t = 1.0f;  // 補間の割合も1.0に設定
+			isEnd_ = true;  // 終了フラグを立てる
         }
     }
 

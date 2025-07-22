@@ -64,6 +64,14 @@ void EnemyManager::Update()
 	}
 }
 
+void EnemyManager::UpdateTransform(CameraManager* camera)
+{
+	for (auto& enemy : enemies_)
+	{
+		enemy->UpdateTransform(camera); // 各敵キャラクターのTransform情報を更新
+	}
+}
+
 void EnemyManager::Draw(CameraManager* camera)
 {
 	for (auto& enemy : enemies_)

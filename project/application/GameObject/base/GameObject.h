@@ -14,6 +14,7 @@ public:
 	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera = nullptr);		// 初期化
 	virtual void Update();
 	virtual void Draw(CameraManager* camera);
+	void UpdateTransform(CameraManager* camera);	// Transform情報の更新
 	void AddComponent(const std::string& name, std::unique_ptr<IGameObjectComponent> comp);	// コンポーネントの追加
 	template<typename T>
 	std::shared_ptr<T> GetComponent() const;

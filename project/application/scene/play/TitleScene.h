@@ -9,12 +9,20 @@
 #include "application/GameObject/character/enemy/EnemyManager.h"
 #include "application/GameObject/character/player/Player.h"
 #include "application/GameObject/obstacle/ObstacleManager.h"
+#include "camerawork/DebugCamera.h"
 #include "camerawork/FollowCamera.h"
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
 #include "camerawork/TopDownCamera.h"
 #include "effects/ParticleEmitter.h"
 #include "engine/scene/interface/BaseScene.h"
+
+enum class TitleSceneState
+{
+	Cameraintro,
+	Playing,
+	NextScene,
+};
 
 class TitleScene : public BaseScene
 {
@@ -32,20 +40,25 @@ public:
 private:
 	// パーティクルエミッターの初期化
 	void InitializeParticleEmitters();
+	// ImGuiの描画
+	void DrawImGui();
 
 private: //メンバ変数
-	//スカイドーム
+	// シーンの状態
+	TitleSceneState state_ = TitleSceneState::Cameraintro;
+	// スカイドーム
 	std::unique_ptr<Object3d> skydome_;
-	//地面
+	// 地面
 	std::unique_ptr<Object3d> ground_;
-	//カメラワーク
+	// カメラワーク
+	std::unique_ptr<DebugCamera> debugCamera_;
 	std::unique_ptr<SplineCamera> splineCamera_;
 	std::unique_ptr<TopDownCamera> topDownCamera_;
-	//ゲームオブジェクト
+	// ゲームオブジェクト
 	std::unique_ptr<Player> player;
 	std::unique_ptr<EnemyManager> enemyManager_;
 	std::unique_ptr<ObstacleManager> obstacleManager_;
-	//エミッター
+	// エミッター
 	std::unique_ptr<ParticleEmitter> dust_;
 	std::unique_ptr<ParticleEmitter> redEffect_;
 	std::unique_ptr<ParticleEmitter> fallHeart_;

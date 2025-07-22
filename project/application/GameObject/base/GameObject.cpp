@@ -72,6 +72,12 @@ void GameObject::Draw(CameraManager* camera)
 	}
 }
 
+void GameObject::UpdateTransform(CameraManager* camera)
+{
+	// Transform情報をObject3Dに適用
+	ApplyTransformToObject3D(camera);
+}
+
 void GameObject::AddComponent(const std::string& name, std::unique_ptr<IGameObjectComponent> comp)
 {
 	//すでに同じ名前のコンポーネントが存在する場合はメッセージを出力

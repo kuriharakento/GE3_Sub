@@ -51,12 +51,16 @@ void ObstacleManager::Draw(CameraManager* camera)
 	{
 		if (obstacle)
 		{
-			auto cameraPos = camera->GetActiveCamera()->GetTranslate();
-			float distance = (obstacle->GetPosition() - cameraPos).Length();
-			if (distance < 200.0f) // カメラからの距離が1000未満なら描画
+			if (culling_)
 			{
-				obstacle->Draw(camera);
+				auto cameraPos = camera->GetActiveCamera()->GetTranslate();
+				float distance = (obstacle->GetPosition() - cameraPos).Length();
+				if (distance > 200.0f) // カメラからの距離が一定以上なら描画しない
+				{
+					continue;
+				}
 			}
+			obstacle->Draw(camera); // 描画
 		}
 	}
 }
@@ -68,31 +72,31 @@ void ObstacleManager::LoadObstacleData(const std::string& jsonName)
 
 void ObstacleManager::CreateObstacles(const std::string& modelName)
 {
-    // 既存の障害物をクリア
-    obstacles_.clear();
+	// 既存の障害物をクリア
+	obstacles_.clear();
 
-    // 位置、回転、スケールの情報を取得
+	// 位置、回転、スケールの情報を取得
 	auto& obstacleInfo = obstacleData_->GetObstacles();
 
 
-    // 障害物を生成
+	// 障害物を生成
 	for (uint32_t i = 0; i < obstacleData_->GetObstacleCount(); ++i)
-    {
-        auto obstacle = std::make_unique<Obstacle>("Obstacle");
-        obstacle->Initialize(object3dCommon_,lightManager_);
-        obstacle->SetModel(modelName);
+	{
+		auto obstacle = std::make_unique<Obstacle>("Obstacle");
+		obstacle->Initialize(object3dCommon_, lightManager_);
+		obstacle->SetModel(modelName);
 		obstacle->SetPosition(obstacleInfo[i].transform.translate);
 		obstacle->SetRotation(obstacleInfo[i].transform.rotate);
 		obstacle->SetScale(obstacleInfo[i].transform.scale);
 		// 衝突判定コンポーネントを追加
 		obstacle->AddComponent("OBBCollider", std::make_unique<OBBColliderComponent>(obstacle.get()));
-        if (i == 0)
+		if (i == 0)
 		{
 			obstacle->GetModel()->SetUVScale(Vector3(10.0f, 10.0f, 1.0f));
 		}
 		obstacles_.push_back(std::move(obstacle));
-		
-    }
+
+	}
 }
 
 void ObstacleManager::ApplyObstacleData()

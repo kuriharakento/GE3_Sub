@@ -13,6 +13,7 @@ public:
 	void Initialize(const std::string& groupName, const std::string& textureFilePath);
 	void Update(CameraManager* camera);
 	void Draw(DirectXCommon* dxCommon, SrvManager* srvManager);
+	void DrawImGui();
 	void AddComponent(std::shared_ptr<IParticleComponent> component);
 
 	void Play();
@@ -47,6 +48,7 @@ public:
 	Vector3 GetInitialVelocity() const { return initialVelocity_; }
 	Vector4 GetInitialColor() const { return initialColor_; }
 	Vector3 GetInitialScale() const { return initialScale_; }
+	Vector3 GetInitialRotation() const { return initialRotation_; }
 	void SetRandomVelocity(bool isRandom) { isRandomVelocity_ = isRandom; }
 	void SetRandomScale(bool isRandom) { isRandomScale_ = isRandom; }
 	void SetRandomColor(bool isRandom) { isRandomColor_ = isRandom; }

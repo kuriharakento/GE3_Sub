@@ -66,19 +66,20 @@ void TitleScene::Initialize()
 
 	//敵マネージャーの生成
 	enemyManager_ = std::make_unique<EnemyManager>();
-	enemyManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(),player.get());
+	enemyManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), player.get());
 	enemyManager_->AddAssaultEnemy(3);
 
 	// 障害物マネージャーの生成
 	obstacleManager_ = std::make_unique<ObstacleManager>();
 	obstacleManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
 	obstacleManager_->LoadObstacleData("object.json");
+	obstacleManager_->SetCulling(false);
 
 	//スプラインカメラの生成
 	splineCamera_ = std::make_unique<SplineCamera>();
 	splineCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
 	splineCamera_->LoadJson("spline.json");
-	splineCamera_->Start(0.001f, true);
+	splineCamera_->Start(0.001f, false);
 	splineCamera_->SetTarget(&player->GetPosition());
 
 	//トップダウンカメラの生成
@@ -91,6 +92,11 @@ void TitleScene::Initialize()
 		&player->GetPosition()
 	);
 
+	// デバッグカメラの生成
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	debugCamera_->Start();
+
 	// パーティクルエミッターの初期化
 	InitializeParticleEmitters();
 }
@@ -102,132 +108,36 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
-#ifdef _DEBUG
-	ImGui::Begin("TitleScene");
-	ImGui::SeparatorText("Particle Emitter");
+	// ImGuiの描画
+	DrawImGui();
 
-	ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
-	ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
-	ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
-	ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
-
-	#pragma region PostProcess
-	ImGui::SeparatorText("PostProcess");
-	if (ImGui::CollapsingHeader("GrayScale"))
-	{
-		static bool isGrayScale = false;
-		if (ImGui::Checkbox("enable", &isGrayScale))
-		{
-			sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
-		}
-		float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
-		ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
-	}
-	if (ImGui::CollapsingHeader("Vignette"))
-	{
-		static bool isVignette = false;
-		if (ImGui::Checkbox("enable", &isVignette))
-		{
-			sceneManager_->GetPostProcessManager()->vignetteEffect_->SetEnabled(isVignette);
-		}
-		float intensity = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetIntensity();
-		ImGui::DragFloat("Vignette Intensity", &intensity, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetIntensity(intensity);
-		float radius = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetRadius();
-		ImGui::DragFloat("Vignette Radius", &radius, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetRadius(radius);
-		float softness = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetSoftness();
-		ImGui::DragFloat("Vignette Softness", &softness, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetSoftness(softness);
-		Vector3 color = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetColor();
-		ImGui::ColorEdit3("Vignette Color", &color.x);
-		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetColor(color);
-	}
-	if (ImGui::CollapsingHeader("Noise"))
-	{
-		static bool isNoise = false;
-		if (ImGui::Checkbox("enable", &isNoise))
-		{
-			sceneManager_->GetPostProcessManager()->noiseEffect_->SetEnabled(isNoise);
-		}
-		float intensity = sceneManager_->GetPostProcessManager()->noiseEffect_->GetIntensity();
-		ImGui::DragFloat("Noise Intensity", &intensity, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->noiseEffect_->SetIntensity(intensity);
-		float time = sceneManager_->GetPostProcessManager()->noiseEffect_->GetTime();
-		ImGui::DragFloat("Noise Time", &time, 0.01f, 0.0f, 10.0f);
-		sceneManager_->GetPostProcessManager()->noiseEffect_->SetTime(time);
-		float grainSize = sceneManager_->GetPostProcessManager()->noiseEffect_->GetGrainSize();
-		ImGui::DragFloat("Noise Grain Size", &grainSize, 0.01f, 0.0f, 10.0f);
-		sceneManager_->GetPostProcessManager()->noiseEffect_->SetGrainSize(grainSize);
-		float luminanceAffect = sceneManager_->GetPostProcessManager()->noiseEffect_->GetLuminanceAffect();
-		ImGui::DragFloat("Noise Luminance Affect", &luminanceAffect, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->noiseEffect_->SetLuminanceAffect(luminanceAffect);
-	}
-	if (ImGui::CollapsingHeader("CRT"))
-	{
-		static  bool isEnabled = false;
-		static bool isCrt = false; // CRTエフェクトの有効/無効
-		static bool isScanline = false;
-		static bool isDistortion = false;
-		static bool isChromAberration = false;
-
-		if (ImGui::Checkbox("enable", &isEnabled))
-		{
-			sceneManager_->GetPostProcessManager()->crtEffect_->SetEnabled(isEnabled);
-		}
-		if (ImGui::Checkbox("Crt", &isCrt))
-		{
-			sceneManager_->GetPostProcessManager()->crtEffect_->SetCrtEnabled(isCrt);
-		}
-		ImGui::SameLine();
-		if (ImGui::Checkbox("Scanline", &isScanline))
-		{
-			sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineEnabled(isScanline);
-		}
-		ImGui::SameLine();
-		if (ImGui::Checkbox("Distortion", &isDistortion))
-		{
-			sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionEnabled(isDistortion);
-		}
-		ImGui::SameLine();
-		if (ImGui::Checkbox("ChromAberration", &isChromAberration))
-		{
-			sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationEnabled(isChromAberration);
-		}
-		float scanlineIntensity = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineIntensity();
-		ImGui::DragFloat("Scanline Intensity", &scanlineIntensity, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineIntensity(scanlineIntensity);
-		float scanlineCount = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineCount();
-		ImGui::DragFloat("Scanline Count", &scanlineCount, 0.01f, 0.0f, 100.0f);
-		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineCount(scanlineCount);
-		float distortionStrength = sceneManager_->GetPostProcessManager()->crtEffect_->GetDistortionStrength();
-		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionStrength(distortionStrength);
-		float chromAberrationOffset = sceneManager_->GetPostProcessManager()->crtEffect_->GetChromaticAberrationOffset();
-		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
-		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
-	}
-	#pragma endregion
-
-#pragma region GameObject
-	if (ImGui::CollapsingHeader("GameObject"))
-	{
-		ImGui::Text("Player");
-		Vector3 playerPos = player->GetPosition();
-		ImGui::DragFloat3("Player Position", &playerPos.x, 0.1f);
-		player->SetPosition(playerPos);
-	}
-#pragma endregion
-
-	ImGui::End();
-
-#endif
 	// 前フレームの位置を更新
 	CollisionManager::GetInstance()->UpdatePreviousPositions();
 
-	//カメラの更新
-	topDownCamera_->Update();
+	// 状態に応じた更新
+	switch (state_)
+	{
+	case TitleSceneState::Cameraintro:
+		// スプラインカメラの更新
+		//splineCamera_->Update();
+		player->UpdateTransform(sceneManager_->GetCameraManager());
+		enemyManager_->UpdateTransform(sceneManager_->GetCameraManager());
+		if (splineCamera_->IsEnd())
+		{
+			state_ = TitleSceneState::Playing;
+			obstacleManager_->SetCulling(true);
+		}
+		break;
+	case TitleSceneState::Playing:
+		//カメラの更新
+		//topDownCamera_->Update();
+		// キャラクターの更新
+		player->Update();
+		enemyManager_->Update();
+		break;
+	case TitleSceneState::NextScene:
+		break;
+	}
 
 	// スカイドームの更新
 	skydome_->Update(sceneManager_->GetCameraManager());
@@ -235,9 +145,7 @@ void TitleScene::Update()
 	// 地面の更新
 	ground_->Update(sceneManager_->GetCameraManager());
 
-	// キャラクターの更新
-	player->Update();
-	enemyManager_->Update();
+	// プレイヤーの更新
 	obstacleManager_->Update();
 
 	// 衝突判定開始
@@ -278,24 +186,24 @@ void TitleScene::InitializeParticleEmitters()
 	dust_->Initialize("test", "./Resources/star.png");
 	dust_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
 	dust_->Start(
-		&origin, // 発生位置
+		&player->GetPosition(), // 発生位置
 		30,   // 30個のパーティクルを一度に生成（バースト）
 		0.1f, // 0.1秒かけて全パーティクルを放出
 		true // ループさせない（一回きりのバースト）
 	);
 	dust_->SetEmitRate(2.0f); // 定期的な放出はなし
-	dust_->SetInitialLifeTime(4.0f); // 長めの寿命
+	dust_->SetInitialLifeTime(0.3f); // 長めの寿命
 	dust_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
 	dust_->SetBillborad(true); // カメラ常に正面を向く
 
 	//======コンポーネントの追加=========================
 	// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
 	dust_->AddComponent(std::make_shared<DragComponent>(0.99f));
-	dust_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
+	dust_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(10.0f, 0.0f));
 	// 色フェードアウトコンポーネント (寿命後半で透明になる)
 	dust_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 	// 回転コンポーネント (ゆっくり回転)
-	dust_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
+	dust_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.16f, 0.0f }));
 	// マテリアル色変更コンポーネント (青系の光)
 	dust_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Gold));
 #pragma endregion
@@ -454,4 +362,163 @@ void TitleScene::InitializeParticleEmitters()
 	mordeVFXGround_->StopEmit();
 	mordeVFXFragment_->StopEmit();
 
+}
+
+void TitleScene::DrawImGui()
+{
+#ifdef _DEBUG
+	ImGui::Begin("TitleScene");
+
+	static bool useDebugCamera = false;
+	static bool useSplineCamera = true;
+	static bool loopSpline = false;
+	static float speed = 0.001f;
+	static bool useTopDownCamera = false;
+	if (ImGui::CollapsingHeader("Camera Work"))
+	{
+		ImGui::SeparatorText("Debug Camera");
+		ImGui::Checkbox("Use Debug Camera", &useDebugCamera);
+		ImGui::SeparatorText("Spline Camera");
+		ImGui::DragFloat("Spline Speed", &speed, 0.001f, 0.0f, 0.1f);
+		if (ImGui::Checkbox("Loop Spline", &loopSpline))
+		{
+			splineCamera_->Start(speed, loopSpline);
+		}
+		ImGui::Checkbox("Use Spline Camera", &useSplineCamera);
+		ImGui::SeparatorText("Top Down Camera");
+		ImGui::Checkbox("Use Top Down Camera", &useTopDownCamera);
+	}
+	if (useDebugCamera)
+	{
+		debugCamera_->Update();
+	}
+	if (useSplineCamera)
+	{
+		splineCamera_->Update();
+	}
+	if (useTopDownCamera)
+	{
+		topDownCamera_->Update();
+	}
+
+
+	ImGui::SeparatorText("Particle Emitter");
+
+	ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
+	ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
+	ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
+	ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
+
+#pragma region PostProcess
+	ImGui::SeparatorText("PostProcess");
+	if (ImGui::CollapsingHeader("GrayScale"))
+	{
+		static bool isGrayScale = false;
+		if (ImGui::Checkbox("enable", &isGrayScale))
+		{
+			sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetEnabled(isGrayScale);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->grayscaleEffect_->GetIntensity();
+		ImGui::DragFloat("GrayScale Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->grayscaleEffect_->SetIntensity(intensity);
+	}
+	if (ImGui::CollapsingHeader("Vignette"))
+	{
+		static bool isVignette = false;
+		if (ImGui::Checkbox("enable", &isVignette))
+		{
+			sceneManager_->GetPostProcessManager()->vignetteEffect_->SetEnabled(isVignette);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetIntensity();
+		ImGui::DragFloat("Vignette Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetIntensity(intensity);
+		float radius = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetRadius();
+		ImGui::DragFloat("Vignette Radius", &radius, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetRadius(radius);
+		float softness = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetSoftness();
+		ImGui::DragFloat("Vignette Softness", &softness, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetSoftness(softness);
+		Vector3 color = sceneManager_->GetPostProcessManager()->vignetteEffect_->GetColor();
+		ImGui::ColorEdit3("Vignette Color", &color.x);
+		sceneManager_->GetPostProcessManager()->vignetteEffect_->SetColor(color);
+	}
+	if (ImGui::CollapsingHeader("Noise"))
+	{
+		static bool isNoise = false;
+		if (ImGui::Checkbox("enable", &isNoise))
+		{
+			sceneManager_->GetPostProcessManager()->noiseEffect_->SetEnabled(isNoise);
+		}
+		float intensity = sceneManager_->GetPostProcessManager()->noiseEffect_->GetIntensity();
+		ImGui::DragFloat("Noise Intensity", &intensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetIntensity(intensity);
+		float time = sceneManager_->GetPostProcessManager()->noiseEffect_->GetTime();
+		ImGui::DragFloat("Noise Time", &time, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetTime(time);
+		float grainSize = sceneManager_->GetPostProcessManager()->noiseEffect_->GetGrainSize();
+		ImGui::DragFloat("Noise Grain Size", &grainSize, 0.01f, 0.0f, 10.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetGrainSize(grainSize);
+		float luminanceAffect = sceneManager_->GetPostProcessManager()->noiseEffect_->GetLuminanceAffect();
+		ImGui::DragFloat("Noise Luminance Affect", &luminanceAffect, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->noiseEffect_->SetLuminanceAffect(luminanceAffect);
+	}
+	if (ImGui::CollapsingHeader("CRT"))
+	{
+		static  bool isEnabled = false;
+		static bool isCrt = false; // CRTエフェクトの有効/無効
+		static bool isScanline = false;
+		static bool isDistortion = false;
+		static bool isChromAberration = false;
+
+		if (ImGui::Checkbox("enable", &isEnabled))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetEnabled(isEnabled);
+		}
+		if (ImGui::Checkbox("Crt", &isCrt))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetCrtEnabled(isCrt);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Scanline", &isScanline))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineEnabled(isScanline);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Distortion", &isDistortion))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionEnabled(isDistortion);
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("ChromAberration", &isChromAberration))
+		{
+			sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationEnabled(isChromAberration);
+		}
+		float scanlineIntensity = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineIntensity();
+		ImGui::DragFloat("Scanline Intensity", &scanlineIntensity, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineIntensity(scanlineIntensity);
+		float scanlineCount = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineCount();
+		ImGui::DragFloat("Scanline Count", &scanlineCount, 0.01f, 0.0f, 100.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineCount(scanlineCount);
+		float distortionStrength = sceneManager_->GetPostProcessManager()->crtEffect_->GetDistortionStrength();
+		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionStrength(distortionStrength);
+		float chromAberrationOffset = sceneManager_->GetPostProcessManager()->crtEffect_->GetChromaticAberrationOffset();
+		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
+		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
+	}
+#pragma endregion
+
+#pragma region GameObject
+	if (ImGui::CollapsingHeader("GameObject"))
+	{
+		ImGui::Text("Player");
+		Vector3 playerPos = player->GetPosition();
+		ImGui::DragFloat3("Player Position", &playerPos.x, 0.1f);
+		player->SetPosition(playerPos);
+	}
+#pragma endregion
+
+	ImGui::End();
+
+#endif
 }
