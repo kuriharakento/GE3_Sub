@@ -84,7 +84,8 @@ void TitleScene::Initialize()
 	//トップダウンカメラの生成
 	topDownCamera_ = std::make_unique<TopDownCamera>();
 	topDownCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
-	topDownCamera_->SetOffset({ 0.0f, 0.0f, 0.0f });
+	topDownCamera_->SetOffset({ 0.0f, 0.0f, -4.0f });
+	topDownCamera_->SetPitch(1.1f);
 	topDownCamera_->Start(
 		70.0f,
 		&player->GetPosition()

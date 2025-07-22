@@ -142,7 +142,7 @@ void AssaultRifleComponent::FireBullet(GameObject* owner)
 	bullet->SetScale(Vector3(0.3f, 0.3f, 1.0f));
 	// BulletComponentを追加
 	auto bulletComp = std::make_unique<BulletComponent>();
-	bulletComp->Initialize(direction, speed_, lifetime_); // 速度: 10.0f, 寿命: 2.0f
+	bulletComp->Initialize(direction, speed_, lifetime_);
 	bullet->AddComponent("Bullet", std::move(bulletComp));
 	// 衝突判定コンポーネントを追加
 	auto colliderComp = std::make_unique<OBBColliderComponent>(bullet.get());
@@ -187,7 +187,7 @@ void AssaultRifleComponent::FireBullet(GameObject* owner, const Vector3& targetP
 
 	// BulletComponentを追加
 	auto bulletComp = std::make_unique<BulletComponent>();
-	bulletComp->Initialize(direction, speed_, lifetime_); // 速度: 30.0f, 寿命: 2.0f
+	bulletComp->Initialize(direction, speed_, lifetime_);
 	bullet->AddComponent("Bullet", std::move(bulletComp));
 
 	// 衝突判定コンポーネントを追加
