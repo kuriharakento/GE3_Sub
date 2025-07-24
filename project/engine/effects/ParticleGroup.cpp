@@ -72,7 +72,7 @@ void ParticleGroup::Initialize(const std::string& groupName, const std::string& 
 	// インスタンシング用リソースの初期化
 	instancingResource = ParticleManager::GetInstance()->GetDxCommon()->CreateBufferResource(sizeof(ParticleForGPU) * kMaxParticleCount);
 	instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&instancingData));
-	instancingSrvIndex = ParticleManager::GetInstance()->GetSrvManager()->Allocate() + 1;
+	instancingSrvIndex = ParticleManager::GetInstance()->GetSrvManager()->Allocate();
 	// SRVの生成
 	ParticleManager::GetInstance()->GetSrvManager()->CreateSRVforStructuredBuffer(
 		instancingSrvIndex,
