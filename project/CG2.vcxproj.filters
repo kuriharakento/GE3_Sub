@@ -104,7 +104,6 @@
     <ClCompile Include="application\effect\EnemyDeathEffect.cpp" />
     <ClCompile Include="application\GameObject\obstacle\Obstacle.cpp" />
     <ClCompile Include="application\GameObject\obstacle\ObstacleManager.cpp" />
-    <ClCompile Include="application\GameObject\base\GameObjectManager.cpp" />
     <ClCompile Include="application\GameObject\obstacle\ObstacleData.cpp" />
     <ClCompile Include="application\GameObject\component\action\GravityPhysicsComponent.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonSerialization.cpp" />
@@ -243,7 +242,6 @@
     <ClInclude Include="application\effect\EnemyDeathEffect.h" />
     <ClInclude Include="application\GameObject\obstacle\Obstacle.h" />
     <ClInclude Include="application\GameObject\obstacle\ObstacleManager.h" />
-    <ClInclude Include="application\GameObject\base\GameObjectManager.h" />
     <ClInclude Include="application\GameObject\obstacle\ObstacleData.h" />
     <ClInclude Include="application\GameObject\component\action\GravityPhysicsComponent.h" />
     <ClInclude Include="engine\jsonEditor\JsonSerialization.h" />

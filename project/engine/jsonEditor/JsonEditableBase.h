@@ -16,6 +16,7 @@ class JsonEditableBase : public IJsonEditable
 {
 public:
 	JsonEditableBase() = default;
+	~JsonEditableBase();
 	bool LoadJson(const std::string& path) override;
 	bool SaveJson(const std::string& path) const override;
 	void DrawImGui() override;

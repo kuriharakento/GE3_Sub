@@ -3,6 +3,18 @@
 #include <fstream>
 
 
+JsonEditableBase::~JsonEditableBase()
+{
+	// 登録済みsetterをクリア
+	setters_.clear();
+	// 登録済みgetterをクリア
+	getters_.clear();
+	// 登録済みdrawerをクリア
+	drawers_.clear();
+	// 登録済みメンバーをクリア
+    registeredMembers_.clear();
+}
+
 bool JsonEditableBase::LoadJson(const std::string& path)
 {
 	fileName = path;

@@ -8,7 +8,6 @@
 #include "manager/TextureManager.h"
 #include <Psapi.h>
 
-#include "application/GameObject/base/GameObjectManager.h"
 #include "jsonEditor/JsonEditorManager.h"
 #ifdef _DEBUG
 #include "ImGui/imgui_internal.h"
@@ -86,9 +85,6 @@ void Framework::Initialize()
 	postProcessManager_ = std::make_unique<PostProcessManager>();
 	postProcessManager_->Initialize(dxCommon_.get(), srvManager_.get(), L"Resources/shaders/PostEffect.VS.hlsl", L"Resources/shaders/PostEffect.PS.hlsl");
 
-	// GameObjectManagerの初期化
-	GameObjectManager::GetInstance()->Initialize();
-
 	// JSONエディターの初期化
 	JsonEditorManager::GetInstance()->Initialize();
 }
@@ -113,7 +109,6 @@ void Framework::Finalize()
 	LineManager::GetInstance()->Finalize();			// ラインマネージャーの解放
 	renderTexture_.reset();							// レンダーテクスチャの解放
 	postProcessManager_.reset();					// ポストプロセスマネージャーの解放
-	GameObjectManager::GetInstance()->Finalize();	// GameObjectManagerの終了処理
 	JsonEditorManager::GetInstance()->Finalize();	// JSONエディターの終了処理
 }
 

@@ -176,7 +176,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\postprocess\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\effects\component\single\ForceFieldComponent.cpp" />
     <ClCompile Include="application\GameObject\character\enemy\PistolEnemy.cpp" />
-    <ClCompile Include="application\GameObject\base\GameObjectManager.cpp" />
     <ClCompile Include="application\GameObject\component\action\GravityPhysicsComponent.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonSerialization.cpp" />
     <ClCompile Include="engine\jsonEditor\JsonEditorImGuiUtils.cpp" />
@@ -349,7 +348,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\character\enemy\ShotgunEnemy.h" />
     <ClInclude Include="application\GameObject\obstacle\Obstacle.h" />
     <ClInclude Include="application\GameObject\obstacle\ObstacleManager.h" />
-    <ClInclude Include="application\GameObject\base\GameObjectManager.h" />
     <ClInclude Include="application\GameObject\obstacle\ObstacleData.h" />
     <ClInclude Include="application\GameObject\component\action\GravityPhysicsComponent.h" />
     <ClInclude Include="engine\jsonEditor\JsonSerialization.h" />

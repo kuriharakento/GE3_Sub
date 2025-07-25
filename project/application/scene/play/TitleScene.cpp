@@ -85,10 +85,10 @@ void TitleScene::Initialize()
 	//トップダウンカメラの生成
 	topDownCamera_ = std::make_unique<TopDownCamera>();
 	topDownCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
-	topDownCamera_->SetOffset({ 0.0f, 0.0f, -4.0f });
-	topDownCamera_->SetPitch(1.1f);
+	topDownCamera_->SetOffset({ 0.0f, 0.0f, -5.0f });
+	topDownCamera_->SetPitch(0.9f);
 	topDownCamera_->Start(
-		70.0f,
+		60.0f,
 		&player->GetPosition()
 	);
 
@@ -99,6 +99,7 @@ void TitleScene::Initialize()
 
 	// パーティクルエミッターの初期化
 	InitializeParticleEmitters();
+
 }
 
 void TitleScene::Finalize()
@@ -183,7 +184,7 @@ void TitleScene::InitializeParticleEmitters()
 #pragma region dust effect
 	// エミッターの初期化（前回の設定をベースに調整）
 	dust_ = std::make_unique<ParticleEmitter>();
-	dust_->Initialize("test", "./Resources/star.png");
+	dust_->Initialize("dust", "./Resources/star.png");
 	dust_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
 	dust_->Start(
 		&player->GetPosition(), // 発生位置
@@ -374,7 +375,7 @@ void TitleScene::DrawImGui()
 	static bool loopSpline = false;
 	static float speed = 0.001f;
 	static bool useTopDownCamera = false;
-	if (ImGui::CollapsingHeader("Camera Work"))
+	if (ImGui::CollapsingHeader("Camera Work", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::SeparatorText("Debug Camera");
 		ImGui::Checkbox("Use Debug Camera", &useDebugCamera);
@@ -401,13 +402,15 @@ void TitleScene::DrawImGui()
 		topDownCamera_->Update();
 	}
 
-
 	ImGui::SeparatorText("Particle Emitter");
 
-	ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
-	ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
-	ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
-	ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
+	if (ImGui::CollapsingHeader("emitters"))
+	{
+		ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
+		ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
+		ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
+		ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
+	}
 
 #pragma region PostProcess
 	ImGui::SeparatorText("PostProcess");
@@ -497,23 +500,23 @@ void TitleScene::DrawImGui()
 		ImGui::DragFloat("Scanline Intensity", &scanlineIntensity, 0.01f, 0.0f, 1.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineIntensity(scanlineIntensity);
 		float scanlineCount = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineCount();
-		ImGui::DragFloat("Scanline Count", &scanlineCount, 0.01f, 0.0f, 100.0f);
+		ImGui::DragFloat("Scanline Count", &scanlineCount, 10.0f, 0.0f, 1000.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineCount(scanlineCount);
 		float distortionStrength = sceneManager_->GetPostProcessManager()->crtEffect_->GetDistortionStrength();
-		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 10.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionStrength(distortionStrength);
 		float chromAberrationOffset = sceneManager_->GetPostProcessManager()->crtEffect_->GetChromaticAberrationOffset();
-		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 10.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
 	}
 #pragma endregion
 
 #pragma region GameObject
-	if (ImGui::CollapsingHeader("GameObject"))
+	ImGui::SeparatorText("GameObject");
+	if (ImGui::CollapsingHeader("player"))
 	{
-		ImGui::Text("Player");
 		Vector3 playerPos = player->GetPosition();
-		ImGui::DragFloat3("Player Position", &playerPos.x, 0.1f);
+		ImGui::DragFloat3("position", &playerPos.x, 0.1f);
 		player->SetPosition(playerPos);
 	}
 #pragma endregion

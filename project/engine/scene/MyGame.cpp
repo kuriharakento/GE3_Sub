@@ -3,7 +3,6 @@
 #include <future>
 #include <chrono>
 #include "3d/ModelManager.h"
-#include "application/GameObject/base/GameObjectManager.h"
 #include "base/Logger.h"
 #include "engine/effects/ParticleManager.h"
 #include "ImGui/imgui_internal.h"
@@ -76,8 +75,6 @@ void MyGame::Update()
 	//ゲームの更新処理
 	sceneManager_->Update();
 
-	// GameObjectManagerの更新
-	GameObjectManager::GetInstance()->Update();
 
 	// パーティクルマネージャーの更新
 	ParticleManager::GetInstance()->Update(cameraManager_.get());
@@ -100,9 +97,6 @@ void MyGame::Draw()
 
 	//3Dオブジェクトの描画
 	sceneManager_->Draw3D();
-
-	//GameObjectManagerの描画
-	GameObjectManager::GetInstance()->Draw(cameraManager_.get());
 
 	//ラインの描画
 	LineManager::GetInstance()->RenderLines();

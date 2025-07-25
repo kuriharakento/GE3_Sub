@@ -22,6 +22,8 @@ void JsonEditorManager::Initialize()
 void JsonEditorManager::Finalize()
 {
 	editors_.clear();
+	delete instance_;
+	instance_ = nullptr;
 }
 
 void JsonEditorManager::Register(const std::string& name, std::shared_ptr<JsonEditableBase> editor)

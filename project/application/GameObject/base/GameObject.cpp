@@ -1,6 +1,5 @@
 #include "GameObject.h"
 
-#include "GameObjectManager.h"
 #include "application/GameObject/component/base/IActionComponent.h"
 #include "base/Logger.h"
 
@@ -9,7 +8,6 @@ GameObject::~GameObject()
 	components_.clear(); // コンポーネントのクリア
 	isActive_ = false;    // 非アクティブ状態に設定
 	object3d_.reset(); // Object3Dのリセット
-	GameObjectManager::GetInstance()->Unregister(this); // GameObjectManagerから削除
 }
 
 GameObject::GameObject(std::string tag)
@@ -19,8 +17,6 @@ GameObject::GameObject(std::string tag)
 	// タグの初期化
 	assert(!tag.empty() && "ERROR: GameObject::GameObject() - Tag should not be empty. Ensure that you provide a valid tag.");
 	tag_ = tag;
-	// GameObjectにポインタを登録
-	GameObjectManager::GetInstance()->Register(this);
 }
 
 void GameObject::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager, Camera* camera)
