@@ -36,7 +36,8 @@ struct Material
     float padding[3];                            // 12バイト（アラインメント用）
     Matrix4x4 uvTransform;                       // UV変換行列
     float shininess;                             // 反射強度
-    float padding2[3];                           // 12バイト（アラインメント用）
+	float reflectivity;                         // 反射率
+    float padding2[2];                           // 12バイト（アラインメント用）
 };
 
 /**

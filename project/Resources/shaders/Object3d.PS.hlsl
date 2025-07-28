@@ -8,6 +8,8 @@ struct Material
     float3 padding;
     float4x4 uvTransform;
     float shininess;
+    float reflectivity; // 反射率
+    float2 pad2;
 };
 
 // ディレクショナルライト
@@ -183,15 +185,10 @@ PixelShaderOutput main(VertexShaderOutput input)
         float3 reflectDir = reflect(-toEyeEnv, normalEnv);
 
         // 環境マップ（キューブマップ）をサンプリング
-        // 注意: gEnvironmentTextureはTexture2DではなくTextureCubeであるべきです
-        // もしTexture2Dなら、ここはTextureCube<float4> gEnvironmentTexture : register(t1);に修正して下さい
         float3 envColor = gEnvironmentTexture.Sample(gSampler, reflectDir).rgb;
 
-        // 反射寄与率（例: 固定値0.25。必要ならマテリアルにパラメータ追加可）
-        float reflectAmount = 0.25f;
-
         /*-----[ 結果の合成 ]-----*/
-        output.color.rgb = lerp(litColor, envColor, reflectAmount);
+        output.color.rgb = lerp(litColor, envColor, gMaterial.reflectivity);
         output.color.a = gMaterial.color.a * textureColor.a;
 
     }
