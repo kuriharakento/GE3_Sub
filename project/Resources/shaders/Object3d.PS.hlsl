@@ -61,6 +61,7 @@ StructuredBuffer<GPUSpotLight> gSpotLights : register(t4);
 ConstantBuffer<LightCounts> gLightCounts : register(b5);
 
 Texture2D<float4> gTexture : register(t0);
+TextureCube<float4> gEnvironmentTexture : register(t1);
 SamplerState gSampler : register(s0);
 
 struct PixelShaderOutput
@@ -172,10 +173,27 @@ PixelShaderOutput main(VertexShaderOutput input)
             spotTotalSpecular += spotSpecular;
         }
 
-        /*-----[ 結果の合成 ]-----*/
+        float3 litColor = specular + diffuse + totalSpecular + totalDiffuse + spotTotalSpecular + spotTotalDiffuse;
 
-        output.color.rgb = specular + diffuse + totalSpecular + totalDiffuse + spotTotalSpecular + spotTotalDiffuse;
+        // 反射ベクトルの計算
+        float3 normalEnv = normalize(input.normal);
+        float3 toEyeEnv = normalize(gCamera.worldPos - input.worldPos);
+
+        // 反射ベクトル（ビュー方向から見ての反射方向）
+        float3 reflectDir = reflect(-toEyeEnv, normalEnv);
+
+        // 環境マップ（キューブマップ）をサンプリング
+        // 注意: gEnvironmentTextureはTexture2DではなくTextureCubeであるべきです
+        // もしTexture2Dなら、ここはTextureCube<float4> gEnvironmentTexture : register(t1);に修正して下さい
+        float3 envColor = gEnvironmentTexture.Sample(gSampler, reflectDir).rgb;
+
+        // 反射寄与率（例: 固定値0.25。必要ならマテリアルにパラメータ追加可）
+        float reflectAmount = 0.25f;
+
+        /*-----[ 結果の合成 ]-----*/
+        output.color.rgb = lerp(litColor, envColor, reflectAmount);
         output.color.a = gMaterial.color.a * textureColor.a;
+
     }
     else
     {

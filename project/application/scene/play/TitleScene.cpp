@@ -476,7 +476,7 @@ void TitleScene::Update()
 
 void TitleScene::Draw3D()
 {
-	//player->Draw(sceneManager_->GetCameraManager());
+	player->Draw(sceneManager_->GetCameraManager());
 
 	//enemy->Draw(sceneManager_->GetCameraManager());
 

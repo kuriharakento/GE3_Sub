@@ -35,7 +35,7 @@ void Framework::Initialize()
 
 	// 3Dオブジェクト共通部の初期化
 	objectCommon_ = std::make_unique<Object3dCommon>();
-	objectCommon_->Initialize(dxCommon_.get());
+	objectCommon_->Initialize(dxCommon_.get(),srvManager_.get());
 
 	// 3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
