@@ -53,12 +53,6 @@ void Skybox::Initialize(DirectXCommon* dxCommon, const std::string& textureFileP
 
 void Skybox::Update(Camera* camera)
 {
-	ImGui::Begin("Skybox Settings");
-	ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
-	ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
-	ImGui::DragFloat3("Translate", &transform_.translate.x, 0.01f);
-	ImGui::End();
-
 	// スカイボックスのワールド行列を計算
 	Matrix4x4 worldMatrix = MakeAffineMatrix(
 		transform_.scale,
