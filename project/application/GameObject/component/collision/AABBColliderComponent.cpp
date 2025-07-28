@@ -10,6 +10,11 @@ AABBColliderComponent::AABBColliderComponent(GameObject* owner) : ICollisionComp
 	aabb_.max_ = owner->GetPosition() + owner->GetScale();
 }
 
+AABBColliderComponent::~AABBColliderComponent()
+{
+	
+}
+
 void AABBColliderComponent::Update(GameObject* owner)
 {
 	// オーナーの位置とスケールを取得
@@ -18,6 +23,8 @@ void AABBColliderComponent::Update(GameObject* owner)
 	// AABBの更新
 	aabb_.min_ = pos - size;
 	aabb_.max_ = pos + size;
+#ifdef _DEBUG
 	//AABBを可視化する
 	LineManager::GetInstance()->DrawAABB(aabb_, VectorColorCodes::Cyan);
+#endif
 }

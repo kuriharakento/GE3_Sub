@@ -6,10 +6,12 @@ class OBBColliderComponent : public ICollisionComponent
 {
 public:
 	OBBColliderComponent(GameObject* owner);
-	~OBBColliderComponent() override = default;
+	~OBBColliderComponent() override;
+
 	void Update(GameObject* owner) override;
 	ColliderType GetColliderType() const override { return ColliderType::OBB; }
-	OBB GetOBB() const { return obb_; }
+	void SetOBB(const OBB& obb) { obb_ = obb; }
+	const OBB& GetOBB() const { return obb_; }
 
 private:
 	OBB obb_;				// OBB

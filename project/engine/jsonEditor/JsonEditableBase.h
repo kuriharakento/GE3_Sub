@@ -4,95 +4,92 @@
 #include <nlohmann/json.hpp>
 #include "IJsonEditable.h"
 #include "imgui/imgui.h"
-#include <fstream>
 #include "math/Vector3.h"
-#include "JsonUtils.h"
+#include <type_traits>
+#include <vector>
+#include "base/GraphicsTypes.h"
+#include "JsonSerialization.h"
+#include "JsonEditorImGuiUtils.h"
+#include "base/Logger.h"
 
 class JsonEditableBase : public IJsonEditable
 {
 public:
 	JsonEditableBase() = default;
+	~JsonEditableBase();
 	bool LoadJson(const std::string& path) override;
 	bool SaveJson(const std::string& path) const override;
 	void DrawImGui() override;
-    virtual void DrawOptions();
+	virtual void DrawOptions();
+
+	void SetValue(const std::string& key, const nlohmann::json& value);
+
 protected:
 	template<typename T>
-	//NOTE:ここでは絶対に変数名と同じ名前を登録しないといけない
+	// NOTE: 必ず変数は登録すること!! しないとエラーが出る。
+	// NOTE: ここでは変数名と同じキー名で登録する必要がある。
 	void Register(const std::string& name, T* value);
 
 private:
 	std::unordered_map<std::string, std::function<nlohmann::json()>> getters_;
 	std::unordered_map<std::string, std::function<void(const nlohmann::json&)>> setters_;
 	std::unordered_map<std::string, std::function<void()>> drawers_;
-    const std::string dirPath = "Resources/json/";
-    std::string fileName;
+
+	std::vector<std::shared_ptr<void>> registeredMembers_; // 登録されたメンバ変数のポインタを保持
+	const std::string dirPath = "Resources/json/";
+	std::string fileName;
 };
+
+// メンバ変数登録の自動化マクロ
+#define REGISTER_MEMBER(var) Register(#var, &var)
+
+// 型チェックのためのヘルパー
+template<typename> struct is_std_vector : std::false_type {};
+template<typename U, typename A> struct is_std_vector<std::vector<U, A>> : std::true_type {};
 
 template<typename T>
 void JsonEditableBase::Register(const std::string& name, T* value)
 {
-    // すでに登録されている場合は何もしない
-    if (getters_.find(name) != getters_.end()) 
-    {
-        return;
-    }
+	if (getters_.count(name)) return;
 
-	// getters_, setters_, drawers_に登録
-    getters_[name] = [value]() { return nlohmann::json(*value); };
-    setters_[name] = [value](const nlohmann::json& j) { *value = j.get<T>(); };
-    drawers_[name] = [value, name]() {
-    	ImGui::PushID(name.c_str());
-        if (ImGui::CollapsingHeader(name.c_str()))  // コラプスヘッダーでまとめる
-        {
-			
-            // 型に応じたUI描画
-            if constexpr (std::is_same_v<T, float>)
-                ImGui::DragFloat(name.c_str(), value, 0.1f);
-            else if constexpr (std::is_same_v<T, int>)
-                ImGui::DragInt(name.c_str(), value);
-            else if constexpr (std::is_same_v<T, bool>)
-                ImGui::Checkbox(name.c_str(), value);
-            else if constexpr (std::is_same_v<T, Vector3>)
-                ImGui::DragFloat3(name.c_str(), &value->x, 0.1f);
-            else if constexpr (std::is_same_v<T, std::vector<Vector3>>)
-            {
-                for (size_t i = 0; i < value->size(); ++i)
-                {
-                    std::string label = name + "[" + std::to_string(i) + "]";
-                    ImGui::DragFloat3(label.c_str(), &(*value)[i].x, 0.1f);
-                }
-            }
-            else if constexpr (std::is_same_v<T, std::string>)
-            {
-                // std::stringを編集するための一時的なバッファ
-                char buffer[256];
-                strncpy_s(buffer, value->c_str(), sizeof(buffer));
-                buffer[sizeof(buffer) - 1] = '\0'; // バッファの終端を保証
+	// 型名を出力
+	Logger::Log("Register: " + name + " type: " + std::string(typeid(T).name()) + "\n");
 
-                if (ImGui::InputText(name.c_str(), buffer, sizeof(buffer)))
-                {
-                    *value = buffer; // 編集結果をstd::stringに反映
-                }
-            }
-            else if constexpr (std::is_same_v<T, std::vector<std::string>>)
-            {
-                for (size_t i = 0; i < value->size(); ++i)
-                {
-                    std::string label = name + "[" + std::to_string(i) + "]";
-                    char buffer[256];
-                    strncpy_s(buffer, (*value)[i].c_str(), sizeof(buffer));
-                    buffer[sizeof(buffer) - 1] = '\0'; // バッファの終端を保証
+	// シンプルに全体型に対して to_json/from_json を丸投げ
+	getters_[name] = [value]() {
+		return nlohmann::json(*value);
+		};
+	setters_[name] = [value](const nlohmann::json& j) {
+		j.get_to(*value);
+		};
 
-                    if (ImGui::InputText(label.c_str(), buffer, sizeof(buffer)))
-                    {
-                        (*value)[i] = buffer; // 編集結果をstd::stringに反映
-                    }
-                }
-            }
-			
-        }
-    	ImGui::PopID();
-    };
+	// --- ImGui 描画関数登録 ---
+	drawers_[name] = [value, name]() {
+		ImGui::PushID(name.c_str());
+		if (ImGui::CollapsingHeader(name.c_str()))
+		{
+			// 型ごとの描画関数に委譲
+			if constexpr (std::is_same_v<T, float>)
+				DrawImGuiForFloat(name, value);
+			else if constexpr (std::is_same_v<T, int>)
+				DrawImGuiForInt(name, value);
+			else if constexpr (std::is_same_v<T, bool>)
+				DrawImGuiForBool(name, value);
+			else if constexpr (std::is_same_v<T, Vector3>)
+				DrawImGuiForVector3(name, value);
+			else if constexpr (std::is_same_v<T, Transform>)
+				DrawImGuiForTransform(name, value);
+			else if constexpr (std::is_same_v<T, std::vector<Transform>>)
+				DrawImGuiForTransformVector(name, value);
+			else if constexpr (std::is_same_v<T, std::vector<Vector3>>)
+				DrawImGuiForVector3Vector(name, value);
+			else if constexpr (std::is_same_v<T, std::string>)
+				DrawImGuiForString(name, value);
+			else if constexpr (std::is_same_v<T, std::vector<std::string>>)
+				DrawImGuiForStringVector(name, value);
+			else
+				Logger::Log("Unsupported type for ImGui drawing: " + std::string(typeid(T).name()) + "\n");
+		}
+		ImGui::PopID();
+		};
 }
-

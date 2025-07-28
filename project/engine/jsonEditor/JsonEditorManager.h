@@ -9,6 +9,7 @@ class JsonEditorManager
 public:
 	static JsonEditorManager* GetInstance();
 	void Initialize();
+	void Finalize();
     void Register(const std::string& name, std::shared_ptr<JsonEditableBase> editor);
 	void RenderEditUI();
     void SaveAll();

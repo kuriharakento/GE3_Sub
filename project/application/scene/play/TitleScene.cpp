@@ -1,6 +1,6 @@
 #include "TitleScene.h"
 
-#include "application/GameObject/component/action/FireComponent.h"
+#include "application/GameObject/component/action/PistolComponent.h"
 #include "audio/Audio.h"
 #include "base/PostProcessPass.h"
 #include "effects/component/single/AccelerationComponent.h"
@@ -12,8 +12,6 @@
 #include "effects/component/single/RandomInitialVelocityComponent.h"
 #include "effects/component/single/RotationComponent.h"
 #include "effects/component/single/ScaleOverLifetimeComponent.h"
-#include "effects/component/group/UVRotateComponent.h"
-#include "effects/component/group/UVScaleComponent.h"
 #include "effects/component/group/UVTranslateComponent.h"
 #include "engine/scene/manager/SceneManager.h"
 #include "externals/imgui/imgui.h"
@@ -21,8 +19,6 @@
 #include "jsonEditor/JsonEditorManager.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
-#include "application/GameObject/component/collision/AABBColliderComponent.h"
-#include "application/GameObject/component/action/MoveComponent.h"
 #include "application/GameObject/component/collision/CollisionManager.h"
 #include "effects/component/single/BounceComponent.h"
 #include "postprocess/PostProcessManager.h"
@@ -43,106 +39,178 @@ void TitleScene::Initialize()
 
 	sceneManager_->GetCameraManager()->GetActiveCamera()->SetTranslate(Vector3(0.0f, 1.5f, -15.0f));
 
-	//地面の生成
-	terrain_ = std::make_unique<Object3d>();
-	terrain_->Initialize(sceneManager_->GetObject3dCommon());
-	terrain_->SetModel("terrain.obj");
-	terrain_->SetTranslate({ 0.0f,0.0f,1.0f });
-	terrain_->SetDirectionalLightIntensity(0.0f);
-	terrain_->SetLightManager(sceneManager_->GetLightManager());	//パーティクルグループの作成
-
 	//スカイドームの生成
 	skydome_ = std::make_unique<Object3d>();
 	skydome_->Initialize(sceneManager_->GetObject3dCommon());
 	skydome_->SetModel("skydome.obj");
 	skydome_->SetLightManager(sceneManager_->GetLightManager());
 	skydome_->SetEnableLighting(true);
-	skydome_->SetDirectionalLightIntensity(1.0f);
+	skydome_->SetDirectionalLightIntensity(0.5f);
 	//ディレクショナルライトを下から上に照らす
-	skydome_->SetDirectionalLightDirection({ 0.0f, 1.0f, 0.0f });
+	skydome_->SetDirectionalLightDirection({ 0.0f, -1.0f, 0.0f });
 
-	//Jsonエディタ
-	JsonEditorManager::GetInstance()->Initialize();
+	// 地面の生成
+	ground_ = std::make_unique<Object3d>();
+	ground_->Initialize(sceneManager_->GetObject3dCommon());
+	ground_->SetModel("terrain2.obj");
+	ground_->SetLightManager(sceneManager_->GetLightManager());
+	ground_->SetEnableLighting(true);
+	ground_->GetModel()->SetUVScale(Vector3(10.0f, 10.0f, 1.0f));
 
 	//当たり判定マネージャーの初期化
 	CollisionManager::GetInstance()->Initialize();
 
 	//ゲームオブジェクトの生成
-	player = std::make_unique<Player>("player");
+	player = std::make_unique<Player>("Player");
 	player->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
-	player->AddComponent("MoveComponent", std::make_unique<MoveComponent>(5.0f)); // 移動速度
 
-	enemy = std::make_unique<GameObject>("enemy");
-	enemy->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), sceneManager_->GetCameraManager()->GetActiveCamera());
-	enemy->SetPosition({ 0.0f,1.0f,10.0f });
+	//敵マネージャーの生成
+	enemyManager_ = std::make_unique<EnemyManager>();
+	enemyManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager(), player.get());
+	enemyManager_->AddAssaultEnemy(3);
 
-
-	//オービットカメラワークの生成
-	orbitCameraWork_ = std::make_unique<OrbitCameraWork>();
-	orbitCameraWork_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
-	orbitCameraWork_->SetPositionOffset({ 0.0f,2.0f,0.0f });
-	orbitCameraWork_->Start(
-		&player->GetPosition(),
-		10.0f,
-		1.0f
-	);
+	// 障害物マネージャーの生成
+	obstacleManager_ = std::make_unique<ObstacleManager>();
+	obstacleManager_->Initialize(sceneManager_->GetObject3dCommon(), sceneManager_->GetLightManager());
+	obstacleManager_->LoadObstacleData("object.json");
+	obstacleManager_->SetCulling(false);
 
 	//スプラインカメラの生成
 	splineCamera_ = std::make_unique<SplineCamera>();
 	splineCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
 	splineCamera_->LoadJson("spline.json");
-	splineCamera_->Start(0.001f, true);
+	splineCamera_->Start(0.001f, false);
 	splineCamera_->SetTarget(&player->GetPosition());
-
-	//フォローカメラの生成
-	followCamera_ = std::make_unique<FollowCamera>();
-	followCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
-	followCamera_->Start(
-		&player->GetPosition(),
-		15.0f,
-		0.06f
-	);
 
 	//トップダウンカメラの生成
 	topDownCamera_ = std::make_unique<TopDownCamera>();
 	topDownCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
-	topDownCamera_->SetOffset({ 0.0f, 0.0f, -4.0f });
-	topDownCamera_->SetPitch(1.1f);
+	topDownCamera_->SetOffset({ 0.0f, 0.0f, -5.0f });
+	topDownCamera_->SetPitch(0.9f);
 	topDownCamera_->Start(
-		70.0f,
+		60.0f,
 		&player->GetPosition()
 	);
 
+	// デバッグカメラの生成
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Initialize(sceneManager_->GetCameraManager()->GetActiveCamera());
+	debugCamera_->Start();
+
+	// パーティクルエミッターの初期化
+	InitializeParticleEmitters();
+
+}
+
+void TitleScene::Finalize()
+{
+	CollisionManager::GetInstance()->Finalize();
+}
+
+void TitleScene::Update()
+{
+	// ImGuiの描画
+	DrawImGui();
+
+	// 前フレームの位置を更新
+	CollisionManager::GetInstance()->UpdatePreviousPositions();
+
+	// 状態に応じた更新
+	switch (state_)
+	{
+	case TitleSceneState::Cameraintro:
+		// スプラインカメラの更新
+		//splineCamera_->Update();
+		player->UpdateTransform(sceneManager_->GetCameraManager());
+		enemyManager_->UpdateTransform(sceneManager_->GetCameraManager());
+		if (splineCamera_->IsEnd())
+		{
+			state_ = TitleSceneState::Playing;
+			obstacleManager_->SetCulling(true);
+		}
+		break;
+	case TitleSceneState::Playing:
+		//カメラの更新
+		//topDownCamera_->Update();
+		// キャラクターの更新
+		player->Update();
+		enemyManager_->Update();
+		break;
+	case TitleSceneState::NextScene:
+		break;
+	}
+
+	// スカイドームの更新
+	skydome_->Update(sceneManager_->GetCameraManager());
+
+	// 地面の更新
+	ground_->Update(sceneManager_->GetCameraManager());
+
+	// プレイヤーの更新
+	obstacleManager_->Update();
+
+	// 衝突判定開始
+	CollisionManager::GetInstance()->CheckCollisions();
+}
+
+void TitleScene::Draw3D()
+{
+	// スカイドームの描画
+	skydome_->Draw();
+
+	// 地面の描画
+	ground_->Draw();
+
+	// プレイヤーの描画
+	player->Draw(sceneManager_->GetCameraManager());
+
+	// 敵の描画
+	enemyManager_->Draw(sceneManager_->GetCameraManager());
+
+	// 障害物の描画
+	obstacleManager_->Draw(sceneManager_->GetCameraManager());
+
+	// スプライン曲線の描画
+	splineCamera_->DrawSplineLine();
+}
+
+void TitleScene::Draw2D()
+{
+
+}
+
+void TitleScene::InitializeParticleEmitters()
+{
 #pragma region dust effect
 	// エミッターの初期化（前回の設定をベースに調整）
 	dust_ = std::make_unique<ParticleEmitter>();
-	dust_->Initialize("test", "./Resources/star.png");
+	dust_->Initialize("dust", "./Resources/star.png");
 	dust_->SetEmitRange({ -5.0f, -5.0f, -5.0f }, { 5.0f, 5.0f, 5.0f }); // 広めに設定
 	dust_->Start(
-		&origin, // 発生位置
+		&player->GetPosition(), // 発生位置
 		30,   // 30個のパーティクルを一度に生成（バースト）
 		0.1f, // 0.1秒かけて全パーティクルを放出
 		true // ループさせない（一回きりのバースト）
 	);
 	dust_->SetEmitRate(2.0f); // 定期的な放出はなし
-	dust_->SetInitialLifeTime(4.0f); // 長めの寿命
+	dust_->SetInitialLifeTime(0.3f); // 長めの寿命
 	dust_->SetModelType(ParticleGroup::ParticleType::Plane); // 光の粒感
 	dust_->SetBillborad(true); // カメラ常に正面を向く
 
 	//======コンポーネントの追加=========================
 	// 空気抵抗コンポーネントを追加 (徐々に減速し、漂う感じ)
 	dust_->AddComponent(std::make_shared<DragComponent>(0.99f));
-	dust_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(0.5f, 0.0f));
+	dust_->AddComponent(std::make_shared<ScaleOverLifetimeComponent>(10.0f, 0.0f));
 	// 色フェードアウトコンポーネント (寿命後半で透明になる)
 	dust_->AddComponent(std::make_shared<ColorFadeOutComponent>());
 	// 回転コンポーネント (ゆっくり回転)
-	dust_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.05f, 0.0f }));
+	dust_->AddComponent(std::make_shared<RotationComponent>(Vector3{ 0.0f, 0.16f, 0.0f }));
 	// マテリアル色変更コンポーネント (青系の光)
 	dust_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Gold));
 #pragma endregion
 
 #pragma region red effect
-// エミッターの初期化
+	// エミッターの初期化
 	redEffect_ = std::make_unique<ParticleEmitter>();
 	redEffect_->Initialize("redEffect", "./Resources/gradationLine.png"); // 縦長の光のテクスチャ
 	redEffect_->SetEmitRange({ -0.1f, 0.0f, -0.1f }, { 0.1f, 0.0f, 0.1f }); // 地面付近で発生
@@ -208,7 +276,7 @@ void TitleScene::Initialize()
 #pragma endregion
 
 #pragma region fall heart effect
-// エミッターの初期化
+	// エミッターの初期化
 	fallHeart_ = std::make_unique<ParticleEmitter>();
 	fallHeart_->Initialize("fallHeart", "./Resources/star.png"); // ハートのテクスチャ
 	fallHeart_->SetEmitRange({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // 発生ポイントを固定
@@ -248,7 +316,7 @@ void TitleScene::Initialize()
 	mordeVFXGround_->SetInitialScale(Vector3{ 3.0f,3.0f,3.0f });
 	mordeVFXGround_->SetEmitRate(0.0f);
 	//　地面に倒す角度にする
-	mordeVFXGround_->SetInitialRotation(Vector3{ std::numbers::pi_v<float> * 0.5, 0.0f, 0.0f });
+	mordeVFXGround_->SetInitialRotation(Vector3{ std::numbers::pi_v<float> *0.5, 0.0f, 0.0f });
 	mordeVFXGround_->SetBillborad(false);
 	mordeVFXGround_->Start(
 		&mordeVFXPos,
@@ -288,25 +356,63 @@ void TitleScene::Initialize()
 	// マテリアル色変更コンポーネント追加
 	mordeVFXFragment_->AddComponent(std::make_shared<MaterialColorComponent>(VectorColorCodes::Cyan));
 #pragma endregion
+	redEffect_->StopEmit();
+	dust_->StopEmit();
+	fallHeart_->StopEmit();
+	glitch_->StopEmit();
+	mordeVFXGround_->StopEmit();
+	mordeVFXFragment_->StopEmit();
 
 }
 
-void TitleScene::Finalize()
-{
-	CollisionManager::GetInstance()->Finalize();
-}
-
-void TitleScene::Update()
+void TitleScene::DrawImGui()
 {
 #ifdef _DEBUG
 	ImGui::Begin("TitleScene");
+
+	static bool useDebugCamera = false;
+	static bool useSplineCamera = true;
+	static bool loopSpline = false;
+	static float speed = 0.001f;
+	static bool useTopDownCamera = false;
+	if (ImGui::CollapsingHeader("Camera Work", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::SeparatorText("Debug Camera");
+		ImGui::Checkbox("Use Debug Camera", &useDebugCamera);
+		ImGui::SeparatorText("Spline Camera");
+		ImGui::DragFloat("Spline Speed", &speed, 0.001f, 0.0f, 0.1f);
+		if (ImGui::Checkbox("Loop Spline", &loopSpline))
+		{
+			splineCamera_->Start(speed, loopSpline);
+		}
+		ImGui::Checkbox("Use Spline Camera", &useSplineCamera);
+		ImGui::SeparatorText("Top Down Camera");
+		ImGui::Checkbox("Use Top Down Camera", &useTopDownCamera);
+	}
+	if (useDebugCamera)
+	{
+		debugCamera_->Update();
+	}
+	if (useSplineCamera)
+	{
+		splineCamera_->Update();
+	}
+	if (useTopDownCamera)
+	{
+		topDownCamera_->Update();
+	}
+
 	ImGui::SeparatorText("Particle Emitter");
 
-	ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
-	ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
-	ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
-	ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
+	if (ImGui::CollapsingHeader("emitters"))
+	{
+		ImGui::DragFloat3("Start Position", &startPos.x, 0.01f);
+		ImGui::DragFloat3("Glitch Position", &glitchPos.x, 0.01f);
+		ImGui::DragFloat3("Fall Heart Position", &fallHeartPos.x, 0.01f);
+		ImGui::DragFloat3("Morde VFX Position", &mordeVFXPos.x, 0.01f);
+	}
 
+#pragma region PostProcess
 	ImGui::SeparatorText("PostProcess");
 	if (ImGui::CollapsingHeader("GrayScale"))
 	{
@@ -394,72 +500,30 @@ void TitleScene::Update()
 		ImGui::DragFloat("Scanline Intensity", &scanlineIntensity, 0.01f, 0.0f, 1.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineIntensity(scanlineIntensity);
 		float scanlineCount = sceneManager_->GetPostProcessManager()->crtEffect_->GetScanlineCount();
-		ImGui::DragFloat("Scanline Count", &scanlineCount, 0.01f, 0.0f, 100.0f);
+		ImGui::DragFloat("Scanline Count", &scanlineCount, 10.0f, 0.0f, 1000.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetScanlineCount(scanlineCount);
 		float distortionStrength = sceneManager_->GetPostProcessManager()->crtEffect_->GetDistortionStrength();
-		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Distortion Strength", &distortionStrength, 0.01f, 0.0f, 10.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetDistortionStrength(distortionStrength);
 		float chromAberrationOffset = sceneManager_->GetPostProcessManager()->crtEffect_->GetChromaticAberrationOffset();
-		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Chromatic Aberration Offset", &chromAberrationOffset, 0.01f, 0.0f, 10.0f);
 		sceneManager_->GetPostProcessManager()->crtEffect_->SetChromaticAberrationOffset(chromAberrationOffset);
 	}
-
-
-	ImGui::SeparatorText("camera work");
-
-	static bool splineCameraUpdate = false;
-	static bool orbitCameraUpdate = false;
-	static bool followCameraUpdate = false;
-	static bool topDownCameraUpdate = false;
-
-	//カメラワークの更新
-	ImGui::Checkbox("orbitCamera Update", &orbitCameraUpdate);
-	ImGui::Checkbox("splineCamera Update", &splineCameraUpdate);
-	ImGui::Checkbox("followCamera Update", &followCameraUpdate);
-	ImGui::Checkbox("topDownCamera Update", &topDownCameraUpdate);
-	if (Input::GetInstance()->TriggerKey(DIK_F))
-	{
-		followCameraUpdate = !followCameraUpdate;
-	}
-	// カメラワークの更新
-	if (orbitCameraUpdate)
-	{
-		orbitCameraWork_->Update();
-	}
-	if (splineCameraUpdate)
-	{
-		splineCamera_->Update();
-	}
-	if (followCameraUpdate)
-	{
-		followCamera_->Update();
-	}
-	if (topDownCameraUpdate)
-	{
-		topDownCamera_->Update();
-	}
-
-	//Jsonエディタの表示
-	JsonEditorManager::GetInstance()->RenderEditUI();
+#pragma endregion
 
 #pragma region GameObject
-	if (ImGui::CollapsingHeader("GameObject"))
+	ImGui::SeparatorText("GameObject");
+	if (ImGui::CollapsingHeader("player"))
 	{
-		ImGui::Text("Player");
 		Vector3 playerPos = player->GetPosition();
-		ImGui::DragFloat3("Player Position", &playerPos.x, 0.1f);
+		ImGui::DragFloat3("position", &playerPos.x, 0.1f);
 		player->SetPosition(playerPos);
-		ImGui::Text("Enemy");
-		Vector3 enemyPos = enemy->GetPosition();
-		ImGui::DragFloat3("Enemy Position", &enemyPos.x, 0.1f);
-		enemy->SetPosition(enemyPos);
 	}
 #pragma endregion
 
 	ImGui::End();
 
 #endif
-
 	// スカイドームの更新
 	//skydome_->Update(sceneManager_->GetCameraManager());
 

@@ -16,6 +16,7 @@ public:
 	void Register(ICollisionComponent* collider);
 	void Unregister(ICollisionComponent* collider);
 	void CheckCollisions();
+	void UpdatePreviousPositions();
 
 private:
 	static CollisionManager* instance_; // シングルトンインスタンス
@@ -25,9 +26,14 @@ private:
 	CollisionManager& operator=(const CollisionManager&) = delete;
 
 	// 衝突判定関数
-	bool CheckCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);
-	bool CheckCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);
-	bool CheckCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);
+	bool CheckCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);			// AABB同士の衝突判定
+	bool CheckCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);				// OBB同士の衝突判定
+	bool CheckCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);				// AABBとOBBの衝突判定
+
+	// 衝突判定関数（サブステップ）
+	bool CheckSubstepCollision(const AABBColliderComponent* a, const AABBColliderComponent* b);
+	bool CheckSubstepCollision(const OBBColliderComponent* a, const OBBColliderComponent* b);
+	bool CheckSubstepCollision(const AABBColliderComponent* a, const OBBColliderComponent* b);
 
 	//コライダータイプから文字列を取得
 	std::string GetColliderTypeString(ColliderType type) const;

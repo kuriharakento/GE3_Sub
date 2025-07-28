@@ -26,8 +26,6 @@ public: //メンバ関数
 	virtual void Finalize();
 	//毎フレーム
 	virtual void Update();
-	//更新後の処理
-	void PostUpdate();
 	//描画
 	virtual void Draw() = 0;
 	//3D描画用の設定

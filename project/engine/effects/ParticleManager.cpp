@@ -61,15 +61,7 @@ void ParticleManager::Update(CameraManager* camera)
 	{
 		if (ImGui::CollapsingHeader(emitter.first.c_str()))
 		{
-			ImGui::Text("instance count : %d", emitter.second->GetParticleGroup()->GetParticleCount());
-			if (ImGui::Button("Start"))
-			{
-				emitter.second->Play();
-			}
-			if (ImGui::Button("Stop"))
-			{
-				emitter.second->StopEmit();
-			}
+			emitter.second->DrawImGui();
 		}
 	}
 

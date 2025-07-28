@@ -1,17 +1,28 @@
 #pragma once
 #include <memory>
 
+#include "application/GameObject/character/enemy/PistolEnemy.h"
 #include "2d/Sprite.h"
 #include "3d/Object3d.h"
 #include "application/Animation/Slide.h"
 #include "application/GameObject/base/GameObject.h"
+#include "application/GameObject/character/enemy/EnemyManager.h"
 #include "application/GameObject/character/player/Player.h"
+#include "application/GameObject/obstacle/ObstacleManager.h"
+#include "camerawork/DebugCamera.h"
 #include "camerawork/FollowCamera.h"
 #include "camerawork/OrbitCameraWork.h"
 #include "camerawork/SplineCamera.h"
 #include "camerawork/TopDownCamera.h"
 #include "effects/ParticleEmitter.h"
 #include "engine/scene/interface/BaseScene.h"
+
+enum class TitleSceneState
+{
+	Cameraintro,
+	Playing,
+	NextScene,
+};
 
 class TitleScene : public BaseScene
 {
@@ -26,28 +37,28 @@ public:
 	void Draw3D() override;
 	void Draw2D() override;
 
+private:
+	// パーティクルエミッターの初期化
+	void InitializeParticleEmitters();
+	// ImGuiの描画
+	void DrawImGui();
+
 private: //メンバ変数
-	//デバック用オブジェクト
-	std::unique_ptr<Object3d> object3d_;
-	//デバック用オブジェクト地面
-	std::unique_ptr<Object3d> terrain_;
-	//スカイドーム
+	// シーンの状態
+	TitleSceneState state_ = TitleSceneState::Cameraintro;
+	// スカイドーム
 	std::unique_ptr<Object3d> skydome_;
-	//キューブの座標
-	Vector3 cubePos1_ = { 0.0f,0.0f,0.0f };
-	Vector3 cubePos2_ = { 3.0f,0.0f,0.0f };
-	//球
-	Vector3 spherePos1_ = { 0.0f,0.0f,0.0f };
-	Vector3 spherePos2_ = { 3.0f,0.0f,0.0f };
-	//カメラワーク
-	std::unique_ptr<OrbitCameraWork> orbitCameraWork_;
+	// 地面
+	std::unique_ptr<Object3d> ground_;
+	// カメラワーク
+	std::unique_ptr<DebugCamera> debugCamera_;
 	std::unique_ptr<SplineCamera> splineCamera_;
-	std::unique_ptr<FollowCamera> followCamera_;
 	std::unique_ptr<TopDownCamera> topDownCamera_;
-	//ゲームオブジェクト
+	// ゲームオブジェクト
 	std::unique_ptr<Player> player;
-	std::unique_ptr<GameObject> enemy;
-	//エミッター
+	std::unique_ptr<EnemyManager> enemyManager_;
+	std::unique_ptr<ObstacleManager> obstacleManager_;
+	// エミッター
 	std::unique_ptr<ParticleEmitter> dust_;
 	std::unique_ptr<ParticleEmitter> redEffect_;
 	std::unique_ptr<ParticleEmitter> fallHeart_;

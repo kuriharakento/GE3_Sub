@@ -13,18 +13,21 @@ public:
 	void Initialize(const std::string& groupName, const std::string& textureFilePath);
 	void Update(CameraManager* camera);
 	void Draw(DirectXCommon* dxCommon, SrvManager* srvManager);
+	void DrawImGui();
 	void AddComponent(std::shared_ptr<IParticleComponent> component);
 
 	void Play();
 	void Start(const Vector3& position, uint32_t count, float duration, bool isLoop = false);
 	void Start(const Vector3* target, uint32_t count, float duration, bool isLoop = false);
 	void StopEmit();
-	void SetEmitRange(const Vector3& min, const Vector3& max);
-	void SetEmitRate(float rate) { emitRate_ = rate; }
-	void SetEmitCount(uint32_t count) { emitCount_ = count; }
-	void SetLoop(bool loop) { isLoop_ = loop; }
-	void SetBillborad(bool flag) { particleGroup_->SetBillboard(flag); }
+
+	void SetPosition(const Vector3& position) { position_ = position; }
 	const Vector3& GetPosition() const { return position_; }
+    void SetEmitRange(const Vector3& min, const Vector3& max);
+    void SetEmitRate(float rate) { emitRate_ = rate; }
+    void SetEmitCount(uint32_t count) { emitCount_ = count; }
+    void SetLoop(bool loop) { isLoop_ = loop; }
+	void SetBillborad(bool flag) { particleGroup_->SetBillboard(flag); }
 	void SetTexture(const std::string& textureFilePath) { particleGroup_->SetTexture(textureFilePath); }
 	void SetModelType(ParticleGroup::ParticleType type) { particleGroup_->SetModelType(type); }
 	Vector3 GetUVTranslate() const { return particleGroup_->GetUVTranslate(); }
@@ -45,6 +48,7 @@ public:
 	Vector3 GetInitialVelocity() const { return initialVelocity_; }
 	Vector4 GetInitialColor() const { return initialColor_; }
 	Vector3 GetInitialScale() const { return initialScale_; }
+	Vector3 GetInitialRotation() const { return initialRotation_; }
 	void SetRandomVelocity(bool isRandom) { isRandomVelocity_ = isRandom; }
 	void SetRandomScale(bool isRandom) { isRandomScale_ = isRandom; }
 	void SetRandomColor(bool isRandom) { isRandomColor_ = isRandom; }
@@ -61,6 +65,8 @@ public:
 private:
 	// パーティクルの生成
 	void Emit();
+	//　初回の発生を即座に行う
+	void EmitFirst();
 	// 追従対象の位置に合わせてエミット位置を更新
 	void UpdateEmitPosition();
 	// 初期パラメータをランダム化

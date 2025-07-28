@@ -1,6 +1,7 @@
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
 #include "component/interface/IParticleGroupComponent.h"
+#include "imgui/imgui.h"
 #include "lighting/VectorColorCodes.h"
 #include "line/LineManager.h"
 #include "math/MathUtils.h"
@@ -73,6 +74,167 @@ void ParticleEmitter::Draw(DirectXCommon* dxCommon, SrvManager* srvManager)
 	particleGroup_->Draw(dxCommon, srvManager);
 }
 
+void ParticleEmitter::DrawImGui()
+{
+#ifdef _DEBUG
+	ImGui::SeparatorText("ParticleEmitter Info");
+
+	// 再生・停止ボタン
+	if (ImGui::Button(isPlaying_ ? "Stop" : "Play"))
+	{
+		if (isPlaying_) StopEmit();
+		else Play();
+	}
+	ImGui::SameLine();
+	ImGui::Text("isPlaying: %s", isPlaying_ ? "true" : "false");
+
+	// 位置
+	Vector3 pos = position_;
+	if (ImGui::DragFloat3("Position", &pos.x, 0.01f))
+	{
+		SetPosition(pos);
+	}
+
+	// エミット範囲
+	Vector3 emitMin = emitRangeMin_;
+	Vector3 emitMax = emitRangeMax_;
+	if (ImGui::DragFloat3("Emit Range Min", &emitMin.x, 0.01f))
+	{
+		emitRangeMin_ = emitMin;
+	}
+	if (ImGui::DragFloat3("Emit Range Max", &emitMax.x, 0.01f))
+	{
+		emitRangeMax_ = emitMax;
+	}
+
+	// レート・カウント・ループ・継続時間
+	float emitRate = emitRate_;
+	if (ImGui::DragFloat("Emit Rate", &emitRate, 0.01f, 0.0f, 100.0f))
+	{
+		SetEmitRate(emitRate);
+	}
+	int emitCount = static_cast<int>(emitCount_);
+	if (ImGui::DragInt("Emit Count", &emitCount, 1, 1, 1000))
+	{
+		SetEmitCount(static_cast<uint32_t>(emitCount));
+	}
+	bool isLoop = isLoop_;
+	if (ImGui::Checkbox("Loop", &isLoop))
+	{
+		SetLoop(isLoop);
+	}
+	ImGui::DragFloat("Duration", &duration_, 0.01f, 0.0f, 100.0f);
+
+	// 初期値
+	float life = initialLifeTime_;
+	if (ImGui::DragFloat("Initial LifeTime", &life, 0.01f, 0.0f, 100.0f))
+	{
+		SetInitialLifeTime(life);
+	}
+	Vector3 vel = initialVelocity_;
+	if (ImGui::InputFloat3("Initial Velocity", &vel.x))
+	{
+		SetInitialVelocity(vel);
+	}
+	Vector4 col = initialColor_;
+	if (ImGui::ColorEdit4("Initial Color", &col.x))
+	{
+		SetInitialColor(col);
+	}
+	Vector3 scale = initialScale_;
+	if (ImGui::InputFloat3("Initial Scale", &scale.x))
+	{
+		SetInitialScale(scale);
+	}
+	Vector3 rot = initialRotation_;
+	if (ImGui::InputFloat3("Initial Rotation", &rot.x))
+	{
+		SetInitialRotation(rot);
+	}
+
+	// ランダム設定
+	ImGui::SeparatorText("Randomize");
+	bool randomVel = isRandomVelocity_;
+	if (ImGui::Checkbox("Random Velocity", &randomVel))
+	{
+		SetRandomVelocity(randomVel);
+	}
+	if (randomVel)
+	{
+		Vector3 minV = randomVelocityRange_.min_;
+		Vector3 maxV = randomVelocityRange_.max_;
+		if (ImGui::InputFloat3("Random Velocity Min", &minV.x))
+		{
+			randomVelocityRange_.min_ = minV;
+			SetRandomVelocityRange(randomVelocityRange_);
+		}
+		if (ImGui::InputFloat3("Random Velocity Max", &maxV.x))
+		{
+			randomVelocityRange_.max_ = maxV;
+			SetRandomVelocityRange(randomVelocityRange_);
+		}
+	}
+	bool randomScale = isRandomScale_;
+	if (ImGui::Checkbox("Random Scale", &randomScale))
+	{
+		SetRandomScale(randomScale);
+	}
+	if (randomScale)
+	{
+		Vector3 minS = randomScaleRange_.min_;
+		Vector3 maxS = randomScaleRange_.max_;
+		if (ImGui::InputFloat3("Random Scale Min", &minS.x))
+		{
+			randomScaleRange_.min_ = minS;
+			SetRandomScaleRange(randomScaleRange_);
+		}
+		if (ImGui::InputFloat3("Random Scale Max", &maxS.x))
+		{
+			randomScaleRange_.max_ = maxS;
+			SetRandomScaleRange(randomScaleRange_);
+		}
+	}
+	bool randomCol = isRandomColor_;
+	if (ImGui::Checkbox("Random Color", &randomCol))
+	{
+		SetRandomColor(randomCol);
+	}
+	if (randomCol)
+	{
+		Vector4 minC = randomColormin_;
+		Vector4 maxC = randomColormax_;
+		if (ImGui::ColorEdit4("Random Color Min", &minC.x))
+		{
+			randomColormin_ = minC;
+		}
+		if (ImGui::ColorEdit4("Random Color Max", &maxC.x))
+		{
+			randomColormax_ = maxC;
+		}
+	}
+	bool randomRot = isRandomRotation_;
+	if (ImGui::Checkbox("Random Rotation", &randomRot))
+	{
+		SetRandomRotation(randomRot);
+	}
+	if (randomRot)
+	{
+		Vector3 minR = randomRotationRange_.min_;
+		Vector3 maxR = randomRotationRange_.max_;
+		if (ImGui::InputFloat3("Random Rotation Min", &minR.x))
+		{
+			randomRotationRange_.min_ = minR;
+			SetRandomRotationRange(randomRotationRange_);
+		}
+		if (ImGui::InputFloat3("Random Rotation Max", &maxR.x))
+		{
+			randomRotationRange_.max_ = maxR;
+			SetRandomRotationRange(randomRotationRange_);
+		}
+	}
+#endif
+}
+
 void ParticleEmitter::AddComponent(std::shared_ptr<IParticleComponent> component)
 {
 	behaviorComponents_.push_back(component);
@@ -88,7 +250,7 @@ void ParticleEmitter::Play()
 	emitTime_ = 0.0f;
 	timeSinceLastEmit_ = emitRate_;
 	// 初回の発生を即座に行う
-	Emit();
+	EmitFirst();
 }
 
 void ParticleEmitter::Start(const Vector3& position, uint32_t count, float duration, bool isLoop)
@@ -102,7 +264,7 @@ void ParticleEmitter::Start(const Vector3& position, uint32_t count, float durat
 	duration_ = duration;
 	isLoop_ = isLoop;
 	//初回の発生を即座に行う
-	Emit();
+	EmitFirst();
 }
 
 void ParticleEmitter::Start(const Vector3* target, uint32_t count, float duration, bool isLoop)
@@ -119,7 +281,7 @@ void ParticleEmitter::Start(const Vector3* target, uint32_t count, float duratio
 	duration_ = duration;
 	isLoop_ = isLoop;
 	// 初回の発生を即座に行う
-	Emit();
+	EmitFirst();
 }
 
 void ParticleEmitter::StopEmit()
@@ -174,6 +336,26 @@ void ParticleEmitter::Emit()
 			particleGroup_->AddParticle(newParticle);
 		}
 		timeSinceLastEmit_ = 0.0f;
+	}
+}
+
+void ParticleEmitter::EmitFirst()
+{
+	if (!isPlaying_) return;
+	// 初回の発生を即座に行う
+	for (uint32_t i = 0; i < emitCount_; ++i)
+	{
+		RandomizeInitialParameters();
+		Particle newParticle;
+		Vector3 randomOffset = MathUtils::RandomVector3(emitRangeMin_, emitRangeMax_);
+		newParticle.transform.translate = position_ + randomOffset;
+		newParticle.transform.scale = initialScale_;
+		newParticle.transform.rotate = initialRotation_;
+		newParticle.velocity = initialVelocity_;
+		newParticle.color = initialColor_;
+		newParticle.lifeTime = initialLifeTime_;
+		newParticle.currentTime = 0.0f;
+		particleGroup_->AddParticle(newParticle);
 	}
 }
 

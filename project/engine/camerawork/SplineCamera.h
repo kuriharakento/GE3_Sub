@@ -14,7 +14,8 @@ public:
 	void SetLoop(bool loop) { loop_ = loop; }
 	void SetTarget(const Vector3* target) { targetPtr_ = target; }
 	void SetLookFront(bool lookFront) { lookFront = lookFront; }
-	void DrawSplineLine();;
+	void DrawSplineLine();
+	bool IsEnd() const { return isEnd_; }
 
 private:
 	Camera* camera_ = nullptr;	//カメラ
@@ -25,5 +26,6 @@ private:
 	float speed_ = 0.0f;	//スピード
 	bool loop_ = false;	//ループフラグ
 	bool lookFront = true;	//前を向くか
+	bool isEnd_ = false;	//終了フラグ
 };
 

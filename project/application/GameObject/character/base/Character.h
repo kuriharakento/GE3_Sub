@@ -11,7 +11,7 @@ public:
 	virtual ~Character() = default;
 	explicit Character(const std::string& tag) : GameObject(tag) {}
 	virtual void Initialize(Object3dCommon* object3dCommon, LightManager* lightManager);
-	virtual void Update();
+	virtual void Update() override;
 	virtual void Draw(CameraManager* camera);
 	void AddComponent(const std::string& name, std::unique_ptr<IGameObjectComponent> comp);
 
@@ -40,17 +40,21 @@ public:
 	void SetControllable(bool controllable) { isControllable_ = controllable; }
 	bool IsControllable() const { return isControllable_; }
 
+	// 地面に接地しているか
+	void SetIsGrounded(bool grounded) { isGrounded_ = grounded; }
+	bool IsGrounded() const { return isGrounded_; }
+
 protected:
 	// 基本ステータス
 	float hp_ = 100.0f;
 	float maxHp_ = 100.0f;
-	float speed_ = 5.0f;
 
 	// 状態管理
 	bool isAlive_ = true;
 	bool isInvincible_ = false;
 	float invincibleTimer_ = 0.0f; // 無敵時間の残り
 	bool isControllable_ = true;   // 操作可能フラグ
+	bool isGrounded_ = false; // 地面に接地しているか
 
 private:
 	//　当たり判定コンポーネントを追加した際の処理

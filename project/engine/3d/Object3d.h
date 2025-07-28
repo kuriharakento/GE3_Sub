@@ -38,6 +38,13 @@ public:	/*========[ メンバ関数 ]========*/
 	 */
 	void UpdateMatrix(Camera* camera = nullptr);
 
+	/**
+	 * \brief 行列の更新
+	 * \param worldMatrix 
+	 * \param camera 
+	 */
+	void UpdateMatrixWithWorld(const Matrix4x4& worldMatrix, Camera* camera = nullptr);
+
 public: /*========[ ゲッター ]========*/
 	//Transform
 	const Vector3& GetScale() const { return transform_.scale; }
@@ -66,6 +73,7 @@ public: /*========[ セッター ]========*/
 	//モデルの設定
 	void SetModel(Model* model) { model_ = model; }
 	void SetModel(const std::string& filePath) { model_ = ModelManager::GetInstance()->FindModel(filePath); }
+	Model* GetModel() const { return model_; }
 
 	//カメラの設定
 	void SetCamera(Camera* camera) { camera_ = camera; }

@@ -5,6 +5,7 @@
 #include "3d/ModelManager.h"
 #include "base/Logger.h"
 #include "engine/effects/ParticleManager.h"
+#include "ImGui/imgui_internal.h"
 #include "manager/TextureManager.h"
 
 void MyGame::Initialize()
@@ -78,11 +79,9 @@ void MyGame::Update()
 	//ゲームの更新処理
 	sceneManager_->Update();
 
-	//パーティクルマネージャーの更新
-	ParticleManager::GetInstance()->Update(cameraManager_.get());
 
-	//フレームワークの更新後処理
-	Framework::PostUpdate();
+	// パーティクルマネージャーの更新
+	ParticleManager::GetInstance()->Update(cameraManager_.get());
 }
 
 void MyGame::Draw()
@@ -123,19 +122,12 @@ void MyGame::Draw()
 	/////////////////< 描画ここまで >////////////////////
 
 	renderTexture_->EndRender();
-
-	/*----[ スワップチェインの描画 ]----*/
-
 	dxCommon_->PreDraw();
-
 	postProcessManager_->Draw(renderTexture_->GetGPUHandle());
-
-#ifdef _DEBUG
-	//ImGuiの描画
+	imguiManager_->End();
 	imguiManager_->Draw();
-#endif
+	dxCommon_->PostDraw();
 
-	dxCommon_->PostDraw();	
 }
 
 void MyGame::LoadTextures()
@@ -155,7 +147,9 @@ void MyGame::LoadModels()
 {
 	ModelManager::GetInstance()->LoadModel("cube.obj");
 	ModelManager::GetInstance()->LoadModel("highPolygonSphere.obj");
-	ModelManager::GetInstance()->LoadModel("terrain.obj");
+	ModelManager::GetInstance()->LoadModel("terrain2.obj");
 	ModelManager::GetInstance()->LoadModel("plane.gltf");
 	ModelManager::GetInstance()->LoadModel("skydome.obj");
+	ModelManager::GetInstance()->LoadModel("bullet.obj");
+	ModelManager::GetInstance()->LoadModel("wall.obj");
 }

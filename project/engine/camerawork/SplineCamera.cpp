@@ -35,6 +35,7 @@ void SplineCamera::Update()
             time_ = 1.0f;  // 最後まで進んだ場合、時間を1.0に設定
             segment = numSegments - 1;  // 最後のセグメント
             t = 1.0f;  // 補間の割合も1.0に設定
+			isEnd_ = true;  // 終了フラグを立てる
         }
     }
 
@@ -129,7 +130,7 @@ void SplineCamera::DrawSplineLine()
             );
 
             // 線を描画
-            LineManager::GetInstance()->Drawline(prevPoint, currentPoint, { 1.0f, 0.0f, 0.0f, 1.0f }); // 赤色の線
+            LineManager::GetInstance()->DrawLine(prevPoint, currentPoint, { 1.0f, 0.0f, 0.0f, 1.0f }); // 赤色の線
             prevPoint = currentPoint; // 現在の点を次の始点に設定
         }
     }

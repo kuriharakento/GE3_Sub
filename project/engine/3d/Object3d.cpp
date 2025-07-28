@@ -112,6 +112,29 @@ void Object3d::UpdateMatrix(Camera* camera)
 	transformationMatrixData_->WorldInverseTranspose = worldInverseTransposeMatrix;
 }
 
+void Object3d::UpdateMatrixWithWorld(const Matrix4x4& worldMatrix, Camera* camera)
+{
+	camera_ = camera ? camera : object3dCommon_->GetDefaultCamera();
+	// ここでworldMatrixを使ってWVPなどを計算
+	Matrix4x4 worldViewProjectionMatrix;
+	Matrix4x4 worldInverseTransposeMatrix = MathUtils::Transpose(Inverse(worldMatrix));
+
+	if (camera_)
+	{
+		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+		worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
+		cameraData_->worldPos = { camera_->GetWorldMatrix().m[3][0],camera_->GetWorldMatrix().m[3][1],camera_->GetWorldMatrix().m[3][2] };
+	}
+	else
+	{
+		worldViewProjectionMatrix = worldMatrix;
+	}
+
+	transformationMatrixData_->WVP = model_->GetModelData().rootNode.localMatrix * worldViewProjectionMatrix;
+	transformationMatrixData_->World = model_->GetModelData().rootNode.localMatrix * worldMatrix;
+	transformationMatrixData_->WorldInverseTranspose = worldInverseTransposeMatrix;
+}
+
 void Object3d::CreateWvpData()
 {
 	/*--------------[ 座標変換行列リソースを作る ]-----------------*/
@@ -147,7 +170,7 @@ void Object3d::CreateDirectionalLightData()
 	//デフォルト値は以下のようにしておく
 	directionalLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
 	directionalLightData_->direction = Vector3::Normalize({ 0.0f,-1.0f,0.0f });
-	directionalLightData_->intensity = 1.0f;
+	directionalLightData_->intensity = 0.5f;
 }
 
 void Object3d::CreateCameraData()

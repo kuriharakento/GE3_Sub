@@ -40,7 +40,8 @@ private:
 	// 頂点データの更新
 	void UpdateVertexData();
 private:
-	const uint32_t kMaxVertexCount = 20000;
+	// 最大頂点数 ６万頂点（３万ライン）
+	const uint32_t kMaxVertexCount = 60000;
     LineCommon* lineCommon_ = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
     std::vector<LineVertex> vertices_;
