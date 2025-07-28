@@ -3,12 +3,16 @@
 #include <cassert>
 
 #include "base/Logger.h"
+#include "manager/TextureManager.h"
 
-void Object3dCommon::Initialize(DirectXCommon* dxCommon)
+void Object3dCommon::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
 {
 	//引数で受け取ってメンバ変数に記録する
 	dxCommon_ = dxCommon;
-
+	//SRVマネージャーの初期化
+	srvManager_ = srvManager;
+	//ルートシグネチャの生成
+	CreateRootSignature();
 	//グラフィックスパイプラインの生成
 	CreateGraphicsPipelineState();
 }
@@ -24,6 +28,11 @@ void Object3dCommon::CommonRenderingSetting()
 	//プリミティブトポロジーをセットするコマンド
 	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// 環境マップのテクスチャをセットするコマンド
+	dxCommon_->GetCommandList()->SetGraphicsRootDescriptorTable(
+		8, // ピクセルシェーダのルートパラメータ8
+		srvManager_->GetGPUDescriptorHandle(TextureManager::GetInstance()->GetSRVIndex("./Resources/rostock_laage_airport_4k.dds")) // 環境マップのSRVハンドル
+	);
 }
 
 void Object3dCommon::CreateRootSignature()
@@ -32,11 +41,20 @@ void Object3dCommon::CreateRootSignature()
 	///ディスクリプタレンジの生成
 	///===================================================================
 
+	// 通常のテクスチャ用
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;
 	descriptorRange[0].NumDescriptors = 1;
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	// 環境マップ用
+	D3D12_DESCRIPTOR_RANGE descriptorRangeEnvMap[1] = {};
+	descriptorRangeEnvMap[0].BaseShaderRegister = 1; // t1（t0と分ける）
+	descriptorRangeEnvMap[0].NumDescriptors = 1;
+	descriptorRangeEnvMap[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeEnvMap[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 
 	///===================================================================
 	///RootSignatureを生成する
@@ -46,8 +64,8 @@ void Object3dCommon::CreateRootSignature()
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	//RootParameter作成。複数設定できるので配列。今回は結果１つだけなので長さ１の配列
-	D3D12_ROOT_PARAMETER rootParameters[8] = {};
+	//RootParameter作成。複数設定できるので配列。`
+	D3D12_ROOT_PARAMETER rootParameters[9] = {};
 
 	//ルートパラメータ1: ピクセルシェーダ用CBV　マテリアル
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;		//CBVを使う
@@ -89,6 +107,12 @@ void Object3dCommon::CreateRootSignature()
 	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[7].Descriptor.ShaderRegister = 5;
+
+	//ルートパラメータ9: ピクセルシェーダ用　環境マップのテクスチャ
+	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;		//DescriptorTableを使う
+	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;				//PixelShaderで使う
+	rootParameters[8].DescriptorTable.pDescriptorRanges = descriptorRangeEnvMap;		//Tableの中身の配列を指定
+	rootParameters[8].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeEnvMap);	//Tableで利用する数
 
 	//Smaplerの設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};

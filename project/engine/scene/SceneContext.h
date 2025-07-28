@@ -1,5 +1,6 @@
 #pragma once
 
+class Skybox;
 class PostProcessManager;
 class PostProcessPass;
 class LineManager;
@@ -16,4 +17,5 @@ struct SceneContext
 	CameraManager* cameraManager;
 	LightManager* lightManager;
 	PostProcessManager* postProcessManager;
+	Skybox* skybox;
 };

@@ -207,6 +207,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\postprocess\PostProcessManager.cpp" />
     <ClCompile Include="engine\postprocess\VignetteEffect.cpp" />
     <ClCompile Include="engine\postprocess\NoiseEffect.cpp" />
+    <ClCompile Include="engine\3d\Skybox.cpp" />
     <ClCompile Include="engine\effects\component\single\MoveToTargetComponent.cpp" />
     <ClCompile Include="application\GameObject\component\action\ShotgunComponent.cpp" />
     <ClCompile Include="application\GameObject\character\enemy\ShotgunEnemy.cpp" />
@@ -342,6 +343,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\postprocess\VignetteEffect.h" />
     <ClInclude Include="engine\postprocess\NoiseEffect.h" />
     <ClInclude Include="engine\effects\component\single\ForceFieldComponent.h" />
+    <ClInclude Include="engine\3d\Skybox.h" />
     <ClInclude Include="engine\effects\component\single\MoveToTargetComponent.h" />
     <ClInclude Include="application\GameObject\character\enemy\PistolEnemy.h" />
     <ClInclude Include="application\GameObject\component\action\ShotgunComponent.h" />
@@ -371,6 +373,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <None Include="Resources\shaders\Line.hlsli" />
     <None Include="Resources\shaders\Object3d.hlsli" />
     <None Include="Resources\shaders\Particle.hlsli" />
+    <None Include="Resources\shaders\Skybox.hlsli" />
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
@@ -379,6 +382,18 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Resources\shaders\Object3d.Vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\Skybox.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\Skybox.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>

@@ -15,78 +15,81 @@
 
 void Framework::Initialize()
 {
-	//ウィンドウアプリケーションの初期化
+	// ウィンドウアプリケーションの初期化
 	winApp_ = std::make_unique<WinApp>();
 	winApp_->Initialize();
 
-	//DirectXCoomonの初期化
+	// DirectXCoomonの初期化
 	dxCommon_ = std::make_unique<DirectXCommon>();
 	dxCommon_->Initialize(winApp_.get());
 
-	//SRVマネージャーの初期化
+	// SRVマネージャーの初期化
 	srvManager_ = std::make_unique<SrvManager>();
 	srvManager_->Initialize(dxCommon_.get());
 
-	//ImGuiの初期化
+	// ImGuiの初期化
 	imguiManager_ = std::make_unique<ImGuiManager>();
 	imguiManager_->Initialize(winApp_.get(), dxCommon_.get(), srvManager_.get());
 
-	//テクスチャマネージャーの初期化
+	// テクスチャマネージャーの初期化
 	TextureManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 
-	//スプライト共通部の初期化
+	// スプライト共通部の初期化
 	spriteCommon_ = std::make_unique<SpriteCommon>();
 	spriteCommon_->Initialize(dxCommon_.get());
 
-	//3Dオブジェクト共通部の初期化
+	// 3Dオブジェクト共通部の初期化
 	objectCommon_ = std::make_unique<Object3dCommon>();
-	objectCommon_->Initialize(dxCommon_.get());
+	objectCommon_->Initialize(dxCommon_.get(),srvManager_.get());
 
-	//3Dモデルマネージャーの初期化
+	// 3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
 
-	//パーティクルマネージャーの初期化
+	// パーティクルマネージャーの初期化
 	ParticleManager::GetInstance()->Initialize(dxCommon_.get(), srvManager_.get());
 
-	//入力の初期化
+	// 入力の初期化
 	Input::GetInstance()->Initialize(winApp_.get());
 
-	//オーディオの初期化
+	// オーディオの初期化
 	Audio::GetInstance()->Initialize();
 
-	//カメラマネージャーの初期化
+	// カメラマネージャーの初期化
 	cameraManager_ = std::make_unique<CameraManager>();
 	cameraManager_->AddCamera("main");
 	cameraManager_->SetActiveCamera("main");
 	cameraManager_->GetActiveCamera()->SetTranslate({ 0.0f,1.0f,-10.0f });
 	cameraManager_->GetActiveCamera()->SetRotate({ 0.0f,0.0f,0.0f });
 
-	//3Dオブジェクト共通部に初期カメラをセット
+	// 3Dオブジェクト共通部に初期カメラをセット
 	objectCommon_->SetDefaultCamera(cameraManager_->GetActiveCamera());
 
-	//シーンファクトリーの初期化
+	// シーンファクトリーの初期化
 	sceneFactory_ = std::make_unique<SceneFactory>();
 
-	//シーンマネージャーの初期化
+	// シーンマネージャーの初期化
 	sceneManager_ = std::make_unique<SceneManager>(sceneFactory_.get());
 
-	//ライトマネージャーの初期化
+	// ライトマネージャーの初期化
 	lightManager_ = std::make_unique<LightManager>();
 	lightManager_->Initialize(dxCommon_.get());
 
-	//ラインマネージャーの初期化
+	// ラインマネージャーの初期化
 	LineManager::GetInstance()->Initialize(dxCommon_.get(), cameraManager_.get());
 
-	//レンダーテクスチャの初期化
+	// レンダーテクスチャの初期化
 	renderTexture_ = std::make_unique<RenderTexture>();
 	renderTexture_->Initialize(dxCommon_.get(), srvManager_.get(), WinApp::kClientWidth, WinApp::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, /*Vector4(1.0f, 0.0f, 0.0f, 1.0f)*/Vector4(0.1f, 0.25f, 0.5f, 1.0f));
 
-	//ポストプロセスマネージャーの初期化
+	// ポストプロセスマネージャーの初期化
 	postProcessManager_ = std::make_unique<PostProcessManager>();
 	postProcessManager_->Initialize(dxCommon_.get(), srvManager_.get(), L"Resources/shaders/PostEffect.VS.hlsl", L"Resources/shaders/PostEffect.PS.hlsl");
-
-	// JSONエディターの初期化
+  
+  // JSONエディターの初期化
 	JsonEditorManager::GetInstance()->Initialize();
+	
+  // Skyboxの初期化
+	skybox_ = std::make_unique<Skybox>();
 }
 
 void Framework::Finalize()
@@ -134,6 +137,9 @@ void Framework::Update()
 
 	//ライトマネージャーの更新
 	lightManager_->Update();
+  
+	//Skyboxの更新
+	skybox_->Update(cameraManager_->GetActiveCamera());
 
 	// JSONエディターの更新
 	JsonEditorManager::GetInstance()->RenderEditUI();

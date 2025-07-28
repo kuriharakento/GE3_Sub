@@ -524,4 +524,41 @@ void TitleScene::DrawImGui()
 	ImGui::End();
 
 #endif
+	// スカイドームの更新
+	//skydome_->Update(sceneManager_->GetCameraManager());
+
+	// 地面の更新
+	terrain_->Update(sceneManager_->GetCameraManager());
+
+	//キャラクターの更新
+	player->Update();
+	enemy->Update();
+
+	//衝突判定開始
+	CollisionManager::GetInstance()->CheckCollisions();
+}
+
+void TitleScene::Draw3D()
+{
+	player->Draw(sceneManager_->GetCameraManager());
+
+	//enemy->Draw(sceneManager_->GetCameraManager());
+
+	//terrain_->Draw();
+
+	skydome_->Draw();
+
+	// グリッドの描画
+	LineManager::GetInstance()->DrawGrid(
+		300.0f,
+		5.0f,
+		VectorColorCodes::White
+	);
+
+	//splineCamera_->DrawSplineLine();
+}
+
+void TitleScene::Draw2D()
+{
+
 }
