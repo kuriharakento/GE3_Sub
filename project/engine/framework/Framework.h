@@ -1,19 +1,23 @@
 #pragma once
-#include "2d/SpriteCommon.h"
-#include "3d/Object3dCommon.h"
-#include "3d/Skybox.h"
-#include "base/PostProcessPass.h"
+
+// effects
+#include "base/RenderTexture.h"
+#include "manager/effect/PostProcessManager.h"
+// scene
 #include "engine/scene/factory/SceneFactory.h"
 #include "engine/scene/manager/SceneManager.h"
+#include "manager/scene/CameraManager.h"
+#include "manager/scene/LightManager.h"
+// system
 #include "base/DirectXCommon.h"
-#include "postprocess/PostProcessManager.h"
-#include "base/RenderTexture.h"
 #include "base/WinApp.h"
-#include "lighting/LightManager.h"
-#include "line/LineManager.h"
-#include "manager/CameraManager.h"
-#include "manager/ImGuiManager.h"
-#include "manager/SrvManager.h"
+#include "manager/system/SrvManager.h"
+// editor
+#include "manager/editor/ImGuiManager.h"
+// graphics
+#include "graphics/3d/Skybox.h"
+#include "graphics/2d/SpriteCommon.h"
+#include "graphics/3d/Object3dCommon.h"
 
 class Framework
 {

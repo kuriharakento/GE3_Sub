@@ -2,11 +2,12 @@
 
 #include <future>
 #include <chrono>
-#include "3d/ModelManager.h"
+#include "manager/graphics/ModelManager.h"
 #include "base/Logger.h"
-#include "engine/effects/ParticleManager.h"
+#include "manager/effect/ParticleManager.h"
 #include "ImGui/imgui_internal.h"
-#include "manager/TextureManager.h"
+#include "manager/graphics/TextureManager.h"
+#include "manager/graphics/LineManager.h"
 
 void MyGame::Initialize()
 {

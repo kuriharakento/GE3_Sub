@@ -1,9 +1,9 @@
 #include "EnemyDeathEffect.h"
-#include "effects/component/single/AccelerationComponent.h"
-#include "effects/component/single/ColorFadeOutComponent.h"
-#include "effects/component/single/DragComponent.h"
-#include "effects/component/single/BounceComponent.h"
-#include "math/MathUtils.h"
+// component
+#include "effects/particle/component/single/AccelerationComponent.h"
+#include "effects/particle/component/single/BounceComponent.h"
+#include "effects/particle/component/single/ColorFadeOutComponent.h"
+#include "effects/particle/component/single/DragComponent.h"
 
 EnemyDeathEffect::EnemyDeathEffect()
 {

@@ -1,21 +1,24 @@
 #pragma once
 #include <memory>
 
-#include "application/GameObject/character/enemy/PistolEnemy.h"
-#include "2d/Sprite.h"
-#include "3d/Object3d.h"
-#include "application/Animation/Slide.h"
-#include "application/GameObject/base/GameObject.h"
+// app
 #include "application/GameObject/character/enemy/EnemyManager.h"
 #include "application/GameObject/character/player/Player.h"
 #include "application/GameObject/obstacle/ObstacleManager.h"
-#include "camerawork/DebugCamera.h"
-#include "camerawork/FollowCamera.h"
-#include "camerawork/OrbitCameraWork.h"
-#include "camerawork/SplineCamera.h"
-#include "camerawork/TopDownCamera.h"
-#include "effects/ParticleEmitter.h"
+
+// camerawork
+#include "camerawork/debug/DebugCamera.h"
+#include "camerawork/spline/SplineCamera.h"
+#include "camerawork/topDown/TopDownCamera.h"
+
+// scene
 #include "engine/scene/interface/BaseScene.h"
+
+// graphics
+#include "graphics/3d/Object3d.h"
+
+// effects
+#include "effects/particle/ParticleEmitter.h"
 
 enum class TitleSceneState
 {

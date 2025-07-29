@@ -2,9 +2,12 @@
 #include <memory>
 #include <string>
 
-#include "3d/Object3d.h"
-#include "application/GameObject/component/base/IGameObjectComponent.h"
+// graphics
+#include "graphics/3d/Object3d.h"
+// math
 #include "base/GraphicsTypes.h"
+// component
+#include "application/GameObject/component/base/IGameObjectComponent.h"
 
 class GameObject
 {

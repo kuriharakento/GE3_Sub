@@ -1,10 +1,10 @@
 #include "AssaultRifleHitEffect.h"
 
-#include "effects/component/group/UVTranslateComponent.h"
-#include "effects/component/single/ColorFadeOutComponent.h"
-#include "effects/component/single/RotationComponent.h"
-#include "effects/component/single/ScaleOverLifetimeComponent.h"
-#include "lighting/VectorColorCodes.h"
+// component
+#include "effects/particle/component/group/UVTranslateComponent.h"
+#include "effects/particle/component/single/ColorFadeOutComponent.h"
+#include "effects/particle/component/single/RotationComponent.h"
+#include "effects/particle/component/single/ScaleOverLifetimeComponent.h"
 
 static uint32_t effectCount = 0; // エフェクトの識別子として使用
 

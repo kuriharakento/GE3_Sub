@@ -1,11 +1,16 @@
 #include "ShotgunComponent.h"
+
+// system
+#include "graphics/3d/Object3dCommon.h"
+#include "input/Input.h"
+// app
 #include <application/GameObject/base/GameObject.h>
-#include "BulletComponent.h"
-#include "3d/Object3dCommon.h"
 #include "application/GameObject/character/enemy/base/EnemyBase.h"
 #include "application/GameObject/character/player/Player.h"
+// component
+#include "BulletComponent.h"
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
-#include "input/Input.h"
+// math
 #include "math/MathUtils.h"
 #include <random>
 

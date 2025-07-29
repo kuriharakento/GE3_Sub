@@ -1,11 +1,11 @@
 #include "RenderTexture.h"
 
-#include "DirectXCommon.h"
-#include "engine/manager/SrvManager.h"
-
 #include <cassert>
-
 #include "DirectXTex/d3dx12.h"
+// system
+#include "DirectXCommon.h"
+#include "manager/system/SrvManager.h"
+
 
 void RenderTexture::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vector4& clearColor)
 {

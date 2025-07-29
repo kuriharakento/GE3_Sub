@@ -1,5 +1,6 @@
 #pragma once
-#include "effects/ParticleEmitter.h"
+// effects
+#include "effects/particle/ParticleEmitter.h"
 
 class AssaultRifleHitEffect
 {

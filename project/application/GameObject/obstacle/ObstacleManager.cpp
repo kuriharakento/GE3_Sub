@@ -1,7 +1,7 @@
 #include "ObstacleManager.h"
 
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
-#include "jsonEditor/JsonEditorManager.h"
+#include "manager/editor/JsonEditorManager.h"
 
 void ObstacleManager::Initialize(Object3dCommon* object3dCommon, LightManager* lightManager)
 {

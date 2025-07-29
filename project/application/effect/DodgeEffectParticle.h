@@ -1,5 +1,7 @@
 #pragma once
-#include "effects/ParticleEmitter.h"
+// effects
+#include "effects/particle/ParticleEmitter.h"
+// math
 #include "math/Vector3.h"
 
 // 回避時のエフェクトを管理するクラス

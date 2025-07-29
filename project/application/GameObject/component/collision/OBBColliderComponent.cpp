@@ -1,7 +1,11 @@
 #include "OBBColliderComponent.h"
+
+// app
 #include "application/GameObject/base/GameObject.h"
-#include "lighting/VectorColorCodes.h"
-#include "line/LineManager.h"
+// system
+#include "manager/graphics/LineManager.h"
+// math
+#include "math/VectorColorCodes.h"
 
 OBBColliderComponent::OBBColliderComponent(GameObject* owner) : ICollisionComponent(owner)
 {

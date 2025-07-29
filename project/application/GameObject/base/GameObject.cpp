@@ -1,6 +1,8 @@
 #include "GameObject.h"
 
+// component
 #include "application/GameObject/component/base/IActionComponent.h"
+// system
 #include "base/Logger.h"
 
 GameObject::~GameObject()

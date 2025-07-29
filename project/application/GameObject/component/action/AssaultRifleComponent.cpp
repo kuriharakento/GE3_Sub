@@ -1,12 +1,16 @@
 #include "AssaultRifleComponent.h"
+
+// app
 #include <application/GameObject/base/GameObject.h>
-#include "BulletComponent.h"
-#include "3d/Object3dCommon.h"
 #include "application/GameObject/character/enemy/base/EnemyBase.h"
 #include "application/GameObject/character/player/Player.h"
-#include "application/GameObject/component/collision/OBBColliderComponent.h"
-#include "base/Logger.h"
+// system
+#include "graphics/3d/Object3dCommon.h"
 #include "input/Input.h"
+// component
+#include "BulletComponent.h"
+#include "application/GameObject/component/collision/OBBColliderComponent.h"
+// math
 #include "math/MathUtils.h"
 
 AssaultRifleComponent::AssaultRifleComponent(Object3dCommon* object3dCommon, LightManager* lightManager)

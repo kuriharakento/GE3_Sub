@@ -1,29 +1,31 @@
 #include "TitleScene.h"
 
-#include "application/GameObject/component/action/PistolComponent.h"
+// audio
 #include "audio/Audio.h"
-#include "base/PostProcessPass.h"
-#include "effects/component/single/AccelerationComponent.h"
-#include "effects/component/single/ColorFadeOutComponent.h"
-#include "effects/component/single/DragComponent.h"
-#include "effects/component/single/GravityComponent.h"
-#include "effects/component/group/MaterialColorComponent.h"
-#include "effects/component/single/OrbitComponent.h"
-#include "effects/component/single/RandomInitialVelocityComponent.h"
-#include "effects/component/single/RotationComponent.h"
-#include "effects/component/single/ScaleOverLifetimeComponent.h"
-#include "effects/component/group/UVTranslateComponent.h"
+// scene
 #include "engine/scene/manager/SceneManager.h"
+// editor
 #include "externals/imgui/imgui.h"
-#include "input/Input.h"
-#include "jsonEditor/JsonEditorManager.h"
-#include "lighting/VectorColorCodes.h"
-#include "line/LineManager.h"
+// math
+#include "math/VectorColorCodes.h"
+// graphics
+#include "manager/graphics/LineManager.h"
+#include "manager/effect/PostProcessManager.h"
+// app
 #include "application/GameObject/component/collision/CollisionManager.h"
-#include "effects/component/single/BounceComponent.h"
-#include "postprocess/PostProcessManager.h"
-#include "engine/effects/ParticleManager.h"
-#include "manager/TextureManager.h"
+// components
+#include "application/GameObject/component/action/PistolComponent.h"
+#include "effects/particle/component/group/MaterialColorComponent.h"
+#include "effects/particle/component/group/UVTranslateComponent.h"
+#include "effects/particle/component/single/AccelerationComponent.h"
+#include "effects/particle/component/single/BounceComponent.h"
+#include "effects/particle/component/single/ColorFadeOutComponent.h"
+#include "effects/particle/component/single/DragComponent.h"
+#include "effects/particle/component/single/GravityComponent.h"
+#include "effects/particle/component/single/OrbitComponent.h"
+#include "effects/particle/component/single/RandomInitialVelocityComponent.h"
+#include "effects/particle/component/single/RotationComponent.h"
+#include "effects/particle/component/single/ScaleOverLifetimeComponent.h"
 
 static Vector3 fallHeartPos = Vector3{ 2.0f, 2.0f, 0.0f };
 static Vector3 glitchPos = Vector3{ -2.0f, 2.0f, 0.0f };

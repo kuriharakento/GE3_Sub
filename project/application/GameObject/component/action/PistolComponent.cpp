@@ -1,12 +1,14 @@
 #include "PistolComponent.h"
-#include <application/GameObject/base/GameObject.h>
 
-#include "BulletComponent.h"
-#include "3d/Object3dCommon.h"
+// system
+#include "graphics/3d/Object3dCommon.h"
+// app
+#include <application/GameObject/base/GameObject.h>
 #include "application/GameObject/character/enemy/base/EnemyBase.h"
 #include "application/GameObject/character/player/Player.h"
+// component
 #include "application/GameObject/component/collision/OBBColliderComponent.h"
-#include "base/Logger.h"
+#include "BulletComponent.h"
 
 PistolComponent::PistolComponent(Object3dCommon* object3dCommon, LightManager* lightManager) : fireCooldown_(0.5f), fireCooldownTimer_(0.0f)
 {

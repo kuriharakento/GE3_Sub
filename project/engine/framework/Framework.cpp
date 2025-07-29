@@ -1,14 +1,21 @@
 #include "Framework.h"
 
-#include "3d/ModelManager.h"
 #include "audio/Audio.h"
 #include "base/Logger.h"
 #include "input/Input.h"
-#include "engine/effects/ParticleManager.h"
-#include "manager/TextureManager.h"
+
 #include <Psapi.h>
 
-#include "jsonEditor/JsonEditorManager.h"
+// system
+#include "graphics/2d/SpriteCommon.h"
+#include "graphics/3d/Object3dCommon.h"
+// manager
+#include "manager/editor/JsonEditorManager.h"
+#include "manager/graphics/TextureManager.h"
+#include "manager/effect/ParticleManager.h"
+#include "manager/graphics/ModelManager.h"
+#include "manager/graphics/LineManager.h"
+
 #ifdef _DEBUG
 #include "ImGui/imgui_internal.h"
 #endif
@@ -40,7 +47,7 @@ void Framework::Initialize()
 
 	// 3Dオブジェクト共通部の初期化
 	objectCommon_ = std::make_unique<Object3dCommon>();
-	objectCommon_->Initialize(dxCommon_.get(),srvManager_.get());
+	objectCommon_->Initialize(dxCommon_.get(), srvManager_.get());
 
 	// 3Dモデルマネージャーの初期化
 	ModelManager::GetInstance()->Initialize(dxCommon_.get());
@@ -84,11 +91,11 @@ void Framework::Initialize()
 	// ポストプロセスマネージャーの初期化
 	postProcessManager_ = std::make_unique<PostProcessManager>();
 	postProcessManager_->Initialize(dxCommon_.get(), srvManager_.get(), L"Resources/shaders/PostEffect.VS.hlsl", L"Resources/shaders/PostEffect.PS.hlsl");
-  
-  // JSONエディターの初期化
+
+	// JSONエディターの初期化
 	JsonEditorManager::GetInstance()->Initialize();
-	
-  // Skyboxの初期化
+
+	// Skyboxの初期化
 	skybox_ = std::make_unique<Skybox>();
 }
 
@@ -137,7 +144,7 @@ void Framework::Update()
 
 	//ライトマネージャーの更新
 	lightManager_->Update();
-  
+
 	//Skyboxの更新
 	skybox_->Update(cameraManager_->GetActiveCamera());
 
@@ -166,7 +173,7 @@ void Framework::Run()
 	//メインループの開始を告げる
 	Logger::Log("\n/******* Start Main Loop *******/\n\n");
 
-	while(true)
+	while (true)
 	{
 		//更新
 		Update();
@@ -192,7 +199,7 @@ void Framework::ShowPerformanceInfo()
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 	// ウィンドウのサイズを固定
 	ImGui::SetNextWindowSize(ImVec2(200, 65), ImGuiCond_Always);
-	ImGui::Begin("Performance",nullptr,ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::Begin("Performance", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 	ImGui::Text("FPS : %.2f", ImGui::GetIO().Framerate);
 	// メモリ使用量
 	PROCESS_MEMORY_COUNTERS memInfo;

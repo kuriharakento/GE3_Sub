@@ -1,11 +1,12 @@
 #include "PostProcessPass.h"
 
-#include "engine/base/DirectXCommon.h"
-#include "engine/manager/SrvManager.h"
-
 #include <cassert>
-
 #include "DirectXTex/d3dx12.h"
+// system
+#include "engine/base/DirectXCommon.h"
+#include "manager/system/SrvManager.h"
+
+
 
 void PostProcessPass::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager, const std::wstring& vsPath, const std::wstring& psPath)
 {

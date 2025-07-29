@@ -3,7 +3,7 @@
 #include <array>
 
 #include "engine/math/Easing.h"
-#include "engine/2d/Sprite.h"
+#include "graphics/2d/Sprite.h"
 
 class Slide
 {

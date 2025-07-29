@@ -1,7 +1,11 @@
 #include "AABBColliderComponent.h"
+
+// app
 #include "application/GameObject/base/GameObject.h"
-#include "lighting/VectorColorCodes.h"
-#include "line/LineManager.h"
+// system
+#include "manager/graphics/LineManager.h"
+// math
+#include "math/VectorColorCodes.h"
 
 AABBColliderComponent::AABBColliderComponent(GameObject* owner) : ICollisionComponent(owner), aabb_(Vector3(), Vector3())
 {

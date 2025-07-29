@@ -1,8 +1,9 @@
 #pragma once
-#include "effects/ParticleEmitter.h"
-#include "math/Vector3.h"
 #include <memory>
-#include <vector>
+// math
+#include "math/Vector3.h"
+// effects
+#include "effects/particle/ParticleEmitter.h"
 
 // 敵死亡時のエフェクト管理クラス
 class EnemyDeathEffect

@@ -1,8 +1,13 @@
 #pragma once
-#include "3d/Object3d.h"
-#include "application/GameObject/obstacle/ObstacleManager.h"
-#include "camerawork/DebugCamera.h"
+
+// graphics
+#include "graphics/3d/Object3d.h"
+// scene
 #include "scene/interface/BaseScene.h"
+// camera
+#include "camerawork/debug/DebugCamera.h"
+// app
+#include "application/GameObject/obstacle/ObstacleManager.h"
 
 class StageEditScene : public  BaseScene
 {

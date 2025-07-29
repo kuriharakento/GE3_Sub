@@ -1,6 +1,7 @@
 #include "application/Animation/Slide.h"
 #include <algorithm>
-#include <engine/manager/TextureManager.h>
+// graphics
+#include "manager/graphics/TextureManager.h"
 
 #ifdef _DEBUG
 #include "externals/imgui/imgui.h"

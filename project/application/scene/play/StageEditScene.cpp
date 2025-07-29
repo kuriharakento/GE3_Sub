@@ -1,7 +1,10 @@
 #include "StageEditScene.h"
 
-#include "lighting/VectorColorCodes.h"
-#include "line/LineManager.h"
+// system
+#include "manager/graphics/LineManager.h"
+// math
+#include "math/VectorColorCodes.h"
+// scene
 #include "scene/manager/SceneManager.h"
 
 void StageEditScene::Initialize()

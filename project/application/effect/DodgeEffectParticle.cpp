@@ -1,12 +1,11 @@
 #include "DodgeEffectParticle.h"
 
-#include "effects/component/group/MaterialColorComponent.h"
-#include "effects/component/single/AccelerationComponent.h"
-#include "effects/component/single/ColorFadeOutComponent.h"
-#include "effects/component/single/DragComponent.h"
-#include "effects/component/single/ScaleOverLifetimeComponent.h"
-#include "lighting/VectorColorCodes.h"
-#include "math/MathUtils.h"
+// component
+#include "effects/particle/component/single/AccelerationComponent.h"
+#include "effects/particle/component/single/ColorFadeOutComponent.h"
+#include "effects/particle/component/single/DragComponent.h"
+// math
+#include "math/VectorColorCodes.h"
 
 DodgeEffectParticle::DodgeEffectParticle()
 {
